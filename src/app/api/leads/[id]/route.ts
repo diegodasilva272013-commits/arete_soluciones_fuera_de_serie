@@ -75,6 +75,14 @@ export async function PATCH(
       });
     }
 
+    // Edición de datos del lead (nombre, teléfono, etc.)
+    if (body.first_name !== undefined) updates.first_name = body.first_name;
+    if (body.last_name  !== undefined) updates.last_name  = body.last_name  ?? null;
+    if (body.phone      !== undefined) updates.phone      = body.phone;
+    if (body.email      !== undefined) updates.email      = body.email      ?? null;
+    if (body.country    !== undefined) updates.country    = body.country    ?? null;
+    if (body.tags       !== undefined) (updates as Record<string, unknown>).tags = body.tags;
+
     if (body.next_follow_up_at !== undefined) {
       updates.next_follow_up_at = body.next_follow_up_at;
     }

@@ -145,10 +145,14 @@ export async function POST(req: NextRequest) {
       for (const r of sheet.rows ?? []) {
         const phone = String(r.phone ?? '').trim();
         if (!phone) continue;
-        const first_name = String(r.first_name ?? '').trim() || String(r.last_name ?? '').trim() || 'Sin nombre';
+        const rawFirst = String(r.first_name ?? '').trim();
+        const rawLast  = String(r.last_name  ?? '').trim();
+        // Si first_name está vacío y se usa last_name como fallback, no duplicar en last_name
+        const first_name = rawFirst || rawLast || 'Sin nombre';
+        const last_name  = rawFirst ? (rawLast || null) : null;
         inserts.push({
           first_name,
-          last_name: String(r.last_name ?? '').trim() || null,
+          last_name,
           phone,
           email: String(r.email ?? '').trim() || null,
           source: 'excel_import',

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { RefreshCw, Search, X, MessageCircle, ChevronRight, Wifi, CalendarPlus } from 'lucide-react';
+import { RefreshCw, Search, X, MessageCircle, ChevronRight, Wifi, CalendarPlus, Pencil } from 'lucide-react';
 import { ContactModal } from './_components/ContactModal';
+import { LeadEditPanel } from './_components/LeadEditPanel';
 import { STATUS_LABELS, type LeadStatus } from '@/constants/leads';
 import { cn } from '@/lib/utils';
 import { useLeadsRealtime } from '@/hooks/useLeadsRealtime';
@@ -18,6 +19,7 @@ type Lead = {
   follow_up_count: number;
   max_follow_ups: number;
   notes: string | null;
+  tags: string[];
   last_action_at: string | null;
   updated_at: string;
   is_closed: boolean;
@@ -165,6 +167,7 @@ export default function LeadsPage() {
   const [contactLead, setContactLead] = useState<Lead | null>(null);
   const [moveTarget, setMoveTarget]   = useState<Lead | null>(null);
   const [agendarLead, setAgendarLead] = useState<Lead | null>(null);
+  const [editLead,    setEditLead]    = useState<Lead | null>(null);
   const [setterName, setSetterName]   = useState('');
   const [activeMacro, setActiveMacro] = useState<MacroId>('sin_contactar');
 
@@ -401,6 +404,7 @@ export default function LeadsPage() {
                       onMove={() => setMoveTarget(lead)}
                       onContact={() => setContactLead(lead)}
                       onAgendar={() => setAgendarLead(lead)}
+                      onEdit={() => setEditLead(lead)}
                       onDragStart={() => setDragging(lead)}
                       onDragEnd={() => { setDragging(null); setDragOver(null); }}
                       onTouchStart={e => onTouchStart(lead, e)}
@@ -458,6 +462,7 @@ export default function LeadsPage() {
                             onMove={() => setMoveTarget(lead)}
                             onContact={() => setContactLead(lead)}
                             onAgendar={() => setAgendarLead(lead)}
+                            onEdit={() => setEditLead(lead)}
                             onDragStart={() => setDragging(lead)}
                             onDragEnd={() => { setDragging(null); setDragOver(null); }}
                             onTouchStart={e => onTouchStart(lead, e)}
@@ -501,6 +506,17 @@ export default function LeadsPage() {
           leadName={`${agendarLead.first_name} ${agendarLead.last_name ?? ''}`.trim()}
           onClose={() => setAgendarLead(null)}
           onAgendado={() => { setAgendarLead(null); load(); }}
+        />
+      )}
+
+      {/* Panel editar lead */}
+      {editLead && (
+        <LeadEditPanel
+          lead={editLead}
+          onClose={() => setEditLead(null)}
+          onSaved={(updated) => {
+            setLeads(prev => prev.map(l => l.id === editLead.id ? { ...l, ...updated } : l));
+          }}
         />
       )}
 
@@ -554,7 +570,7 @@ const AGENDAR_STATUSES = new Set([
 
 function LeadCard({
   lead, macroBar, macroBadge, saving, isDragging,
-  onMove, onContact, onAgendar, onDragStart, onDragEnd, onTouchStart, onTouchMove, onTouchEnd,
+  onMove, onContact, onAgendar, onEdit, onDragStart, onDragEnd, onTouchStart, onTouchMove, onTouchEnd,
 }: {
   lead: Lead;
   macroBar: string;
@@ -564,6 +580,7 @@ function LeadCard({
   onMove: () => void;
   onContact: () => void;
   onAgendar: () => void;
+  onEdit: () => void;
   onDragStart: () => void;
   onDragEnd: () => void;
   onTouchStart: (e: React.TouchEvent) => void;
@@ -622,6 +639,14 @@ function LeadCard({
 
       {/* Acciones — fila propia, siempre caben */}
       <div className="flex items-center justify-end gap-1 flex-wrap">
+        <button
+          onMouseDown={e => e.stopPropagation()}
+          onClick={e => { e.stopPropagation(); onEdit(); }}
+          title="Editar lead"
+          className="p-1 rounded-lg border border-zinc-700 text-zinc-500 hover:text-yellow-400 hover:border-yellow-700/50 transition"
+        >
+          <Pencil className="h-3 w-3" />
+        </button>
         <button
           onMouseDown={e => e.stopPropagation()}
           onClick={e => { e.stopPropagation(); onContact(); }}
