@@ -3,7 +3,7 @@ import {
   Shield, MessageSquare, Trophy, Bell, Swords, Users2, BarChart2,
   Target, TrendingUp, BookOpen, ClipboardList, ClipboardCheck,
   UserCheck, Inbox, Megaphone, Wifi, LayoutGrid, FileSearch, Handshake,
-  AlertTriangle, ListChecks, CalendarDays, Clock, List,
+  AlertTriangle, ListChecks, CalendarDays, Clock, List, LineChart,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -48,6 +48,7 @@ export const SETTER_NAV: NavItem[] = [
   { label: 'Recursos CAC',      href: '/setter-recursos',  icon: BookOpen },
   { label: 'Strikes Equipo',    href: '/strikes',           icon: AlertTriangle },
   { label: 'Agenda',            href: '/agenda',            icon: CalendarDays },
+  { label: 'Mi Progreso',       href: '/mi-evolucion',      icon: LineChart },
 ];
 
 // ─── 3. Closer — solo rol closer ─────────────────────────────────────────────
@@ -78,7 +79,8 @@ export const ADMIN_NAV: NavItem[] = [
   { label: 'Calendario',    href: '/setter-calendario',     icon: Calendar },
   { label: 'Recursos',      href: '/resources',             icon: FolderOpen },
   { label: 'Strikes',          href: '/admin/strikes',   icon: AlertTriangle },
-  { label: 'Agenda Closers',   href: '/admin/agenda',    icon: CalendarDays },
+  { label: 'Agenda Closers',   href: '/admin/agenda',       icon: CalendarDays },
+  { label: 'Mentorías Curso',  href: '/admin/sesiones-curso', icon: GraduationCap },
 ];
 
 // ─── Legacy exports (para compatibilidad) ────────────────────────────────────

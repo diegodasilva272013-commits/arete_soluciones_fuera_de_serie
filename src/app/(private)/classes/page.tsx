@@ -19,9 +19,7 @@ export default async function ClassesPage() {
     .maybeSingle();
   const profile = profileRaw as { role: string } | null;
 
-  if (profile?.role === 'setter') {
-    return <ContentLocked section="El módulo de Clases" />;
-  }
+  // Setters ahora tienen acceso al curso pregrabado
 
   const { data: coursesRaw } = await supabase
     .from('courses')

@@ -7,7 +7,8 @@ import { parseVideoUrl } from '@/lib/video';
 import { markLessonCompleteAction, markLessonIncompleteAction } from '../actions';
 import { LessonComments } from '../_components/lesson-comments';
 import { LessonNotes } from '../_components/lesson-notes';
-import { LessonQuiz } from '../_components/lesson-quiz';
+import { LessonPractica } from '../_components/LessonPractica';
+import { TranscriptSection } from '../_components/TranscriptSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,7 @@ export default async function LessonPage({ params }: { params: { id: string } })
   const { data: lesson } = await supabase
     .from('lessons')
     .select(
-      'id, title, description, video_url, duration_minutes, order_index, is_locked, is_published, module_id, modules(id, title, course_id, courses(id, title))'
+      'id, title, description, video_url, duration_minutes, order_index, is_locked, is_published, module_id, transcript, modules(id, title, course_id, courses(id, title))'
     )
     .eq('id', params.id)
     .maybeSingle();
@@ -203,15 +204,24 @@ export default async function LessonPage({ params }: { params: { id: string } })
         </div>
       </div>
 
+      {/* Transcripción (colapsable) */}
+      {(l as any).transcript && (
+        <TranscriptSection transcript={(l as any).transcript} />
+      )}
+
       {quiz && questions.length > 0 ? (
-        <LessonQuiz
-          quizId={quiz.id}
-          title={quiz.title}
-          description={quiz.description}
-          passingScore={quiz.passing_score ?? 70}
-          questions={questions}
-          lastAttempt={lastAttempt}
-        />
+        <div className="card-premium">
+          <p className="text-[10px] uppercase tracking-widest text-brand-gold mb-4">Práctica de esta clase</p>
+          <LessonPractica
+            quizId={quiz.id}
+            title={quiz.title}
+            description={quiz.description}
+            passingScore={quiz.passing_score ?? 70}
+            questions={questions as any}
+            lastAttempt={lastAttempt}
+            lessonId={l.id}
+          />
+        </div>
       ) : null}
 
       {user ? <LessonNotes lessonId={l.id} initialContent={noteContent} /> : null}
