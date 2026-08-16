@@ -94,7 +94,7 @@ export default function RootLayout({
         <div id="cac-splash" aria-hidden="true">
           <div className="cac-bg" />
           <video
-            src="/Cinematic_logo_reveal_animation_202605311327.mp4"
+            src="/video_pagina.mp4"
             autoPlay
             muted
             playsInline
