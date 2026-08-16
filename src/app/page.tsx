@@ -1,198 +1,197 @@
-'use client';
-
 import Link from 'next/link';
-import Image from 'next/image';
-import { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { brand } from '@/constants/branding';
 import { BrandLogo } from '@/components/brand/brand-logo';
 
 const FEATURES = [
-  { icon: '⚡', title: 'Entrenamiento real', desc: 'Apertura, cualificación, objeciones y cierre con estructura clara.' },
-  { icon: '🏆', title: 'Comunidad privada', desc: 'Comparte llamadas, recibe feedback y crece con otros closers.' },
-  { icon: '🎯', title: 'Mentorías en vivo', desc: 'Roleplays, prácticas y revisiones cada semana.' },
+  { icon: '⚡', title: 'Entrenamiento real', desc: 'Apertura, cualificación, objeciones y cierre con estructura clara para escalar.' },
+  { icon: '🏆', title: 'Comunidad privada', desc: 'Comparte llamadas, recibe feedback y crece junto a los mejores closers.' },
+  { icon: '🎯', title: 'Mentorías en vivo', desc: 'Roleplays, prácticas y revisiones personalizadas cada semana.' },
 ];
 
 export default function HomePage() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.muted = true;
-    v.volume = 0;
-    v.play().catch(() => {});
-  }, []);
-
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#050505]">
+    <div className="relative min-h-screen overflow-x-hidden bg-[#050505]">
 
-      {/* Luces ambientales de fondo */}
+      {/* ── Luces ambiente ── */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[20%] top-[-10%] h-[500px] w-[500px] rounded-full bg-[#1a6fff] opacity-[0.05] blur-[130px]" />
-        <div className="absolute right-[10%] top-[20%] h-[400px] w-[400px] rounded-full bg-[#1a6fff] opacity-[0.04] blur-[100px]" />
-        <div className="absolute bottom-0 left-1/2 h-[300px] w-[600px] -translate-x-1/2 rounded-full bg-[#1a6fff] opacity-[0.03] blur-[100px]" />
+        <div className="absolute left-[15%] top-[-5%] h-[600px] w-[600px] rounded-full bg-[#1a6fff] opacity-[0.055] blur-[140px]" />
+        <div className="absolute right-[5%] top-[15%] h-[450px] w-[450px] rounded-full bg-[#1a6fff] opacity-[0.04] blur-[110px]" />
+        <div className="absolute bottom-[-5%] left-1/2 h-[350px] w-[700px] -translate-x-1/2 rounded-full bg-[#1a6fff] opacity-[0.03] blur-[120px]" />
       </div>
 
-      {/* Header */}
-      <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-6">
-        <div className="flex min-w-0 items-center gap-3">
+      {/* ── Header ── */}
+      <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8 sm:py-6">
+        <div className="flex items-center gap-3">
           <BrandLogo size="md" priority />
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-[#f5f5f5] sm:text-base">{brand.name}</p>
-            <p className="hidden text-[10px] uppercase tracking-widest text-[#1a6fff] sm:block">{brand.tagline}</p>
+          <div>
+            <p className="text-sm font-semibold text-[#f5f5f5] sm:text-base">{brand.name}</p>
+            <p className="hidden text-[10px] font-medium uppercase tracking-[0.2em] text-[#1a6fff] sm:block">{brand.tagline}</p>
           </div>
         </div>
-        <nav className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <Link href="/login" className="rounded-full border border-[rgba(26,111,255,0.3)] px-3 py-2 text-xs font-medium text-[#f5f5f5] hover:bg-[rgba(26,111,255,0.08)] transition-colors sm:px-4 sm:text-sm">
+        <nav className="flex items-center gap-2.5">
+          <Link href="/login" className="rounded-full border border-white/10 px-4 py-2 text-xs font-medium text-white/70 hover:border-white/20 hover:text-white transition-all sm:text-sm">
             Iniciar sesión
           </Link>
-          <Link href="/register" className="rounded-full bg-[#1a6fff] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0f52cc] transition-colors sm:px-4 sm:text-sm">
+          <Link href="/register" className="rounded-full bg-[#1a6fff] px-4 py-2 text-xs font-semibold text-white shadow-[0_4px_20px_rgba(26,111,255,0.3)] hover:bg-[#0f52cc] transition-all sm:text-sm">
             Crear cuenta
           </Link>
         </nav>
       </header>
 
-      {/* HERO — dos columnas */}
-      <section className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 pb-10 pt-6 sm:px-6 sm:pt-10 lg:grid-cols-2 lg:gap-16 lg:pb-20 lg:pt-16">
+      {/* ── Hero ── */}
+      <section className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-5 pb-12 pt-8 sm:px-8 lg:grid-cols-2 lg:gap-0 lg:pb-24 lg:pt-20 lg:min-h-[82vh]">
 
-        {/* Columna izquierda — copy */}
-        <div className="flex flex-col items-start">
+        {/* — Texto — */}
+        <div className="flex flex-col justify-center lg:pr-12">
 
-          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[rgba(26,111,255,0.3)] bg-[rgba(26,111,255,0.08)] px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#1a6fff]">
+          <div className="mb-7 inline-flex w-fit items-center gap-2.5 rounded-full border border-[rgba(26,111,255,0.35)] bg-[rgba(26,111,255,0.08)] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#1a6fff]">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#1a6fff]" />
-            Solo por invitación
-          </span>
+            Plataforma privada · Solo invitación
+          </div>
 
-          <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-[#f5f5f5] sm:text-5xl lg:text-[56px]">
-            Plataforma privada<br />
-            de{' '}
-            <span className="relative inline-block">
-              <span className="relative z-10 text-[#1a6fff]">entrenamiento</span>
-              <span className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full bg-[rgba(26,111,255,0.4)]" />
+          <h1 className="text-[42px] font-black leading-[1.05] tracking-tight text-white sm:text-[52px] lg:text-[60px]">
+            Domina el<br />
+            <span className="relative">
+              <span className="text-[#1a6fff]">closing</span>
+              <span className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-[rgba(26,111,255,0.35)]" />
             </span>
+            <span className="text-white/90"> de ventas</span>
           </h1>
 
-          <p className="mt-5 text-base leading-relaxed text-[#a3a3a3] sm:text-lg">
-            Comunidad, clases, recursos y acompañamiento<br className="hidden sm:block" />
-            para <span className="font-semibold text-[#f5f5f5]">dominar el closing</span>.
+          <p className="mt-5 max-w-md text-base leading-[1.7] text-white/50 sm:text-[17px]">
+            Comunidad privada, clases, recursos y mentorías para vendedores de alto rendimiento.
           </p>
 
           {/* Stats */}
-          <div className="mt-8 flex gap-8">
+          <div className="mt-8 flex items-center gap-8 border-y border-white/[0.06] py-6">
             {[
-              { v: '+200', l: 'Closers' },
-              { v: '94%', l: 'Retención' },
-              { v: '3×', l: 'Mejora' },
+              { v: '+200', l: 'Closers activos' },
+              { v: '94%', l: 'Tasa de retención' },
+              { v: '3×', l: 'Mejora promedio' },
             ].map(s => (
-              <div key={s.l}>
-                <div className="text-2xl font-extrabold text-[#1a6fff]">{s.v}</div>
-                <div className="text-xs uppercase tracking-widest text-[#a3a3a3]">{s.l}</div>
+              <div key={s.l} className="flex flex-col gap-0.5">
+                <span className="text-2xl font-black text-[#1a6fff] sm:text-3xl">{s.v}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-white/35">{s.l}</span>
               </div>
             ))}
           </div>
 
           {/* CTAs */}
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/register" className="flex items-center gap-2 rounded-full bg-[#1a6fff] px-6 py-3 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(26,111,255,0.35)] hover:bg-[#0f52cc] hover:shadow-[0_8px_30px_rgba(26,111,255,0.5)] transition-all">
-              Entrar a la comunidad <ArrowRight className="h-4 w-4" />
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            <Link href="/register" className="group flex items-center gap-2 rounded-full bg-[#1a6fff] px-7 py-3.5 text-sm font-bold text-white shadow-[0_8px_32px_rgba(26,111,255,0.38)] transition-all hover:bg-[#0f52cc] hover:shadow-[0_8px_40px_rgba(26,111,255,0.55)]">
+              Entrar a la comunidad
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
-            <Link href="/login" className="rounded-full border border-[rgba(255,255,255,0.1)] px-6 py-3 text-sm font-medium text-[#a3a3a3] hover:border-[rgba(255,255,255,0.25)] hover:text-[#f5f5f5] transition-all">
+            <Link href="/login" className="rounded-full border border-white/[0.08] px-7 py-3.5 text-sm font-medium text-white/50 transition-all hover:border-white/20 hover:text-white">
               Ya tengo cuenta
             </Link>
           </div>
 
-          {/* Trust */}
-          <p className="mt-6 flex items-center gap-2 text-xs text-[#a3a3a3]">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#1a6fff]">
+          <p className="mt-5 flex items-center gap-2 text-[11px] text-white/25">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
-            Acceso seguro · Solo miembros verificados
+            Acceso verificado · 100% privado
           </p>
         </div>
 
-        {/* Columna derecha — phone frame con video */}
+        {/* — Phone frame con video — */}
         <div className="flex items-center justify-center lg:justify-end">
           <div className="relative">
 
-            {/* Glow detrás del teléfono */}
-            <div className="absolute inset-0 rounded-[44px] bg-[#1a6fff] opacity-20 blur-[40px] scale-90" />
+            {/* Glow */}
+            <div className="absolute inset-[-10%] rounded-[50px] bg-[#1a6fff] opacity-[0.18] blur-[50px]" />
 
-            {/* Marco del teléfono */}
+            {/* Teléfono exterior */}
             <div
-              className="relative overflow-hidden"
               style={{
-                width: '260px',
-                height: '520px',
-                borderRadius: '42px',
-                border: '8px solid #141414',
-                boxShadow: `
-                  0 0 0 1px rgba(255,255,255,0.06),
-                  0 40px 100px rgba(0,0,0,0.8),
-                  inset 0 0 0 1px rgba(255,255,255,0.04)
-                `,
-                background: '#000',
+                position: 'relative',
+                width: '280px',
+                height: '570px',
+                borderRadius: '48px',
+                background: 'linear-gradient(160deg,#1c1c1e 0%,#0a0a0a 100%)',
+                boxShadow: '0 0 0 1px rgba(255,255,255,0.07), 0 50px 120px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.08)',
+                padding: '10px',
               }}
             >
-              {/* Notch */}
-              <div className="absolute left-1/2 top-3 z-10 h-5 w-20 -translate-x-1/2 rounded-full bg-[#0a0a0a] border border-[rgba(255,255,255,0.05)]" />
+              {/* Botones físicos */}
+              <div style={{ position:'absolute', right:'-4px', top:'90px', width:'4px', height:'44px', borderRadius:'0 3px 3px 0', background:'#1a1a1c' }} />
+              <div style={{ position:'absolute', left:'-4px', top:'76px', width:'4px', height:'32px', borderRadius:'3px 0 0 3px', background:'#1a1a1c' }} />
+              <div style={{ position:'absolute', left:'-4px', top:'118px', width:'4px', height:'60px', borderRadius:'3px 0 0 3px', background:'#1a1a1c' }} />
 
-              {/* Botón lateral */}
-              <div className="absolute -right-[10px] top-20 h-10 w-[5px] rounded-r-full bg-[#1a1a1a]" />
-              <div className="absolute -left-[10px] top-16 h-7 w-[5px] rounded-l-full bg-[#1a1a1a]" />
-              <div className="absolute -left-[10px] top-28 h-7 w-[5px] rounded-l-full bg-[#1a1a1a]" />
+              {/* Pantalla (inner) */}
+              <div
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '40px',
+                  overflow: 'hidden',
+                  background: '#000',
+                }}
+              >
+                {/* Notch */}
+                <div style={{ position:'absolute', top:'10px', left:'50%', transform:'translateX(-50%)', width:'90px', height:'24px', borderRadius:'20px', background:'#0a0a0a', zIndex:10, boxShadow:'inset 0 0 0 1px rgba(255,255,255,0.05)' }} />
 
-              {/* Video */}
-              <video
-                ref={videoRef}
-                src="/video_pagina.mp4"
-                autoPlay
-                muted
-                playsInline
-                loop
-                className="absolute inset-0 h-full w-full object-cover"
-              />
+                {/* Video — muted nativo en HTML para garantizar autoplay en mobile */}
+                <div
+                  style={{ position:'absolute', inset:0 }}
+                  dangerouslySetInnerHTML={{
+                    __html: `<video src="/video_pagina.mp4" autoplay muted playsinline loop style="width:100%;height:100%;object-fit:cover;display:block;"></video>`,
+                  }}
+                />
 
-              {/* Overlay sutil arriba para el notch */}
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/50 to-transparent" />
+                {/* Overlay top */}
+                <div style={{ position:'absolute', inset:'0 0 auto 0', height:'80px', background:'linear-gradient(to bottom, rgba(0,0,0,0.4), transparent)', zIndex:2, pointerEvents:'none' }} />
+                {/* Overlay bottom */}
+                <div style={{ position:'absolute', inset:'auto 0 0 0', height:'80px', background:'linear-gradient(to top, rgba(0,0,0,0.5), transparent)', zIndex:2, pointerEvents:'none' }} />
+              </div>
             </div>
 
-            {/* Badge flotante — debajo del teléfono */}
+            {/* Badge inferior */}
             <div
-              className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full border border-[rgba(26,111,255,0.25)] bg-[#0a0a0a] px-4 py-2 text-xs font-semibold text-[#f5f5f5] shadow-[0_8px_30px_rgba(0,0,0,0.5)] whitespace-nowrap"
+              style={{
+                position:'absolute', bottom:'-18px', left:'50%', transform:'translateX(-50%)',
+                display:'flex', alignItems:'center', gap:'8px',
+                background:'rgba(10,10,10,0.95)', border:'1px solid rgba(255,255,255,0.08)',
+                borderRadius:'999px', padding:'8px 18px', whiteSpace:'nowrap',
+                boxShadow:'0 8px 32px rgba(0,0,0,0.6)',
+                backdropFilter:'blur(10px)',
+              }}
             >
-              <span className="h-2 w-2 animate-pulse rounded-full bg-[#22c55e]" />
-              Comunidad activa
+              <span style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 8px #22c55e', flexShrink:0 }} />
+              <span style={{ fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.8)', letterSpacing:'0.02em' }}>Comunidad activa</span>
             </div>
+
           </div>
         </div>
 
       </section>
 
-      {/* Feature cards */}
-      <section className="relative z-10 mx-auto max-w-6xl px-4 pb-20 sm:px-6">
-        <div className="mb-10 flex items-center gap-4">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(26,111,255,0.2)] to-transparent" />
-          <span className="text-xs uppercase tracking-widest text-[#a3a3a3]">Qué incluye</span>
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(26,111,255,0.2)] to-transparent" />
+      {/* ── Feature cards ── */}
+      <section className="relative z-10 mx-auto max-w-6xl px-5 pb-24 sm:px-8">
+        <div className="mb-10 flex items-center gap-5">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(26,111,255,0.18)]" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/25">Qué incluye</span>
+          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(26,111,255,0.18)]" />
         </div>
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-3">
           {FEATURES.map((f) => (
-            <div key={f.title} className="group flex flex-col gap-4 rounded-2xl border border-[rgba(26,111,255,0.1)] bg-[#0a0a0a] p-6 transition-all hover:border-[rgba(26,111,255,0.28)] hover:shadow-[0_8px_30px_rgba(26,111,255,0.08)]">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(26,111,255,0.08)] text-xl">
-                {f.icon}
-              </div>
+            <div key={f.title} className="group flex flex-col gap-5 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-7 transition-all hover:border-[rgba(26,111,255,0.25)] hover:bg-[rgba(26,111,255,0.04)]">
+              <span className="text-2xl">{f.icon}</span>
               <div>
-                <h3 className="text-sm font-semibold text-[#f5f5f5]">{f.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-[#a3a3a3]">{f.desc}</p>
+                <h3 className="text-sm font-bold text-white">{f.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/40">{f.desc}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      <footer className="relative z-10 border-t border-[rgba(26,111,255,0.07)] py-6 text-center text-xs text-[#a3a3a3]">
-        © {new Date().getFullYear()} {brand.name}. Todos los derechos reservados.
+      {/* ── Footer ── */}
+      <footer className="relative z-10 border-t border-white/[0.04] py-7 text-center text-xs text-white/20">
+        © {new Date().getFullYear()} {brand.name} · Todos los derechos reservados
       </footer>
 
     </div>
