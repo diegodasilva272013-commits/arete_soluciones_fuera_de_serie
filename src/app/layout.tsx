@@ -114,17 +114,16 @@ export default function RootLayout({
                 }catch(e){}
                 var v=s.querySelector('video');
                 function finish(){try{sessionStorage.setItem('cac:splash','1');}catch(e){}hide();}
-                var MIN_MS=2500;var startedAt=Date.now();
-                function finishAfterMin(){var elapsed=Date.now()-startedAt;var remaining=MIN_MS-elapsed;if(remaining>0){setTimeout(finish,remaining);}else{finish();}}
                 if(v){
-                  v.addEventListener('ended',finishAfterMin);
-                  v.addEventListener('error',finishAfterMin);
+                  v.muted=true;v.volume=0;
+                  v.addEventListener('ended',finish);
+                  v.addEventListener('error',finish);
                   if(v.play){
                     var p=v.play();
-                    if(p&&p.catch){p.catch(function(){/* autoplay blocked: logo stays, timeout handles close */});}
+                    if(p&&p.catch){p.catch(function(){/* autoplay blocked — logo visible, timeout closes */});}
                   }
                 }
-                setTimeout(finish,8000);
+                setTimeout(finish,11000);
                 s.addEventListener('click',finish);
               })();
             `,
