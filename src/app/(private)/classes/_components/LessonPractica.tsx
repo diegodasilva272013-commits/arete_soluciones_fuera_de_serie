@@ -108,7 +108,7 @@ export function LessonPractica({
             </div>
 
             <div className="rounded-xl border border-[rgba(212,175,55,0.1)] bg-[#0d0d0d] px-4 py-3">
-              <p className="text-sm text-brand-muted leading-relaxed italic">"{ai_feedback.summary}"</p>
+              <p className="text-sm text-brand-muted leading-relaxed italic">&quot;{ai_feedback.summary}&quot;</p>
             </div>
 
             {ai_feedback.strengths.length > 0 && (
@@ -120,7 +120,7 @@ export function LessonPractica({
                       <p className="text-sm font-medium text-emerald-300">{s.point}</p>
                       {s.quote && (
                         <blockquote className="mt-2 border-l-2 border-emerald-600/40 pl-3">
-                          <p className="text-xs text-emerald-400/80 italic">"{s.quote}"</p>
+                          <p className="text-xs text-emerald-400/80 italic">&quot;{s.quote}&quot;</p>
                         </blockquote>
                       )}
                     </div>
