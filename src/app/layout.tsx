@@ -91,10 +91,26 @@ export default function RootLayout({
         />
       </head>
       <body suppressHydrationWarning className="min-h-screen bg-brand-black text-brand-text antialiased">
-        <div id="cac-splash" aria-hidden="true">
-          <div className="cac-bg" />
-          {/* video creado por JS para garantizar muted=true antes de play() */}
-        </div>
+        {/* muted debe estar en el HTML nativo para que iOS/Android autoplay funcione */}
+        <div
+          id="cac-splash"
+          aria-hidden="true"
+          dangerouslySetInnerHTML={{
+            __html: `
+              <div class="cac-bg"></div>
+              <video
+                id="cac-splash-video"
+                src="/video_pagina.mp4"
+                autoplay
+                muted
+                playsinline
+                webkit-playsinline
+                preload="auto"
+                style="position:absolute;left:50%;top:50%;width:120%;height:120%;transform:translate(-50%,-50%);object-fit:cover;background:#000"
+              ></video>
+            `,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -107,20 +123,13 @@ export default function RootLayout({
                   if(sessionStorage.getItem('cac:splash')){hide();return;}
                 }catch(e){}
                 function finish(){try{sessionStorage.setItem('cac:splash','1');}catch(e){}hide();}
-                var v=document.createElement('video');
-                v.src='/video_pagina.mp4';
-                v.muted=true;
-                v.volume=0;
-                v.autoplay=true;
-                v.setAttribute('playsinline','');
-                v.setAttribute('webkit-playsinline','');
-                v.preload='auto';
-                v.style.cssText='position:absolute;left:50%;top:50%;width:120%;height:120%;transform:translate(-50%,-50%);object-fit:cover;background:#000';
-                v.addEventListener('ended',finish);
-                v.addEventListener('error',finish);
-                s.appendChild(v);
-                var p=v.play();
-                if(p&&p.catch){p.catch(function(){/* bloqueado: logo visible, timeout cierra */});}
+                var v=document.getElementById('cac-splash-video');
+                if(v){
+                  v.muted=true;v.volume=0;
+                  v.addEventListener('ended',finish);
+                  var p=v.play();
+                  if(p&&p.catch){p.catch(function(){});}
+                }
                 setTimeout(finish,11000);
                 s.addEventListener('click',finish);
               })();
