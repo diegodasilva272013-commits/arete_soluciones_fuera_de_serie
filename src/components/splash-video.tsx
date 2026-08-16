@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 const VIDEO_SRC = '/Cinematic_logo_reveal_animation_202605311327.mp4';
-const FALLBACK_IMG = '/Logo2.png';
+const FALLBACK_IMG = '/Aretea_fuera _de_serie_logo.png';
 const HARD_TIMEOUT_MS = 8000;
 
 export function SplashVideo() {

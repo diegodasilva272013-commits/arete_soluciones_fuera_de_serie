@@ -83,7 +83,7 @@ export default function RootLayout({
             __html: `
               #cac-splash{position:fixed;inset:0;z-index:99999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .5s ease}
               #cac-splash.cac-hide{opacity:0;pointer-events:none}
-              #cac-splash .cac-bg{position:absolute;width:160px;height:160px;background:url('/Logo2.png') center/contain no-repeat;opacity:.9}
+              #cac-splash .cac-bg{position:absolute;width:160px;height:160px;background:url('/Aretea_fuera%20_de_serie_logo.png') center/contain no-repeat;opacity:.9}
               #cac-splash video{position:absolute;left:50%;top:50%;width:120%;height:120%;transform:translate(-50%,-50%);object-fit:cover;background:#000}
               html.splash-done #cac-splash{display:none!important}
             `,

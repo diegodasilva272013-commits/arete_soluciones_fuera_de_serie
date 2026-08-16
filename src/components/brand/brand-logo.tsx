@@ -31,12 +31,12 @@ export function BrandLogo({ size = 'md', className, priority }: Props) {
       )}
     >
       <Image
-        src="/Logo2.png"
+        src="/Aretea_fuera _de_serie_logo.png"
         alt="Areté Soluciones"
         width={px}
         height={px}
         priority={priority}
-        className="h-full w-full object-cover"
+        className="h-full w-full object-contain"
       />
     </div>
   );

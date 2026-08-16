@@ -81,7 +81,7 @@ export function GroupSidebar({
       <section className="overflow-hidden rounded-xl border border-[rgba(212,175,55,0.2)] bg-[#0a0a0a]">
         <div className="relative h-28 w-full bg-[#0a0a0a] sm:h-36">
           <Image
-            src="/Logo2.png"
+            src="/Aretea_fuera _de_serie_logo.png"
             alt={brand.name}
             fill
             priority
