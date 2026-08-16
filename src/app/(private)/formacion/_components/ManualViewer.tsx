@@ -767,7 +767,7 @@ const M02: Manual = {
               <Row label="¿Qué sentís que no está funcionando?" value="Deja que sea la persona quien señale, en lugar de señalar vos." />
               <Row label="¿Qué consecuencias ves todos los días?" value="Baja el problema del plano abstracto al plano cotidiano, que es donde realmente se sufre." />
               <H>Síntomas típicos</H>
-              <P className="text-brand-muted text-sm">Falta de clientes · baja conversión · desorganización · estrés operativo · poco tiempo · facturación inestable · equipo desmotivado. Ninguno de estos es un problema. Todos son efectos.</P>
+              <p className="text-brand-muted text-sm leading-relaxed">Falta de clientes · baja conversión · desorganización · estrés operativo · poco tiempo · facturación inestable · equipo desmotivado. Ninguno de estos es un problema. Todos son efectos.</p>
               <H>Qué escuchar</H>
               <Ul>
                 <Li>Antigüedad: desde cuándo viene así. Un síntoma de tres meses y uno de tres años no son el mismo caso.</Li>
