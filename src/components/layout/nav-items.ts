@@ -56,6 +56,7 @@ export const SETTER_NAV: NavItem[] = [
 // ─── 3. Closer — solo rol closer ─────────────────────────────────────────────
 
 export const CLOSER_NAV: NavItem[] = [
+  { label: 'Formación Areté',  href: '/formacion',               icon: Sparkles },
   { label: 'Agenda',            href: '/agenda',                  icon: CalendarDays },
   { label: 'Mi Disponibilidad',href: '/agenda/disponibilidad',   icon: Clock },
   { label: 'Mis Reuniones',    href: '/agenda/reuniones',        icon: List },

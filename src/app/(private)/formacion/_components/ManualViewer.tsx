@@ -1,66 +1,69 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import {
-  ChevronRight, ChevronLeft, CheckCircle2, Circle, BookOpen,
-  Lightbulb, AlertTriangle, Target, Award, ArrowRight, Menu, X,
-  Zap, Brain, MessageSquare, Eye, Shield, TrendingUp,
+  ChevronRight, ChevronLeft, AlertTriangle, Target,
+  Brain, Zap, Eye, Shield, Award, ArrowRight, CheckCircle2,
+  BookOpen, MessageSquare,
 } from 'lucide-react';
 
 // ─── TIPOS ────────────────────────────────────────────────────────────────────
 
-type Callout = { type: 'dominio' | 'error' | 'tip' | 'regla'; text: string };
-type Block = {
+type Callout = { type: 'dominio' | 'error'; text: string };
+type Section = {
   id: string;
   number?: string;
   title: string;
   subtitle?: string;
-  icon?: React.ReactNode;
   body: React.ReactNode;
   callouts?: Callout[];
 };
 type Chapter = {
   id: string;
   label: string;
-  icon?: React.ReactNode;
-  blocks: Block[];
+  short: string;
+  icon: React.ReactNode;
+  color: string;
+  sections: Section[];
 };
 type Manual = {
   id: string;
   number: string;
   title: string;
   subtitle: string;
-  icon: React.ReactNode;
+  description: string;
   chapters: Chapter[];
 };
 
-// ─── CONTENIDO — MANUAL 01 ────────────────────────────────────────────────────
+// ─── MANUAL 01 ────────────────────────────────────────────────────────────────
 
-const MANUAL_01: Manual = {
+const M01: Manual = {
   id: 'm01',
   number: '01',
   title: 'Fundamentos de la Conversación Comercial',
   subtitle: 'La base técnica de toda comunicación efectiva',
-  icon: <Brain className="h-5 w-5" />,
+  description: 'Antes de técnicas de cierre, antes de objeciones, antes de cualquier táctica — existe una capa más profunda: cómo funciona realmente la comunicación humana en un contexto comercial.',
   chapters: [
     {
       id: 'principio',
-      label: 'Principio Fundamental',
+      label: 'Principio',
+      short: 'Principio',
       icon: <Zap className="h-4 w-4" />,
-      blocks: [
+      color: '#1a6fff',
+      sections: [
         {
-          id: 'principio-1',
+          id: 'p1',
           title: 'El principio que lo cambia todo',
           body: (
-            <div className="space-y-4">
-              <p className="text-lg leading-relaxed text-[#e8e8e8]">
-                Una llamada comercial <strong className="text-brand-gold">no es un evento</strong>. Es el resultado de un proceso. Lo que pasa antes, durante y después de la conversación determina si cerrás o no.
+            <div className="space-y-5">
+              <p className="text-xl leading-relaxed text-brand-text font-medium">
+                Una llamada comercial <span className="text-brand-gold">no es un evento</span>. Es el resultado de un proceso.
               </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                La mayoría de los vendedores creen que la habilidad de vender está en lo que dicen. En realidad, está en cómo escuchan, cómo crean contexto y cómo se posicionan mentalmente antes de abrir la boca.
+              <p className="leading-relaxed text-brand-muted">
+                Lo que pasa antes, durante y después de la conversación determina si cerrás o no. La mayoría de los vendedores creen que la habilidad de vender está en lo que dicen. En realidad, está en cómo escuchan, cómo crean contexto y cómo se posicionan mentalmente antes de abrir la boca.
               </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
+              <p className="leading-relaxed text-brand-muted">
                 Este manual te entrena en los fundamentos invisibles que separan a un vendedor promedio de uno que cierra en frío, con extraños, en 30 minutos.
               </p>
             </div>
@@ -70,30 +73,28 @@ const MANUAL_01: Manual = {
     },
     {
       id: 'bloque01',
-      label: 'Bloque 01 — Qué es realmente una llamada',
+      label: 'Bloque 01',
+      short: 'La llamada',
       icon: <MessageSquare className="h-4 w-4" />,
-      blocks: [
+      color: '#1a6fff',
+      sections: [
         {
-          id: 'b01-c01',
+          id: 'b01c01',
           number: '01',
           title: 'La conversación',
           subtitle: 'No es un monólogo con público',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Una conversación comercial es un intercambio de información con un objetivo. No es un discurso. No es una presentación. Es un proceso de dos vías donde el vendedor <strong className="text-brand-gold">dirige</strong> sin imponer.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                El error más común: llegar a hablar <em>sobre</em> el producto en lugar de hablar <em>con</em> la persona. El que más habla, más cierra — es un mito. El que más escucha con intención, cierra.
-              </p>
-              <ul className="space-y-2 mt-4">
-                {['Toda conversación tiene un emisor y un receptor activos', 'El operador (vos) guía sin dominar', 'El objetivo no es convencer, es hacer descubrir', 'Una conversación sin intercambio real no es venta, es discurso'].map(p => (
-                  <li key={p} className="flex items-start gap-3">
+              <p className="leading-relaxed text-brand-muted">Una conversación comercial es un intercambio de información con un objetivo. No es un discurso, no es una presentación. Es un proceso de dos vías donde el vendedor <span className="text-brand-gold font-medium">dirige sin imponer</span>.</p>
+              <p className="leading-relaxed text-brand-muted">El error más común: llegar a hablar <em>sobre</em> el producto en lugar de hablar <em>con</em> la persona. El que más habla, más cierra — es un mito. El que más escucha con intención, cierra.</p>
+              <div className="grid sm:grid-cols-2 gap-3 mt-4">
+                {['Toda conversación tiene un emisor y un receptor activos','El operador guía sin dominar','El objetivo no es convencer, es hacer descubrir','Una conversación sin intercambio real es un discurso'].map(p => (
+                  <div key={p} className="flex items-start gap-3 rounded-xl bg-[#0d0d14] border border-[rgba(26,111,255,0.12)] p-4">
                     <ArrowRight className="h-4 w-4 text-brand-gold mt-0.5 shrink-0" />
-                    <span className="text-[#c0c0c0] text-sm">{p}</span>
-                  </li>
+                    <span className="text-sm text-brand-muted">{p}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           ),
           callouts: [
@@ -102,25 +103,20 @@ const MANUAL_01: Manual = {
           ],
         },
         {
-          id: 'b01-c02',
+          id: 'b01c02',
           number: '02',
           title: 'El punto en común',
           subtitle: 'El terreno donde todo se construye',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Antes de ir a cualquier solución, necesitás establecer un <strong className="text-brand-gold">punto en común</strong>: algo que vos y el prospecto ven igual. Sin eso, hablás en idiomas distintos.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                El punto en común no es "me caés bien". Es un acuerdo sobre la realidad del prospecto: su situación, su dolor, su deseo. Cuando ese acuerdo existe, la conversación fluye porque ambos están parados en el mismo piso.
-              </p>
-              <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] rounded-lg p-4 mt-2">
-                <p className="text-sm text-brand-gold font-semibold mb-2">Cómo se construye:</p>
+              <p className="leading-relaxed text-brand-muted">Antes de ir a cualquier solución, necesitás establecer un <span className="text-brand-gold font-medium">punto en común</span>: algo que vos y el prospecto ven igual. Sin eso, hablás en idiomas distintos.</p>
+              <p className="leading-relaxed text-brand-muted">El punto en común no es "me caés bien". Es un acuerdo sobre la realidad del prospecto. Cuando ese acuerdo existe, la conversación fluye porque ambos están parados en el mismo piso.</p>
+              <div className="rounded-2xl bg-gradient-to-br from-[#0f1a2e] to-[#080810] border border-[rgba(26,111,255,0.20)] p-5 mt-2">
+                <p className="text-sm font-semibold text-brand-gold mb-3">Cómo se construye:</p>
                 <ol className="space-y-2">
-                  {['Escuchás activamente (sin pensar en qué vas a decir)', 'Reflejás lo que dijeron con sus propias palabras', 'Confirmás que lo entendiste bien antes de avanzar', 'Recién ahí avanzás al siguiente punto'].map((s, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-[#c0c0c0]">
-                      <span className="text-brand-gold font-bold shrink-0">{i + 1}.</span>
-                      {s}
+                  {['Escuchás activamente (sin pensar en qué vas a decir)','Reflejás lo que dijeron con sus propias palabras','Confirmás que lo entendiste bien antes de avanzar','Recién ahí avanzás al siguiente punto'].map((s, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-brand-muted">
+                      <span className="text-brand-gold font-bold shrink-0 w-5">{i + 1}.</span>{s}
                     </li>
                   ))}
                 </ol>
@@ -133,26 +129,21 @@ const MANUAL_01: Manual = {
           ],
         },
         {
-          id: 'b01-c03',
+          id: 'b01c03',
           number: '03',
           title: 'El interés',
           subtitle: 'Sin interés no hay conversación posible',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                El interés es lo que mueve a alguien a seguir en la conversación. Hay dos tipos: el <strong className="text-brand-gold">interés declarado</strong> (lo que dicen que quieren) y el <strong className="text-brand-gold">interés real</strong> (lo que en verdad los mueve).
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                El vendedor amateur trabaja el interés declarado. El vendedor élite descubre el interés real y trabaja desde ahí. Esto es lo que hace que la conversación se sienta diferente — el prospecto siente que lo <em>entienden</em>.
-              </p>
+              <p className="leading-relaxed text-brand-muted">Hay dos tipos: el <span className="text-brand-gold font-medium">interés declarado</span> (lo que dicen que quieren) y el <span className="text-brand-gold font-medium">interés real</span> (lo que en verdad los mueve). El vendedor amateur trabaja el declarado. El vendedor élite descubre el real.</p>
               <div className="grid grid-cols-2 gap-3 mt-4">
                 {[
-                  { label: 'Interés declarado', text: '"Quiero ganar más dinero"', color: 'rgba(26,111,255,0.15)' },
-                  { label: 'Interés real', text: '"Quiero dejar de sentirme en el límite cada mes"', color: 'rgba(26,111,255,0.25)' },
+                  { label: 'Interés declarado', text: '"Quiero ganar más dinero"', dim: true },
+                  { label: 'Interés real', text: '"Quiero dejar de sentirme en el límite cada mes"', dim: false },
                 ].map(c => (
-                  <div key={c.label} className="rounded-lg p-3 border border-[rgba(26,111,255,0.20)]" style={{ background: c.color }}>
-                    <p className="text-xs font-semibold text-brand-gold mb-1">{c.label}</p>
-                    <p className="text-sm text-[#c0c0c0] italic">{c.text}</p>
+                  <div key={c.label} className={cn('rounded-xl border p-4', c.dim ? 'bg-[#0d0d0d] border-[rgba(255,255,255,0.06)]' : 'bg-[#0f1a2e] border-[rgba(26,111,255,0.25)]')}>
+                    <p className={cn('text-xs font-semibold mb-2', c.dim ? 'text-brand-muted' : 'text-brand-gold')}>{c.label}</p>
+                    <p className="text-sm text-brand-text italic">{c.text}</p>
                   </div>
                 ))}
               </div>
@@ -167,33 +158,27 @@ const MANUAL_01: Manual = {
     },
     {
       id: 'bloque02',
-      label: 'Bloque 02 — Cómo viaja la información',
+      label: 'Bloque 02',
+      short: 'Información',
       icon: <Zap className="h-4 w-4" />,
-      blocks: [
+      color: '#1a6fff',
+      sections: [
         {
-          id: 'b02-c04',
-          number: '04',
-          title: 'Emisor / receptor / canal',
-          subtitle: 'El modelo básico que todos ignoran',
+          id: 'b02c04', number: '04', title: 'Emisor / receptor / canal', subtitle: 'El modelo básico que todos ignoran',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Todo mensaje tiene tres elementos: quien lo envía (emisor), quien lo recibe (receptor), y el medio por donde viaja (canal). El canal en una llamada comercial es la voz + las palabras. Y cada uno de esos elementos puede <strong className="text-brand-gold">distorsionar el mensaje</strong>.
-              </p>
-              <div className="flex items-center justify-center gap-3 my-6">
-                {['Emisor', '→', 'Canal', '→', 'Receptor'].map((e, i) => (
-                  <div key={i} className={cn('text-center', e === '→' ? 'text-brand-gold text-xl' : '')}>
-                    {e !== '→' ? (
-                      <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.25)] rounded-lg px-4 py-2">
-                        <p className="text-sm font-semibold text-brand-gold">{e}</p>
-                      </div>
-                    ) : <span>{e}</span>}
+              <p className="leading-relaxed text-brand-muted">Todo mensaje tiene tres elementos: quien lo envía (emisor), quien lo recibe (receptor), y el medio por donde viaja (canal). En una llamada comercial, el canal es la voz + las palabras. Y cada elemento puede <span className="text-brand-gold font-medium">distorsionar el mensaje</span>.</p>
+              <div className="flex items-center justify-center gap-4 my-6">
+                {['Emisor', 'Canal', 'Receptor'].map((e, i) => (
+                  <div key={e} className="flex items-center gap-4">
+                    {i > 0 && <ArrowRight className="h-5 w-5 text-brand-gold" />}
+                    <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.25)] rounded-xl px-5 py-3 text-center">
+                      <p className="text-sm font-semibold text-brand-gold">{e}</p>
+                    </div>
                   </div>
                 ))}
               </div>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                En ventas, el canal es imperfecto siempre. Lo que vos emitís no es exactamente lo que el otro recibe. Por eso la claridad, el ritmo y la confirmación son herramientas técnicas, no estilos de comunicación.
-              </p>
+              <p className="leading-relaxed text-brand-muted">Lo que vos emitís no es exactamente lo que el otro recibe. Por eso la claridad, el ritmo y la confirmación son herramientas técnicas, no estilos de comunicación.</p>
             </div>
           ),
           callouts: [
@@ -202,58 +187,39 @@ const MANUAL_01: Manual = {
           ],
         },
         {
-          id: 'b02-c05',
-          number: '05',
-          title: 'La sintonía',
-          subtitle: 'El estado que hace posible la influencia',
+          id: 'b02c05', number: '05', title: 'La sintonía', subtitle: 'El estado que hace posible la influencia',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                La sintonía es el estado en que el prospecto <strong className="text-brand-gold">baja la guardia</strong> y empieza a fluir naturalmente en la conversación. No es que sea tu amigo — es que se siente escuchado, no juzgado, y en un ambiente seguro.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Sin sintonía, cada palabra que decís es procesada con filtro de desconfianza. Con sintonía, la información que compartís llega con mucho menos resistencia.
-              </p>
-              <div className="space-y-3 mt-4">
+              <p className="leading-relaxed text-brand-muted">La sintonía es el estado en que el prospecto <span className="text-brand-gold font-medium">baja la guardia</span> y empieza a fluir naturalmente en la conversación. Sin sintonía, cada palabra que decís es procesada con filtro de desconfianza.</p>
+              <div className="grid sm:grid-cols-3 gap-3 mt-4">
                 {[
-                  { title: 'Vocal', desc: 'Ajustás tu tono y ritmo al del prospecto' },
-                  { title: 'Emocional', desc: 'Reconocés su estado y no lo contradecís' },
-                  { title: 'Conceptual', desc: 'Hablás desde su realidad, no desde la tuya' },
+                  { t: 'Vocal', d: 'Ajustás tu tono y ritmo al del prospecto' },
+                  { t: 'Emocional', d: 'Reconocés su estado sin contradecirlo' },
+                  { t: 'Conceptual', d: 'Hablás desde su realidad, no la tuya' },
                 ].map(s => (
-                  <div key={s.title} className="flex gap-3 items-start">
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand-gold mt-2 shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#e8e8e8]">{s.title}</p>
-                      <p className="text-sm text-[#c0c0c0]">{s.desc}</p>
-                    </div>
+                  <div key={s.t} className="rounded-xl bg-[#0d0d14] border border-[rgba(26,111,255,0.12)] p-4">
+                    <p className="text-sm font-bold text-brand-gold mb-1">{s.t}</p>
+                    <p className="text-xs text-brand-muted">{s.d}</p>
                   </div>
                 ))}
               </div>
             </div>
           ),
           callouts: [
-            { type: 'dominio', text: 'Puedo identificar si hay o no sintonía en los primeros 3 minutos de una llamada y sé qué hacer para crearla.' },
+            { type: 'dominio', text: 'Puedo identificar si hay o no sintonía en los primeros 3 minutos y sé qué hacer para crearla.' },
             { type: 'error', text: 'Intentar presentar o persuadir antes de crear sintonía. Es como querer bailar con alguien que todavía no te vio.' },
           ],
         },
         {
-          id: 'b02-c06',
-          number: '06',
-          title: 'Emisión involuntaria',
-          subtitle: 'Lo que transmitís sin querer',
+          id: 'b02c06', number: '06', title: 'Emisión involuntaria', subtitle: 'Lo que transmitís sin querer',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Emitís mensajes constantemente que no planeaste emitir. Tu tono cuando estás cansado. Tu velocidad cuando estás nervioso. La pausa antes de responder una objeción. Esos son mensajes que el prospecto recibe y procesa.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                La <strong className="text-brand-gold">emisión involuntaria</strong> puede arruinar una conversación perfectamente construida. Un vendedor técnicamente hábil que está ansioso va a perder contra un vendedor menos hábil pero que llega centrado.
-              </p>
-              <div className="bg-[#1a0f0f] border border-[rgba(255,60,60,0.20)] rounded-lg p-4 mt-2">
-                <p className="text-sm font-semibold text-[#ff6b6b] mb-2">Señales de emisión involuntaria negativa:</p>
-                <ul className="space-y-1">
-                  {['Hablar demasiado rápido (ansiedad)', 'Subir el tono al presentar precio (inseguridad)', 'Usar "¿no?" al final de frases (necesidad de validación)', 'Silencio incómodo después de objeciones (miedo)'].map(s => (
-                    <li key={s} className="text-sm text-[#c0c0c0] flex gap-2"><span className="text-[#ff6b6b]">×</span>{s}</li>
+              <p className="leading-relaxed text-brand-muted">Emitís mensajes constantemente que no planeaste emitir. Tu tono cuando estás cansado. Tu velocidad cuando estás nervioso. La pausa antes de responder una objeción. Esos mensajes el prospecto los recibe y procesa.</p>
+              <div className="rounded-2xl bg-[#1a0a0a] border border-[rgba(255,80,80,0.20)] p-5">
+                <p className="text-sm font-semibold text-[#ff6b6b] mb-3">Señales de emisión negativa involuntaria:</p>
+                <ul className="space-y-2">
+                  {['Hablar demasiado rápido → ansiedad','Subir el tono al presentar precio → inseguridad','Usar "¿no?" al final de frases → necesidad de validación','Silencio incómodo después de objeciones → miedo'].map(s => (
+                    <li key={s} className="text-sm text-brand-muted flex gap-2 items-start"><span className="text-[#ff6b6b] shrink-0">×</span>{s}</li>
                   ))}
                 </ul>
               </div>
@@ -261,29 +227,24 @@ const MANUAL_01: Manual = {
           ),
           callouts: [
             { type: 'dominio', text: 'Puedo llegar a una llamada en un estado controlado y mantenerlo durante toda la conversación, independientemente de lo que pase.' },
-            { type: 'error', text: 'Creer que el prospecto solo escucha tus palabras. Escucha todo — tu tono, tu ritmo, tu energía.' },
+            { type: 'error', text: 'Creer que el prospecto solo escucha tus palabras. Escucha todo: tono, ritmo, energía.' },
           ],
         },
       ],
     },
     {
       id: 'bloque03',
-      label: 'Bloque 03 — Por qué nadie ve lo mismo',
+      label: 'Bloque 03',
+      short: 'Percepción',
       icon: <Eye className="h-4 w-4" />,
-      blocks: [
+      color: '#1a6fff',
+      sections: [
         {
-          id: 'b03-c07',
-          number: '07',
-          title: 'Información y percepción',
-          subtitle: 'La realidad que cada uno construye',
+          id: 'b03c07', number: '07', title: 'Información y percepción', subtitle: 'La realidad que cada uno construye',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Cada persona interpreta la información a través de su historia, sus creencias y sus experiencias. No hay dos prospectos que procesen lo mismo de la misma forma. Lo que para vos es "obvio", para el otro puede ser irrelevante o amenazante.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Esto tiene una implicación directa para las ventas: no existe un mensaje que funcione para todos. El trabajo del operador es <strong className="text-brand-gold">diagnosticar cómo percibe el prospecto</strong> antes de construir cualquier argumento.
-              </p>
+              <p className="leading-relaxed text-brand-muted">Cada persona interpreta la información a través de su historia, sus creencias y sus experiencias. No hay dos prospectos que procesen lo mismo de la misma forma. Lo que para vos es "obvio", para el otro puede ser irrelevante.</p>
+              <p className="leading-relaxed text-brand-muted">Esto tiene una implicación directa: no existe un mensaje que funcione para todos. El trabajo del operador es <span className="text-brand-gold font-medium">diagnosticar cómo percibe el prospecto</span> antes de construir cualquier argumento.</p>
             </div>
           ),
           callouts: [
@@ -292,30 +253,22 @@ const MANUAL_01: Manual = {
           ],
         },
         {
-          id: 'b03-c08',
-          number: '08',
-          title: 'Los filtros',
-          subtitle: 'Qué procesa el prospecto y qué descarta',
+          id: 'b03c08', number: '08', title: 'Los filtros', subtitle: 'Qué procesa el prospecto y qué descarta',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                El cerebro filtra constantemente. No procesa todo lo que recibe — selecciona lo que confirma sus creencias y descarta lo que las contradice. Esto se llama <strong className="text-brand-gold">sesgo de confirmación</strong> y es tu mayor adversario en ventas.
-              </p>
-              <div className="grid gap-3 mt-4">
+              <p className="leading-relaxed text-brand-muted">El cerebro filtra constantemente. No procesa todo lo que recibe — selecciona lo que confirma sus creencias. Esto se llama <span className="text-brand-gold font-medium">sesgo de confirmación</span> y es tu mayor adversario en ventas.</p>
+              <div className="space-y-3 mt-2">
                 {[
-                  { name: 'Filtro de creencia', desc: 'Si cree que "esto no es para mí", va a buscar razones para confirmar eso' },
-                  { name: 'Filtro de experiencia', desc: 'Si tuvo una mala experiencia previa, va a interpretar todo con desconfianza' },
-                  { name: 'Filtro de urgencia', desc: 'Si no siente que su problema es urgente, no va a percibir la solución como valiosa' },
+                  { n: 'Filtro de creencia', d: 'Si cree que "esto no es para mí", va a buscar razones para confirmar eso' },
+                  { n: 'Filtro de experiencia', d: 'Si tuvo una mala experiencia previa, va a interpretar todo con desconfianza' },
+                  { n: 'Filtro de urgencia', d: 'Si no siente que su problema es urgente, no va a percibir la solución como valiosa' },
                 ].map(f => (
-                  <div key={f.name} className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.15)] rounded-lg p-3">
-                    <p className="text-sm font-semibold text-brand-gold">{f.name}</p>
-                    <p className="text-sm text-[#c0c0c0] mt-1">{f.desc}</p>
+                  <div key={f.n} className="rounded-xl bg-[#0f1a2e] border border-[rgba(26,111,255,0.15)] p-4">
+                    <p className="text-sm font-semibold text-brand-gold">{f.n}</p>
+                    <p className="text-sm text-brand-muted mt-1">{f.d}</p>
                   </div>
                 ))}
               </div>
-              <p className="leading-relaxed text-[#c0c0c0] mt-2">
-                Tu trabajo no es vencer los filtros — es entenderlos y hablar desde adentro de ellos.
-              </p>
             </div>
           ),
           callouts: [
@@ -324,29 +277,32 @@ const MANUAL_01: Manual = {
           ],
         },
         {
-          id: 'b03-c09',
-          number: '09',
-          title: 'Preguntar vs asumir',
-          subtitle: 'El hábito que más dinero cuesta',
+          id: 'b03c09', number: '09', title: 'Preguntar vs asumir', subtitle: 'El hábito que más dinero cuesta',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                La mayoría de los errores de venta vienen de asumir. Asumir qué quiere el prospecto. Asumir qué lo frena. Asumir cuánto puede pagar. Cada asunción es un riesgo innecesario cuando la alternativa — preguntar — es gratis.
-              </p>
+              <p className="leading-relaxed text-brand-muted">La mayoría de los errores de venta vienen de asumir. Asumir qué quiere el prospecto. Asumir qué lo frena. Asumir cuánto puede pagar. Cada asunción es un riesgo innecesario cuando la alternativa — preguntar — es gratis.</p>
               <div className="grid grid-cols-2 gap-3 mt-4">
-                <div className="bg-[#1a0f0f] border border-[rgba(255,60,60,0.20)] rounded-lg p-3">
-                  <p className="text-xs font-semibold text-[#ff6b6b] mb-2">Asumir</p>
-                  <p className="text-sm text-[#c0c0c0]">"Seguro le interesa la opción económica"<br />"Parece que el problema es el precio"<br />"Ya debe saber cómo funciona esto"</p>
+                <div className="rounded-xl bg-[#1a0a0a] border border-[rgba(255,80,80,0.20)] p-4">
+                  <p className="text-xs font-bold text-[#ff6b6b] mb-3">Asumir</p>
+                  <div className="space-y-2 text-sm text-brand-muted">
+                    <p className="italic">"Seguro le interesa la opción económica"</p>
+                    <p className="italic">"Parece que el problema es el precio"</p>
+                    <p className="italic">"Ya debe saber cómo funciona esto"</p>
+                  </div>
                 </div>
-                <div className="bg-[#0f1a0f] border border-[rgba(26,255,100,0.20)] rounded-lg p-3">
-                  <p className="text-xs font-semibold text-[#6bff8a] mb-2">Preguntar</p>
-                  <p className="text-sm text-[#c0c0c0]">"¿Qué es lo más importante para vos en esto?"<br />"¿Qué te genera más hesitación?"<br />"¿Tuviste experiencias previas en esto?"</p>
+                <div className="rounded-xl bg-[#0a1a0f] border border-[rgba(26,200,100,0.20)] p-4">
+                  <p className="text-xs font-bold text-[#6bff8a] mb-3">Preguntar</p>
+                  <div className="space-y-2 text-sm text-brand-muted">
+                    <p className="italic">"¿Qué es lo más importante para vos?"</p>
+                    <p className="italic">"¿Qué te genera más hesitación?"</p>
+                    <p className="italic">"¿Tuviste experiencias previas en esto?"</p>
+                  </div>
                 </div>
               </div>
             </div>
           ),
           callouts: [
-            { type: 'dominio', text: 'En toda mi conversación, no asumo nada que pueda preguntar. Cada acción que tomo está basada en información real del prospecto.' },
+            { type: 'dominio', text: 'En toda mi conversación, no asumo nada que pueda preguntar. Cada acción está basada en información real del prospecto.' },
             { type: 'error', text: 'La pregunta que más se evita: "¿Por qué?" Preguntar el porqué de una hesitación da más información que cualquier argumento de cierre.' },
           ],
         },
@@ -354,39 +310,35 @@ const MANUAL_01: Manual = {
     },
     {
       id: 'bloque04',
-      label: 'Bloque 04 — El operador',
+      label: 'Bloque 04',
+      short: 'El operador',
       icon: <Shield className="h-4 w-4" />,
-      blocks: [
+      color: '#1a6fff',
+      sections: [
         {
-          id: 'b04-c10',
-          number: '10',
-          title: 'Los primeros segundos',
-          subtitle: 'La ventana que no se repite',
+          id: 'b04c10', number: '10', title: 'Los primeros segundos', subtitle: 'La ventana que no se repite',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Los primeros 7 segundos de cualquier conversación generan una impresión que el cerebro del prospecto tarda entre 10 y 20 minutos en modificar — si es que lo hace. Esa ventana determina si la persona está abierta o cerrada antes de que hayas dicho algo de valor.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                No se trata de un script de apertura. Se trata de <strong className="text-brand-gold">cómo llegás a esos primeros segundos</strong>: tu energía, tu estado, tu presencia. Todo eso se transmite antes de la primera palabra técnica.
-              </p>
-              <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] rounded-lg p-4 mt-2">
-                <p className="text-sm font-semibold text-brand-gold mb-3">Los 3 elementos de apertura:</p>
-                {[
-                  { n: '1', t: 'Presencia', d: 'Llegás mentalmente presente, no pensando en la llamada anterior' },
-                  { n: '2', t: 'Tono', d: 'Voz firme, calmada, con energía — sin ansiedad ni apuro' },
-                  { n: '3', t: 'Marco', d: 'Establecés desde el inicio que esta es una conversación de diagnóstico, no de ventas' },
-                ].map(e => (
-                  <div key={e.n} className="flex gap-3 mb-2 last:mb-0">
-                    <div className="w-6 h-6 rounded-full bg-brand-gold/20 border border-brand-gold/40 flex items-center justify-center shrink-0">
-                      <span className="text-xs font-bold text-brand-gold">{e.n}</span>
+              <p className="leading-relaxed text-brand-muted">Los primeros 7 segundos de cualquier conversación generan una impresión que el cerebro del prospecto tarda entre 10 y 20 minutos en modificar. Esa ventana determina si la persona está abierta o cerrada antes de que hayas dicho algo de valor.</p>
+              <div className="rounded-2xl bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] p-5 mt-2">
+                <p className="text-sm font-semibold text-brand-gold mb-4">Los 3 elementos de apertura:</p>
+                <div className="space-y-3">
+                  {[
+                    { n: '1', t: 'Presencia', d: 'Llegás mentalmente presente, no pensando en la llamada anterior' },
+                    { n: '2', t: 'Tono', d: 'Voz firme, calmada, con energía — sin ansiedad ni apuro' },
+                    { n: '3', t: 'Marco', d: 'Establecés desde el inicio que esta es una conversación de diagnóstico, no de ventas' },
+                  ].map(e => (
+                    <div key={e.n} className="flex gap-3 items-start">
+                      <div className="w-7 h-7 rounded-full bg-brand-gold/15 border border-brand-gold/30 flex items-center justify-center shrink-0">
+                        <span className="text-xs font-bold text-brand-gold">{e.n}</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-brand-text">{e.t}</p>
+                        <p className="text-xs text-brand-muted mt-0.5">{e.d}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[#e8e8e8]">{e.t}</p>
-                      <p className="text-xs text-[#a0a0a0]">{e.d}</p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           ),
@@ -396,31 +348,21 @@ const MANUAL_01: Manual = {
           ],
         },
         {
-          id: 'b04-c11',
-          number: '11',
-          title: 'Control del estado',
-          subtitle: 'El activo más subestimado del vendedor',
+          id: 'b04c11', number: '11', title: 'Control del estado', subtitle: 'El activo más subestimado del vendedor',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                El estado emocional del operador es el activo más importante y el más ignorado. Podés tener el mejor script del mundo, pero si estás ansioso, frustrado o en modo "necesito cerrar", el prospecto lo va a sentir — y va a reaccionar cerrándose.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                El control del estado no significa no sentir nada. Significa que tus emociones <strong className="text-brand-gold">no conducen la conversación</strong>. Vos la conducís. Las emociones son información, no el volante.
-              </p>
+              <p className="leading-relaxed text-brand-muted">Podés tener el mejor script del mundo, pero si estás ansioso, frustrado o en modo "necesito cerrar", el prospecto lo va a sentir — y va a reaccionar cerrándose. El control del estado no significa no sentir nada. Significa que tus emociones <span className="text-brand-gold font-medium">no conducen la conversación</span>.</p>
               <div className="space-y-2 mt-4">
                 {[
-                  { estado: 'Ansiedad por cerrar', resultado: 'El prospecto siente presión → se cierra' },
-                  { estado: 'Miedo al "no"', resultado: 'Evitás las preguntas duras → perdés información' },
-                  { estado: 'Aburrimiento', resultado: 'Tu energía baja → la llamada pierde vida' },
-                  { estado: 'Estado neutro-curioso', resultado: 'Creás espacio → el prospecto se abre' },
+                  { e: 'Ansiedad por cerrar', r: 'El prospecto siente presión → se cierra', bad: true },
+                  { e: 'Miedo al "no"', r: 'Evitás las preguntas duras → perdés información', bad: true },
+                  { e: 'Aburrimiento', r: 'Tu energía baja → la llamada pierde vida', bad: true },
+                  { e: 'Estado neutro-curioso', r: 'Creás espacio → el prospecto se abre', bad: false },
                 ].map(r => (
-                  <div key={r.estado} className={cn('flex items-start gap-3 rounded-lg p-3 text-sm', r.estado === 'Estado neutro-curioso' ? 'bg-[#0f1a2e] border border-[rgba(26,111,255,0.25)]' : 'bg-[#141414] border border-[rgba(255,255,255,0.05)]')}>
-                    <div className="flex-1">
-                      <span className={cn('font-medium', r.estado === 'Estado neutro-curioso' ? 'text-brand-gold' : 'text-[#e0e0e0]')}>{r.estado}</span>
-                      <span className="text-[#888] mx-2">→</span>
-                      <span className="text-[#c0c0c0]">{r.resultado}</span>
-                    </div>
+                  <div key={r.e} className={cn('flex items-center gap-3 rounded-xl px-4 py-3 text-sm border', r.bad ? 'bg-[#111] border-[rgba(255,255,255,0.04)]' : 'bg-[#0f1a2e] border-[rgba(26,111,255,0.25)]')}>
+                    <span className={cn('font-semibold shrink-0', r.bad ? 'text-brand-muted' : 'text-brand-gold')}>{r.e}</span>
+                    <span className="text-[#555]">→</span>
+                    <span className="text-brand-muted">{r.r}</span>
                   </div>
                 ))}
               </div>
@@ -432,27 +374,19 @@ const MANUAL_01: Manual = {
           ],
         },
         {
-          id: 'b04-c12',
-          number: '12',
-          title: 'El marco del solucionador',
-          subtitle: 'La postura que genera autoridad real',
+          id: 'b04c12', number: '12', title: 'El marco del solucionador', subtitle: 'La postura que genera autoridad real',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                El marco es la perspectiva desde la cual conducís la conversación. El vendedor promedio opera desde el marco del vendedor: "necesito que compres". El operador élite opera desde el marco del solucionador: <strong className="text-brand-gold">"estoy aquí para diagnosticar si puedo ayudarte"</strong>.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Ese cambio de perspectiva lo cambia todo. Cuando operás desde el marco del solucionador, tus preguntas suenan a diagnóstico, no a interrogatorio. Tu silencio se siente como reflexión, no como ansiedad. Y tu "no" se siente como integridad, no como rechazo.
-              </p>
+              <p className="leading-relaxed text-brand-muted">El vendedor promedio opera desde el marco del vendedor: "necesito que compres". El operador élite opera desde el marco del solucionador: <span className="text-brand-gold font-medium">"estoy aquí para diagnosticar si puedo ayudarte"</span>.</p>
               <div className="grid grid-cols-2 gap-3 mt-4">
                 {[
-                  { marco: 'Vendedor', color: 'rgba(255,60,60,0.12)', border: 'rgba(255,60,60,0.25)', items: ['Necesito que compres', 'Evito las objeciones', 'El cierre es el objetivo', 'Mi éxito = que digan sí'] },
-                  { marco: 'Solucionador', color: 'rgba(26,111,255,0.12)', border: 'rgba(26,111,255,0.30)', items: ['Necesito entender si puedo ayudarte', 'Las objeciones son información', 'El diagnóstico es el objetivo', 'Mi éxito = decisión correcta del prospecto'] },
+                  { marco: 'Vendedor', items: ['Necesito que compres','Evito las objeciones','El cierre es el objetivo','Mi éxito = que digan sí'], bad: true },
+                  { marco: 'Solucionador', items: ['Diagnostico si puedo ayudarte','Las objeciones son información','El diagnóstico es el objetivo','Mi éxito = decisión correcta'], bad: false },
                 ].map(m => (
-                  <div key={m.marco} className="rounded-lg p-3 border" style={{ background: m.color, borderColor: m.border }}>
-                    <p className="text-sm font-semibold mb-2" style={{ color: m.marco === 'Vendedor' ? '#ff6b6b' : '#1a6fff' }}>Marco del {m.marco}</p>
-                    <ul className="space-y-1">
-                      {m.items.map(i => <li key={i} className="text-xs text-[#c0c0c0]">• {i}</li>)}
+                  <div key={m.marco} className={cn('rounded-xl border p-4', m.bad ? 'bg-[#1a0a0a] border-[rgba(255,80,80,0.20)]' : 'bg-[#0f1a2e] border-[rgba(26,111,255,0.25)]')}>
+                    <p className={cn('text-sm font-bold mb-3', m.bad ? 'text-[#ff6b6b]' : 'text-brand-gold')}>Marco del {m.marco}</p>
+                    <ul className="space-y-1.5">
+                      {m.items.map(i => <li key={i} className="text-xs text-brand-muted flex gap-2"><span className={m.bad ? 'text-[#ff6b6b]' : 'text-brand-gold'}>•</span>{i}</li>)}
                     </ul>
                   </div>
                 ))}
@@ -467,32 +401,33 @@ const MANUAL_01: Manual = {
       ],
     },
     {
-      id: 'cierre01',
-      label: 'Cierre — Reglas y Tablero',
+      id: 'cierre',
+      label: 'Cierre',
+      short: 'Cierre',
       icon: <Award className="h-4 w-4" />,
-      blocks: [
+      color: '#1a6fff',
+      sections: [
         {
-          id: 'reglas-01',
-          title: 'Reglas transversales',
-          subtitle: 'Las 7 reglas que aplican en toda conversación',
+          id: 'reglas01',
+          title: 'Las 7 reglas transversales',
           body: (
             <div className="space-y-3">
               {[
-                { n: 1, regla: 'Escuchá para entender, no para responder', desc: 'Mientras pensás en qué vas a decir, dejás de escuchar lo que el prospecto te está revelando.' },
-                { n: 2, regla: 'No asumas, preguntá', desc: 'Cada asunción es un riesgo. Cada pregunta es información.' },
-                { n: 3, regla: 'El silencio es una herramienta', desc: 'Después de una pregunta poderosa, callate. El prospecto llena el silencio — y lo que pone ahí es oro.' },
-                { n: 4, regla: 'Primero entiende, después habla de soluciones', desc: 'No presentés nada hasta haber mapeado completamente el problema.' },
-                { n: 5, regla: 'El estado del operador es responsabilidad del operador', desc: 'No es culpa del prospecto si la llamada salió mal porque llegaste en mal estado.' },
-                { n: 6, regla: 'Una objeción es una pregunta disfrazada', desc: 'Nadie dice "es caro" porque quiere terminar la conversación. Quieren que les des una razón para seguir.' },
-                { n: 7, regla: 'El cierre es consecuencia del diagnóstico', desc: 'Si el diagnóstico fue real, el cierre es casi automático. Si el cierre se siente difícil, el problema estuvo antes.' },
+                { n: 1, r: 'Escuchá para entender, no para responder', d: 'Mientras pensás en qué vas a decir, dejás de escuchar lo que el prospecto te está revelando.' },
+                { n: 2, r: 'No asumas, preguntá', d: 'Cada asunción es un riesgo. Cada pregunta es información.' },
+                { n: 3, r: 'El silencio es una herramienta', d: 'Después de una pregunta poderosa, callate. El prospecto llena el silencio — y lo que pone ahí es oro.' },
+                { n: 4, r: 'Primero entiende, después habla de soluciones', d: 'No presentés nada hasta haber mapeado completamente el problema.' },
+                { n: 5, r: 'El estado del operador es responsabilidad del operador', d: 'No es culpa del prospecto si la llamada salió mal porque llegaste en mal estado.' },
+                { n: 6, r: 'Una objeción es una pregunta disfrazada', d: 'Nadie dice "es caro" porque quiere terminar la conversación. Quieren una razón para seguir.' },
+                { n: 7, r: 'El cierre es consecuencia del diagnóstico', d: 'Si el diagnóstico fue real, el cierre es casi automático. Si se siente difícil, el problema estuvo antes.' },
               ].map(r => (
-                <div key={r.n} className="flex gap-4 items-start bg-[#0f1420] border border-[rgba(26,111,255,0.15)] rounded-lg p-4">
-                  <div className="w-8 h-8 rounded-full bg-brand-gold/15 border border-brand-gold/30 flex items-center justify-center shrink-0">
-                    <span className="text-sm font-bold text-brand-gold">{r.n}</span>
+                <div key={r.n} className="flex gap-4 items-start rounded-2xl bg-[#0d0d14] border border-[rgba(26,111,255,0.10)] p-4">
+                  <div className="w-9 h-9 rounded-xl bg-brand-gold/10 border border-brand-gold/25 flex items-center justify-center shrink-0">
+                    <span className="text-sm font-black text-brand-gold">{r.n}</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-[#e8e8e8] mb-1">{r.regla}</p>
-                    <p className="text-sm text-[#a0a0a0]">{r.desc}</p>
+                    <p className="font-semibold text-brand-text">{r.r}</p>
+                    <p className="text-sm text-brand-muted mt-1">{r.d}</p>
                   </div>
                 </div>
               ))}
@@ -500,58 +435,52 @@ const MANUAL_01: Manual = {
           ),
         },
         {
-          id: 'tablero-01',
-          title: 'Tablero de dominio',
-          subtitle: '12 criterios — ¿Dónde estás?',
+          id: 'tablero01',
+          title: 'Tablero de dominio — 12 criterios',
           body: (
-            <div className="space-y-3">
-              <p className="text-[#c0c0c0] text-sm mb-4">Marcá mentalmente cada concepto: ¿lo entiendo? ¿lo aplico? ¿lo domino?</p>
-              <div className="grid grid-cols-1 gap-2">
-                {[
-                  'Distingo entre conversación e intercambio real',
-                  'Establezco puntos en común antes de presentar',
-                  'Identifico el interés real vs el declarado',
-                  'Soy consciente del modelo emisor-canal-receptor',
-                  'Creo sintonía en los primeros 3 minutos',
-                  'Controlo mi emisión involuntaria',
-                  'Diagnostico cómo percibe el prospecto antes de argumentar',
-                  'Identifico los filtros principales del prospecto',
-                  'No asumo nada que pueda preguntar',
-                  'Domino mis primeros 7 segundos de llamada',
-                  'Controlo mi estado emocional independientemente del resultado',
-                  'Opero siempre desde el marco del solucionador',
-                ].map((c, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-[#0d0d0d] border border-[rgba(255,255,255,0.05)] rounded-lg px-4 py-3">
-                    <div className="w-6 h-6 rounded-full border border-[rgba(26,111,255,0.30)] bg-[rgba(26,111,255,0.08)] flex items-center justify-center shrink-0">
-                      <span className="text-[10px] font-bold text-brand-gold">{String(i + 1).padStart(2, '0')}</span>
-                    </div>
-                    <p className="text-sm text-[#c0c0c0]">{c}</p>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {[
+                'Distingo entre conversación e intercambio real',
+                'Establezco puntos en común antes de presentar',
+                'Identifico el interés real vs el declarado',
+                'Soy consciente del modelo emisor-canal-receptor',
+                'Creo sintonía en los primeros 3 minutos',
+                'Controlo mi emisión involuntaria',
+                'Diagnostico cómo percibe el prospecto antes de argumentar',
+                'Identifico los filtros principales del prospecto',
+                'No asumo nada que pueda preguntar',
+                'Domino mis primeros 7 segundos de llamada',
+                'Controlo mi estado emocional independientemente del resultado',
+                'Opero siempre desde el marco del solucionador',
+              ].map((c, i) => (
+                <div key={i} className="flex items-center gap-3 rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.05)] px-4 py-3">
+                  <div className="w-7 h-7 rounded-lg bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center shrink-0">
+                    <span className="text-[10px] font-black text-brand-gold">{String(i+1).padStart(2,'0')}</span>
                   </div>
-                ))}
-              </div>
+                  <p className="text-sm text-brand-muted">{c}</p>
+                </div>
+              ))}
             </div>
           ),
         },
         {
-          id: 'errores-01',
+          id: 'errores01',
           title: 'Errores que rompen la conversación',
           body: (
-            <div className="space-y-3">
+            <div className="grid sm:grid-cols-2 gap-3">
               {[
-                { error: 'Hablar más del 60% del tiempo', consecuencia: 'El prospecto no siente que lo escuchaste — y tenés razón, no lo escuchaste.' },
-                { error: 'Saltar al precio sin diagnóstico', consecuencia: 'El prospecto no tiene contexto para evaluar si el precio tiene sentido.' },
-                { error: 'Responder objeciones con argumentos', consecuencia: 'Las objeciones necesitan exploración, no refutación.' },
-                { error: 'Hacer la llamada en mal estado', consecuencia: 'Tu energía contamina toda la conversación.' },
-                { error: 'Asumir qué quiere el prospecto', consecuencia: 'Terminás vendiendo la solución equivocada para el problema equivocado.' },
-                { error: 'No usar el silencio', consecuencia: 'Llenás con palabras los espacios que el prospecto necesita para abrirse.' },
+                { e: 'Hablar más del 60% del tiempo', c: 'El prospecto no siente que lo escuchaste.' },
+                { e: 'Saltar al precio sin diagnóstico', c: 'No tiene contexto para evaluar si tiene sentido.' },
+                { e: 'Responder objeciones con argumentos', c: 'Las objeciones necesitan exploración, no refutación.' },
+                { e: 'Hacer la llamada en mal estado', c: 'Tu energía contamina toda la conversación.' },
+                { e: 'Asumir qué quiere el prospecto', c: 'Terminás vendiendo la solución equivocada.' },
+                { e: 'No usar el silencio', c: 'Llenás los espacios que el prospecto necesita para abrirse.' },
               ].map(e => (
-                <div key={e.error} className="bg-[#1a0a0a] border border-[rgba(255,60,60,0.20)] rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="h-4 w-4 text-[#ff6b6b] mt-0.5 shrink-0" />
-                    <div>
-                      <p className="font-semibold text-[#e8e8e8] text-sm">{e.error}</p>
-                      <p className="text-xs text-[#a0a0a0] mt-1">{e.consecuencia}</p>
-                    </div>
+                <div key={e.e} className="rounded-xl bg-[#1a0a0a] border border-[rgba(255,80,80,0.18)] p-4 flex gap-3">
+                  <AlertTriangle className="h-4 w-4 text-[#ff6b6b] shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-brand-text text-sm">{e.e}</p>
+                    <p className="text-xs text-brand-muted mt-1">{e.c}</p>
                   </div>
                 </div>
               ))}
@@ -563,134 +492,102 @@ const MANUAL_01: Manual = {
   ],
 };
 
-// ─── CONTENIDO — MANUAL 02 ────────────────────────────────────────────────────
+// ─── MANUAL 02 ────────────────────────────────────────────────────────────────
 
-const MANUAL_02: Manual = {
+const M02: Manual = {
   id: 'm02',
   number: '02',
   title: 'Estructura de Cualificación Comercial',
   subtitle: 'El sistema de diagnóstico que convierte conversaciones en cierres',
-  icon: <Target className="h-5 w-5" />,
+  description: 'Cuando cualificás bien, el prospecto se convence a sí mismo. Tu trabajo no es persuadir — es hacer las preguntas correctas en el orden correcto para que el prospecto recorra su propio razonamiento.',
   chapters: [
-    {
-      id: 'principio02',
-      label: 'Principio Fundamental',
-      icon: <Zap className="h-4 w-4" />,
-      blocks: [
-        {
-          id: 'principio02-1',
-          title: 'La cualificación no es un filtro. Es el cierre.',
-          body: (
-            <div className="space-y-4">
-              <p className="text-lg leading-relaxed text-[#e8e8e8]">
-                La mayoría cree que cualificar es decidir si el prospecto "puede comprar". En Areté, cualificar es <strong className="text-brand-gold">el proceso de venta en sí mismo</strong>.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Cuando cualificás bien, el prospecto se convence a sí mismo. Tu trabajo no es persuadir — es hacer las preguntas correctas en el orden correcto para que el prospecto recorra su propio razonamiento y llegue a su propia conclusión.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Este manual es un sistema de 8 etapas + 2 pilares. No es un script. Es una arquitectura de conversación que podés ejecutar con cualquier prospecto, en cualquier nicho, con cualquier producto.
-              </p>
-            </div>
-          ),
-        },
-      ],
-    },
     {
       id: 'pilares',
       label: 'Los 2 Pilares',
+      short: 'Pilares',
       icon: <Shield className="h-4 w-4" />,
-      blocks: [
+      color: '#1a6fff',
+      sections: [
         {
           id: 'pilar1',
-          title: 'Pilar 1 — Conexión genuina',
+          number: 'P1',
+          title: 'Conexión genuina',
           subtitle: '6 comportamientos que crean apertura real',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                La conexión genuina no es "ser simpático". Es una serie de comportamientos técnicos que crean el ambiente donde el prospecto se siente seguro para revelar información real.
-              </p>
-              <div className="space-y-3 mt-2">
+              <p className="leading-relaxed text-brand-muted">La conexión genuina no es "ser simpático". Es una serie de comportamientos técnicos que crean el ambiente donde el prospecto se siente seguro para revelar información real.</p>
+              <div className="grid sm:grid-cols-2 gap-3">
                 {[
-                  { n: 1, comp: 'Presencia total', desc: 'Estás 100% en la conversación. Sin distracciones, sin multitasking mental.' },
-                  { n: 2, comp: 'Curiosidad genuina', desc: 'Te interesa de verdad entender su situación, no solo procesar su respuesta.' },
-                  { n: 3, comp: 'No juzgar', desc: 'Recibís lo que dice sin evaluarlo. El juicio cierra, la neutralidad abre.' },
-                  { n: 4, comp: 'Reflejo activo', desc: 'Repetís o parafraseás lo que dijeron para que sientan que fueron escuchados.' },
-                  { n: 5, comp: 'Validación emocional', desc: 'Reconocés cómo se siente sin intentar cambiar eso.' },
-                  { n: 6, comp: 'Ritmo compartido', desc: 'Tu velocidad y tono se adaptan al del prospecto, no al revés.' },
+                  { n: 1, c: 'Presencia total', d: 'Estás 100% en la conversación.' },
+                  { n: 2, c: 'Curiosidad genuina', d: 'Te interesa de verdad entender su situación.' },
+                  { n: 3, c: 'No juzgar', d: 'Recibís lo que dice sin evaluarlo.' },
+                  { n: 4, c: 'Reflejo activo', d: 'Repetís lo que dijeron para que sientan que fueron escuchados.' },
+                  { n: 5, c: 'Validación emocional', d: 'Reconocés cómo se siente sin intentar cambiarlo.' },
+                  { n: 6, c: 'Ritmo compartido', d: 'Tu velocidad y tono se adaptan al del prospecto.' },
                 ].map(c => (
-                  <div key={c.n} className="flex gap-4 items-start bg-[#0f1420] border border-[rgba(26,111,255,0.12)] rounded-lg p-3">
-                    <div className="w-7 h-7 rounded-full bg-brand-gold/15 border border-brand-gold/30 flex items-center justify-center shrink-0 mt-0.5">
+                  <div key={c.n} className="flex gap-3 items-start rounded-xl bg-[#0d0d14] border border-[rgba(26,111,255,0.10)] p-4">
+                    <div className="w-7 h-7 rounded-full bg-brand-gold/15 border border-brand-gold/30 flex items-center justify-center shrink-0">
                       <span className="text-xs font-bold text-brand-gold">{c.n}</span>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#e8e8e8]">{c.comp}</p>
-                      <p className="text-xs text-[#a0a0a0] mt-0.5">{c.desc}</p>
+                      <p className="text-sm font-semibold text-brand-text">{c.c}</p>
+                      <p className="text-xs text-brand-muted mt-0.5">{c.d}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] rounded-lg p-4 mt-2">
-                <p className="text-sm font-semibold text-brand-gold mb-2">Las puertas de la conexión:</p>
-                <p className="text-sm text-[#c0c0c0]">Cada comportamiento abre una puerta. Si las 6 están abiertas, el prospecto entra en lo que llamamos el <strong className="text-[#e8e8e8]">bucle de apertura</strong>: cuanto más habla, más se compromete con su propia situación, y más natural se vuelve el cierre.</p>
-              </div>
             </div>
           ),
           callouts: [
-            { type: 'dominio', text: 'Puedo activar los 6 comportamientos de conexión de forma consciente en cualquier conversación, no solo cuando "siento" que funciona.' },
+            { type: 'dominio', text: 'Puedo activar los 6 comportamientos de conexión de forma consciente en cualquier conversación.' },
             { type: 'error', text: 'Forzar la conexión. Si la curiosidad no es genuina, el prospecto lo siente — y es peor que no hacer nada.' },
           ],
         },
         {
           id: 'pilar2',
-          title: 'Pilar 2 — Recolección inteligente de información',
-          subtitle: 'Las 4 preguntas previas + 9 dimensiones + 3 hábitos',
+          number: 'P2',
+          title: 'Recolección inteligente de información',
+          subtitle: '4 preguntas previas · 9 dimensiones · 3 hábitos',
           body: (
-            <div className="space-y-5">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Antes de entrar a las 8 etapas, necesitás mapear el terreno. Estas preguntas previas te dan el contexto para personalizar toda la conversación.
-              </p>
+            <div className="space-y-6">
               <div>
-                <p className="text-sm font-semibold text-brand-gold mb-3">Las 4 preguntas previas:</p>
+                <p className="text-sm font-bold text-brand-gold mb-3 uppercase tracking-wider">Las 4 preguntas previas</p>
+                <div className="space-y-2">
+                  {['¿Cuánto tiempo lleva con este problema?','¿Qué intentó antes y por qué no funcionó?','¿Qué le pasaría si esto no cambia en 6 meses?','¿Qué significa para él resolver esto?'].map((p,i) => (
+                    <div key={i} className="flex gap-3 text-sm rounded-xl bg-[#0d0d14] border border-[rgba(26,111,255,0.10)] px-4 py-3">
+                      <span className="text-brand-gold font-bold shrink-0">{i+1}.</span>
+                      <span className="text-brand-muted italic">"{p}"</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-brand-gold mb-3 uppercase tracking-wider">Las 9 dimensiones a mapear</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {['Situación actual','Problema principal','Síntomas','Causa raíz','Impacto emocional','Urgencia','Intentos previos','Visión del futuro','Decisor real'].map(d => (
+                    <div key={d} className="rounded-xl bg-[#0d0d14] border border-[rgba(26,111,255,0.10)] px-3 py-2.5 text-center">
+                      <p className="text-xs text-brand-muted">{d}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-brand-gold mb-3 uppercase tracking-wider">Los 3 hábitos</p>
                 <div className="space-y-2">
                   {[
-                    '¿Cuánto tiempo lleva con este problema / en esta situación?',
-                    '¿Qué intentó antes y por qué no funcionó?',
-                    '¿Qué le pasaría si esto no cambia en los próximos 6 meses?',
-                    '¿Qué significa para él resolver esto?',
-                  ].map((p, i) => (
-                    <div key={i} className="flex gap-3 items-start text-sm">
-                      <span className="text-brand-gold font-bold shrink-0">{i + 1}.</span>
-                      <span className="text-[#c0c0c0]">{p}</span>
+                    { h: 'Escuchar sin interrumpir', d: 'Dejás que terminen. Siempre.' },
+                    { h: 'Profundizar antes de avanzar', d: 'No pasás al siguiente punto si no entendiste el actual.' },
+                    { h: 'Confirmar antes de interpretar', d: 'Repetís lo que escuchaste antes de asumir qué significa.' },
+                  ].map(h => (
+                    <div key={h.h} className="flex gap-3 items-start rounded-xl bg-[#0d0d14] border border-[rgba(26,111,255,0.10)] px-4 py-3">
+                      <CheckCircle2 className="h-4 w-4 text-brand-gold shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-brand-text">{h.h}</p>
+                        <p className="text-xs text-brand-muted">{h.d}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-brand-gold mb-3">Las 9 dimensiones a mapear:</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {['Situación actual', 'Problema principal', 'Síntomas', 'Causa raíz', 'Impacto emocional', 'Urgencia', 'Intentos previos', 'Visión del futuro', 'Decisor real'].map(d => (
-                    <div key={d} className="bg-[#0d0d15] border border-[rgba(26,111,255,0.15)] rounded-lg px-3 py-2 text-center">
-                      <p className="text-xs text-[#c0c0c0]">{d}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-brand-gold mb-3">Los 3 hábitos de recolección:</p>
-                {[
-                  { h: 'Escuchar sin interrumpir', d: 'Dejás que terminen. Siempre.' },
-                  { h: 'Profundizar antes de avanzar', d: 'No pasás al siguiente punto si no entendiste el actual.' },
-                  { h: 'Confirmar antes de interpretar', d: 'Repetís lo que escuchaste antes de asumir qué significa.' },
-                ].map(h => (
-                  <div key={h.h} className="flex gap-3 items-start mb-2 last:mb-0">
-                    <CheckCircle2 className="h-4 w-4 text-brand-gold mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#e8e8e8]">{h.h}</p>
-                      <p className="text-xs text-[#a0a0a0]">{h.d}</p>
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           ),
@@ -702,38 +599,23 @@ const MANUAL_02: Manual = {
       ],
     },
     {
-      id: 'etapa01',
-      label: 'Etapa 01 — Identificar el interés',
+      id: 'etapas',
+      label: 'Etapas 01-04',
+      short: 'E01-E04',
       icon: <Target className="h-4 w-4" />,
-      blocks: [
+      color: '#1a6fff',
+      sections: [
         {
-          id: 'e01',
-          number: 'E01',
-          title: 'Identificar el interés',
-          subtitle: 'El primer mapa de la conversación',
+          id: 'e01', number: 'E01', title: 'Identificar el interés', subtitle: 'El primer mapa de la conversación',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                El objetivo de esta etapa es entender <strong className="text-brand-gold">qué trajo al prospecto aquí</strong>. No lo que dicen en frío ("vi tu anuncio"), sino lo que hay detrás: qué situación los llevó a buscar algo diferente.
-              </p>
-              <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] rounded-lg p-4">
-                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas de esta etapa:</p>
-                <div className="space-y-2">
-                  {[
-                    '¿Qué te llevó a buscar esto en este momento?',
-                    '¿Hubo algo específico que pasó que te hizo tomar acción?',
-                    '¿Qué estás buscando que hoy no tenés?',
-                  ].map((p, i) => (
-                    <div key={i} className="flex gap-2 text-sm">
-                      <span className="text-brand-gold">→</span>
-                      <span className="text-[#c0c0c0] italic">"{p}"</span>
-                    </div>
-                  ))}
-                </div>
+              <p className="leading-relaxed text-brand-muted">El objetivo es entender <span className="text-brand-gold font-medium">qué trajo al prospecto aquí</span>. No lo que dicen en frío, sino lo que hay detrás: qué situación los llevó a buscar algo diferente.</p>
+              <div className="rounded-2xl bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] p-5">
+                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas clave:</p>
+                {['¿Qué te llevó a buscar esto en este momento?','¿Hubo algo específico que pasó que te hizo tomar acción?','¿Qué estás buscando que hoy no tenés?'].map((p,i) => (
+                  <div key={i} className="flex gap-2 text-sm mb-2"><span className="text-brand-gold">→</span><span className="text-brand-muted italic">"{p}"</span></div>
+                ))}
               </div>
-              <p className="text-sm text-[#a0a0a0]">
-                <strong className="text-[#e0e0e0]">Qué buscás en las respuestas:</strong> El evento disparador. El contraste entre lo que tienen y lo que quieren. La emoción detrás del movimiento.
-              </p>
             </div>
           ),
           callouts: [
@@ -741,42 +623,18 @@ const MANUAL_02: Manual = {
             { type: 'error', text: 'Quedarse con la respuesta superficial. Si dicen "quiero ganar más", la siguiente pregunta siempre es "¿por qué ahora?"' },
           ],
         },
-      ],
-    },
-    {
-      id: 'etapa02',
-      label: 'Etapa 02 — Situación actual',
-      icon: <Target className="h-4 w-4" />,
-      blocks: [
         {
-          id: 'e02',
-          number: 'E02',
-          title: 'Comprender la situación actual',
-          subtitle: 'El contexto desde el que opera el prospecto',
+          id: 'e02', number: 'E02', title: 'Comprender la situación actual', subtitle: 'El contexto desde el que opera el prospecto',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Antes de hablar de cambio, necesitás entender <strong className="text-brand-gold">desde dónde está partiendo</strong> el prospecto. Su situación actual es el punto de referencia para todo lo que viene.
-              </p>
-              <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] rounded-lg p-4">
-                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas de esta etapa:</p>
-                <div className="space-y-2">
-                  {[
-                    '¿En qué momento estás hoy en relación a [tema]?',
-                    '¿Qué viene funcionando y qué no?',
-                    '¿Cuánto tiempo llevás en esta situación?',
-                    '¿Qué intentaste para cambiarlo?',
-                  ].map((p, i) => (
-                    <div key={i} className="flex gap-2 text-sm">
-                      <span className="text-brand-gold">→</span>
-                      <span className="text-[#c0c0c0] italic">"{p}"</span>
-                    </div>
-                  ))}
-                </div>
+              <p className="leading-relaxed text-brand-muted">Antes de hablar de cambio, necesitás entender <span className="text-brand-gold font-medium">desde dónde está partiendo</span>. Su situación actual es el punto de referencia para todo lo que viene.</p>
+              <div className="rounded-2xl bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] p-5">
+                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas clave:</p>
+                {['¿En qué momento estás hoy en relación a [tema]?','¿Qué viene funcionando y qué no?','¿Cuánto tiempo llevás en esta situación?','¿Qué intentaste para cambiarlo?'].map((p,i) => (
+                  <div key={i} className="flex gap-2 text-sm mb-2"><span className="text-brand-gold">→</span><span className="text-brand-muted italic">"{p}"</span></div>
+                ))}
               </div>
-              <p className="text-sm text-[#a0a0a0]">
-                <strong className="text-[#e0e0e0]">Señal de que esta etapa está completa:</strong> Podés describir la situación del prospecto mejor de lo que él la describiría.
-              </p>
+              <p className="text-sm text-brand-muted bg-[#0d0d14] border border-[rgba(255,255,255,0.05)] rounded-xl px-4 py-3"><span className="text-brand-text font-medium">Señal de etapa completa:</span> Podés describir la situación del prospecto mejor de lo que él la describiría.</p>
             </div>
           ),
           callouts: [
@@ -784,42 +642,17 @@ const MANUAL_02: Manual = {
             { type: 'error', text: 'Preguntar solo lo superficial. La duración de la situación y los intentos previos son datos críticos que la mayoría no pregunta.' },
           ],
         },
-      ],
-    },
-    {
-      id: 'etapa03',
-      label: 'Etapa 03 — Detectar síntomas',
-      icon: <Target className="h-4 w-4" />,
-      blocks: [
         {
-          id: 'e03',
-          number: 'E03',
-          title: 'Detectar los síntomas',
-          subtitle: 'Las manifestaciones visibles del problema',
+          id: 'e03', number: 'E03', title: 'Detectar los síntomas', subtitle: 'Las manifestaciones visibles del problema',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Los síntomas son lo que el prospecto <em>ve</em> del problema. No el problema en sí — las señales externas. Identificarlos tiene dos objetivos: entender la magnitud y <strong className="text-brand-gold">empezar a construir el costo del problema</strong>.
-              </p>
-              <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] rounded-lg p-4">
-                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas de esta etapa:</p>
-                <div className="space-y-2">
-                  {[
-                    '¿Cómo se manifiesta esto en tu día a día?',
-                    '¿Qué es lo que más te molesta de esta situación?',
-                    '¿Hay algo que no podés hacer por esto?',
-                    '¿Cómo afecta esto a las personas de tu entorno?',
-                  ].map((p, i) => (
-                    <div key={i} className="flex gap-2 text-sm">
-                      <span className="text-brand-gold">→</span>
-                      <span className="text-[#c0c0c0] italic">"{p}"</span>
-                    </div>
-                  ))}
-                </div>
+              <p className="leading-relaxed text-brand-muted">Los síntomas son lo que el prospecto <em>ve</em> del problema. Identificarlos tiene dos objetivos: entender la magnitud y <span className="text-brand-gold font-medium">empezar a construir el costo del problema</span>.</p>
+              <div className="rounded-2xl bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] p-5">
+                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas clave:</p>
+                {['¿Cómo se manifiesta esto en tu día a día?','¿Qué es lo que más te molesta de esta situación?','¿Hay algo que no podés hacer por esto?','¿Cómo afecta esto a las personas de tu entorno?'].map((p,i) => (
+                  <div key={i} className="flex gap-2 text-sm mb-2"><span className="text-brand-gold">→</span><span className="text-brand-muted italic">"{p}"</span></div>
+                ))}
               </div>
-              <p className="text-sm text-[#a0a0a0]">
-                Cuantos más síntomas detectás, más real se vuelve el problema para el prospecto. Esto no es manipulación — es ayudarlos a <em>ver</em> algo que a veces normalizaron.
-              </p>
             </div>
           ),
           callouts: [
@@ -827,46 +660,19 @@ const MANUAL_02: Manual = {
             { type: 'error', text: 'Aceptar un síntoma vago sin profundizar. "Me cuesta vender" no es suficiente — ¿cuándo, cuánto, con qué tipo de cliente?' },
           ],
         },
-      ],
-    },
-    {
-      id: 'etapa04',
-      label: 'Etapa 04 — El problema real',
-      icon: <Target className="h-4 w-4" />,
-      blocks: [
         {
-          id: 'e04',
-          number: 'E04',
-          title: 'Encontrar el problema real',
-          subtitle: 'Debajo de los síntomas, la causa raíz',
+          id: 'e04', number: 'E04', title: 'Encontrar el problema real', subtitle: 'Debajo de los síntomas, la causa raíz',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Los síntomas son la superficie. El problema real es la <strong className="text-brand-gold">causa raíz</strong> que genera todos esos síntomas. Esta es la etapa más importante de toda la cualificación.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Un prospecto que describe síntomas no sabe necesariamente cuál es el problema real. Tu trabajo es ayudarlos a llegar ahí — a través de preguntas, no de afirmaciones.
-              </p>
-              <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] rounded-lg p-4">
-                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas de esta etapa:</p>
-                <div className="space-y-2">
-                  {[
-                    '¿Si tuvieras que identificar una sola causa de todo esto, cuál sería?',
-                    '¿Qué creés que está en el origen de esta situación?',
-                    '¿Cuándo empezó esto — hubo algo que lo desencadenó?',
-                    '¿Qué pasaría si resolvés [síntoma] pero no [causa]?',
-                  ].map((p, i) => (
-                    <div key={i} className="flex gap-2 text-sm">
-                      <span className="text-brand-gold">→</span>
-                      <span className="text-[#c0c0c0] italic">"{p}"</span>
-                    </div>
-                  ))}
-                </div>
+              <p className="leading-relaxed text-brand-muted">Los síntomas son la superficie. El problema real es la <span className="text-brand-gold font-medium">causa raíz</span>. Tu trabajo es ayudarlos a llegar ahí a través de preguntas, no de afirmaciones.</p>
+              <div className="rounded-2xl bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] p-5">
+                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas clave:</p>
+                {['¿Si tuvieras que identificar una sola causa de todo esto, cuál sería?','¿Qué creés que está en el origen de esta situación?','¿Cuándo empezó esto — hubo algo que lo desencadenó?'].map((p,i) => (
+                  <div key={i} className="flex gap-2 text-sm mb-2"><span className="text-brand-gold">→</span><span className="text-brand-muted italic">"{p}"</span></div>
+                ))}
               </div>
-              <div className="bg-[#1a0f2e] border border-[rgba(150,100,255,0.20)] rounded-lg p-3 mt-2">
-                <p className="text-sm text-[#c0a0ff]">
-                  <strong>Insight clave:</strong> Cuando el prospecto nombra el problema real con sus propias palabras, ya está comprometido con resolverlo. No necesitás convencerlos — ya se convencieron solos.
-                </p>
+              <div className="rounded-xl bg-[#1a0f2e] border border-[rgba(150,100,255,0.20)] p-4">
+                <p className="text-sm text-[#c0a0ff]"><span className="font-bold">Insight clave:</span> Cuando el prospecto nombra el problema real con sus propias palabras, ya está comprometido con resolverlo.</p>
               </div>
             </div>
           ),
@@ -878,42 +684,23 @@ const MANUAL_02: Manual = {
       ],
     },
     {
-      id: 'etapa05',
-      label: 'Etapa 05 — Impacto emocional',
+      id: 'etapas2',
+      label: 'Etapas 05-08',
+      short: 'E05-E08',
       icon: <Target className="h-4 w-4" />,
-      blocks: [
+      color: '#1a6fff',
+      sections: [
         {
-          id: 'e05',
-          number: 'E05',
-          title: 'Comprender el impacto emocional',
-          subtitle: 'La dimensión que convierte información en motivación',
+          id: 'e05', number: 'E05', title: 'Comprender el impacto emocional', subtitle: 'La dimensión que convierte información en motivación',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Los hechos informan. Las emociones mueven. Esta etapa conecta el problema real con <strong className="text-brand-gold">cómo se siente el prospecto</strong> al vivir esa situación.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                No es manipulación emocional — es reconocimiento de que las personas toman decisiones desde las emociones y las justifican con lógica. Si ignorás la dimensión emocional, estás perdiendo el 80% de lo que mueve a actuar.
-              </p>
-              <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] rounded-lg p-4">
-                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas de esta etapa:</p>
-                <div className="space-y-2">
-                  {[
-                    '¿Cómo te hace sentir estar en esta situación?',
-                    '¿Qué es lo que más te pesa de todo esto?',
-                    '¿Afecta esto cómo te ves a vos mismo / a tu familia?',
-                    '¿Hay algo de esto de lo que no hablaste mucho con otros?',
-                  ].map((p, i) => (
-                    <div key={i} className="flex gap-2 text-sm">
-                      <span className="text-brand-gold">→</span>
-                      <span className="text-[#c0c0c0] italic">"{p}"</span>
-                    </div>
-                  ))}
-                </div>
+              <p className="leading-relaxed text-brand-muted">Los hechos informan. Las emociones mueven. Esta etapa conecta el problema real con <span className="text-brand-gold font-medium">cómo se siente el prospecto</span> al vivir esa situación. Las personas toman decisiones desde las emociones y las justifican con lógica.</p>
+              <div className="rounded-2xl bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] p-5">
+                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas clave:</p>
+                {['¿Cómo te hace sentir estar en esta situación?','¿Qué es lo que más te pesa de todo esto?','¿Afecta esto cómo te ves a vos mismo / a tu familia?','¿Hay algo de esto de lo que no hablaste mucho con otros?'].map((p,i) => (
+                  <div key={i} className="flex gap-2 text-sm mb-2"><span className="text-brand-gold">→</span><span className="text-brand-muted italic">"{p}"</span></div>
+                ))}
               </div>
-              <p className="text-sm text-[#a0a0a0]">
-                Después de esta etapa, el prospecto suele estar más abierto que en cualquier otra parte de la conversación. Es el momento de más conexión — no lo desperdicies con argumentos.
-              </p>
             </div>
           ),
           callouts: [
@@ -921,44 +708,26 @@ const MANUAL_02: Manual = {
             { type: 'error', text: 'Ignorar la emoción porque "es una conversación de negocios". Toda conversación de negocios es también una conversación humana.' },
           ],
         },
-      ],
-    },
-    {
-      id: 'etapa06',
-      label: 'Etapa 06 — Acompañamiento',
-      icon: <Target className="h-4 w-4" />,
-      blocks: [
         {
-          id: 'e06',
-          number: 'E06',
-          title: 'Acompañamiento y entendimiento',
-          subtitle: 'El puente entre el diagnóstico y la solución',
+          id: 'e06', number: 'E06', title: 'Acompañamiento y entendimiento', subtitle: 'El puente entre el diagnóstico y la solución',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Esta etapa es una transición. Después de haber explorado el problema real y el impacto emocional, el prospecto necesita sentir que <strong className="text-brand-gold">fue escuchado y entendido</strong> antes de que puedas hablar de cualquier solución.
-              </p>
-              <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] rounded-lg p-4">
-                <p className="text-sm font-semibold text-brand-gold mb-3">Movimientos de esta etapa:</p>
-                <div className="space-y-3">
-                  {[
-                    { m: 'Resumen empático', d: 'Repetís todo lo que escuchaste — situación, síntomas, problema real, impacto — en sus propias palabras.' },
-                    { m: 'Validación', d: 'Reconocés que lo que describieron es real y comprensible. No minimizás, no exagerás.' },
-                    { m: 'Pregunta de confirmación', d: '"¿Sentís que capturé bien lo que me estás contando?" — Siempre.' },
-                  ].map(m => (
-                    <div key={m.m} className="flex gap-3 items-start">
-                      <ArrowRight className="h-4 w-4 text-brand-gold mt-0.5 shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-[#e8e8e8]">{m.m}</p>
-                        <p className="text-xs text-[#a0a0a0]">{m.d}</p>
-                      </div>
+              <p className="leading-relaxed text-brand-muted">Después de explorar el problema y el impacto, el prospecto necesita sentir que <span className="text-brand-gold font-medium">fue escuchado y entendido</span> antes de que puedas hablar de cualquier solución. Este es el paso que el 90% de los vendedores se saltean.</p>
+              <div className="space-y-3">
+                {[
+                  { m: 'Resumen empático', d: 'Repetís todo lo que escuchaste — situación, síntomas, problema real, impacto — en sus propias palabras.' },
+                  { m: 'Validación', d: 'Reconocés que lo que describieron es real y comprensible. No minimizás, no exagerás.' },
+                  { m: 'Pregunta de confirmación', d: '"¿Sentís que capturé bien lo que me estás contando?" — Siempre.' },
+                ].map(m => (
+                  <div key={m.m} className="flex gap-3 items-start rounded-xl bg-[#0d0d14] border border-[rgba(26,111,255,0.10)] p-4">
+                    <ArrowRight className="h-4 w-4 text-brand-gold shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-brand-text">{m.m}</p>
+                      <p className="text-xs text-brand-muted mt-0.5">{m.d}</p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-sm text-[#a0a0a0]">
-                Este paso es donde el 90% de los vendedores se saltan directo a la presentación. Es el error más caro de toda la conversación.
-              </p>
             </div>
           ),
           callouts: [
@@ -966,44 +735,18 @@ const MANUAL_02: Manual = {
             { type: 'error', text: 'Pasar directo de detectar el problema a presentar la solución. El prospecto no sintió que lo entendiste — y eso invalida todo lo que sigue.' },
           ],
         },
-      ],
-    },
-    {
-      id: 'etapa07',
-      label: 'Etapa 07 — Justificar con lógica',
-      icon: <Target className="h-4 w-4" />,
-      blocks: [
         {
-          id: 'e07',
-          number: 'E07',
-          title: 'Justificar con lógica',
-          subtitle: 'El componente racional que sostiene la decisión emocional',
+          id: 'e07', number: 'E07', title: 'Justificar con lógica', subtitle: 'El componente racional que sostiene la decisión',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Las personas deciden emocionalmente y justifican con lógica. Esta etapa es donde le das al prospecto las <strong className="text-brand-gold">herramientas lógicas</strong> para justificar su decisión ante sí mismo y ante otros.
-              </p>
-              <p className="leading-relaxed text-[#c0c0c0]">
-                No es el momento de hablar de funcionalidades. Es el momento de hablar de <em>consecuencias</em> de no actuar y de <em>resultados concretos</em> de actuar.
-              </p>
-              <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] rounded-lg p-4">
-                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas de esta etapa:</p>
-                <div className="space-y-2">
-                  {[
-                    '¿Qué te costaría seguir igual 6 meses más?',
-                    '¿Si esto se resuelve, cómo cambia tu situación concretamente?',
-                    '¿Tiene sentido para vos invertir en resolver esto ahora?',
-                  ].map((p, i) => (
-                    <div key={i} className="flex gap-2 text-sm">
-                      <span className="text-brand-gold">→</span>
-                      <span className="text-[#c0c0c0] italic">"{p}"</span>
-                    </div>
-                  ))}
-                </div>
+              <p className="leading-relaxed text-brand-muted">Las personas deciden emocionalmente y justifican con lógica. Esta etapa es donde le das al prospecto las <span className="text-brand-gold font-medium">herramientas lógicas</span> para justificar su decisión ante sí mismo y ante otros.</p>
+              <div className="rounded-2xl bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] p-5">
+                <p className="text-sm font-semibold text-brand-gold mb-3">Preguntas clave:</p>
+                {['¿Qué te costaría seguir igual 6 meses más?','¿Si esto se resuelve, cómo cambia tu situación concretamente?','¿Tiene sentido para vos invertir en resolver esto ahora?'].map((p,i) => (
+                  <div key={i} className="flex gap-2 text-sm mb-2"><span className="text-brand-gold">→</span><span className="text-brand-muted italic">"{p}"</span></div>
+                ))}
               </div>
-              <p className="text-sm text-[#a0a0a0]">
-                Cuando el prospecto puede articular el costo de no actuar, el precio de la solución se vuelve relativo. Esa es la magia de esta etapa.
-              </p>
+              <p className="text-sm text-brand-muted bg-[#0d0d14] border border-[rgba(255,255,255,0.05)] rounded-xl px-4 py-3">Cuando el prospecto puede articular el costo de no actuar, el precio de la solución se vuelve relativo.</p>
             </div>
           ),
           callouts: [
@@ -1011,75 +754,60 @@ const MANUAL_02: Manual = {
             { type: 'error', text: 'Usar tu propia lógica para justificar la inversión. Tiene que ser LA LÓGICA DEL PROSPECTO — que venga de ellos.' },
           ],
         },
-      ],
-    },
-    {
-      id: 'etapa08',
-      label: 'Etapa 08 — Aportar valor',
-      icon: <Target className="h-4 w-4" />,
-      blocks: [
         {
-          id: 'e08',
-          number: 'E08',
-          title: 'Aportar valor',
-          subtitle: 'La presentación calibrada — no genérica',
+          id: 'e08', number: 'E08', title: 'Aportar valor', subtitle: 'La presentación calibrada — no genérica',
           body: (
             <div className="space-y-4">
-              <p className="leading-relaxed text-[#c0c0c0]">
-                Recién en esta etapa hablás de tu solución. Y cuando lo hacés, no es un pitch genérico — es una presentación <strong className="text-brand-gold">construida con las palabras del prospecto</strong>: su situación, su problema, su impacto emocional.
-              </p>
-              <div className="bg-[#0f1a2e] border border-[rgba(26,111,255,0.20)] rounded-lg p-4">
-                <p className="text-sm font-semibold text-brand-gold mb-3">Estructura de la presentación:</p>
-                <div className="space-y-3">
-                  {[
-                    { t: '1. Reconectar con el problema', d: '"Dijiste que lo que más te pesa es X. Esto que vamos a ver está diseñado exactamente para eso."' },
-                    { t: '2. Presentar la solución en términos de resultados', d: 'No funcionalidades — qué cambia en su vida/trabajo.' },
-                    { t: '3. Conectar cada punto con algo que dijeron', d: 'Cada beneficio debe tener un ancla en algo que el prospecto expresó.' },
-                    { t: '4. Pausar y preguntar', d: '"¿Cómo ves esto en relación a lo que me contaste?"' },
-                  ].map(s => (
-                    <div key={s.t} className="border-l-2 border-brand-gold/40 pl-3">
-                      <p className="text-sm font-semibold text-[#e8e8e8]">{s.t}</p>
-                      <p className="text-xs text-[#a0a0a0] mt-0.5 italic">{s.d}</p>
-                    </div>
-                  ))}
-                </div>
+              <p className="leading-relaxed text-brand-muted">Recién en esta etapa hablás de tu solución. No es un pitch genérico — es una presentación <span className="text-brand-gold font-medium">construida con las palabras del prospecto</span>.</p>
+              <div className="space-y-3">
+                {[
+                  { t: '1. Reconectar con el problema', d: '"Dijiste que lo que más te pesa es X. Esto está diseñado exactamente para eso."' },
+                  { t: '2. Presentar en términos de resultados', d: 'No funcionalidades — qué cambia en su vida.' },
+                  { t: '3. Conectar cada punto con algo que dijeron', d: 'Cada beneficio tiene un ancla en algo que el prospecto expresó.' },
+                  { t: '4. Pausar y preguntar', d: '"¿Cómo ves esto en relación a lo que me contaste?"' },
+                ].map(s => (
+                  <div key={s.t} className="border-l-2 border-brand-gold/40 pl-4 py-1">
+                    <p className="text-sm font-semibold text-brand-text">{s.t}</p>
+                    <p className="text-xs text-brand-muted mt-0.5 italic">{s.d}</p>
+                  </div>
+                ))}
               </div>
             </div>
           ),
           callouts: [
             { type: 'dominio', text: 'Mi presentación está hecha 100% con las palabras y situación del prospecto — nadie recibe el mismo pitch.' },
-            { type: 'error', text: 'Hacer el pitch genérico que hacés con todos. El prospecto siente que no los escuchaste — porque en esa etapa, no los escuchaste.' },
+            { type: 'error', text: 'Hacer el pitch genérico que hacés con todos. El prospecto siente que no los escuchaste.' },
           ],
         },
       ],
     },
     {
       id: 'cierre02',
-      label: 'Cierre — Reglas y Tablero',
+      label: 'Cierre',
+      short: 'Cierre',
       icon: <Award className="h-4 w-4" />,
-      blocks: [
+      color: '#1a6fff',
+      sections: [
         {
-          id: 'reglas-02',
-          title: 'Reglas transversales de la cualificación',
-          subtitle: 'Las 7 reglas que sostienen el sistema',
+          id: 'reglas02', title: 'Las 7 reglas transversales de la cualificación',
           body: (
             <div className="space-y-3">
               {[
-                { n: 1, regla: 'Las etapas no son opcionales', desc: 'Podés acelerarlas, pero no saltearlas. Cada etapa construye la siguiente.' },
-                { n: 2, regla: 'El orden importa', desc: 'Síntomas antes que causa raíz. Emoción antes de lógica. Lógica antes de solución.' },
-                { n: 3, regla: 'Nunca presentes sin haber entendido', desc: 'Si no pasaste por E01-E06, tu presentación es una apuesta, no una solución.' },
-                { n: 4, regla: 'Sus palabras, no las tuyas', desc: 'Todo lo que articulés sobre el problema tiene que venir de lo que ellos dijeron.' },
-                { n: 5, regla: 'La curiosidad es técnica', desc: 'No es una habilidad innata — es un conjunto de comportamientos que se practican.' },
-                { n: 6, regla: 'El cierre es una confirmación, no un evento', desc: 'Si el sistema funcionó, el cierre es la consecuencia lógica de todo lo anterior.' },
-                { n: 7, regla: 'Lo que no se mide no se mejora', desc: 'Después de cada llamada, revisá qué etapa estuvo débil. Ahí está tu próxima mejora.' },
+                { n: 1, r: 'Las etapas no son opcionales', d: 'Podés acelerarlas, pero no saltearlas. Cada etapa construye la siguiente.' },
+                { n: 2, r: 'El orden importa', d: 'Síntomas antes que causa raíz. Emoción antes de lógica. Lógica antes de solución.' },
+                { n: 3, r: 'Nunca presentes sin haber entendido', d: 'Si no pasaste por E01-E06, tu presentación es una apuesta, no una solución.' },
+                { n: 4, r: 'Sus palabras, no las tuyas', d: 'Todo lo que articulés sobre el problema tiene que venir de lo que ellos dijeron.' },
+                { n: 5, r: 'La curiosidad es técnica', d: 'No es una habilidad innata — es un conjunto de comportamientos que se practican.' },
+                { n: 6, r: 'El cierre es una confirmación, no un evento', d: 'Si el sistema funcionó, el cierre es la consecuencia lógica de todo lo anterior.' },
+                { n: 7, r: 'Lo que no se mide no se mejora', d: 'Después de cada llamada, revisá qué etapa estuvo débil. Ahí está tu próxima mejora.' },
               ].map(r => (
-                <div key={r.n} className="flex gap-4 items-start bg-[#0f1420] border border-[rgba(26,111,255,0.15)] rounded-lg p-4">
-                  <div className="w-8 h-8 rounded-full bg-brand-gold/15 border border-brand-gold/30 flex items-center justify-center shrink-0">
-                    <span className="text-sm font-bold text-brand-gold">{r.n}</span>
+                <div key={r.n} className="flex gap-4 items-start rounded-2xl bg-[#0d0d14] border border-[rgba(26,111,255,0.10)] p-4">
+                  <div className="w-9 h-9 rounded-xl bg-brand-gold/10 border border-brand-gold/25 flex items-center justify-center shrink-0">
+                    <span className="text-sm font-black text-brand-gold">{r.n}</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-[#e8e8e8] mb-1">{r.regla}</p>
-                    <p className="text-sm text-[#a0a0a0]">{r.desc}</p>
+                    <p className="font-semibold text-brand-text">{r.r}</p>
+                    <p className="text-sm text-brand-muted mt-1">{r.d}</p>
                   </div>
                 </div>
               ))}
@@ -1087,53 +815,48 @@ const MANUAL_02: Manual = {
           ),
         },
         {
-          id: 'tablero-02',
-          title: 'Tablero de verificación',
-          subtitle: '¿Completaste cada etapa correctamente?',
+          id: 'tablero02', title: 'Tablero de verificación por etapa',
           body: (
-            <div className="space-y-2">
+            <div className="grid sm:grid-cols-2 gap-2">
               {[
-                { etapa: 'E01', check: 'Sé qué trajo al prospecto aquí y qué emoción hay detrás' },
-                { etapa: 'E02', check: 'Tengo un mapa claro de su situación actual (duración, intentos previos, lo que funciona)' },
-                { etapa: 'E03', check: 'Identifiqué al menos 3 síntomas concretos del problema' },
-                { etapa: 'E04', check: 'El prospecto articuló el problema real con sus propias palabras' },
-                { etapa: 'E05', check: 'Entiendo el impacto emocional — cómo se siente vivir esa situación' },
-                { etapa: 'E06', check: 'Resumí lo que escuché y el prospecto confirmó que lo capturé bien' },
-                { etapa: 'E07', check: 'El prospecto puede articular el costo de no actuar con sus propias palabras' },
-                { etapa: 'E08', check: 'Mi presentación está construida con sus palabras y mapea su situación específica' },
-                { etapa: 'P1', check: 'Mantuve los 6 comportamientos de conexión genuina durante toda la conversación' },
-                { etapa: 'P2', check: 'Tengo información de las 9 dimensiones antes de presentar cualquier solución' },
+                { e: 'E01', c: 'Sé qué trajo al prospecto aquí y qué emoción hay detrás' },
+                { e: 'E02', c: 'Tengo mapa de situación actual (duración, intentos previos)' },
+                { e: 'E03', c: 'Identifiqué al menos 3 síntomas concretos' },
+                { e: 'E04', c: 'El prospecto articuló el problema real con sus propias palabras' },
+                { e: 'E05', c: 'Entiendo el impacto emocional de vivir esa situación' },
+                { e: 'E06', c: 'Resumí lo que escuché y el prospecto confirmó' },
+                { e: 'E07', c: 'El prospecto articuló el costo de no actuar' },
+                { e: 'E08', c: 'Mi presentación está construida con sus palabras' },
+                { e: 'P1', c: 'Mantuve los 6 comportamientos de conexión genuina' },
+                { e: 'P2', c: 'Tengo información de las 9 dimensiones antes de presentar' },
               ].map(c => (
-                <div key={c.etapa} className="flex items-start gap-3 bg-[#0d0d0d] border border-[rgba(255,255,255,0.05)] rounded-lg px-4 py-3">
-                  <div className="w-10 h-6 rounded bg-[rgba(26,111,255,0.15)] border border-[rgba(26,111,255,0.30)] flex items-center justify-center shrink-0">
-                    <span className="text-[10px] font-bold text-brand-gold">{c.etapa}</span>
+                <div key={c.e} className="flex items-start gap-3 rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.05)] px-4 py-3">
+                  <div className="rounded-lg bg-brand-gold/10 border border-brand-gold/20 px-2 py-1 shrink-0">
+                    <span className="text-[10px] font-black text-brand-gold">{c.e}</span>
                   </div>
-                  <p className="text-sm text-[#c0c0c0]">{c.check}</p>
+                  <p className="text-sm text-brand-muted">{c.c}</p>
                 </div>
               ))}
             </div>
           ),
         },
         {
-          id: 'errores-02',
-          title: 'Errores que invalidan el diagnóstico',
+          id: 'errores02', title: 'Errores que invalidan el diagnóstico',
           body: (
-            <div className="space-y-3">
+            <div className="grid sm:grid-cols-2 gap-3">
               {[
-                { error: 'Saltar etapas', consecuencia: 'Cada etapa que saltás es un agujero en tu diagnóstico. Un diagnóstico incompleto lleva a cierres forzados.' },
-                { error: 'Presentar antes de la E06', consecuencia: 'Si presentás sin acompañamiento, el prospecto siente que no fue escuchado — y tiene razón.' },
-                { error: 'Usar tus palabras en lugar de las suyas', consecuencia: 'La conversación deja de ser sobre ellos y empieza a ser sobre vos.' },
-                { error: 'No profundizar en el impacto emocional', consecuencia: 'Sin emoción, la decisión no tiene urgencia real.' },
-                { error: 'Hacer el mismo pitch para todos', consecuencia: 'Si tu presentación no menciona nada de lo que dijeron, es que no diagnosticaste — presentaste.' },
-                { error: 'Cerrar sin confirmar la lógica (E07)', consecuencia: 'El prospecto tiene la emoción pero no la justificación racional → "lo pienso" → se cae.' },
+                { e: 'Saltar etapas', c: 'Cada etapa que saltás es un agujero en tu diagnóstico.' },
+                { e: 'Presentar antes de la E06', c: 'Si presentás sin acompañamiento, el prospecto no se sintió escuchado.' },
+                { e: 'Usar tus palabras, no las suyas', c: 'La conversación deja de ser sobre ellos y empieza a ser sobre vos.' },
+                { e: 'No profundizar el impacto emocional', c: 'Sin emoción, la decisión no tiene urgencia real.' },
+                { e: 'El mismo pitch para todos', c: 'Si tu presentación no menciona nada de lo que dijeron, no diagnosticaste.' },
+                { e: 'Cerrar sin confirmar la lógica (E07)', c: 'El prospecto tiene la emoción pero no la justificación → "lo pienso" → se cae.' },
               ].map(e => (
-                <div key={e.error} className="bg-[#1a0a0a] border border-[rgba(255,60,60,0.20)] rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="h-4 w-4 text-[#ff6b6b] mt-0.5 shrink-0" />
-                    <div>
-                      <p className="font-semibold text-[#e8e8e8] text-sm">{e.error}</p>
-                      <p className="text-xs text-[#a0a0a0] mt-1">{e.consecuencia}</p>
-                    </div>
+                <div key={e.e} className="rounded-xl bg-[#1a0a0a] border border-[rgba(255,80,80,0.18)] p-4 flex gap-3">
+                  <AlertTriangle className="h-4 w-4 text-[#ff6b6b] shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-brand-text text-sm">{e.e}</p>
+                    <p className="text-xs text-brand-muted mt-1">{e.c}</p>
                   </div>
                 </div>
               ))}
@@ -1145,269 +868,163 @@ const MANUAL_02: Manual = {
   ],
 };
 
-const MANUALS = [MANUAL_01, MANUAL_02];
+const MANUALS = [M01, M02];
 
-// ─── COMPONENTES UI ────────────────────────────────────────────────────────────
+// ─── CALLOUT ─────────────────────────────────────────────────────────────────
 
-function CalloutBox({ callout }: { callout: Callout }) {
-  const config = {
-    dominio: { bg: 'bg-[#0f1a2e]', border: 'border-[rgba(26,111,255,0.30)]', icon: <Target className="h-4 w-4 text-brand-gold shrink-0 mt-0.5" />, label: 'Criterio de dominio', labelColor: 'text-brand-gold' },
-    error: { bg: 'bg-[#1a0a0a]', border: 'border-[rgba(255,60,60,0.30)]', icon: <AlertTriangle className="h-4 w-4 text-[#ff6b6b] shrink-0 mt-0.5" />, label: 'Error frecuente', labelColor: 'text-[#ff6b6b]' },
-    tip: { bg: 'bg-[#0f1a0f]', border: 'border-[rgba(26,200,100,0.30)]', icon: <Lightbulb className="h-4 w-4 text-[#6bff8a] shrink-0 mt-0.5" />, label: 'Tip práctico', labelColor: 'text-[#6bff8a]' },
-    regla: { bg: 'bg-[#1a0f2e]', border: 'border-[rgba(150,100,255,0.30)]', icon: <Shield className="h-4 w-4 text-[#c0a0ff] shrink-0 mt-0.5" />, label: 'Regla', labelColor: 'text-[#c0a0ff]' },
-  }[callout.type];
-
+function Callout({ c }: { c: Callout }) {
+  const isDom = c.type === 'dominio';
   return (
-    <div className={cn('rounded-xl border p-4 flex gap-3', config.bg, config.border)}>
-      {config.icon}
+    <div className={cn('rounded-2xl border p-4 flex gap-3', isDom ? 'bg-[#0f1a2e] border-[rgba(26,111,255,0.25)]' : 'bg-[#1a0a0a] border-[rgba(255,80,80,0.25)]')}>
+      {isDom
+        ? <Target className="h-4 w-4 text-brand-gold shrink-0 mt-0.5" />
+        : <AlertTriangle className="h-4 w-4 text-[#ff6b6b] shrink-0 mt-0.5" />}
       <div>
-        <p className={cn('text-xs font-bold uppercase tracking-wider mb-1', config.labelColor)}>{config.label}</p>
-        <p className="text-sm text-[#c8c8c8] leading-relaxed">{callout.text}</p>
+        <p className={cn('text-[10px] font-bold uppercase tracking-widest mb-1', isDom ? 'text-brand-gold' : 'text-[#ff6b6b]')}>
+          {isDom ? 'Criterio de dominio' : 'Error frecuente'}
+        </p>
+        <p className="text-sm text-brand-muted leading-relaxed">{c.text}</p>
       </div>
     </div>
   );
 }
 
-function BlockCard({ block }: { block: Block }) {
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start gap-4">
-        {block.number && (
-          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-brand-gold/10 border border-brand-gold/25 shrink-0">
-            <span className="text-lg font-black text-brand-gold">{block.number}</span>
-          </div>
-        )}
-        <div className="min-w-0">
-          <h2 className="text-xl font-bold text-[#f0f0f0] leading-tight">{block.title}</h2>
-          {block.subtitle && <p className="text-sm text-[#888] mt-0.5">{block.subtitle}</p>}
-        </div>
-      </div>
-
-      {/* Separator */}
-      <div className="h-px bg-gradient-to-r from-brand-gold/30 via-brand-gold/10 to-transparent" />
-
-      {/* Body */}
-      <div>{block.body}</div>
-
-      {/* Callouts */}
-      {block.callouts && block.callouts.length > 0 && (
-        <div className="space-y-3 pt-2">
-          {block.callouts.map((c, i) => <CalloutBox key={i} callout={c} />)}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── COMPONENTE PRINCIPAL ─────────────────────────────────────────────────────
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
 
 export function ManualViewer() {
-  const [activeManual, setActiveManual] = useState(0);
-  const [activeChapter, setActiveChapter] = useState(0);
-  const [activeBlock, setActiveBlock] = useState(0);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const [manualIdx, setManualIdx] = useState(0);
+  const [chapterIdx, setChapterIdx] = useState(0);
+  const [sectionIdx, setSectionIdx] = useState(0);
 
-  const manual = MANUALS[activeManual];
-  const chapter = manual.chapters[activeChapter];
-  const block = chapter?.blocks[activeBlock];
+  const manual = MANUALS[manualIdx];
+  const chapter = manual.chapters[chapterIdx];
+  const section = chapter.sections[sectionIdx];
 
-  // Flatten all blocks for prev/next
-  const allBlocks: { manualIdx: number; chapterIdx: number; blockIdx: number }[] = [];
-  MANUALS.forEach((m, mi) => m.chapters.forEach((c, ci) => c.blocks.forEach((_, bi) => allBlocks.push({ manualIdx: mi, chapterIdx: ci, blockIdx: bi }))));
-
-  const currentFlatIdx = allBlocks.findIndex(b => b.manualIdx === activeManual && b.chapterIdx === activeChapter && b.blockIdx === activeBlock);
-  const totalBlocks = allBlocks.length;
-  const progress = ((currentFlatIdx + 1) / totalBlocks) * 100;
-
-  function navigate(delta: number) {
-    const next = allBlocks[currentFlatIdx + delta];
-    if (!next) return;
-    setActiveManual(next.manualIdx);
-    setActiveChapter(next.chapterIdx);
-    setActiveBlock(next.blockIdx);
-    contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    setSidebarOpen(false);
+  function goTo(mi: number, ci: number, si: number) {
+    setManualIdx(mi); setChapterIdx(ci); setSectionIdx(si);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function goTo(mi: number, ci: number, bi: number) {
-    setActiveManual(mi);
-    setActiveChapter(ci);
-    setActiveBlock(bi);
-    contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    setSidebarOpen(false);
-  }
-
-  const isActive = (mi: number, ci: number, bi: number) => mi === activeManual && ci === activeChapter && bi === activeBlock;
+  // flat list para prev/next
+  const flat: [number,number,number][] = [];
+  MANUALS.forEach((m,mi) => m.chapters.forEach((c,ci) => c.sections.forEach((_,si) => flat.push([mi,ci,si]))));
+  const flatIdx = flat.findIndex(([mi,ci,si]) => mi===manualIdx && ci===chapterIdx && si===sectionIdx);
+  const prev = flat[flatIdx-1];
+  const next = flat[flatIdx+1];
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-[#050505] overflow-hidden relative">
+    <div className="space-y-0">
 
-      {/* ── Overlay mobile ── */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-20 bg-black/60 lg:hidden" onClick={() => setSidebarOpen(false)} />
+      {/* ── HERO ── */}
+      <section className="relative overflow-hidden rounded-2xl border border-[rgba(26,111,255,0.20)] bg-gradient-to-br from-[#0a1428] via-[#050d1e] to-[#050505] p-6 md:p-10 mb-6">
+        <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-brand-gold/8 blur-3xl pointer-events-none" />
+        <div className="absolute -left-10 -bottom-10 h-48 w-48 rounded-full bg-brand-gold/5 blur-3xl pointer-events-none" />
+
+        {/* Manual tabs */}
+        <div className="relative flex gap-2 mb-8">
+          {MANUALS.map((m, i) => (
+            <button key={m.id} onClick={() => goTo(i,0,0)}
+              className={cn('flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all border',
+                manualIdx === i
+                  ? 'bg-brand-gold text-white border-brand-gold shadow-[0_0_20px_rgba(26,111,255,0.4)]'
+                  : 'bg-[rgba(26,111,255,0.06)] text-brand-muted border-[rgba(26,111,255,0.12)] hover:text-brand-text hover:border-[rgba(26,111,255,0.30)]'
+              )}>
+              <BookOpen className="h-3.5 w-3.5" />
+              Manual {m.number}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-gold mb-2">
+            Areté Fuera de Serie · Manual {manual.number}
+          </p>
+          <h1 className="text-2xl md:text-4xl font-black text-brand-text leading-tight mb-3">
+            {manual.title}
+          </h1>
+          <p className="text-brand-muted max-w-2xl leading-relaxed">{manual.description}</p>
+        </div>
+      </section>
+
+      {/* ── CHAPTER TABS ── */}
+      <div className="flex gap-2 overflow-x-auto pb-1 mb-6 scrollbar-hide">
+        {manual.chapters.map((ch, ci) => (
+          <button key={ch.id} onClick={() => goTo(manualIdx, ci, 0)}
+            className={cn('flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-all border shrink-0',
+              chapterIdx === ci
+                ? 'bg-[rgba(26,111,255,0.15)] text-brand-gold border-[rgba(26,111,255,0.40)] shadow-[0_0_12px_rgba(26,111,255,0.15)]'
+                : 'bg-[#0d0d0d] text-brand-muted border-[rgba(255,255,255,0.05)] hover:text-brand-text hover:border-[rgba(26,111,255,0.20)]'
+            )}>
+            {ch.icon}
+            {ch.short}
+          </button>
+        ))}
+      </div>
+
+      {/* ── SECTION PILLS (dentro del chapter) ── */}
+      {chapter.sections.length > 1 && (
+        <div className="flex gap-2 flex-wrap mb-6">
+          {chapter.sections.map((s, si) => (
+            <button key={s.id} onClick={() => goTo(manualIdx, chapterIdx, si)}
+              className={cn('rounded-lg px-3 py-1.5 text-xs font-semibold transition-all border',
+                sectionIdx === si
+                  ? 'bg-brand-gold/15 text-brand-gold border-brand-gold/30'
+                  : 'bg-[#0d0d0d] text-brand-muted border-[rgba(255,255,255,0.04)] hover:text-brand-text'
+              )}>
+              {s.number ? `${s.number} · ${s.title}` : s.title}
+            </button>
+          ))}
+        </div>
       )}
 
-      {/* ── SIDEBAR ── */}
-      <aside className={cn(
-        'fixed lg:relative inset-y-0 left-0 z-30 lg:z-auto w-72 flex flex-col bg-[#080810] border-r border-[rgba(26,111,255,0.12)] transition-transform duration-300 lg:translate-x-0',
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      )}>
-        {/* Manual selector */}
-        <div className="p-4 border-b border-[rgba(26,111,255,0.12)]">
-          <div className="flex gap-2">
-            {MANUALS.map((m, i) => (
-              <button
-                key={m.id}
-                onClick={() => { setActiveManual(i); setActiveChapter(0); setActiveBlock(0); setSidebarOpen(false); }}
-                className={cn(
-                  'flex-1 rounded-lg py-2 px-3 text-xs font-bold transition-all',
-                  activeManual === i
-                    ? 'bg-brand-gold text-white shadow-[0_0_16px_rgba(26,111,255,0.4)]'
-                    : 'bg-[#111] text-[#888] hover:text-[#ccc] border border-[rgba(255,255,255,0.06)]'
-                )}
-              >
-                Manual {m.number}
-              </button>
-            ))}
-          </div>
-          <p className="text-[10px] text-[#666] mt-3 px-1 leading-tight">{manual.title}</p>
-        </div>
+      {/* ── CONTENT CARD ── */}
+      <div className="card-premium rounded-2xl p-6 md:p-8 space-y-6">
 
-        {/* Nav */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {manual.chapters.map((ch, ci) => (
-            <div key={ch.id} className="space-y-0.5">
-              {/* Chapter header */}
-              <div className="flex items-center gap-2 px-2 py-1.5 mt-2 first:mt-0">
-                <div className="text-brand-gold/60 shrink-0">{ch.icon}</div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#555] leading-tight">{ch.label}</p>
-              </div>
-              {/* Blocks */}
-              {ch.blocks.map((bl, bi) => (
-                <button
-                  key={bl.id}
-                  onClick={() => goTo(activeManual, ci, bi)}
-                  className={cn(
-                    'w-full text-left flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all text-sm',
-                    isActive(activeManual, ci, bi)
-                      ? 'bg-[rgba(26,111,255,0.15)] text-[#e8e8e8] border border-[rgba(26,111,255,0.30)] shadow-[0_0_12px_rgba(26,111,255,0.12)]'
-                      : 'text-[#888] hover:bg-[#111] hover:text-[#ccc] border border-transparent'
-                  )}
-                >
-                  {isActive(activeManual, ci, bi)
-                    ? <CheckCircle2 className="h-3.5 w-3.5 text-brand-gold shrink-0" />
-                    : <Circle className="h-3.5 w-3.5 text-[#444] shrink-0" />
-                  }
-                  <span className="truncate leading-tight">{bl.title}</span>
-                </button>
-              ))}
+        {/* Section header */}
+        <div className="flex items-start gap-4 pb-6 border-b border-[rgba(26,111,255,0.10)]">
+          {section.number && (
+            <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-gold/10 border border-brand-gold/20 shrink-0">
+              <span className="text-xl font-black text-brand-gold">{section.number}</span>
             </div>
-          ))}
-        </nav>
-
-        {/* Progress */}
-        <div className="p-4 border-t border-[rgba(26,111,255,0.12)]">
-          <div className="flex justify-between text-xs text-[#555] mb-2">
-            <span>Progreso total</span>
-            <span className="text-brand-gold font-bold">{Math.round(progress)}%</span>
+          )}
+          <div>
+            <h2 className="text-2xl font-bold text-brand-text">{section.title}</h2>
+            {section.subtitle && <p className="text-brand-muted mt-1">{section.subtitle}</p>}
           </div>
-          <div className="h-1.5 bg-[#111] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-[#1a6fff] to-[#4d8fff] rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(26,111,255,0.5)]"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <p className="text-[10px] text-[#444] mt-2 text-center">{currentFlatIdx + 1} / {totalBlocks} secciones</p>
         </div>
-      </aside>
 
-      {/* ── MAIN CONTENT ── */}
-      <div className="flex-1 flex flex-col min-w-0">
+        {/* Body */}
+        <div>{section.body}</div>
 
-        {/* Top bar */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-[rgba(26,111,255,0.10)] bg-[#080808] shrink-0">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-lg text-[#888] hover:text-[#e8e8e8] hover:bg-[#111] transition"
-          >
-            <Menu className="h-5 w-5" />
+        {/* Callouts */}
+        {section.callouts && section.callouts.length > 0 && (
+          <div className="grid sm:grid-cols-2 gap-3 pt-2">
+            {section.callouts.map((c,i) => <Callout key={i} c={c} />)}
+          </div>
+        )}
+      </div>
+
+      {/* ── PREV / NEXT ── */}
+      <div className="flex items-center justify-between pt-6">
+        {prev ? (
+          <button onClick={() => goTo(...prev)}
+            className="btn-ghost-gold flex items-center gap-2">
+            <ChevronLeft className="h-4 w-4" /> Anterior
           </button>
+        ) : <div />}
 
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-1.5 text-xs text-[#555] min-w-0 flex-1">
-            <span className="text-brand-gold font-semibold shrink-0">Manual {manual.number}</span>
-            <ChevronRight className="h-3 w-3 shrink-0" />
-            <span className="truncate">{chapter?.label}</span>
-            {block?.title !== chapter?.label && (
-              <>
-                <ChevronRight className="h-3 w-3 shrink-0" />
-                <span className="truncate text-[#888]">{block?.title}</span>
-              </>
-            )}
-          </div>
+        <p className="text-xs text-brand-muted">{flatIdx + 1} / {flat.length}</p>
 
-          {/* Prev / Next */}
-          <div className="flex gap-1 shrink-0">
-            <button
-              onClick={() => navigate(-1)}
-              disabled={currentFlatIdx === 0}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[#888] hover:text-[#e8e8e8] hover:bg-[#111] transition disabled:opacity-30 disabled:cursor-not-allowed border border-transparent hover:border-[rgba(255,255,255,0.06)]"
-            >
-              <ChevronLeft className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Anterior</span>
-            </button>
-            <button
-              onClick={() => navigate(1)}
-              disabled={currentFlatIdx === totalBlocks - 1}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-gold text-white hover:bg-[#1560e8] transition disabled:opacity-30 disabled:cursor-not-allowed shadow-[0_0_12px_rgba(26,111,255,0.35)]"
-            >
-              <span className="hidden sm:inline">Siguiente</span>
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Progress bar top */}
-        <div className="h-0.5 bg-[#111] shrink-0">
-          <div
-            className="h-full bg-gradient-to-r from-[#1a6fff] to-[#4d8fff] transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
-        {/* Content */}
-        <div ref={contentRef} className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-6 py-8">
-            {block && <BlockCard block={block} />}
-          </div>
-        </div>
-
-        {/* Bottom nav */}
-        <div className="border-t border-[rgba(26,111,255,0.10)] bg-[#080808] px-4 py-3 flex items-center justify-between shrink-0">
-          <button
-            onClick={() => navigate(-1)}
-            disabled={currentFlatIdx === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-[#888] hover:text-[#e8e8e8] hover:bg-[#111] transition disabled:opacity-30 border border-transparent hover:border-[rgba(255,255,255,0.06)]"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Anterior
+        {next ? (
+          <button onClick={() => goTo(...next)}
+            className="btn-gold flex items-center gap-2">
+            Siguiente <ChevronRight className="h-4 w-4" />
           </button>
-
-          <div className="text-xs text-[#444]">
-            {currentFlatIdx + 1} de {totalBlocks}
+        ) : (
+          <div className="flex items-center gap-2 text-sm text-brand-gold font-semibold">
+            <CheckCircle2 className="h-4 w-4" /> Completado
           </div>
-
-          <button
-            onClick={() => navigate(1)}
-            disabled={currentFlatIdx === totalBlocks - 1}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm bg-brand-gold text-white hover:bg-[#1560e8] transition disabled:opacity-30 shadow-[0_0_12px_rgba(26,111,255,0.35)]"
-          >
-            Siguiente
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
+        )}
       </div>
     </div>
   );
