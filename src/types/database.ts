@@ -845,6 +845,126 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['reuniones']['Insert']>;
         Relationships: [];
       };
+      prospects: {
+        Row: {
+          id: string;
+          created_at: string;
+          full_name: string;
+          headline: string | null;
+          company: string | null;
+          location: string | null;
+          linkedin_url: string | null;
+          instagram_url: string | null;
+          source_type: string;
+          status: string;
+          phase: string;
+          follow_up_count: number;
+          assigned_to: string | null;
+          created_by: string | null;
+          whatsapp_number: string | null;
+          notes: string | null;
+          last_contact_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          full_name?: string;
+          headline?: string | null;
+          company?: string | null;
+          location?: string | null;
+          linkedin_url?: string | null;
+          instagram_url?: string | null;
+          source_type?: string;
+          status?: string;
+          phase?: string;
+          follow_up_count?: number;
+          assigned_to?: string | null;
+          created_by?: string | null;
+          whatsapp_number?: string | null;
+          notes?: string | null;
+          last_contact_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['prospects']['Insert']>;
+        Relationships: [];
+      };
+      prospect_analyses: {
+        Row: {
+          id: string;
+          prospect_id: string;
+          disc_type: string | null;
+          disc_description: string | null;
+          psychological_profile: string | null;
+          communication_style: string | null;
+          key_words: string[] | null;
+          pain_points: string[] | null;
+          sales_angle: string | null;
+          company_analysis: string | null;
+          raw_linkedin_data: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          prospect_id: string;
+          disc_type?: string | null;
+          disc_description?: string | null;
+          psychological_profile?: string | null;
+          communication_style?: string | null;
+          key_words?: string[] | null;
+          pain_points?: string[] | null;
+          sales_angle?: string | null;
+          company_analysis?: string | null;
+          raw_linkedin_data?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['prospect_analyses']['Insert']>;
+        Relationships: [];
+      };
+      generated_messages: {
+        Row: {
+          id: string;
+          prospect_id: string;
+          follow_up_number: number;
+          phase: string;
+          message_type: string;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          prospect_id: string;
+          follow_up_number: number;
+          phase: string;
+          message_type: string;
+          content: string;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['generated_messages']['Insert']>;
+        Relationships: [];
+      };
+      prospect_follow_ups: {
+        Row: {
+          id: string;
+          prospect_id: string;
+          follow_up_number: number;
+          phase: string;
+          status: string;
+          prospect_responded: boolean;
+          sent_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          prospect_id: string;
+          follow_up_number: number;
+          phase: string;
+          status?: string;
+          prospect_responded?: boolean;
+          sent_at?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['prospect_follow_ups']['Insert']>;
+        Relationships: [];
+      };
     };
     Functions: {
       is_admin: {

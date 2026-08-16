@@ -37,6 +37,7 @@ export const PLATFORM_NAV: NavItem[] = [
 
 export const SETTER_NAV: NavItem[] = [
   { label: 'Mi Panel',          href: '/panel',            icon: LayoutGrid },
+  { label: 'Prospectos',        href: '/prospectos',       icon: Target },
   { label: 'Mis Leads',         href: '/leads',            icon: Users2 },
   { label: 'Mi Equipo',         href: '/equipo',           icon: Handshake },
   { label: 'Mis Tareas',        href: '/tareas',            icon: ClipboardList },
@@ -73,6 +74,7 @@ export const ADMIN_NAV: NavItem[] = [
   { label: 'Inbox Global',  href: '/admin/inbox',           icon: Inbox },
   { label: 'Campañas',      href: '/admin/campanas',        icon: Megaphone },
   { label: 'Prospección',   href: '/admin/prospeccion',     icon: Target },
+  { label: 'Prospectos',    href: '/prospectos',            icon: Target },
   { label: 'Formularios',   href: '/admin/forms',           icon: ClipboardCheck },
   { label: 'Evaluaciones',  href: '/admin/conversaciones',  icon: ClipboardList },
   { label: 'Comunicados',   href: '/admin/comunicados',     icon: Bell },
