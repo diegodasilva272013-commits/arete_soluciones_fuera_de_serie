@@ -93,13 +93,7 @@ export default function RootLayout({
       <body suppressHydrationWarning className="min-h-screen bg-brand-black text-brand-text antialiased">
         <div id="cac-splash" aria-hidden="true">
           <div className="cac-bg" />
-          <video
-            src="/video_pagina.mp4"
-            autoPlay
-            muted
-            playsInline
-            preload="auto"
-          />
+          {/* video creado por JS para garantizar muted=true antes de play() */}
         </div>
         <script
           dangerouslySetInnerHTML={{
@@ -112,17 +106,21 @@ export default function RootLayout({
                 try{
                   if(sessionStorage.getItem('cac:splash')){hide();return;}
                 }catch(e){}
-                var v=s.querySelector('video');
                 function finish(){try{sessionStorage.setItem('cac:splash','1');}catch(e){}hide();}
-                if(v){
-                  v.muted=true;v.volume=0;
-                  v.addEventListener('ended',finish);
-                  v.addEventListener('error',finish);
-                  if(v.play){
-                    var p=v.play();
-                    if(p&&p.catch){p.catch(function(){/* autoplay blocked — logo visible, timeout closes */});}
-                  }
-                }
+                var v=document.createElement('video');
+                v.src='/video_pagina.mp4';
+                v.muted=true;
+                v.volume=0;
+                v.autoplay=true;
+                v.setAttribute('playsinline','');
+                v.setAttribute('webkit-playsinline','');
+                v.preload='auto';
+                v.style.cssText='position:absolute;left:50%;top:50%;width:120%;height:120%;transform:translate(-50%,-50%);object-fit:cover;background:#000';
+                v.addEventListener('ended',finish);
+                v.addEventListener('error',finish);
+                s.appendChild(v);
+                var p=v.play();
+                if(p&&p.catch){p.catch(function(){/* bloqueado: logo visible, timeout cierra */});}
                 setTimeout(finish,11000);
                 s.addEventListener('click',finish);
               })();
