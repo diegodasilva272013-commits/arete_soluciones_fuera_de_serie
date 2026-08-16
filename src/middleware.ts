@@ -75,6 +75,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/equipo-ranking') ||
     pathname.startsWith('/strikes') ||
     pathname.startsWith('/agenda') ||
+    pathname.startsWith('/formacion') ||
+    pathname.startsWith('/mi-evolucion') ||
     pathname.startsWith('/bloqueado') ||
     pathname.startsWith('/onboarding') ||
     pathname.startsWith('/admin');
