@@ -95,6 +95,11 @@ const M01: Manual = {
                 <Row label="Bloque 03 · La percepción" value="Qué ocurre entre el dato y la interpretación, y por qué eso convierte a la suposición en el error más caro." />
                 <Row label="Bloque 04 · El operador" value="Cómo tomar control: los primeros segundos, el propio estado y el marco ético que ordena el uso de todo lo anterior." />
               </div>
+              <H>Lo que este manual cubre y lo que no</H>
+              <P>Acá están los fundamentos: qué ocurre entre dos personas cuando conversan y por qué. La estructura del diagnóstico —las ocho etapas de una cualificación, los criterios de avance, la construcción de la propuesta— se trabaja en el Manual 02. La ejecución fina —formulación de preguntas abiertas, guiadas y cerradas, manejo del hilo conversacional, tonalidad, detección de palabras clave— se entrena aparte, sobre esta base.</P>
+              <P>El orden no es arbitrario ni administrativo. Un alumno que empieza por la estructura de cualificación sin estos fundamentos se lleva ocho etapas y las recita. Un alumno que empieza por acá entiende para qué existe cada etapa antes de conocerla, y entonces la aplica con criterio propio.</P>
+              <H>Una aclaración sobre las analogías</H>
+              <P>A lo largo del manual se usan analogías —la radio, la antena, el espejo— porque explican rápido y se recuerdan. Son analogías, no descripciones físicas de lo que ocurre. Se usan para entender el mecanismo, no para explicarlo delante de un prospecto. Una analogía dicha como si fuera un hecho científico destruye en dos segundos la autoridad que se tardó media hora en construir.</P>
             </div>
           ),
         },
@@ -179,6 +184,14 @@ const M01: Manual = {
               <Row label="Nivel 3 · Emocional" value="Cuando la persona nombra lo que siente y vos se lo devolvés sin juzgarlo ni corregirlo. Es el más profundo y el más frágil: se llega por acumulación de los dos anteriores." />
               <H>La regla de autenticidad</H>
               <P>El punto en común tiene que ser real. Un interés inventado para caer bien produce incongruencia entre lo que decís y lo que transmite el resto de tu cuerpo. La otra persona rara vez identifica qué fue lo que no cerró, pero registra que algo no cerró. Y a partir de ese momento deja de contar cosas.</P>
+              <P>El costo de esa incongruencia no es perder la venta. Es perder la confianza, que es un activo mucho más caro y que, a diferencia de la venta, no se recupera en la llamada siguiente.</P>
+              <H>Qué observar</H>
+              <Ul>
+                <Li>En qué segundo apareció el primer punto en común real. Es una métrica, se puede medir en una grabación y baja con el entrenamiento.</Li>
+                <Li>Quién lo introdujo. Si siempre lo introduce el prospecto, estás dependiendo de que te toquen prospectos fáciles.</Li>
+                <Li>Si la persona amplió el terreno por su cuenta. Cuando alguien agrega contexto que no le pediste, el terreno está construido.</Li>
+                <Li>Si te quedaste en el nivel 1 toda la llamada. Es cómodo, se siente bien y no produce diagnóstico.</Li>
+              </Ul>
             </div>
           ),
           callouts: [
@@ -298,7 +311,11 @@ const M01: Manual = {
               <Row label="Gesto y quietud" value="Estado interno. El movimiento nervioso, el desvío de mirada hacia otra pantalla, la cara tensa: todo eso se lee." />
               <H>La congruencia manda sobre el contenido</H>
               <P>Cuando dos canales dicen cosas distintas, gana el canal no verbal. Un argumento impecable con audio entrecortado se percibe como un mensaje entrecortado. Un diagnóstico brillante dicho a contraluz, con la cara en sombra, se percibe con la desconfianza que produce no poder ver una cara.</P>
+              <P>En una llamada pasa idéntico. Una persona que aparece impecable y después habla con inseguridad pierde más que si hubiera aparecido normal. Y al revés: alguien que atiende en pijama, tirado en la silla, no vende nada aunque su argumento sea correcto, porque la primera hipótesis ya se formó y todo lo que venga después se lee a través de ella.</P>
               <Quote>Cuidar la emisión inicial no es superficialidad: es administrar la variable que gobierna todo lo que viene después.</Quote>
+              <H>El espejo</H>
+              <P>La emisión propia no se puede evaluar desde adentro. Hace falta una devolución externa, y el mecanismo más simple es mirarse: un espejo antes de salir, el vidrio de una vitrina al pasar, la ventana de la cámara antes de conectarse. La pregunta es siempre la misma: ¿qué información estoy transmitiendo ahora mismo? Si lo que ves no es lo que querés transmitir, todavía estás a tiempo de cambiarlo. Después de conectarte, no.</P>
+              <P>La versión profesional de este mecanismo es la revisión de llamadas grabadas. Ahí se ve exactamente lo mismo, con más detalle y sin posibilidad de discusión. Casi siempre el propio operador identifica sus errores antes que cualquier supervisor: la dificultad no es verlos, es querer verlos.</P>
             </div>
           ),
           callouts: [
@@ -581,6 +598,47 @@ const M01: Manual = {
             </div>
           ),
         },
+        {
+          id: 'puente',
+          title: 'Hacia dónde va esto',
+          subtitle: 'Puente al Manual 02 — cada concepto de este manual sostiene una afirmación del siguiente',
+          body: (
+            <div className="space-y-4">
+              <P>Este manual instala los fundamentos. El siguiente instala la estructura del diagnóstico. Cada afirmación del Manual 02 se apoya en un concepto de este, y esa correspondencia es lo que hace que la estructura se entienda en lugar de memorizarse.</P>
+              <div className="space-y-2">
+                <Row label="«La conexión no se hace: se mantiene»" value="02 · El terreno común es una condición permanente, no una etapa inicial." />
+                <Row label="«La conexión genuina es reducción de amenaza»" value="10 · El escaneo inicial resuelve primero la pregunta de seguridad, y recién después libera atención." />
+                <Row label="«La curiosidad es consecuencia del interés»" value="03 · El interés es el motor; sin él la pregunta siguiente no se encadena con la respuesta anterior." />
+                <Row label="«La certeza no se actúa: se transmite»" value="06 · La congruencia manda sobre el contenido. Lo actuado se lee como incongruencia." />
+                <Row label="Principio de trazabilidad: ninguna conclusión sin origen" value="07, 08 y 09 · La realidad ajena se construye con filtros que no conocés; completarla por cuenta propia es completarla mal." />
+                <Row label="«Anotar las palabras exactas, no los sinónimos»" value="05 · Sintonía de vocabulario: escuchar la propia frase de vuelta comunica comprensión; el sinónimo comunica interpretación." />
+                <Row label="«Confirmar aunque ya lo sepas»" value="09 · El costo asimétrico: preguntar de más cuesta segundos, asumir mal cuesta la conversación." />
+                <Row label="«Escuchar más de lo que hablamos» como dato medible" value="01 y 04 · Quien llena los silencios perdió el terreno; y mientras escuchás seguís emitiendo." />
+                <Row label="«Las creencias son conclusiones de una mala experiencia»" value="08 · Los filtros y su origen concreto." />
+                <Row label="Etapa 5: la línea que no se cruza" value="12 · Comprender es preguntar una vez; escarbar es presionar. Un diagnóstico honesto no necesita apretar." />
+                <Row label="«El «no» es un resultado válido»" value="12 · Los tres filtros previos: si falta uno, no se avanza." />
+              </div>
+              <H>Lo que sigue</H>
+              <P>Manual 02 · Estructura de Cualificación Comercial. Los dos pilares, las ocho etapas y los criterios de avance de una conversación consultiva. Sobre esa estructura se entrena después la ejecución: formulación de preguntas abiertas, guiadas y cerradas, manejo del hilo conversacional, detección de palabras clave, tonalidad, construcción de la oferta y de la presentación.</P>
+              <Quote>Primero se entiende por qué. Después se entiende el mapa. Después se aprende a caminarlo.</Quote>
+            </div>
+          ),
+        },
+        {
+          id: 'final',
+          title: 'Principio Final',
+          body: (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-brand-gold/25 bg-gradient-to-br from-[#0a1428] to-[#050d1e] p-8 text-center">
+                <p className="text-xl md:text-2xl font-bold text-brand-text leading-relaxed max-w-2xl mx-auto">
+                  Nadie compra un producto ni contrata un servicio: las personas quieren que les resuelvan un problema. Y nadie puede resolver un problema que no comprendió, ni comprender a alguien sin entender antes cómo esa persona construye su realidad.
+                </p>
+                <p className="text-brand-muted mt-4 text-sm">Todo lo demás —la estructura, las preguntas, la propuesta— es consecuencia de haber entendido esto primero.</p>
+                <p className="text-brand-gold text-xs uppercase tracking-widest mt-6">Areté Fuera de Serie · Equipos de venta de alto rendimiento</p>
+              </div>
+            </div>
+          ),
+        },
       ],
     },
   ],
@@ -595,6 +653,42 @@ const M02: Manual = {
   subtitle: 'Los dos pilares, las ocho etapas y los criterios de avance de una conversación consultiva',
   description: 'Esto es una estructura de pensamiento, no un guion. Lo que hay que dominar es el para qué de cada etapa: qué se busca comprender, en qué orden, y cómo saber que ya se comprendió.',
   chapters: [
+    {
+      id: 'apertura',
+      label: 'Apertura',
+      short: 'Apertura',
+      icon: <BookOpen className="h-4 w-4" />,
+      color: '#1a6fff',
+      sections: [
+        {
+          id: 'uso',
+          title: 'Cómo se usa este manual',
+          body: (
+            <div className="space-y-4">
+              <P>Esto es una estructura de pensamiento, no un guion. Nadie tiene que repetir estas preguntas tal como están escritas. Lo que hay que dominar es el para qué de cada etapa: qué se busca comprender, en qué orden, y cómo saber que ya se comprendió.</P>
+              <P>Un guion se memoriza y se recita. Una estructura se entiende y se aplica con criterio propio. La diferencia se nota enseguida: quien recita hace la pregunta que sigue en la lista; quien entiende hace la pregunta que sigue a la respuesta anterior.</P>
+              <P>Por eso el manual está organizado en tres bloques. Primero el principio fundamental, que explica por qué la venta es una consecuencia y no un objetivo. Después los dos pilares, que son condiciones permanentes: sostienen la conversación de principio a fin. Y finalmente las ocho etapas, que sí avanzan en orden porque cada una necesita el material que produjo la anterior.</P>
+              <H>Regla de lectura</H>
+              <P>Cada etapa cierra con un criterio de avance: una pregunta de control que hay que poder responder antes de pasar a la siguiente. Si no la podés responder con las palabras del prospecto, la etapa no está terminada, por más que la conversación haya seguido de largo.</P>
+              <H>Lo que este manual cubre y lo que no</H>
+              <P>Acá está la estructura: el esqueleto del diagnóstico. Cómo formular cada pregunta —preguntas abiertas, guiadas y cerradas—, cómo sostener el hilo conversacional sin perderse, cómo detectar palabras clave, cómo trabajar la tonalidad, cómo construir la oferta y la presentación: todo eso se entrena aparte, sobre esta base. Primero la estructura. Después la ejecución.</P>
+              <H>El mapa completo</H>
+              <div className="space-y-2">
+                <Row label="01 · Interés" value="El destino: a dónde quiere llegar." />
+                <Row label="02 · Situación actual" value="El punto de partida: dónde está hoy." />
+                <Row label="03 · Síntomas" value="Lo que se ve de la distancia entre ambos." />
+                <Row label="04 · Problema real" value="Por qué existe esa distancia." />
+                <Row label="05 · Impacto emocional" value="Cuánto le cuesta sostenerla." />
+                <Row label="06 · Acompañamiento" value="Devolución emocional: te entendí." />
+                <Row label="07 · Lógica" value="Devolución racional: esto es lo que está pasando." />
+                <Row label="08 · Valor" value="El camino que resuelve exactamente eso." />
+              </div>
+              <P>Hay un punto de giro en el medio. En las etapas 1 a 5 recibimos: escuchamos, preguntamos, retenemos. En las etapas 6 a 8 devolvemos: mostramos lo que entendimos, lo ordenamos y proponemos. Todo lo que devolvemos en la segunda mitad tiene que haber entrado en la primera. No hay forma de devolver lo que nunca nos dieron.</P>
+            </div>
+          ),
+        },
+      ],
+    },
     {
       id: 'principio',
       label: 'Principio',
@@ -767,7 +861,8 @@ const M02: Manual = {
               <Row label="¿Qué sentís que no está funcionando?" value="Deja que sea la persona quien señale, en lugar de señalar vos." />
               <Row label="¿Qué consecuencias ves todos los días?" value="Baja el problema del plano abstracto al plano cotidiano, que es donde realmente se sufre." />
               <H>Síntomas típicos</H>
-              <p className="text-brand-muted text-sm leading-relaxed">Falta de clientes · baja conversión · desorganización · estrés operativo · poco tiempo · facturación inestable · equipo desmotivado. Ninguno de estos es un problema. Todos son efectos.</p>
+              <p className="text-brand-muted text-sm leading-relaxed">Falta de clientes · baja conversión · desorganización · estrés operativo · poco tiempo · facturación inestable · equipo desmotivado.</p>
+              <P>Ninguno de estos es un problema. Todos son efectos. &ldquo;Me faltan clientes&rdquo; es el resultado de algo; &ldquo;tengo baja conversión&rdquo; es el resultado de algo; &ldquo;estamos desorganizados&rdquo; es el resultado de algo. La etapa siguiente existe precisamente para encontrar ese algo.</P>
               <H>Qué escuchar</H>
               <Ul>
                 <Li>Antigüedad: desde cuándo viene así. Un síntoma de tres meses y uno de tres años no son el mismo caso.</Li>
@@ -1005,6 +1100,20 @@ const M02: Manual = {
                   </div>
                 </div>
               ))}
+            </div>
+          ),
+        },
+        {
+          id: 'final',
+          title: 'Principio Final',
+          body: (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-brand-gold/25 bg-gradient-to-br from-[#0a1428] to-[#050d1e] p-8 text-center">
+                <p className="text-xl md:text-2xl font-bold text-brand-text leading-relaxed max-w-2xl mx-auto">
+                  Una venta consultiva no consiste en convencer a alguien de comprar. Consiste en conectar genuinamente, recolectar información de manera inteligente, comprender profundamente su realidad, descubrir el problema que realmente limita sus resultados, acompañarlo desde el entendimiento y ayudarlo a encontrar una solución que tenga sentido tanto emocional como racionalmente.
+                </p>
+                <p className="text-brand-gold text-xs uppercase tracking-widest mt-6">Areté Fuera de Serie · Equipos de venta de alto rendimiento</p>
+              </div>
             </div>
           ),
         },
