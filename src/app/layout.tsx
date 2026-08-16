@@ -81,11 +81,20 @@ export default function RootLayout({
         <style
           dangerouslySetInnerHTML={{
             __html: `
-              #cac-splash{position:fixed;inset:0;z-index:99999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .5s ease}
+              #cac-splash{position:fixed;inset:0;z-index:99999;background:#060606;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;transition:opacity .6s ease}
               #cac-splash.cac-hide{opacity:0;pointer-events:none}
-              #cac-splash .cac-bg{position:absolute;width:160px;height:160px;background:url('/Aretea_fuera%20_de_serie_logo.png') center/contain no-repeat;opacity:.9}
-              #cac-splash video{position:absolute;left:50%;top:50%;width:120%;height:120%;transform:translate(-50%,-50%);object-fit:cover;background:#000}
               html.splash-done #cac-splash{display:none!important}
+              @keyframes cac-ring{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.12);opacity:.15}}
+              @keyframes cac-logo-in{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+              @keyframes cac-text-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+              #cac-splash .sp-ring{position:absolute;width:220px;height:220px;border-radius:50%;border:1.5px solid rgba(212,175,55,.35);animation:cac-ring 2.8s ease-in-out infinite}
+              #cac-splash .sp-ring2{position:absolute;width:260px;height:260px;border-radius:50%;border:1px solid rgba(26,111,255,.2);animation:cac-ring 2.8s ease-in-out infinite .5s}
+              #cac-splash .sp-logo{width:170px;height:170px;object-fit:contain;animation:cac-logo-in .7s cubic-bezier(.22,1,.36,1) both;border-radius:24px}
+              #cac-splash .sp-name{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(212,175,55,.8);animation:cac-text-in .7s ease .3s both}
+              #cac-splash .sp-dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:rgba(26,111,255,.6);margin:0 2px;animation:cac-ring 1.2s ease-in-out infinite}
+              #cac-splash .sp-dot:nth-child(2){animation-delay:.2s}
+              #cac-splash .sp-dot:nth-child(3){animation-delay:.4s}
+              #cac-splash .sp-dots{display:flex;align-items:center;margin-top:8px;animation:cac-text-in .5s ease .6s both}
             `,
           }}
         />
@@ -97,17 +106,17 @@ export default function RootLayout({
           aria-hidden="true"
           dangerouslySetInnerHTML={{
             __html: `
-              <div class="cac-bg"></div>
-              <video
-                id="cac-splash-video"
-                src="/video_pagina.mp4"
-                autoplay
-                muted
-                playsinline
-                webkit-playsinline
-                preload="auto"
-                style="position:absolute;left:50%;top:50%;width:120%;height:120%;transform:translate(-50%,-50%);object-fit:cover;background:#000"
-              ></video>
+              <div class="sp-ring"></div>
+              <div class="sp-ring2"></div>
+              <img class="sp-logo" src="/icon-512.png" alt="Areté" />
+              <div>
+                <div class="sp-name">Areté Soluciones</div>
+                <div class="sp-dots">
+                  <span class="sp-dot"></span>
+                  <span class="sp-dot"></span>
+                  <span class="sp-dot"></span>
+                </div>
+              </div>
             `,
           }}
         />
@@ -119,18 +128,9 @@ export default function RootLayout({
                 if(!s)return;
                 var done=false;
                 function hide(){if(done)return;done=true;s.classList.add('cac-hide');}
-                try{
-                  if(sessionStorage.getItem('cac:splash')){hide();return;}
-                }catch(e){}
+                try{if(sessionStorage.getItem('cac:splash')){hide();return;}}catch(e){}
                 function finish(){try{sessionStorage.setItem('cac:splash','1');}catch(e){}hide();}
-                var v=document.getElementById('cac-splash-video');
-                if(v){
-                  v.muted=true;v.volume=0;
-                  v.addEventListener('ended',finish);
-                  var p=v.play();
-                  if(p&&p.catch){p.catch(function(){});}
-                }
-                setTimeout(finish,11000);
+                setTimeout(finish,2500);
                 s.addEventListener('click',finish);
               })();
             `,

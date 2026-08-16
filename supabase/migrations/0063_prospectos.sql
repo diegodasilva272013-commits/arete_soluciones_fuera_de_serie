@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS prospect_analyses (
   prospect_id          UUID REFERENCES prospects(id) ON DELETE CASCADE UNIQUE,
   psychological_profile TEXT,
   disc_type            TEXT,
+  disc_description     TEXT,
   communication_style  TEXT,
   key_words            TEXT[],
   pain_points          TEXT[],
@@ -64,9 +65,11 @@ ALTER TABLE prospect_analyses  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE generated_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE prospect_follow_ups ENABLE ROW LEVEL SECURITY;
 
+-- FIX: profiles.id = auth.uid() (no user_id, la PK es id)
 CREATE POLICY "prospects_access" ON prospects FOR ALL USING (
   assigned_to = auth.uid()
-  OR EXISTS (SELECT 1 FROM profiles WHERE user_id = auth.uid() AND role = 'admin')
+  OR created_by = auth.uid()
+  OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
 CREATE POLICY "analyses_access" ON prospect_analyses FOR ALL USING (
@@ -74,7 +77,8 @@ CREATE POLICY "analyses_access" ON prospect_analyses FOR ALL USING (
     SELECT 1 FROM prospects p
     WHERE p.id = prospect_id
       AND (p.assigned_to = auth.uid()
-           OR EXISTS (SELECT 1 FROM profiles WHERE user_id = auth.uid() AND role = 'admin'))
+           OR p.created_by = auth.uid()
+           OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
   )
 );
 
@@ -83,7 +87,8 @@ CREATE POLICY "messages_access" ON generated_messages FOR ALL USING (
     SELECT 1 FROM prospects p
     WHERE p.id = prospect_id
       AND (p.assigned_to = auth.uid()
-           OR EXISTS (SELECT 1 FROM profiles WHERE user_id = auth.uid() AND role = 'admin'))
+           OR p.created_by = auth.uid()
+           OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
   )
 );
 
@@ -92,6 +97,7 @@ CREATE POLICY "followups_access" ON prospect_follow_ups FOR ALL USING (
     SELECT 1 FROM prospects p
     WHERE p.id = prospect_id
       AND (p.assigned_to = auth.uid()
-           OR EXISTS (SELECT 1 FROM profiles WHERE user_id = auth.uid() AND role = 'admin'))
+           OR p.created_by = auth.uid()
+           OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
   )
 );
