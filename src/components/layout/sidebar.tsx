@@ -18,7 +18,7 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
       className={cn(
         'group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition',
         active
-          ? 'bg-[#1a1a1a] text-brand-gold border border-[rgba(212,175,55,0.25)]'
+          ? 'bg-[#1a1a1a] text-brand-gold border border-[rgba(26,111,255,0.25)]'
           : 'text-brand-muted hover:bg-[#141414] hover:text-brand-text border border-transparent'
       )}
     >
@@ -30,7 +30,7 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
 
 function Section({ label, items, pathname }: { label?: string; items: NavItem[]; pathname: string }) {
   return (
-    <div className="mt-3 pt-3 border-t border-[rgba(212,175,55,0.08)] first:mt-0 first:pt-0 first:border-t-0">
+    <div className="mt-3 pt-3 border-t border-[rgba(26,111,255,0.08)] first:mt-0 first:pt-0 first:border-t-0">
       {label && (
         <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-brand-gold/60">
           {label}
@@ -54,9 +54,9 @@ export function Sidebar({
   const isCloser = role === 'closer';
 
   return (
-    <aside className="hidden lg:flex lg:w-60 lg:flex-col lg:border-r lg:border-[rgba(212,175,55,0.12)] lg:bg-[#0a0a0a]">
+    <aside className="hidden lg:flex lg:w-60 lg:flex-col lg:border-r lg:border-[rgba(26,111,255,0.12)] lg:bg-[#0a0a0a]">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-3 border-b border-[rgba(212,175,55,0.12)] px-5">
+      <div className="flex h-16 items-center gap-3 border-b border-[rgba(26,111,255,0.12)] px-5">
         <BrandLogo size="md" />
         <div className="flex flex-col leading-tight min-w-0">
           <span className="truncate text-sm font-semibold text-brand-text">{brand.name}</span>
@@ -90,9 +90,9 @@ export function Sidebar({
         )}
       </nav>
 
-      <div className="border-t border-[rgba(212,175,55,0.12)] px-5 py-4">
-        <p className="text-[10px] uppercase tracking-widest text-brand-muted">Sala de entrenamiento</p>
-        <p className="mt-0.5 text-xs text-brand-muted/60">Foco. Disciplina. Cierre.</p>
+      <div className="border-t border-[rgba(26,111,255,0.12)] px-5 py-4">
+        <p className="text-[10px] uppercase tracking-widest text-brand-muted">Areté Fuera de Serie</p>
+        <p className="mt-0.5 text-xs text-brand-muted/60">Foco. Disciplina. Excelencia.</p>
       </div>
     </aside>
   );

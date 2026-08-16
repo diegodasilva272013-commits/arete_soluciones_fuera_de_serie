@@ -1,18 +1,18 @@
 export const brand = {
-  name: 'Camino al Closing',
-  tagline: 'Comunidad Privada',
-  full: 'Camino al Closing — Comunidad Privada',
+  name: 'Areté Soluciones',
+  tagline: 'Fuera de Serie',
+  full: 'Areté Soluciones — Fuera de Serie',
   description:
     'Sala privada de entrenamiento para vendedores de alto rendimiento.',
   colors: {
     background: '#050505',
     surface: '#111111',
     surfaceSoft: '#181818',
-    gold: '#D4AF37',
-    goldSoft: '#B8892D',
+    gold: '#1A6FFF',
+    goldSoft: '#0F52CC',
     text: '#F5F5F5',
     muted: '#A3A3A3',
-    border: 'rgba(212, 175, 55, 0.25)',
+    border: 'rgba(26, 111, 255, 0.25)',
   },
 } as const;
 

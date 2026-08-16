@@ -4,6 +4,7 @@ import {
   Target, TrendingUp, BookOpen, ClipboardList, ClipboardCheck,
   UserCheck, Inbox, Megaphone, Wifi, LayoutGrid, FileSearch, Handshake,
   AlertTriangle, ListChecks, CalendarDays, Clock, List, LineChart,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -23,6 +24,7 @@ export type NavSection = {
 export const PLATFORM_NAV: NavItem[] = [
   { label: 'Dashboard',   href: '/dashboard',   icon: LayoutDashboard },
   { label: 'Clases',      href: '/classes',     icon: GraduationCap },
+  { label: 'Formación Areté', href: '/formacion', icon: Sparkles },
   { label: 'Comunidad',   href: '/community',   icon: Users },
   { label: 'Muro de Wins', href: '/wins',       icon: Trophy },
   { label: 'Ranking',     href: '/leaderboard', icon: Trophy },

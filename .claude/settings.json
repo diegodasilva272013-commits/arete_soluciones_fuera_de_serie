@@ -6,7 +6,26 @@
       "Read(//tmp/**)",
       "Bash(cat /tmp/trainer-resp.html | head -60 && echo \"---\" && cat /tmp/next-dev.log | tail -30)",
       "Bash(git push *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(npx --yes next build)",
+      "Bash(grep -v \"//\")",
+      "Bash(node_modules/.bin/lucide-react)",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); console.log\\('AlertTriangle' in l, 'Camera' in l, 'ClipboardList' in l\\)\")",
+      "PowerShell(cd \"C:\\\\Users\\\\diego\\\\OneDrive\\\\Desktop\\\\Camino al Closing\"; \\(Get-Content node_modules/lucide-react/package.json | ConvertFrom-Json\\).version)",
+      "PowerShell(cd \"C:\\\\Users\\\\diego\\\\OneDrive\\\\Desktop\\\\Camino al Closing\"; @\\(\"clipboard-list\", \"alert-triangle\", \"clipboard-check\", \"triangle-alert\", \"clipboard\"\\) | ForEach-Object { \"$_`: \" + \\(Test-Path \"node_modules/lucide-react/dist/cjs/icons/$_.js\"\\) })",
+      "PowerShell(cd \"C:\\\\Users\\\\diego\\\\OneDrive\\\\Desktop\\\\Camino al Closing\"; Get-ChildItem \"node_modules/lucide-react/dist/cjs/icons/\" | Where-Object { $_.Name -match \"clip|alert|triangle\" } | Select-Object -ExpandProperty Name)",
+      "PowerShell(cd \"C:\\\\Users\\\\diego\\\\OneDrive\\\\Desktop\\\\Camino al Closing\"; Get-ChildItem \"node_modules/lucide-react/dist\" -Recurse -Name | Where-Object { $_ -match \"clip|alert|triangle\" } | Select-Object -First 20)",
+      "PowerShell(cd \"C:\\\\Users\\\\diego\\\\OneDrive\\\\Desktop\\\\Camino al Closing\"; git show bc74430 -- \"src/app/\\(private\\)/equipo/page.tsx\" | Select-String \"^\\\\+\" | Select-Object -First 50 | ForEach-Object { $_.Line })",
+      "PowerShell(cd \"C:\\\\Users\\\\diego\\\\OneDrive\\\\Desktop\\\\Camino al Closing\"; \\(Get-Content package.json | ConvertFrom-Json\\) | Select-Object -Property dependencies | ConvertTo-Json -Depth 3)",
+      "PowerShell(cd \"C:\\\\Users\\\\diego\\\\OneDrive\\\\Desktop\\\\Camino al Closing\"; \\(Get-Content package.json | ConvertFrom-Json\\).devDependencies | ConvertTo-Json)",
+      "Bash(grep -v \"^.*//\\\\|type \\\\|:\\\\s*string\\\\|:\\\\s*null\\\\|useState\\\\|label\\\\|placeholder\")",
+      "Bash(mkdir -p \"c:/Users/diego/OneDrive/Desktop/Camino al Closing/src/app/api/agenda/disponibilidad/[id]\" \"c:/Users/diego/OneDrive/Desktop/Camino al Closing/src/app/api/agenda/closers/[id]/slots\" \"c:/Users/diego/OneDrive/Desktop/Camino al Closing/src/app/api/agenda/reuniones/[id]\" \"c:/Users/diego/OneDrive/Desktop/Camino al Closing/src/app/api/admin/agenda\")",
+      "Bash(supabase status *)",
+      "PowerShell(gh api \"repos/diegodasilva272013-commits/camino_al-_closing/deployments?per_page=3\" --jq '.[0] | {id, sha: .sha[0:7], state: .statuses_url}' 2>&1)",
+      "PowerShell(gh api \"repos/diegodasilva272013-commits/camino_al-_closing/commits/591a496/statuses\" --jq '.[0] | {state, description, updated_at}' 2>&1)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\diego\\OneDrive\\Desktop\\Camino al Closing\\src\\app\\api\\agenda\\disponibilidad"
     ]
   }
 }

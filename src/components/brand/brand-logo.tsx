@@ -25,14 +25,14 @@ export function BrandLogo({ size = 'md', className, priority }: Props) {
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-full border border-[rgba(212,175,55,0.45)] bg-[#0a0a0a] shadow-[0_0_0_1px_rgba(212,175,55,0.08),0_8px_30px_-12px_rgba(212,175,55,0.35)]',
+        'relative overflow-hidden rounded-full border border-[rgba(26,111,255,0.50)] bg-[#0a0a0a] shadow-[0_0_0_1px_rgba(26,111,255,0.10),0_0_18px_-4px_rgba(26,111,255,0.55)]',
         box,
         className
       )}
     >
       <Image
-        src="/logo.jpeg"
-        alt="Camino al Closing"
+        src="/Logo2.png"
+        alt="Areté Soluciones"
         width={px}
         height={px}
         priority={priority}
