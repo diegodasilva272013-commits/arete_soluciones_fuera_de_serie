@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/brand-logo';
 
@@ -37,22 +38,21 @@ export default function HomePage() {
         {/* ── Columna de texto — editorial, sin clichés ── */}
         <div style={{ display:'flex', flexDirection:'column', justifyContent:'center' }}>
 
-          {/* Eyebrow */}
-          <p style={{ fontSize:'11px', fontWeight:700, letterSpacing:'0.25em', textTransform:'uppercase', color:'rgba(26,111,255,0.8)', marginBottom:'28px', display:'flex', alignItems:'center', gap:'10px' }}>
-            <span style={{ display:'inline-block', width:'28px', height:'1.5px', background:'#1a6fff', opacity:0.6, borderRadius:'2px' }} />
-            Sala privada · Solo por invitación
-          </p>
+          {/* Logo grande — el protagonista */}
+          <div style={{ marginBottom:'32px' }}>
+            <Image
+              src="/Aretea_fuera _de_serie_logo.png"
+              alt="Areté Soluciones — Fuera de Serie"
+              width={420}
+              height={420}
+              priority
+              style={{ width:'min(420px, 90vw)', height:'auto', display:'block', filter:'drop-shadow(0 0 60px rgba(26,111,255,0.25))' }}
+            />
+          </div>
 
-          {/* Headline — masiva, sin "domina" ni clichés */}
-          <h1 style={{ margin:0, lineHeight:'0.95', letterSpacing:'-0.04em', fontWeight:900, color:'#ffffff' }}>
-            <span style={{ display:'block', fontSize:'clamp(52px, 7vw, 88px)', color:'rgba(255,255,255,0.15)' }}>CAMINO</span>
-            <span style={{ display:'block', fontSize:'clamp(52px, 7vw, 88px)' }}>AL</span>
-            <span style={{ display:'block', fontSize:'clamp(52px, 7vw, 88px)', color:'#1a6fff', textShadow:'0 0 80px rgba(26,111,255,0.35)' }}>CLOSING</span>
-          </h1>
-
-          {/* Línea divisora */}
-          <div style={{ display:'flex', alignItems:'center', gap:'16px', margin:'32px 0' }}>
-            <div style={{ height:'1px', width:'48px', background:'rgba(255,255,255,0.12)' }} />
+          {/* Línea divisora + bajada */}
+          <div style={{ display:'flex', alignItems:'center', gap:'16px', marginBottom:'32px' }}>
+            <div style={{ height:'1px', width:'48px', background:'rgba(255,255,255,0.12)', flexShrink:0 }} />
             <p style={{ margin:0, fontSize:'15px', fontWeight:400, color:'rgba(255,255,255,0.38)', lineHeight:'1.6', letterSpacing:'-0.01em' }}>
               Plataforma privada de entrenamiento<br />para vendedores de alto rendimiento.
             </p>
