@@ -84,11 +84,6 @@ export default function HomePage() {
         <div style={{ position: 'relative', zIndex: 30, flex: 1, display: 'flex', alignItems: 'center', padding: '120px 32px 80px', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
           <div className={styles.inner}>
 
-            {/* Sello sobre el video */}
-            <div style={{ marginBottom: '36px', paddingLeft: '30px' }}>
-              <Brandmark variant="stamp" size="xl" mono priority />
-            </div>
-
             <div className={styles.lockup}>
               <p className={styles.lead}>Sala privada de entrenamiento</p>
               <h1 className={styles.title}>
@@ -122,7 +117,7 @@ export default function HomePage() {
           {([
             {
               n: '01',
-              img: '/3.png',
+              img: '/1.png',
               t: 'Entrenamiento real',
               d: 'Apertura, manejo de objeciones y cierre con estructura clara para escalar resultados.',
             },
@@ -134,7 +129,7 @@ export default function HomePage() {
             },
             {
               n: '03',
-              img: '/1.png',
+              img: '/3.png',
               t: 'Mentorías en vivo',
               d: 'Roleplays y revisiones personalizadas cada semana con los mejores del equipo.',
             },
@@ -149,12 +144,23 @@ export default function HomePage() {
                 alt={f.t}
                 fill
                 sizes="(max-width:768px) 100vw, 33vw"
-                style={{ objectFit: 'cover', objectPosition: 'center top', opacity: 0.72 }}
+                style={{
+                  objectFit: 'cover',
+                  objectPosition: 'center top',
+                  opacity: 0.68,
+                  filter: 'grayscale(15%) brightness(0.82) saturate(0.85)',
+                }}
               />
-              {/* Overlay: gradiente hacia arriba desde negro */}
+              {/* Tinte azul uniforme para todos los cards */}
               <div style={{
                 position: 'absolute', inset: 0,
-                background: 'linear-gradient(to top, rgba(5,5,5,0.97) 0%, rgba(5,5,5,0.55) 45%, rgba(5,5,5,0.18) 100%)',
+                background: 'rgba(8,18,40,0.35)',
+                mixBlendMode: 'multiply',
+              }} />
+              {/* Gradiente oscuro hacia arriba desde negro */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to top, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.52) 48%, rgba(5,5,5,0.12) 100%)',
               }} />
               {/* Filete azul inferior */}
               <div style={{
