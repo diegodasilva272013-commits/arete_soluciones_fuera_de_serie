@@ -32,21 +32,11 @@ export const metadata: Metadata = {
     title: brand.full,
     description: brand.description,
     locale: 'es_AR',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        type: 'image/jpeg',
-        alt: brand.full,
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: brand.full,
     description: brand.description,
-    images: ['/og-image.jpg'],
   },
   appleWebApp: {
     capable: true,
