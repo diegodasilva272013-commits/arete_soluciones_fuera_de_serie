@@ -51,31 +51,23 @@ export default function HomePage() {
       ═══════════════════════════════════════════ */}
       <section style={{ position: 'relative', width: '100%', minHeight: '100svh', display: 'flex', flexDirection: 'column' }}>
 
-        {/* Videos de fondo — crossfade */}
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-          <video
-            id="hero-v1"
-            src="/video_1.mp4"
-            autoPlay muted playsInline
-            preload="auto"
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 1, transition: 'opacity 1.2s ease' }}
-          />
-          <video
-            id="hero-v2"
-            src="/video_2.mp4"
-            muted playsInline
-            preload="auto"
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0, transition: 'opacity 1.2s ease' }}
-          />
+        {/* Videos de fondo — dangerouslySetInnerHTML garantiza muted nativo en HTML */}
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+          dangerouslySetInnerHTML={{ __html: `
+            <video id="hero-v1" src="/video_1.mp4" autoplay muted playsinline preload="auto"
+              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 1.2s ease;"></video>
+            <video id="hero-v2" src="/video_2.mp4" muted playsinline preload="auto"
+              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;"></video>
+          ` }}
+        />
 
-          {/* Overlay multicapa para legibilidad */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.25) 40%, rgba(5,5,5,0.4) 70%, rgba(5,5,5,0.9) 100%)' }} />
-          {/* Viñeta lateral */}
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 30%, rgba(5,5,5,0.7) 100%)' }} />
         </div>
+        {/* Overlay multicapa encima de los videos */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(5,5,5,0.5) 0%, rgba(5,5,5,0.15) 40%, rgba(5,5,5,0.35) 70%, rgba(5,5,5,0.88) 100%)', pointerEvents: 'none', zIndex: 2 }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 25%, rgba(5,5,5,0.65) 100%)', pointerEvents: 'none', zIndex: 2 }} />
 
         {/* NAV flotante */}
-        <header style={{ position: 'relative', zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '20px 32px', boxSizing: 'border-box' }}>
+        <header style={{ position: 'relative', zIndex: 30, display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '20px 32px', boxSizing: 'border-box' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <BrandLogo size="md" priority />
             <div>
@@ -94,17 +86,17 @@ export default function HomePage() {
         </header>
 
         {/* Contenido centrado — logo + CTAs */}
-        <div style={{ position: 'relative', zIndex: 10, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px 24px 80px' }}>
+        <div style={{ position: 'relative', zIndex: 30, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px 24px 80px' }}>
 
-          {/* Logo grande */}
-          <div style={{ marginBottom: '32px', filter: 'drop-shadow(0 0 80px rgba(26,111,255,0.3)) drop-shadow(0 0 160px rgba(26,111,255,0.15))' }}>
+          {/* Logo grande — mix-blend-mode:screen elimina el fondo negro del PNG */}
+          <div style={{ marginBottom: '28px', filter: 'drop-shadow(0 0 60px rgba(26,111,255,0.4))' }}>
             <Image
               src="/Aretea_fuera _de_serie_logo.png"
               alt="Areté Soluciones — Fuera de Serie"
-              width={380}
-              height={380}
+              width={360}
+              height={360}
               priority
-              style={{ width: 'min(380px, 72vw)', height: 'auto', display: 'block' }}
+              style={{ width: 'min(360px, 68vw)', height: 'auto', display: 'block', mixBlendMode: 'screen' }}
             />
           </div>
 
