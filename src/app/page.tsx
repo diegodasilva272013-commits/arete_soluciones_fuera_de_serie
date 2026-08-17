@@ -25,16 +25,23 @@ export default function HomePage() {
     if (v1 && v2) {
       v1.muted = true; v1.volume = 0;
       v2.muted = true; v2.volume = 0;
-      // Ambos videos ya tienen autoplay en el HTML — solo controlamos opacidad y seek
+
+      // v2 tiene autoplay en HTML para que el browser lo apruebe,
+      // pero lo pausamos inmediatamente — se activa solo cuando v1 termina
+      v2.pause();
+      v2.currentTime = 0;
+
       const showV2 = () => {
         v1.style.opacity = '0';
         v2.style.opacity = '1';
         v2.currentTime = 0;
+        v2.play().catch(() => {});
       };
       const showV1 = () => {
         v2.style.opacity = '0';
         v1.style.opacity = '1';
         v1.currentTime = 0;
+        v1.play().catch(() => {});
       };
       v1.addEventListener('ended', showV2);
       v2.addEventListener('ended', showV1);
