@@ -21,38 +21,37 @@ export default function HomePage() {
     // Video crossfade
     const v1 = document.getElementById('hero-v1') as HTMLVideoElement | null;
     const v2 = document.getElementById('hero-v2') as HTMLVideoElement | null;
+    let cleanupVideo = () => {};
     if (v1 && v2) {
       v1.muted = true; v1.volume = 0;
       v2.muted = true; v2.volume = 0;
-
       const playV2 = () => { v1.style.opacity = '0'; v2.style.opacity = '1'; v2.currentTime = 0; v2.play().catch(() => {}); };
       const playV1 = () => { v2.style.opacity = '0'; v1.style.opacity = '1'; v1.currentTime = 0; v1.play().catch(() => {}); };
-
       v1.addEventListener('ended', playV2);
       v2.addEventListener('ended', playV1);
       v1.play().catch(() => {});
-
-      return () => {
-        window.removeEventListener('scroll', onScroll);
+      cleanupVideo = () => {
         v1.removeEventListener('ended', playV2);
         v2.removeEventListener('ended', playV1);
       };
     }
 
-    // Reveal on scroll para las bandas
+    // Reveal on scroll para las bandas — siempre corre
+    const revealClass = bStyles.revealOn;
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => {
         if (e.isIntersecting) {
-          e.target.classList.add(bStyles.revealOn);
+          e.target.classList.add(revealClass);
           io.unobserve(e.target);
         }
       }),
-      { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
     );
     document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
 
     return () => {
       window.removeEventListener('scroll', onScroll);
+      cleanupVideo();
       io.disconnect();
     };
   }, []);
