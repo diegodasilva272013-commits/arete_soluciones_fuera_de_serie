@@ -13,28 +13,24 @@ export default function HomePage() {
     const v2 = document.getElementById('hero-v2') as HTMLVideoElement | null;
     if (!v1 || !v2) return;
 
-    // Forzar muted nativo (fix autoplay iOS/Android)
     v1.muted = true; v1.volume = 0;
     v2.muted = true; v2.volume = 0;
 
-    // Crossfade: v1 → v2 → v1 → ...
-    function playV1() {
-      v2!.style.opacity = '0';
-      v1!.style.opacity = '1';
-      v1!.currentTime = 0;
-      v1!.play().catch(() => {});
-    }
     function playV2() {
       v1!.style.opacity = '0';
       v2!.style.opacity = '1';
       v2!.currentTime = 0;
       v2!.play().catch(() => {});
     }
+    function playV1() {
+      v2!.style.opacity = '0';
+      v1!.style.opacity = '1';
+      v1!.currentTime = 0;
+      v1!.play().catch(() => {});
+    }
 
     v1.addEventListener('ended', playV2);
     v2.addEventListener('ended', playV1);
-
-    // Arrancar
     v1.play().catch(() => {});
 
     return () => {
@@ -46,27 +42,27 @@ export default function HomePage() {
   return (
     <div style={{ background: '#050505', minHeight: '100vh', overflowX: 'hidden' }}>
 
-      {/* ═══════════════════════════════════════════
-          HERO — video fullscreen + logo encima
-      ═══════════════════════════════════════════ */}
+      {/* ══ HERO ══ */}
       <section style={{ position: 'relative', width: '100%', minHeight: '100svh', display: 'flex', flexDirection: 'column' }}>
 
-        {/* Videos de fondo — dangerouslySetInnerHTML garantiza muted nativo en HTML */}
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
-          dangerouslySetInnerHTML={{ __html: `
-            <video id="hero-v1" src="/video_1.mp4" autoplay muted playsinline preload="auto"
-              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 1.2s ease;"></video>
-            <video id="hero-v2" src="/video_2.mp4" muted playsinline preload="auto"
-              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;"></video>
-          ` }}
+        {/* Videos — dangerouslySetInnerHTML garantiza muted nativo */}
+        <div
+          style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+          dangerouslySetInnerHTML={{
+            __html: `
+              <video id="hero-v1" src="/video_1.mp4" autoplay muted playsinline preload="auto"
+                style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 1.2s ease;"></video>
+              <video id="hero-v2" src="/video_2.mp4" muted playsinline preload="auto"
+                style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;"></video>
+            `,
+          }}
         />
 
-        </div>
-        {/* Overlay multicapa encima de los videos */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(5,5,5,0.5) 0%, rgba(5,5,5,0.15) 40%, rgba(5,5,5,0.35) 70%, rgba(5,5,5,0.88) 100%)', pointerEvents: 'none', zIndex: 2 }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 25%, rgba(5,5,5,0.65) 100%)', pointerEvents: 'none', zIndex: 2 }} />
+        {/* Overlays encima del video */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2, background: 'linear-gradient(to bottom, rgba(5,5,5,0.5) 0%, rgba(5,5,5,0.12) 40%, rgba(5,5,5,0.35) 70%, rgba(5,5,5,0.9) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2, background: 'radial-gradient(ellipse at center, transparent 25%, rgba(5,5,5,0.6) 100%)' }} />
 
-        {/* NAV flotante */}
+        {/* NAV */}
         <header style={{ position: 'relative', zIndex: 30, display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '20px 32px', boxSizing: 'border-box' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <BrandLogo size="md" priority />
@@ -76,7 +72,7 @@ export default function HomePage() {
             </div>
           </div>
           <nav style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Link href="/login" style={{ padding: '9px 22px', borderRadius: '999px', border: '1px solid rgba(255,255,255,0.15)', fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.75)', textDecoration: 'none', backdropFilter: 'blur(8px)', background: 'rgba(255,255,255,0.04)' }}>
+            <Link href="/login" style={{ padding: '9px 22px', borderRadius: '999px', border: '1px solid rgba(255,255,255,0.15)', fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.8)', textDecoration: 'none', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)' }}>
               Iniciar sesión
             </Link>
             <Link href="/register" style={{ padding: '9px 22px', borderRadius: '999px', background: '#1a6fff', fontSize: '13px', fontWeight: 700, color: '#fff', textDecoration: 'none', boxShadow: '0 4px 24px rgba(26,111,255,0.45)' }}>
@@ -85,11 +81,11 @@ export default function HomePage() {
           </nav>
         </header>
 
-        {/* Contenido centrado — logo + CTAs */}
+        {/* Contenido central */}
         <div style={{ position: 'relative', zIndex: 30, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px 24px 80px' }}>
 
-          {/* Logo grande — mix-blend-mode:screen elimina el fondo negro del PNG */}
-          <div style={{ marginBottom: '28px', filter: 'drop-shadow(0 0 60px rgba(26,111,255,0.4))' }}>
+          {/* Logo — mix-blend-mode screen elimina el negro del PNG */}
+          <div style={{ marginBottom: '28px', filter: 'drop-shadow(0 0 70px rgba(26,111,255,0.45))' }}>
             <Image
               src="/Aretea_fuera _de_serie_logo.png"
               alt="Areté Soluciones — Fuera de Serie"
@@ -100,34 +96,29 @@ export default function HomePage() {
             />
           </div>
 
-          {/* Bajada */}
-          <p style={{ margin: '0 0 36px', fontSize: 'clamp(15px, 2vw, 18px)', fontWeight: 400, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.01em', lineHeight: 1.6, maxWidth: '440px' }}>
+          <p style={{ margin: '0 0 36px', fontSize: 'clamp(15px, 2vw, 18px)', fontWeight: 400, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.01em', lineHeight: 1.6, maxWidth: '420px' }}>
             Plataforma privada de entrenamiento<br />para vendedores de alto rendimiento.
           </p>
 
-          {/* CTAs */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
-            <Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '15px 32px', borderRadius: '999px', background: '#1a6fff', fontSize: '15px', fontWeight: 700, color: '#fff', textDecoration: 'none', boxShadow: '0 8px 40px rgba(26,111,255,0.45)', letterSpacing: '-0.01em' }}>
+            <Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '15px 32px', borderRadius: '999px', background: '#1a6fff', fontSize: '15px', fontWeight: 700, color: '#fff', textDecoration: 'none', boxShadow: '0 8px 40px rgba(26,111,255,0.45)' }}>
               Entrar a la comunidad <ArrowRight style={{ width: '17px', height: '17px' }} />
             </Link>
-            <Link href="/login" style={{ display: 'inline-flex', alignItems: 'center', padding: '15px 28px', borderRadius: '999px', border: '1px solid rgba(255,255,255,0.12)', fontSize: '15px', fontWeight: 500, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', backdropFilter: 'blur(8px)', background: 'rgba(255,255,255,0.03)' }}>
+            <Link href="/login" style={{ display: 'inline-flex', alignItems: 'center', padding: '15px 28px', borderRadius: '999px', border: '1px solid rgba(255,255,255,0.12)', fontSize: '15px', fontWeight: 500, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(8px)' }}>
               Ya tengo cuenta
             </Link>
           </div>
 
-          {/* Indicador de scroll */}
+          {/* Scroll indicator */}
           <div style={{ position: 'absolute', bottom: '28px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', opacity: 0.3 }}>
             <p style={{ margin: 0, fontSize: '10px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#fff' }}>Scroll</p>
-            <ChevronDown style={{ width: '16px', height: '16px', color: '#fff', animation: 'bounce 2s infinite' }} />
+            <ChevronDown style={{ width: '16px', height: '16px', color: '#fff' }} />
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════
-          SECCIÓN 2 — strip de propuesta de valor
-      ═══════════════════════════════════════════ */}
-      <section style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', margin: '0 auto', padding: '80px 32px' }}>
-
+      {/* ══ STRIP INFERIOR ══ */}
+      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '80px 32px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1px', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', overflow: 'hidden' }}>
           {[
             { n: '01', t: 'Entrenamiento real', d: 'Apertura, manejo de objeciones y cierre con estructura clara para escalar resultados.' },
@@ -143,17 +134,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer style={{ borderTop: '1px solid rgba(255,255,255,0.04)', padding: '24px 32px', textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.18)', letterSpacing: '0.05em' }}>
         © {new Date().getFullYear()} Areté Soluciones · Todos los derechos reservados
       </footer>
-
-      <style>{`
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(5px); }
-        }
-      `}</style>
 
     </div>
   );
