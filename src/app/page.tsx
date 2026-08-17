@@ -81,25 +81,37 @@ export default function HomePage() {
         </header>
 
         {/* Contenido central */}
-        <div style={{ position: 'relative', zIndex: 30, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px 24px 80px' }}>
+        <div style={{ position: 'relative', zIndex: 30, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px 24px 100px', width: '100%' }}>
 
-          <p style={{ margin: '0 0 36px', fontSize: 'clamp(15px, 2vw, 18px)', fontWeight: 400, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.01em', lineHeight: 1.6, maxWidth: '420px' }}>
+          {/* Eyebrow */}
+          <p style={{ margin: '0 0 20px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(26,111,255,0.9)', textShadow: '0 0 24px rgba(26,111,255,0.6)' }}>
+            Areté Soluciones · Fuera de Serie
+          </p>
+
+          {/* Headline */}
+          <h1 style={{ margin: '0 0 22px', fontSize: 'clamp(38px, 5.5vw, 68px)', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1.06, textShadow: '0 4px 48px rgba(0,0,0,0.7)', maxWidth: '700px' }}>
+            Domina el Arte<br />del Closing
+          </h1>
+
+          {/* Descripción */}
+          <p style={{ margin: '0 0 40px', fontSize: 'clamp(14px, 1.6vw, 16px)', fontWeight: 400, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.01em', lineHeight: 1.7, maxWidth: '360px', textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}>
             Plataforma privada de entrenamiento<br />para vendedores de alto rendimiento.
           </p>
 
+          {/* CTAs */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
-            <Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '15px 32px', borderRadius: '999px', background: '#1a6fff', fontSize: '15px', fontWeight: 700, color: '#fff', textDecoration: 'none', boxShadow: '0 8px 40px rgba(26,111,255,0.45)' }}>
-              Entrar a la comunidad <ArrowRight style={{ width: '17px', height: '17px' }} />
+            <Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '15px 32px', borderRadius: '999px', background: '#1a6fff', fontSize: '15px', fontWeight: 700, color: '#fff', textDecoration: 'none', boxShadow: '0 8px 40px rgba(26,111,255,0.5)' }}>
+              Entrar a la comunidad <ArrowRight style={{ width: '16px', height: '16px' }} />
             </Link>
-            <Link href="/login" style={{ display: 'inline-flex', alignItems: 'center', padding: '15px 28px', borderRadius: '999px', border: '1px solid rgba(255,255,255,0.12)', fontSize: '15px', fontWeight: 500, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(8px)' }}>
+            <Link href="/login" style={{ display: 'inline-flex', alignItems: 'center', padding: '15px 28px', borderRadius: '999px', border: '1px solid rgba(255,255,255,0.15)', fontSize: '15px', fontWeight: 500, color: 'rgba(255,255,255,0.55)', textDecoration: 'none', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)' }}>
               Ya tengo cuenta
             </Link>
           </div>
 
           {/* Scroll indicator */}
-          <div style={{ position: 'absolute', bottom: '28px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', opacity: 0.3 }}>
-            <p style={{ margin: 0, fontSize: '10px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#fff' }}>Scroll</p>
-            <ChevronDown style={{ width: '16px', height: '16px', color: '#fff' }} />
+          <div style={{ position: 'absolute', bottom: '28px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', opacity: 0.25 }}>
+            <p style={{ margin: 0, fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#fff' }}>Scroll</p>
+            <ChevronDown style={{ width: '15px', height: '15px', color: '#fff' }} />
           </div>
         </div>
       </section>
