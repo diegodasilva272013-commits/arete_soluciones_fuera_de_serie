@@ -101,7 +101,7 @@ export default function HomePage() {
           <div className={styles.inner}>
 
             <div className={styles.lockup}>
-              <p className={styles.lead}>Sala privada de entrenamiento</p>
+              <p className={styles.lead}>Comunidad privada de alto rendimiento</p>
               <h1 className={styles.title}>
                 Domina el arte de<br />solucionar <em>problemas</em>
               </h1>
