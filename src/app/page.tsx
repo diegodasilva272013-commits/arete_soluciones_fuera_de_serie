@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useEffect } from 'react';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/brand-logo';
@@ -83,18 +82,6 @@ export default function HomePage() {
 
         {/* Contenido central */}
         <div style={{ position: 'relative', zIndex: 30, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px 24px 80px' }}>
-
-          {/* Logo — mix-blend-mode screen elimina el negro del PNG */}
-          <div style={{ marginBottom: '28px', filter: 'drop-shadow(0 0 70px rgba(26,111,255,0.45))' }}>
-            <Image
-              src="/Aretea_fuera _de_serie_logo.png"
-              alt="Areté Soluciones — Fuera de Serie"
-              width={360}
-              height={360}
-              priority
-              style={{ width: 'min(360px, 68vw)', height: 'auto', display: 'block', mixBlendMode: 'screen' }}
-            />
-          </div>
 
           <p style={{ margin: '0 0 36px', fontSize: 'clamp(15px, 2vw, 18px)', fontWeight: 400, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.01em', lineHeight: 1.6, maxWidth: '420px' }}>
             Plataforma privada de entrenamiento<br />para vendedores de alto rendimiento.
