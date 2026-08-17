@@ -1,0 +1,252 @@
+/* =========================================================
+   Areté Soluciones — Hero Landing
+   Branding: blue #1a6fff · ink #050505 · white #fff
+   ========================================================= */
+
+.inner {
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+/* ── Lockup con barra azul ── */
+.lockup {
+  position: relative;
+  padding-left: 30px;
+}
+
+.lockup::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: linear-gradient(180deg, #1a6fff, rgba(26, 111, 255, 0));
+}
+
+.lead {
+  margin: 0 0 14px;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(15px, 2vw, 21px);
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.01em;
+}
+
+.title {
+  margin: 0;
+  font-weight: 800;
+  font-size: clamp(32px, 5.4vw, 60px);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  text-wrap: balance;
+}
+
+.title em {
+  font-style: normal;
+  color: #1a6fff;
+  text-shadow: 0 0 40px rgba(26, 111, 255, 0.5);
+}
+
+/* ── Acciones ── */
+.actions {
+  margin-top: 46px;
+  padding-left: 30px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+/* ── Botón primario — chaflán con marco desfasado ── */
+.cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 18px 38px;
+  background: #1a6fff;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  clip-path: polygon(
+    14px 0,
+    100% 0,
+    100% calc(100% - 14px),
+    calc(100% - 14px) 100%,
+    0 100%,
+    0 14px
+  );
+  transition: transform 0.32s cubic-bezier(0.16, 0.84, 0.28, 1),
+    background 0.32s ease;
+}
+
+.cta::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  pointer-events: none;
+  border: 1px solid rgba(26, 111, 255, 0.55);
+  opacity: 0.45;
+  clip-path: polygon(
+    18px 0,
+    100% 0,
+    100% calc(100% - 18px),
+    calc(100% - 18px) 100%,
+    0 100%,
+    0 18px
+  );
+  transition: inset 0.42s cubic-bezier(0.16, 0.84, 0.28, 1),
+    opacity 0.42s ease;
+}
+
+.cta:hover {
+  background: #2b7bff;
+}
+
+.cta:hover::after,
+.cta:focus-visible::after {
+  inset: -2px;
+  opacity: 1;
+}
+
+.cta:active {
+  transform: translateY(1px);
+}
+
+.cta:focus-visible {
+  outline: 2px solid #1a6fff;
+  outline-offset: 10px;
+}
+
+/* ── Botón secundario — contorno chaflán + punto azul ── */
+.alt {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  clip-path: polygon(
+    11px 0,
+    100% 0,
+    100% calc(100% - 11px),
+    calc(100% - 11px) 100%,
+    0 100%,
+    0 11px
+  );
+  transition: border-color 0.38s ease, color 0.38s ease;
+}
+
+.alt::before {
+  content: "";
+  flex: none;
+  width: 5px;
+  height: 5px;
+  background: #1a6fff;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+
+.alt:hover,
+.alt:focus-visible {
+  color: #fff;
+  border-color: rgba(26, 111, 255, 0.45);
+}
+
+.alt:focus-visible {
+  outline: 2px solid #1a6fff;
+  outline-offset: 6px;
+}
+
+/* ── Strip de credenciales ── */
+.creds {
+  margin: 54px 0 0;
+  padding: 0 0 0 30px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.creds li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.creds li + li::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  background: #1a6fff;
+  transform: rotate(45deg);
+  flex: none;
+  opacity: 0.7;
+}
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  .lockup,
+  .actions,
+  .creds {
+    padding-left: 22px;
+  }
+
+  .actions {
+    margin-top: 36px;
+    gap: 16px;
+  }
+
+  .cta {
+    padding: 16px 28px;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+  }
+
+  .alt {
+    padding: 14px 22px;
+    font-size: 10px;
+  }
+
+  .creds {
+    margin-top: 40px;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .cta,
+  .alt {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta,
+  .cta::after,
+  .alt {
+    transition-duration: 0.01ms;
+  }
+}
