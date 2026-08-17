@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { BrandLogo } from '@/components/brand/brand-logo';
+import { Brandmark } from '@/components/brand/brandmark';
 import hStyles from './header.module.css';
 import styles from './hero.module.css';
 
@@ -46,13 +46,7 @@ export default function HomePage() {
       {/* ══ HEADER FIJO ══ */}
       <header className={`${hStyles.header} ${scrolled ? hStyles.isScrolled : ''}`}>
         <div className={hStyles.inner}>
-          <Link href="/" className={hStyles.brand} aria-label="Areté Soluciones">
-            <BrandLogo size="md" priority />
-            <span className={hStyles.wordmark}>
-              <strong>Areté Soluciones</strong>
-              <em>Fuera de Serie</em>
-            </span>
-          </Link>
+          <Brandmark variant="lockup" size="sm" href="/" priority />
 
           <nav className={hStyles.nav} aria-label="Acceso">
             <Link href="/login" className={hStyles.ghost}>
@@ -88,6 +82,11 @@ export default function HomePage() {
         {/* Contenido hero — left-aligned con barra azul */}
         <div style={{ position: 'relative', zIndex: 30, flex: 1, display: 'flex', alignItems: 'center', padding: '120px 32px 80px', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
           <div className={styles.inner}>
+
+            {/* Sello sobre el video */}
+            <div style={{ marginBottom: '36px', paddingLeft: '30px' }}>
+              <Brandmark variant="stamp" size="xl" mono priority />
+            </div>
 
             <div className={styles.lockup}>
               <p className={styles.lead}>Sala privada de entrenamiento</p>
