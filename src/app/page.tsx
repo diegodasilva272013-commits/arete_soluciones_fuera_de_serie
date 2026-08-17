@@ -112,7 +112,24 @@ export default function HomePage() {
       </section>
 
       {/* ══ STRIP INFERIOR — image cards ══ */}
-      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 32px 80px' }}>
+      <section style={{ padding: '0 0 0' }}>
+
+        {/* Intro de sección */}
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '72px 32px 40px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <p style={{ margin: '0 0 10px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(26,111,255,0.8)' }}>
+              Lo que vas a encontrar
+            </p>
+            <h2 style={{ margin: 0, fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+              Todo lo que necesitás<br />para cerrar más.
+            </h2>
+          </div>
+          <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.7, color: 'rgba(255,255,255,0.35)', maxWidth: '320px' }}>
+            Areté es un sistema de entrenamiento privado diseñado para vendedores que quieren resultados reales.
+          </p>
+        </div>
+
+        {/* Cards full-bleed */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '2px' }}>
           {([
             {
@@ -208,8 +225,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.04)', padding: '24px 32px', textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.18)', letterSpacing: '0.05em' }}>
-        © {new Date().getFullYear()} Areté Soluciones · Todos los derechos reservados
+      {/* ══ FOOTER ══ */}
+      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: '2px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px' }}>
+          <Brandmark variant="lockup" size="sm" href="/" />
+          <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.06em' }}>
+            © {new Date().getFullYear()} Areté Soluciones · Todos los derechos reservados
+          </p>
+          <div style={{ display: 'flex', gap: '24px' }}>
+            <a href="/login" style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>Ingresar</a>
+            <a href="/register" style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(26,111,255,0.7)', textDecoration: 'none' }}>Crear cuenta</a>
+          </div>
+        </div>
       </footer>
 
     </div>
