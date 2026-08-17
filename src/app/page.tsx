@@ -25,14 +25,22 @@ export default function HomePage() {
     if (v1 && v2) {
       v1.muted = true; v1.volume = 0;
       v2.muted = true; v2.volume = 0;
-      const playV2 = () => { v1.style.opacity = '0'; v2.style.opacity = '1'; v2.currentTime = 0; v2.play().catch(() => {}); };
-      const playV1 = () => { v2.style.opacity = '0'; v1.style.opacity = '1'; v1.currentTime = 0; v1.play().catch(() => {}); };
-      v1.addEventListener('ended', playV2);
-      v2.addEventListener('ended', playV1);
-      v1.play().catch(() => {});
+      // Ambos videos ya tienen autoplay en el HTML — solo controlamos opacidad y seek
+      const showV2 = () => {
+        v1.style.opacity = '0';
+        v2.style.opacity = '1';
+        v2.currentTime = 0;
+      };
+      const showV1 = () => {
+        v2.style.opacity = '0';
+        v1.style.opacity = '1';
+        v1.currentTime = 0;
+      };
+      v1.addEventListener('ended', showV2);
+      v2.addEventListener('ended', showV1);
       cleanupVideo = () => {
-        v1.removeEventListener('ended', playV2);
-        v2.removeEventListener('ended', playV1);
+        v1.removeEventListener('ended', showV2);
+        v2.removeEventListener('ended', showV1);
       };
     }
 
@@ -85,9 +93,9 @@ export default function HomePage() {
           dangerouslySetInnerHTML={{
             __html: `
               <video id="hero-v1" src="/video_1.mp4" autoplay muted playsinline preload="auto"
-                style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 1.2s ease;"></video>
-              <video id="hero-v2" src="/video_2.mp4" muted playsinline preload="auto"
-                style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;"></video>
+                style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 1.2s ease;z-index:1;"></video>
+              <video id="hero-v2" src="/video_2.mp4" autoplay muted playsinline preload="auto"
+                style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;z-index:1;"></video>
             `,
           }}
         />
