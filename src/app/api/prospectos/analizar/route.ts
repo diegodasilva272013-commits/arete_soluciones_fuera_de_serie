@@ -80,5 +80,26 @@ export async function POST(req: NextRequest) {
     { prospect_id: prospect.id, follow_up_number: 5, phase: 'cierre', message_type: 'con_respuesta', content: msgs.fase_cierre.seguimiento_6_agendar },
   ]);
 
+  // Auto-crear lead en el pipeline del setter
+  // El prospecto pasa directamente a la lista de leads para hacer seguimiento
+  const nameParts = (result.prospectInfo.full_name || 'Sin nombre').trim().split(/\s+/);
+  const firstName = nameParts[0] || 'Sin nombre';
+  const lastName  = nameParts.slice(1).join(' ') || null;
+  const noteLines = [
+    result.prospectInfo.headline,
+    result.prospectInfo.company,
+  ].filter(Boolean).join(' — ');
+
+  await supabase.from('leads').insert({
+    first_name:           firstName,
+    last_name:            lastName,
+    phone:                prospect.whatsapp_number || '',
+    source:               sourceType === 'instagram' ? 'instagram' : 'linkedin',
+    assigned_to_user_id:  user.id,
+    prospect_id:          prospect.id,
+    current_status:       'NO_CONTACTADO',
+    notes:                noteLines || null,
+  });
+
   return NextResponse.json({ success: true, prospectId: prospect.id });
 }

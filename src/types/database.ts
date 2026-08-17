@@ -634,6 +634,7 @@ export type Database = {
           notes: string | null;
           is_closed: boolean;
           closed_reason: string | null;
+          prospect_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -657,6 +658,7 @@ export type Database = {
           notes?: string | null;
           is_closed?: boolean;
           closed_reason?: string | null;
+          prospect_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

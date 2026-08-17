@@ -34,5 +34,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Error creando prospecto' }, { status: 500 });
   }
 
+  // Auto-crear lead en el pipeline del setter
+  const nameParts = full_name.trim().split(/\s+/);
+  const noteLines = [headline, company].filter(Boolean).join(' — ');
+  await supabase.from('leads').insert({
+    first_name:          nameParts[0] || full_name.trim(),
+    last_name:           nameParts.slice(1).join(' ') || null,
+    phone:               whatsapp_number || '',
+    source:              'linkedin',
+    assigned_to_user_id: user.id,
+    prospect_id:         prospect.id,
+    current_status:      'NO_CONTACTADO',
+    notes:               noteLines || null,
+  });
+
   return NextResponse.json({ success: true, prospectId: prospect.id });
 }
