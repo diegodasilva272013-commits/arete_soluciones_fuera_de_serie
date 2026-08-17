@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     default: brand.full,
     template: `%s — ${brand.name}`,
   },
-  description: brand.description,
+  description: 'Comunidad privada de alto rendimiento para vendedores que solucionan problemas.',
   applicationName: brand.name,
   manifest: '/manifest.json',
   icons: {

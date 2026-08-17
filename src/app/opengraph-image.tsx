@@ -5,7 +5,23 @@ export const alt = 'Areté Soluciones — Fuera de Serie';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-export default function OgImage() {
+export default async function OgImage() {
+  // Fetch logo como base64 para que ImageResponse pueda mostrarlo
+  const base = 'https://camino-al-closing.vercel.app';
+  let logoSrc: string = '';
+  try {
+    const res = await fetch(`${base}/Aretea_fuera%20_de_serie_logo.png`);
+    const buf = await res.arrayBuffer();
+    logoSrc = `data:image/png;base64,${Buffer.from(buf).toString('base64')}`;
+  } catch {
+    // Si falla el fetch usamos el icon circular
+    try {
+      const res = await fetch(`${base}/icon-512.png`);
+      const buf = await res.arrayBuffer();
+      logoSrc = `data:image/png;base64,${Buffer.from(buf).toString('base64')}`;
+    } catch { /* sin logo */ }
+  }
+
   return new ImageResponse(
     (
       <div
@@ -14,146 +30,97 @@ export default function OgImage() {
           height: 630,
           background: '#050505',
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-end',
-          padding: '72px 80px',
+          alignItems: 'center',
+          justifyContent: 'center',
           fontFamily: 'system-ui, -apple-system, sans-serif',
           position: 'relative',
         }}
       >
-        {/* Fondo: gradiente azul radial */}
+        {/* Glow azul de fondo */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
             background:
-              'radial-gradient(ellipse 80% 60% at 60% 40%, rgba(26,111,255,0.18) 0%, rgba(5,5,5,0) 70%)',
+              'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(26,111,255,0.22) 0%, rgba(5,5,5,0) 70%)',
+            display: 'flex',
           }}
         />
 
-        {/* Línea azul izquierda */}
+        {/* Contenido centrado */}
         <div
           style={{
-            position: 'absolute',
-            left: 80,
-            top: 72,
-            bottom: 72,
-            width: 2,
-            background: 'linear-gradient(180deg, #1a6fff 0%, rgba(26,111,255,0) 100%)',
-          }}
-        />
-
-        {/* Marca arriba */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 72,
-            left: 104,
             display: 'flex',
             flexDirection: 'column',
-            gap: 4,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 0,
+            zIndex: 1,
           }}
         >
-          <span style={{ fontSize: 15, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>
-            Areté Soluciones
-          </span>
-          <span
+          {/* Logo */}
+          {logoSrc && (
+            <img
+              src={logoSrc}
+              width={260}
+              height={260}
+              style={{ objectFit: 'contain', marginBottom: 32 }}
+            />
+          )}
+
+          {/* Nombre */}
+          <div
             style={{
-              fontSize: 10,
+              fontSize: 52,
+              fontWeight: 800,
+              color: '#ffffff',
+              letterSpacing: '-0.03em',
+              textAlign: 'center',
+              marginBottom: 12,
+              display: 'flex',
+            }}
+          >
+            Areté Soluciones
+          </div>
+
+          {/* Tagline */}
+          <div
+            style={{
+              fontSize: 18,
               fontWeight: 600,
-              letterSpacing: '0.24em',
+              letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: '#1a6fff',
+              marginBottom: 32,
+              display: 'flex',
             }}
           >
             Fuera de Serie
-          </span>
-        </div>
+          </div>
 
-        {/* Eyebrow */}
-        <div
-          style={{
-            marginBottom: 20,
-            paddingLeft: 24,
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: '0.28em',
-            textTransform: 'uppercase',
-            color: 'rgba(26,111,255,0.9)',
-            display: 'flex',
-          }}
-        >
-          Comunidad privada de alto rendimiento
-        </div>
-
-        {/* Headline */}
-        <div
-          style={{
-            paddingLeft: 24,
-            fontSize: 72,
-            fontWeight: 800,
-            color: '#fff',
-            lineHeight: 1.04,
-            letterSpacing: '-0.04em',
-            textTransform: 'uppercase',
-            display: 'flex',
-            flexDirection: 'column',
-            marginBottom: 40,
-          }}
-        >
-          <span>Domina el arte de</span>
-          <span>
-            solucionar{' '}
-            <span style={{ color: '#1a6fff' }}>problemas</span>
-          </span>
-        </div>
-
-        {/* CTA strip */}
-        <div
-          style={{
-            paddingLeft: 24,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 32,
-          }}
-        >
-          <span
+          {/* Separador */}
+          <div
             style={{
-              background: '#1a6fff',
-              color: '#fff',
-              fontSize: 13,
-              fontWeight: 700,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              padding: '14px 32px',
+              width: 48,
+              height: 2,
+              background: 'rgba(26,111,255,0.5)',
+              marginBottom: 28,
+              display: 'flex',
+            }}
+          />
+
+          {/* Descripción */}
+          <div
+            style={{
+              fontSize: 20,
+              color: 'rgba(255,255,255,0.45)',
+              textAlign: 'center',
+              letterSpacing: '0.01em',
               display: 'flex',
             }}
           >
-            Entrar a la comunidad
-          </span>
-          <span
-            style={{
-              fontSize: 12,
-              color: 'rgba(255,255,255,0.4)',
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-            }}
-          >
-            <span
-              style={{
-                width: 4,
-                height: 4,
-                background: '#1a6fff',
-                display: 'flex',
-                borderRadius: 1,
-              }}
-            />
-            camino-al-closing.vercel.app
-          </span>
+            Comunidad privada de alto rendimiento
+          </div>
         </div>
       </div>
     ),
