@@ -7,6 +7,7 @@ import { ArrowRight } from 'lucide-react';
 import { Brandmark } from '@/components/brand/brandmark';
 import hStyles from './header.module.css';
 import styles from './hero.module.css';
+import bStyles from './bands.module.css';
 
 export default function HomePage() {
   const [scrolled, setScrolled] = useState(false);
@@ -38,7 +39,22 @@ export default function HomePage() {
       };
     }
 
-    return () => window.removeEventListener('scroll', onScroll);
+    // Reveal on scroll para las bandas
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add(bStyles.revealOn);
+          io.unobserve(e.target);
+        }
+      }),
+      { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
+    );
+    document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      io.disconnect();
+    };
   }, []);
 
   return (
@@ -111,118 +127,99 @@ export default function HomePage() {
 
       </section>
 
-      {/* ══ STRIP INFERIOR — image cards ══ */}
-      <section style={{ padding: '0 0 0' }}>
+      {/* ══ BANDAS ALTERNADAS ══ */}
+      <section className={bStyles.section}>
 
-        {/* Intro de sección */}
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '72px 32px 40px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-          <div>
-            <p style={{ margin: '0 0 10px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(26,111,255,0.8)' }}>
-              Lo que vas a encontrar
-            </p>
-            <h2 style={{ margin: 0, fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
-              Todo lo que necesitás<br />para cerrar más.
-            </h2>
+        {/* Intro */}
+        <div className={bStyles.intro}>
+          <div className={`${bStyles.introContent} ${bStyles.reveal}`} data-reveal="">
+            <p className={bStyles.eyebrow}>Qué pasa adentro</p>
+            <h2 className={bStyles.introTitle}>No es una biblioteca<br />de videos</h2>
+            <p className={bStyles.introSub}>Tres instancias que funcionan en paralelo desde el primer día. Ninguna se completa mirando.</p>
           </div>
-          <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.7, color: 'rgba(255,255,255,0.35)', maxWidth: '320px' }}>
-            Areté es un sistema de entrenamiento privado diseñado para vendedores que quieren resultados reales.
-          </p>
         </div>
 
-        {/* Cards full-bleed */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '2px' }}>
-          {([
-            {
-              n: '01',
-              img: '/1.png',
-              t: 'Entrenamiento real',
-              d: 'Apertura, manejo de objeciones y cierre con estructura clara para escalar resultados.',
-            },
-            {
-              n: '02',
-              img: '/2.png',
-              t: 'Comunidad privada',
-              d: 'Feedback directo, llamadas compartidas y red activa de closers de alto rendimiento.',
-            },
-            {
-              n: '03',
-              img: '/3.png',
-              t: 'Mentorías en vivo',
-              d: 'Roleplays y revisiones personalizadas cada semana con los mejores del equipo.',
-            },
-          ] as const).map((f) => (
-            <div
-              key={f.n}
-              style={{ position: 'relative', height: '460px', overflow: 'hidden' }}
-            >
-              {/* Foto de fondo */}
-              <Image
-                src={f.img}
-                alt={f.t}
-                fill
-                sizes="(max-width:768px) 100vw, 33vw"
-                style={{
-                  objectFit: 'cover',
-                  objectPosition: 'center top',
-                  opacity: 0.68,
-                  filter: 'grayscale(15%) brightness(0.82) saturate(0.85)',
-                }}
-              />
-              {/* Tinte azul uniforme para todos los cards */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: 'rgba(8,18,40,0.35)',
-                mixBlendMode: 'multiply',
-              }} />
-              {/* Gradiente oscuro hacia arriba desde negro */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: 'linear-gradient(to top, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.52) 48%, rgba(5,5,5,0.12) 100%)',
-              }} />
-              {/* Filete azul inferior */}
-              <div style={{
-                position: 'absolute', bottom: 0, left: 0, right: 0,
-                height: '2px',
-                background: 'linear-gradient(90deg, #1a6fff 0%, rgba(26,111,255,0) 100%)',
-              }} />
-              {/* Contenido */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                padding: '28px 28px 32px',
-                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-              }}>
-                {/* Número arriba */}
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '8px',
-                  fontSize: '10px', fontWeight: 700, letterSpacing: '0.28em',
-                  textTransform: 'uppercase', color: 'rgba(26,111,255,0.85)',
-                }}>
-                  <span style={{
-                    display: 'inline-block', width: '16px', height: '1px',
-                    background: '#1a6fff', opacity: 0.6,
-                  }} />
-                  {f.n}
-                </span>
-                {/* Título + descripción abajo */}
-                <div>
-                  <p style={{
-                    margin: '0 0 10px',
-                    fontSize: '17px', fontWeight: 700,
-                    color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.15,
-                  }}>
-                    {f.t}
-                  </p>
-                  <p style={{
-                    margin: 0, fontSize: '13px',
-                    lineHeight: 1.65, color: 'rgba(255,255,255,0.42)',
-                  }}>
-                    {f.d}
-                  </p>
-                </div>
+        {/* ── Banda 01 — Entrenamiento ── */}
+        <div className={bStyles.band}>
+          <div className={bStyles.bandInner}>
+            <div className={`${bStyles.shot} ${bStyles.reveal}`} data-reveal="">
+              <div className={bStyles.frame}>
+                <Image className={bStyles.frameImg} src="/1.png" alt="Entrenamiento frente al monitor" fill sizes="(max-width:960px) 100vw, 50vw" />
               </div>
+              <span className={bStyles.shotBorder} aria-hidden="true" />
             </div>
-          ))}
+            <div className={`${bStyles.text} ${bStyles.reveal} ${bStyles.revealDelay}`} data-reveal="">
+              <div className={bStyles.kicker}>
+                <span className={bStyles.kickerLine} />
+                <b className={bStyles.kickerLabel}>Formación</b>
+              </div>
+              <h3 className={bStyles.title}>Entrenamiento<br />con estructura</h3>
+              <p className={bStyles.body}>La conversación comercial desarmada en partes: cómo abrir sin sonar a libreto, cómo entender el problema antes de proponer una solución, y qué hacer cuando el precio aparece antes de tiempo.</p>
+              <p className={bStyles.body}>Cada módulo cierra con un ejercicio que se practica. No hay avance por reproducción de video.</p>
+              <p className={bStyles.pull}>Los guiones que vas a leer son los que usamos nosotros, con las palabras exactas.</p>
+              <dl className={bStyles.meta}>
+                <div className={bStyles.metaItem}><dt className={bStyles.metaDt}>Formato</dt><dd className={bStyles.metaDd}>Manuales + ejercicios</dd></div>
+                <div className={bStyles.metaItem}><dt className={bStyles.metaDt}>Módulos</dt><dd className={bStyles.metaDd}><em>12</em> unidades</dd></div>
+                <div className={bStyles.metaItem}><dt className={bStyles.metaDt}>Acceso</dt><dd className={bStyles.metaDd}>Permanente</dd></div>
+              </dl>
+            </div>
+          </div>
         </div>
+
+        {/* ── Banda 02 — Comunidad (flip) ── */}
+        <div className={bStyles.band}>
+          <div className={`${bStyles.bandInner} ${bStyles.bandInnerFlip}`}>
+            <div className={`${bStyles.shot} ${bStyles.reveal}`} data-reveal="">
+              <div className={bStyles.frame}>
+                <Image className={bStyles.frameImg} src="/2.png" alt="Comunidad revisando llamadas en grupo" fill sizes="(max-width:960px) 100vw, 50vw" />
+              </div>
+              <span className={bStyles.shotBorder} aria-hidden="true" />
+            </div>
+            <div className={`${bStyles.text} ${bStyles.reveal} ${bStyles.revealDelay}`} data-reveal="">
+              <div className={bStyles.kicker}>
+                <span className={bStyles.kickerLine} />
+                <b className={bStyles.kickerLabel}>Comunidad</b>
+              </div>
+              <h3 className={bStyles.title}>Revisión<br />entre pares</h3>
+              <p className={bStyles.body}>Un espacio cerrado donde se comparten conversaciones reales para que el resto del equipo las revise. No es un canal de novedades ni un grupo de motivación.</p>
+              <p className={bStyles.body}>Cada intervención busca lo mismo: identificar el momento exacto en que la conversación se desvió, y qué se podría haber preguntado en su lugar.</p>
+              <p className={bStyles.pull}>Se entra por invitación y se participa mostrando trabajo propio.</p>
+              <dl className={bStyles.meta}>
+                <div className={bStyles.metaItem}><dt className={bStyles.metaDt}>Integrantes</dt><dd className={bStyles.metaDd}><em>40+</em> activos</dd></div>
+                <div className={bStyles.metaItem}><dt className={bStyles.metaDt}>Respuesta</dt><dd className={bStyles.metaDd}>Menos de <em>24</em> h</dd></div>
+                <div className={bStyles.metaItem}><dt className={bStyles.metaDt}>Ingreso</dt><dd className={bStyles.metaDd}>Por invitación</dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Banda 03 — Mentorías ── */}
+        <div className={bStyles.band}>
+          <div className={bStyles.bandInner}>
+            <div className={`${bStyles.shot} ${bStyles.reveal}`} data-reveal="">
+              <div className={bStyles.frame}>
+                <Image className={bStyles.frameImg} src="/3.png" alt="Mentoría en vivo con panel de diagramas" fill sizes="(max-width:960px) 100vw, 50vw" />
+              </div>
+              <span className={bStyles.shotBorder} aria-hidden="true" />
+            </div>
+            <div className={`${bStyles.text} ${bStyles.reveal} ${bStyles.revealDelay}`} data-reveal="">
+              <div className={bStyles.kicker}>
+                <span className={bStyles.kickerLine} />
+                <b className={bStyles.kickerLabel}>Mentoría</b>
+              </div>
+              <h3 className={bStyles.title}>Acompañamiento<br />en vivo</h3>
+              <p className={bStyles.body}>Práctica dirigida con alguien que ya atravesó el caso que tenés adelante. Se simula la conversación completa, se corta donde hace falta y se vuelve a empezar.</p>
+              <p className={bStyles.body}>La sesión no termina cuando se acaba el tiempo, sino cuando la estructura quedó incorporada y podés repetirla sin ayuda.</p>
+              <p className={bStyles.pull}>Cupo reducido, porque el que mira sin hablar no aprende.</p>
+              <dl className={bStyles.meta}>
+                <div className={bStyles.metaItem}><dt className={bStyles.metaDt}>Frecuencia</dt><dd className={bStyles.metaDd}><em>2</em> por semana</dd></div>
+                <div className={bStyles.metaItem}><dt className={bStyles.metaDt}>Duración</dt><dd className={bStyles.metaDd}><em>60</em> min</dd></div>
+                <div className={bStyles.metaItem}><dt className={bStyles.metaDt}>Cupo</dt><dd className={bStyles.metaDd}>Máx. <em>8</em></dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       {/* ══ FOOTER ══ */}

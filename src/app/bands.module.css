@@ -1,0 +1,297 @@
+/* =========================================================
+   Areté Soluciones — Bandas alternadas
+   Adaptado del diseño original: azul #1a6fff, ink #050505
+   ========================================================= */
+
+.section {
+  padding: 0 0 80px;
+}
+
+/* ── Intro ── */
+.intro {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 72px 40px 56px;
+}
+
+.introContent {
+  max-width: 640px;
+  padding-left: 30px;
+  position: relative;
+}
+
+.introContent::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: linear-gradient(180deg, #1a6fff, rgba(26, 111, 255, 0));
+}
+
+.eyebrow {
+  margin: 0 0 16px;
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: #1a6fff;
+}
+
+.introTitle {
+  margin: 0;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: clamp(24px, 3.6vw, 42px);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: #f2efe9;
+}
+
+.introSub {
+  margin: 20px 0 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: clamp(15px, 1.8vw, 20px);
+  line-height: 1.6;
+  color: rgba(242, 239, 233, 0.5);
+  max-width: 520px;
+}
+
+/* ── Banda ── */
+.band {
+  padding: 100px 0;
+  border-top: 1px solid rgba(242, 239, 233, 0.07);
+}
+
+.bandFirst {
+  border-top: none;
+}
+
+.bandInner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: 80px;
+}
+
+.bandInnerFlip {
+  grid-template-columns: 0.95fr 1.05fr;
+}
+
+.bandInnerFlip .shot {
+  order: 2;
+}
+
+.bandInnerFlip .text {
+  order: 1;
+}
+
+/* ── Foto ── */
+.shot {
+  position: relative;
+}
+
+.frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: #000;
+  clip-path: polygon(
+    28px 0, 100% 0,
+    100% calc(100% - 28px), calc(100% - 28px) 100%,
+    0 100%, 0 28px
+  );
+}
+
+.frameImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(1.1) contrast(1.04) saturate(0.88);
+  transform: scale(1.02);
+  transition: transform 1s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+
+.band:hover .frameImg {
+  transform: scale(1.06);
+}
+
+/* Filete azul desfasado */
+.shotBorder {
+  position: absolute;
+  inset: -14px;
+  pointer-events: none;
+  border: 1px solid rgba(26, 111, 255, 0.38);
+  clip-path: polygon(
+    34px 0, 100% 0,
+    100% calc(100% - 34px), calc(100% - 34px) 100%,
+    0 100%, 0 34px
+  );
+}
+
+/* ── Texto ── */
+.text {
+  max-width: 520px;
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.kickerLine {
+  width: 34px;
+  height: 1px;
+  background: #1a6fff;
+  flex: none;
+}
+
+.kickerLabel {
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #1a6fff;
+}
+
+.title {
+  margin: 0 0 20px;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: clamp(22px, 2.8vw, 34px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #f2efe9;
+}
+
+.body {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(242, 239, 233, 0.58);
+}
+
+.body + .body {
+  margin-top: 14px;
+}
+
+.pull {
+  margin: 26px 0 0;
+  padding-left: 20px;
+  border-left: 1px solid rgba(242, 239, 233, 0.1);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.55;
+  color: rgba(242, 239, 233, 0.78);
+}
+
+/* ── Metadata ── */
+.meta {
+  margin: 32px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(242, 239, 233, 0.08);
+  display: flex;
+  gap: 36px;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metaDt {
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+
+.metaDd {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: #f2efe9;
+  margin: 0;
+}
+
+.metaDd em {
+  font-style: normal;
+  color: #1a6fff;
+}
+
+/* ── Reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.85s cubic-bezier(0.16, 0.84, 0.28, 1),
+    transform 0.85s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+
+.revealDelay {
+  transition-delay: 0.14s;
+}
+
+.revealOn {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 960px) {
+  .intro {
+    padding: 56px 24px 40px;
+  }
+
+  .introContent {
+    padding-left: 22px;
+  }
+
+  .band {
+    padding: 64px 0;
+  }
+
+  .bandInner,
+  .bandInnerFlip {
+    padding: 0 24px;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .bandInnerFlip .shot,
+  .bandInnerFlip .text {
+    order: initial;
+  }
+
+  .text {
+    max-width: none;
+  }
+
+  .meta {
+    gap: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frameImg,
+  .reveal {
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
