@@ -90,7 +90,7 @@ export default function HomePage() {
 
           {/* Headline */}
           <h1 style={{ margin: '0 0 22px', fontSize: 'clamp(38px, 5.5vw, 68px)', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1.06, textShadow: '0 4px 48px rgba(0,0,0,0.7)', maxWidth: '700px' }}>
-            Domina el Arte<br />del Closing
+            Domina el Arte de<br />Solucionar Problemas
           </h1>
 
           {/* Descripción */}
