@@ -122,19 +122,19 @@ export default function HomePage() {
           {([
             {
               n: '01',
-              img: '/feature_01.jpg',
+              img: '/3.png',
               t: 'Entrenamiento real',
               d: 'Apertura, manejo de objeciones y cierre con estructura clara para escalar resultados.',
             },
             {
               n: '02',
-              img: '/feature_02.jpg',
+              img: '/2.png',
               t: 'Comunidad privada',
               d: 'Feedback directo, llamadas compartidas y red activa de closers de alto rendimiento.',
             },
             {
               n: '03',
-              img: '/feature_03.jpg',
+              img: '/1.png',
               t: 'Mentorías en vivo',
               d: 'Roleplays y revisiones personalizadas cada semana con los mejores del equipo.',
             },
