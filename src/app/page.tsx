@@ -1,46 +1,70 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/brand-logo';
+import hStyles from './header.module.css';
 import styles from './hero.module.css';
 
 export default function HomePage() {
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    // Scroll detection para header frosted glass
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Video crossfade
     const v1 = document.getElementById('hero-v1') as HTMLVideoElement | null;
     const v2 = document.getElementById('hero-v2') as HTMLVideoElement | null;
-    if (!v1 || !v2) return;
+    if (v1 && v2) {
+      v1.muted = true; v1.volume = 0;
+      v2.muted = true; v2.volume = 0;
 
-    v1.muted = true; v1.volume = 0;
-    v2.muted = true; v2.volume = 0;
+      const playV2 = () => { v1.style.opacity = '0'; v2.style.opacity = '1'; v2.currentTime = 0; v2.play().catch(() => {}); };
+      const playV1 = () => { v2.style.opacity = '0'; v1.style.opacity = '1'; v1.currentTime = 0; v1.play().catch(() => {}); };
 
-    function playV2() {
-      v1!.style.opacity = '0';
-      v2!.style.opacity = '1';
-      v2!.currentTime = 0;
-      v2!.play().catch(() => {});
+      v1.addEventListener('ended', playV2);
+      v2.addEventListener('ended', playV1);
+      v1.play().catch(() => {});
+
+      return () => {
+        window.removeEventListener('scroll', onScroll);
+        v1.removeEventListener('ended', playV2);
+        v2.removeEventListener('ended', playV1);
+      };
     }
-    function playV1() {
-      v2!.style.opacity = '0';
-      v1!.style.opacity = '1';
-      v1!.currentTime = 0;
-      v1!.play().catch(() => {});
-    }
 
-    v1.addEventListener('ended', playV2);
-    v2.addEventListener('ended', playV1);
-    v1.play().catch(() => {});
-
-    return () => {
-      v1.removeEventListener('ended', playV2);
-      v2.removeEventListener('ended', playV1);
-    };
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
     <div style={{ background: '#050505', minHeight: '100vh', overflowX: 'hidden' }}>
+
+      {/* ══ HEADER FIJO ══ */}
+      <header className={`${hStyles.header} ${scrolled ? hStyles.isScrolled : ''}`}>
+        <div className={hStyles.inner}>
+          <Link href="/" className={hStyles.brand} aria-label="Areté Soluciones">
+            <BrandLogo size="md" priority />
+            <span className={hStyles.wordmark}>
+              <strong>Areté Soluciones</strong>
+              <em>Fuera de Serie</em>
+            </span>
+          </Link>
+
+          <nav className={hStyles.nav} aria-label="Acceso">
+            <Link href="/login" className={hStyles.ghost}>
+              Iniciar sesión
+            </Link>
+            <Link href="/register" className={hStyles.outline}>
+              <span>Crear cuenta</span>
+            </Link>
+          </nav>
+        </div>
+        <div className={hStyles.hairline} aria-hidden="true" />
+      </header>
 
       {/* ══ HERO ══ */}
       <section style={{ position: 'relative', width: '100%', minHeight: '100svh', display: 'flex', flexDirection: 'column' }}>
@@ -58,30 +82,11 @@ export default function HomePage() {
           }}
         />
 
-        {/* Overlays encima del video */}
+        {/* Overlay */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2, background: 'radial-gradient(120% 80% at 50% 45%, rgba(5,5,5,0.25) 0%, rgba(5,5,5,0.82) 68%, #050505 100%)' }} />
 
-        {/* NAV */}
-        <header style={{ position: 'relative', zIndex: 30, display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '24px 32px', boxSizing: 'border-box' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <BrandLogo size="md" priority />
-            <div>
-              <p style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>Areté Soluciones</p>
-              <p style={{ margin: 0, fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1a6fff' }}>Fuera de Serie</p>
-            </div>
-          </div>
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Link href="/login" style={{ padding: '9px 22px', borderRadius: '999px', border: '1px solid rgba(255,255,255,0.12)', fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.7)', textDecoration: 'none', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)' }}>
-              Iniciar sesión
-            </Link>
-            <Link href="/register" style={{ padding: '9px 22px', borderRadius: '999px', background: '#1a6fff', fontSize: '13px', fontWeight: 700, color: '#fff', textDecoration: 'none', boxShadow: '0 4px 20px rgba(26,111,255,0.4)' }}>
-              Crear cuenta
-            </Link>
-          </nav>
-        </header>
-
         {/* Contenido hero — left-aligned con barra azul */}
-        <div style={{ position: 'relative', zIndex: 30, flex: 1, display: 'flex', alignItems: 'center', padding: '40px 32px 100px', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ position: 'relative', zIndex: 30, flex: 1, display: 'flex', alignItems: 'center', padding: '120px 32px 80px', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
           <div className={styles.inner}>
 
             <div className={styles.lockup}>
