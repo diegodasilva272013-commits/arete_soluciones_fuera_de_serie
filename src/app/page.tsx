@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Brandmark } from '@/components/brand/brandmark';
@@ -115,18 +116,87 @@ export default function HomePage() {
 
       </section>
 
-      {/* ══ STRIP INFERIOR ══ */}
-      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '80px 32px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1px', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
-          {[
-            { n: '01', t: 'Entrenamiento real', d: 'Apertura, manejo de objeciones y cierre con estructura clara para escalar resultados.' },
-            { n: '02', t: 'Comunidad privada', d: 'Feedback directo, llamadas compartidas y red activa de closers de alto rendimiento.' },
-            { n: '03', t: 'Mentorías en vivo', d: 'Roleplays y revisiones personalizadas cada semana con los mejores del equipo.' },
-          ].map((f) => (
-            <div key={f.n} style={{ padding: '36px 32px', background: 'rgba(255,255,255,0.015)', borderRight: '1px solid rgba(255,255,255,0.04)' }}>
-              <p style={{ margin: '0 0 18px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.2em', color: 'rgba(26,111,255,0.5)' }}>{f.n}</p>
-              <p style={{ margin: '0 0 10px', fontSize: '15px', fontWeight: 700, color: 'rgba(255,255,255,0.85)', letterSpacing: '-0.01em' }}>{f.t}</p>
-              <p style={{ margin: 0, fontSize: '13px', lineHeight: '1.65', color: 'rgba(255,255,255,0.28)' }}>{f.d}</p>
+      {/* ══ STRIP INFERIOR — image cards ══ */}
+      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 32px 80px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '2px' }}>
+          {([
+            {
+              n: '01',
+              img: '/feature_01.jpg',
+              t: 'Entrenamiento real',
+              d: 'Apertura, manejo de objeciones y cierre con estructura clara para escalar resultados.',
+            },
+            {
+              n: '02',
+              img: '/feature_02.jpg',
+              t: 'Comunidad privada',
+              d: 'Feedback directo, llamadas compartidas y red activa de closers de alto rendimiento.',
+            },
+            {
+              n: '03',
+              img: '/feature_03.jpg',
+              t: 'Mentorías en vivo',
+              d: 'Roleplays y revisiones personalizadas cada semana con los mejores del equipo.',
+            },
+          ] as const).map((f) => (
+            <div
+              key={f.n}
+              style={{ position: 'relative', height: '460px', overflow: 'hidden' }}
+            >
+              {/* Foto de fondo */}
+              <Image
+                src={f.img}
+                alt={f.t}
+                fill
+                sizes="(max-width:768px) 100vw, 33vw"
+                style={{ objectFit: 'cover', objectPosition: 'center top', opacity: 0.72 }}
+              />
+              {/* Overlay: gradiente hacia arriba desde negro */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to top, rgba(5,5,5,0.97) 0%, rgba(5,5,5,0.55) 45%, rgba(5,5,5,0.18) 100%)',
+              }} />
+              {/* Filete azul inferior */}
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0,
+                height: '2px',
+                background: 'linear-gradient(90deg, #1a6fff 0%, rgba(26,111,255,0) 100%)',
+              }} />
+              {/* Contenido */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                padding: '28px 28px 32px',
+                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+              }}>
+                {/* Número arriba */}
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '8px',
+                  fontSize: '10px', fontWeight: 700, letterSpacing: '0.28em',
+                  textTransform: 'uppercase', color: 'rgba(26,111,255,0.85)',
+                }}>
+                  <span style={{
+                    display: 'inline-block', width: '16px', height: '1px',
+                    background: '#1a6fff', opacity: 0.6,
+                  }} />
+                  {f.n}
+                </span>
+                {/* Título + descripción abajo */}
+                <div>
+                  <p style={{
+                    margin: '0 0 10px',
+                    fontSize: '17px', fontWeight: 700,
+                    color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.15,
+                  }}>
+                    {f.t}
+                  </p>
+                  <p style={{
+                    margin: 0, fontSize: '13px',
+                    lineHeight: 1.65, color: 'rgba(255,255,255,0.42)',
+                  }}>
+                    {f.d}
+                  </p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
