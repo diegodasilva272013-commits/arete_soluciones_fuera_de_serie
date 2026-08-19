@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://camino-al-closing.vercel.app'),
+  metadataBase: new URL('https://arete-soluciones-plataforma.vercel.app'),
   title: {
     default: brand.full,
     template: `%s — ${brand.name}`,
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    url: 'https://camino-al-closing.vercel.app',
+    url: 'https://arete-soluciones-plataforma.vercel.app',
     siteName: brand.name,
     title: brand.full,
     description: brand.description,

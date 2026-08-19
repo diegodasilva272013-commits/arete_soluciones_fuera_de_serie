@@ -7,7 +7,7 @@ export const contentType = 'image/png';
 
 export default async function OgImage() {
   // Fetch logo como base64 para que ImageResponse pueda mostrarlo
-  const base = 'https://camino-al-closing.vercel.app';
+  const base = 'https://arete-soluciones-plataforma.vercel.app';
   let logoSrc: string = '';
   try {
     const res = await fetch(`${base}/Aretea_fuera%20_de_serie_logo.png`);
