@@ -32,11 +32,21 @@ export const metadata: Metadata = {
     title: brand.full,
     description: brand.description,
     locale: 'es_AR',
+    images: [
+      {
+        url: 'https://arete-soluciones-plataforma.vercel.app/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Areté Soluciones — Fuera de Serie',
+        type: 'image/png',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: brand.full,
     description: brand.description,
+    images: ['https://arete-soluciones-plataforma.vercel.app/opengraph-image'],
   },
   appleWebApp: {
     capable: true,
