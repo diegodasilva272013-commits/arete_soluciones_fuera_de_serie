@@ -8,11 +8,11 @@ import { Brandmark } from '@/components/brand/brandmark';
 import s from './_header.module.css';
 
 const NAV = [
-  { href: '/empresa',            label: 'Inicio'     },
-  { href: '/empresa/servicios',  label: 'Servicios'  },
-  { href: '/empresa/nosotros',   label: 'Nosotros'   },
-  { href: '/empresa/resultados', label: 'Resultados' },
-  { href: '/empresa/contacto',   label: 'Contacto'   },
+  { href: '/empresa',              label: 'Inicio'      },
+  { href: '/empresa/servicios',    label: 'Servicios'   },
+  { href: '/empresa/metodologia',  label: 'Metodología' },
+  { href: '/empresa/nosotros',     label: 'Nosotros'    },
+  { href: '/empresa/contacto',     label: 'Contacto'    },
 ];
 
 const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';

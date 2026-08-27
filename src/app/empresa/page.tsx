@@ -3,69 +3,34 @@ import { ArrowRight } from 'lucide-react';
 import s from './corp.module.css';
 import { RevealObserver } from './_reveal';
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
+const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20el%20diagn%C3%B3stico%20de%20Aret%C3%A9%20Soluciones';
 
-const SERVICIOS = [
+const DOLORES = [
   {
-    num: '01 — Formación',
-    title: 'Entrenamiento con estructura',
-    body1: 'La conversación comercial desarmada parte por parte: cómo abrir sin sonar a libreto, cómo entender el problema antes de proponer cualquier solución, y qué hacer cuando el precio aparece antes de tiempo.',
-    body2: 'Doce semanas de trabajo real. Cada módulo cierra con un ejercicio que se practica. No hay avance por reproducción de video.',
-    pull: 'Los guiones que vas a leer son los que usamos nosotros, con las palabras exactas.',
-    meta: [
-      { dt: 'Formato', dd: 'Manuales + práctica' },
-      { dt: 'Duración', dd: <em>12</em> },
-      { dt: 'Acceso', dd: 'Permanente' },
-    ],
-    panel: [
-      'Desarmado completo de la conversación comercial',
-      'Módulos de apertura, diagnóstico, objeciones y cierre',
-      'Ejercicio práctico al final de cada unidad',
-      'Revisión de llamadas reales del equipo',
-      'Material de referencia de uso permanente',
-    ],
-    flip: false,
+    title: 'La información no llega a tiempo',
+    body: 'Para saber cómo viene el mes hay que preguntarle a tres personas. Cuando llega la respuesta, ya pasó el momento de decidir.',
   },
   {
-    num: '02 — Mentoría',
-    title: 'Acompañamiento individual',
-    body1: 'Sesiones 1:1 con alguien que ya atravesó el caso que tenés adelante. Se simula la conversación completa, se corta donde hace falta y se vuelve a empezar desde el punto exacto donde se rompió.',
-    body2: 'La sesión no termina cuando se acaba el tiempo, sino cuando la estructura quedó incorporada y podés repetirla sin ayuda.',
-    pull: 'El que mira sin hablar no aprende. El que habla sin que lo corrijan tampoco.',
-    meta: [
-      { dt: 'Modalidad', dd: '1:1 en vivo' },
-      { dt: 'Sesiones', dd: <><em>60</em> min</> },
-      { dt: 'Cupo', dd: <><em>Máx. 4</em></> },
-    ],
-    panel: [
-      'Análisis de conversaciones propias del setter',
-      'Roleplay con corrección en tiempo real',
-      'WhatsApp de seguimiento entre sesiones',
-      'Grabación disponible para revisión',
-      'Plan de trabajo personalizado por caso',
-    ],
-    flip: true,
+    title: 'Las herramientas no se hablan entre sí',
+    body: 'Cada área usa algo distinto. La misma información se carga dos o tres veces, en distintos formatos, con distintos criterios.',
   },
   {
-    num: '03 — Corporativo',
-    title: 'Sistema para equipos',
-    body1: 'Para empresas con diez o más vendedores que necesitan un método común sin perder el estilo de cada persona. Diseñamos e implementamos el sistema desde el diagnóstico inicial hasta el seguimiento post-implementación.',
-    body2: 'Incluye formación del equipo, acompañamiento a líderes comerciales y revisiones periódicas para asegurar que el método quede instalado en la cultura.',
-    pull: 'La escala no se consigue replicando vendedores, se consigue instalando el método.',
-    meta: [
-      { dt: 'Equipo', dd: <><em>10+</em> personas</> },
-      { dt: 'Plan', dd: 'A medida' },
-      { dt: 'Seguimiento', dd: 'Trimestral' },
-    ],
-    panel: [
-      'Diagnóstico inicial del proceso actual',
-      'Programa 100% personalizado para tu industria',
-      'Formación de líderes comerciales internos',
-      'Implementación del método en el CRM',
-      'Revisiones trimestrales de resultados',
-    ],
-    flip: false,
+    title: 'La operación depende de una persona',
+    body: 'Si falta Juan, o se va, algo se frena. El conocimiento está en la cabeza de alguien, no en el sistema.',
   },
+  {
+    title: 'Crecieron los clientes, no los procesos',
+    body: 'Lo que funcionaba con diez clientes no escala a cien. El equipo trabaja más horas para sostener el mismo resultado.',
+  },
+];
+
+const ETAPAS = [
+  { n: '01', title: 'Inmersión', body: 'Entendemos cómo funciona la empresa desde adentro. Hablamos con quien dirige y con quien ejecuta. No partimos de supuestos.' },
+  { n: '02', title: 'Auditoría', body: 'Mapeamos la operación completa e identificamos dónde se pierde tiempo, información y dinero.' },
+  { n: '03', title: 'Priorización', body: 'Pareto 80/20: dónde está el 20% de problemas que genera el 80% de la pérdida. Eso se resuelve primero.' },
+  { n: '04', title: 'Arquitectura', body: 'Diseñamos cómo debería funcionar la empresa. Recién acá se elige tecnología, como consecuencia del diseño.' },
+  { n: '05', title: 'Implementación', body: 'Construimos en orden de impacto. Cada entrega genera valor antes de que termine el proyecto.' },
+  { n: '06', title: 'Evolución', body: 'Medimos, observamos y ajustamos. Un sistema que no evoluciona deja de ser útil.' },
 ];
 
 export default function EmpresaHome() {
@@ -78,120 +43,157 @@ export default function EmpresaHome() {
         <div className={s.pageHeroInner}>
           <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
             <span className={s.kickerLine} />
-            <span className={s.kickerLabel}>Buenos Aires · 100% Remoto</span>
+            <span className={s.kickerLabel}>Areté Soluciones · Buenos Aires</span>
           </div>
-
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Transformamos equipos<br />en máquinas de cierre
+            No hacemos que tu empresa<br />se adapte al software
           </h1>
-
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-            Formación comercial de alto rendimiento para empresas que venden soluciones, no productos.
+            Hacemos que el software se adapte a tu empresa.
           </p>
-
           <div className={`${s.reveal} ${s.revealDelay3}`} data-reveal="" style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
-              Agendar diagnóstico gratuito <ArrowRight size={14} />
+              Hablar con el equipo <ArrowRight size={14} />
             </a>
-            <Link href="/empresa/servicios" className={s.btnGhost}>
-              Ver servicios
+            <Link href="/empresa/metodologia" className={s.btnGhost}>
+              Ver el método
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── MANIFIESTO ── */}
-      <section style={{ padding: '80px 0', borderTop: '1px solid rgba(242,239,233,0.06)' }}>
+      {/* ── EL PROBLEMA ── */}
+      <section className={s.section}>
         <div className={s.inner}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
             <div className={`${s.reveal}`} data-reveal="">
               <div className={s.sectionLockup}>
-                <p style={{ margin: '0 0 16px', fontFamily: 'ui-monospace, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '0.34em', textTransform: 'uppercase', color: '#1a6fff' }}>
-                  Por qué existimos
-                </p>
-                <h2 className={s.sectionTitle}>
-                  Los equipos no fallan por falta de ganas
-                </h2>
+                <p className={s.kickerLabel} style={{ marginBottom: 14 }}>El problema que existe en las empresas</p>
+                <h2 className={s.sectionTitle}>Creciste, pero los procesos no acompañaron</h2>
                 <p className={s.sectionSub}>
-                  Fallan porque nadie les enseñó a entender el problema antes de proponer la solución.
+                  La mayoría de las empresas que nos contratan no tienen un problema de producto ni de mercado. Tienen un problema operativo que nadie se sentó a diseñar.
                 </p>
               </div>
             </div>
-            <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
-              <p style={{ margin: '0 0 20px', fontSize: 15, lineHeight: 1.8, color: 'rgba(242,239,233,0.55)' }}>
-                Areté nació en 2021 después de ver equipos llenos de energía perder oportunidades que merecían cerrar. No por producto malo, no por precio alto — sino porque la conversación se conducía mal desde el primer mensaje.
-              </p>
-              <p style={{ margin: '0 0 32px', fontSize: 15, lineHeight: 1.8, color: 'rgba(242,239,233,0.55)' }}>
-                Hoy trabajamos con empresas de toda Latinoamérica que entendieron que el verdadero diferencial no está en el pitch, sino en la capacidad de escuchar, diagnosticar y proponer soluciones que el cliente ya quería antes de que abrieras la boca.
-              </p>
-              <div style={{ display: 'flex', gap: 48 }}>
-                {[
-                  { n: '+120', l: 'Empresas' },
-                  { n: '+850', l: 'Vendedores' },
-                  { n: '4.3×', l: 'Mejora promedio' },
-                ].map(({ n, l }) => (
-                  <div key={l}>
-                    <div className={s.bigStat}>
-                      <span style={{ fontWeight: 800, fontSize: 36, letterSpacing: '-0.04em', color: '#1a6fff', lineHeight: 1 }}>{n}</span>
-                    </div>
-                    <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.35)', display: 'block', marginTop: 4 }}>{l}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {DOLORES.map((d, i) => (
+                <div
+                  key={d.title}
+                  className={`${s.reveal} ${i > 0 ? s.revealDelay1 : ''}`}
+                  data-reveal=""
+                  style={{
+                    padding: '28px 0',
+                    borderTop: '1px solid rgba(242,239,233,0.07)',
+                    display: 'grid',
+                    gridTemplateColumns: '24px 1fr',
+                    gap: 20,
+                    alignItems: 'start',
+                  }}
+                >
+                  <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10, color: 'rgba(26,111,255,0.5)', fontWeight: 700, paddingTop: 3 }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <div>
+                    <h3 style={{ margin: '0 0 8px', fontWeight: 700, fontSize: 15, color: '#f2efe9', letterSpacing: '-0.01em' }}>{d.title}</h3>
+                    <p style={{ margin: 0, fontSize: 14, lineHeight: 1.75, color: 'rgba(242,239,233,0.5)' }}>{d.body}</p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── SERVICIOS EN BANDAS ── */}
-      {SERVICIOS.map((svc) => (
-        <div key={svc.num} className={s.band}>
-          <div className={`${s.bandGrid} ${svc.flip ? s.bandGridFlip : ''}`}>
-            {/* Texto */}
-            <div className={`${s.reveal}`} data-reveal="">
-              <p className={s.bandNum}>{svc.num}</p>
-              <h2 className={s.bandTitle}>{svc.title}</h2>
-              <p className={s.bandBody}>{svc.body1}</p>
-              <p className={s.bandBody}>{svc.body2}</p>
-              <p className={s.bandPull}>{svc.pull}</p>
-              <dl className={s.meta}>
-                {svc.meta.map((m, i) => (
-                  <div key={i} className={s.metaItem}>
-                    <dt className={s.metaDt}>{m.dt}</dt>
-                    <dd className={s.metaDd}>{m.dd}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-
-            {/* Panel */}
-            <div className={`${s.bandRight} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-              <div className={s.bandPanel}>
-                <span className={s.bandPanelBorder} aria-hidden="true" />
-                <p style={{ margin: '0 0 20px', fontFamily: 'ui-monospace, monospace', fontSize: 9, fontWeight: 600, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#1a6fff' }}>
-                  Incluye
-                </p>
-                <ul className={s.panelList}>
-                  {svc.panel.map((item) => (
-                    <li key={item} className={s.panelItem}>
-                      <span className={s.panelDot} aria-hidden="true" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-
-      {/* ── QUOTE ── */}
+      {/* ── QUOTE CENTRAL ── */}
       <section className={`${s.quoteBand} ${s.reveal}`} data-reveal="">
         <div className={s.quoteInner}>
           <p className={s.quoteText}>
-            "La conversación que cierra es la que <em>resuelve el problema</em> antes de pedir el sí."
+            "La mayoría de los proveedores parten de una herramienta y buscan dónde ponerla. Nosotros partimos de <em>la empresa</em>."
           </p>
-          <span className={s.quoteAuthor}>Método Areté · Principio fundamental</span>
+          <span className={s.quoteAuthor}>Areté Soluciones · Forma de trabajar</span>
+        </div>
+      </section>
+
+      {/* ── MÉTODO — 6 ETAPAS ── */}
+      <section className={s.section}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 60 }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>El método</p>
+            <h2 className={s.sectionTitle}>Seis etapas. El orden no se altera.</h2>
+            <p className={s.sectionSub}>
+              No empezamos con un documento de requerimientos escrito por el cliente. Empezamos entendiendo la operación.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            {ETAPAS.map((e, i) => (
+              <div
+                key={e.n}
+                className={`${s.reveal}`}
+                data-reveal=""
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '120px 1fr',
+                  gap: 48,
+                  padding: '36px 0',
+                  borderTop: '1px solid rgba(242,239,233,0.07)',
+                  alignItems: 'start',
+                }}
+              >
+                <div>
+                  <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.28em', color: 'rgba(26,111,255,0.45)' }}>{e.n}</span>
+                  <h3 style={{ margin: '8px 0 0', fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', color: '#f2efe9' }}>{e.title}</h3>
+                </div>
+                <p style={{ margin: '20px 0 0', fontSize: 15, lineHeight: 1.75, color: 'rgba(242,239,233,0.52)' }}>{e.body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 48, display: 'flex', gap: 16 }}>
+            <Link href="/empresa/metodologia" className={s.btnGhost}>
+              Ver el método en detalle <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4 ÁREAS ── */}
+      <section className={`${s.section} ${s.sectionAlt}`}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 60 }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Las cuatro áreas</p>
+            <h2 className={s.sectionTitle}>Un circuito único,<br />no cuatro silos</h2>
+            <p className={s.sectionSub}>
+              Ventas, Marketing, Administración y Delivery no son departamentos separados. Son partes de un mismo sistema. Si una falla, las demás lo sienten.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: 'rgba(242,239,233,0.06)' }}>
+            {[
+              { area: 'Ventas', desc: 'Del primer contacto al cierre. Cómo llegan las oportunidades, cómo se califican y cómo se convierten.' },
+              { area: 'Marketing', desc: 'Qué hace que los clientes correctos lleguen solos. Qué se mide, qué no, y qué dice ese número.' },
+              { area: 'Administración', desc: 'Facturación, cobros, reportes. Dónde se pierde información y qué tarda más de lo que debería.' },
+              { area: 'Delivery', desc: 'Cómo se entrega lo que se vendió. Dónde está el cuelllo de botella entre el sí del cliente y el resultado.' },
+            ].map(({ area, desc }, i) => (
+              <div
+                key={area}
+                className={`${s.reveal} ${i > 0 ? s.revealDelay1 : ''}`}
+                data-reveal=""
+                style={{ padding: '40px 32px', background: '#050505', display: 'flex', flexDirection: 'column', gap: 16 }}
+              >
+                <span style={{
+                  fontFamily: 'ui-monospace, monospace',
+                  fontSize: 9,
+                  fontWeight: 600,
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color: '#1a6fff',
+                }}>{String(i + 1).padStart(2, '0')}</span>
+                <h3 style={{ margin: 0, fontWeight: 800, fontSize: 22, letterSpacing: '-0.03em', color: '#f2efe9' }}>{area}</h3>
+                <p style={{ margin: 0, fontSize: 13, lineHeight: 1.75, color: 'rgba(242,239,233,0.48)' }}>{desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -199,15 +201,15 @@ export default function EmpresaHome() {
       <section className={s.ctaBand}>
         <div className={s.inner}>
           <div className={s.reveal} data-reveal="">
-            <h2 className={s.ctaTitle}>¿Cuándo empieza tu equipo?</h2>
-            <p className={s.ctaSub}>30 minutos de diagnóstico sin costo. Sin guión de ventas.</p>
+            <h2 className={s.ctaTitle}>¿Reconocés alguno de esos problemas?</h2>
+            <p className={s.ctaSub}>El diagnóstico empieza con una conversación de 30 minutos. Sin costo.</p>
             <div className={s.ctaRow}>
               <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
-                Escribinos por WhatsApp <ArrowRight size={15} />
+                Hablar con el equipo <ArrowRight size={15} />
               </a>
-              <a href="tel:+541143215678" className={s.btnGhost}>
-                Llamanos directo
-              </a>
+              <Link href="/empresa/servicios" className={s.btnGhost}>
+                Ver servicios y precios
+              </Link>
             </div>
           </div>
         </div>

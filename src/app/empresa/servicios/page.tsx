@@ -5,100 +5,64 @@ import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
 
 export const metadata: Metadata = {
-  title: 'Servicios',
-  description: 'Formación comercial, mentoría individual y programas corporativos para equipos de ventas de alto rendimiento.',
+  title: 'Servicios — Areté Soluciones',
+  description: 'Diagnóstico operativo e implementación de sistemas para empresas que necesitan volver a crecer sin depender de una persona.',
 };
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
+const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20el%20diagn%C3%B3stico%20operativo%20de%20Aret%C3%A9%20Soluciones';
 
-const ITEMS = [
+const AREAS = [
   {
-    num: '01',
-    tag: 'Equipo · 12 semanas',
-    title: 'Formación Comercial',
-    lead: 'El método completo para equipos que quieren vender diferente.',
-    body1: 'Un programa estructurado que transforma la forma en que tu equipo entiende y conduce una conversación comercial. Nada de guiones de memoria: aprendemos a escuchar, diagnosticar y proponer soluciones que el cliente ya quería antes de que abrieras la boca.',
-    body2: 'Cada semana combina contenido teórico, ejercicios prácticos en vivo y revisión de casos reales del equipo. El avance se mide por resultados, no por tiempo en pantalla.',
-    pull: 'La conversación que cierra es la que resuelve el problema antes de pedir el sí.',
-    meta: [
-      { dt: 'Duración', dd: '12 semanas' },
-      { dt: 'Módulos', dd: '12 unidades' },
-      { dt: 'Acceso', dd: 'Permanente' },
-    ],
-    panel: [
-      'Desarmado de la conversación comercial en partes',
-      'Módulos de apertura, diagnóstico, objeciones y cierre',
-      'Ejercicio práctico al final de cada unidad',
-      'Revisión de llamadas reales del equipo',
-      'Material de referencia de uso permanente',
-    ],
+    n: '01',
+    area: 'Ventas',
+    desc: 'Del primer contacto al cierre: cómo llegan las oportunidades, cómo se califican y cómo se convierten en clientes. Mapeamos dónde se frena el flujo y lo rediseñamos.',
     flip: false,
+    items: [
+      'Mapeo del proceso de captación y conversión actual',
+      'Identificación de puntos de fuga en el embudo',
+      'Rediseño del flujo de oportunidades',
+      'Herramientas que reflejan cómo trabaja el equipo',
+      'Tablero de visibilidad para quién dirige',
+    ],
   },
   {
-    num: '02',
-    tag: 'Individual · Ongoing',
-    title: 'Mentoría 1:1',
-    lead: 'Para quienes ya saben vender y quieren llegar al siguiente nivel.',
-    body1: 'Sesiones individuales con un mentor que ya atravesó los mismos casos que tenés adelante. No es coaching genérico: es análisis de situaciones concretas, simulación de conversaciones y ajuste fino de tu estilo comercial.',
-    body2: 'Trabajamos sobre tus leads reales, tus objeciones reales y tu forma de comunicar. La sesión no termina cuando se acaba el tiempo, sino cuando la estructura quedó incorporada.',
-    pull: 'El que mira sin hablar no aprende. El que habla sin que lo corrijan tampoco.',
-    meta: [
-      { dt: 'Modalidad', dd: '1:1 en vivo' },
-      { dt: 'Duración', dd: '60 min' },
-      { dt: 'Cupo', dd: 'Máx. 4' },
-    ],
-    panel: [
-      'Análisis de conversaciones propias del setter',
-      'Roleplay con corrección en tiempo real',
-      'WhatsApp de seguimiento entre sesiones',
-      'Grabación disponible para revisión',
-      'Plan de trabajo personalizado por caso',
-    ],
+    n: '02',
+    area: 'Marketing',
+    desc: 'Qué hace que los clientes correctos lleguen solos. Qué se mide, qué no, y qué dice ese número. Construimos el sistema de atracción que deja de depender de la improvisación.',
     flip: true,
+    items: [
+      'Auditoría de canales y métricas actuales',
+      'Definición de qué medir y qué ignorar',
+      'Sistema de seguimiento de desempeño',
+      'Flujos de atracción y nurturing a medida',
+      'Visibilidad de ROI por canal',
+    ],
   },
   {
-    num: '03',
-    tag: 'Diagnóstico · 2–3 semanas',
-    title: 'Auditoría Comercial',
-    lead: 'Antes de cambiar algo, entendé qué está fallando y dónde.',
-    body1: 'Analizamos en profundidad tu proceso de ventas actual: desde cómo llegan los leads hasta por qué se caen antes del cierre. Revisamos llamadas, mensajes, propuestas y el sistema de seguimiento.',
-    body2: 'Entregamos un informe con los puntos de fuga identificados y un plan de acción con prioridades claras. Sin tecnicismos, sin consultant-speak: acciones para ejecutar la semana siguiente.',
-    pull: 'Los equipos que más venden no tienen más leads — tienen menos fugas.',
-    meta: [
-      { dt: 'Entrega', dd: '2–3 semanas' },
-      { dt: 'Informe', dd: 'Detallado' },
-      { dt: 'Plan', dd: 'Priorizado' },
-    ],
-    panel: [
-      'Análisis de llamadas y mensajes existentes',
-      'Mapeo del proceso de ventas actual',
-      'Identificación de puntos de fuga específicos',
-      'Informe ejecutivo con hallazgos',
-      'Plan de acción priorizado para 30/60/90 días',
-    ],
+    n: '03',
+    area: 'Administración',
+    desc: 'Facturación, cobros, reportes. Dónde se pierde información y qué tarda más de lo que debería. Diseñamos el sistema administrativo que funciona sin que nadie lo persiga.',
     flip: false,
+    items: [
+      'Relevamiento del flujo de información financiera',
+      'Identificación de cuellos de botella y redundancias',
+      'Diseño del sistema de reportes de gestión',
+      'Automatización de tareas repetitivas de alto riesgo',
+      'Dashboard de indicadores para dirección',
+    ],
   },
   {
-    num: '04',
-    tag: 'Empresa · A medida',
-    title: 'Programa Corporativo',
-    lead: 'Para equipos de 10+ vendedores que necesitan un sistema, no un curso.',
-    body1: 'Diseñamos e implementamos un programa de formación completamente personalizado para tu empresa, tu industria y tu proceso de ventas. Desde el diagnóstico inicial hasta el seguimiento post-implementación.',
-    body2: 'Incluye formación del equipo, acompañamiento a líderes comerciales y revisiones periódicas para asegurar que el método quede instalado en la cultura del equipo.',
-    pull: 'La escala no se consigue replicando vendedores — se consigue instalando el método.',
-    meta: [
-      { dt: 'Equipo', dd: '10+ personas' },
-      { dt: 'Plan', dd: 'Personalizado' },
-      { dt: 'Revisión', dd: 'Trimestral' },
-    ],
-    panel: [
-      'Diagnóstico inicial gratuito',
-      'Programa 100% personalizado por industria',
-      'Formación de líderes comerciales internos',
-      'Implementación del método en herramientas actuales',
-      'Seguimiento trimestral de métricas incluido',
-    ],
+    n: '04',
+    area: 'Delivery',
+    desc: 'Cómo se entrega lo que se vendió. Dónde está el cuello de botella entre el sí del cliente y el resultado. Lo hacemos predecible, escalable y visible desde arriba.',
     flip: true,
+    items: [
+      'Mapeo del proceso de entrega actual, etapa por etapa',
+      'Identificación de dependencias de personas clave',
+      'Rediseño del flujo de entrega',
+      'Sistema de seguimiento del estado de cada proyecto',
+      'Indicadores de capacidad y calidad para dirección',
+    ],
   },
 ];
 
@@ -114,50 +78,127 @@ export default function ServiciosPage() {
             <span className={s.kickerLabel}>Servicios</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            No vendemos el mismo<br />programa a todos
+            Cuatro áreas.<br />Un solo sistema.
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-            Cada servicio responde a un momento distinto de tu equipo. Empezamos siempre entendiendo dónde estás parado.
+            Trabajamos sobre las áreas que generan fricción operativa. No vendemos tecnología: diseñamos cómo debería funcionar la empresa y elegimos la herramienta como consecuencia.
           </p>
-          <div className={`${s.reveal} ${s.revealDelay3}`} data-reveal="">
+          <div className={`${s.reveal} ${s.revealDelay3}`} data-reveal="" style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
-              Diagnóstico gratuito <ArrowRight size={14} />
+              Pedir diagnóstico <ArrowRight size={14} />
             </a>
+            <Link href="/empresa/metodologia" className={s.btnGhost}>
+              Ver el método
+            </Link>
           </div>
         </div>
       </section>
 
-      {ITEMS.map((svc) => (
-        <div key={svc.num} className={s.band}>
-          <div className={`${s.bandGrid} ${svc.flip ? s.bandGridFlip : ''}`}>
-            <div className={`${s.reveal}`} data-reveal="">
-              <p className={s.bandNum}>{svc.num} — {svc.tag}</p>
-              <h2 className={s.bandTitle}>{svc.title}</h2>
-              <p style={{ margin: '0 0 20px', fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 18, lineHeight: 1.6, color: 'rgba(242,239,233,0.72)' }}>{svc.lead}</p>
-              <p className={s.bandBody}>{svc.body1}</p>
-              <p className={s.bandBody}>{svc.body2}</p>
-              <p className={s.bandPull}>{svc.pull}</p>
-              <dl className={s.meta}>
-                {svc.meta.map((m) => (
-                  <div key={m.dt} className={s.metaItem}>
-                    <dt className={s.metaDt}>{m.dt}</dt>
-                    <dd className={s.metaDd}>{m.dd}</dd>
-                  </div>
-                ))}
+      {/* ── PRECIOS DIAGNÓSTICO ── */}
+      <section className={s.section}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 56 }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Dos etapas de trabajo</p>
+            <h2 className={s.sectionTitle}>Diagnóstico primero.<br />Implementación después.</h2>
+            <p className={s.sectionSub}>
+              Nunca implementamos sin entender. El diagnóstico es el primer servicio: un análisis a fondo de la operación que termina en un plan priorizado.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+            {/* Diagnóstico */}
+            <div className={`${s.reveal}`} data-reveal="" style={{ padding: '48px 40px', border: '1px solid rgba(242,239,233,0.08)', borderRight: 'none', position: 'relative' }}>
+              <p className={s.bandNum} style={{ marginBottom: 24 }}>Etapa 01</p>
+              <h3 style={{ margin: '0 0 16px', fontWeight: 800, fontSize: 28, letterSpacing: '-0.03em', color: '#f2efe9' }}>Diagnóstico Operativo</h3>
+              <p style={{ margin: '0 0 32px', fontSize: 15, lineHeight: 1.75, color: 'rgba(242,239,233,0.5)' }}>
+                Analizamos la operación de cada área: procesos, herramientas, flujos de información y puntos de fuga. Entregamos un mapa del estado actual y un plan de acción priorizado.
+              </p>
+              <dl className={s.meta} style={{ marginTop: 0, marginBottom: 32 }}>
+                <div className={s.metaItem}>
+                  <dt className={s.metaDt}>Por área</dt>
+                  <dd className={s.metaDd}><em>USD 1.500</em></dd>
+                </div>
+                <div className={s.metaItem}>
+                  <dt className={s.metaDt}>Las cuatro áreas</dt>
+                  <dd className={s.metaDd}><em>USD 4.000</em></dd>
+                </div>
+                <div className={s.metaItem}>
+                  <dt className={s.metaDt}>Duración</dt>
+                  <dd className={s.metaDd}>2–3 semanas</dd>
+                </div>
               </dl>
-              <div style={{ marginTop: 32 }}>
+              <ul className={s.panelList} style={{ padding: 0 }}>
+                {['Inmersión en la operación', 'Entrevistas con equipo y dirección', 'Mapa del estado actual', 'Identificación de prioridades 80/20', 'Plan de acción priorizado'].map(item => (
+                  <li key={item} className={s.panelItem}>
+                    <span className={s.panelDot} aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div style={{ marginTop: 36 }}>
                 <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
                   Consultar <ArrowRight size={14} />
                 </a>
               </div>
             </div>
 
+            {/* Implementación */}
+            <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="" style={{ padding: '48px 40px', border: '1px solid rgba(26,111,255,0.2)', background: 'rgba(26,111,255,0.03)', position: 'relative' }}>
+              <p className={s.bandNum} style={{ marginBottom: 24 }}>Etapa 02</p>
+              <h3 style={{ margin: '0 0 16px', fontWeight: 800, fontSize: 28, letterSpacing: '-0.03em', color: '#f2efe9' }}>Implementación</h3>
+              <p style={{ margin: '0 0 32px', fontSize: 15, lineHeight: 1.75, color: 'rgba(242,239,233,0.5)' }}>
+                Construimos los sistemas diseñados en el diagnóstico. El orden de implementación sigue las prioridades del plan: primero lo que genera mayor impacto.
+              </p>
+              <dl className={s.meta} style={{ marginTop: 0, marginBottom: 32 }}>
+                <div className={s.metaItem}>
+                  <dt className={s.metaDt}>Inversión</dt>
+                  <dd className={s.metaDd}><em>USD 1.500–10.000</em></dd>
+                </div>
+                <div className={s.metaItem}>
+                  <dt className={s.metaDt}>Según alcance</dt>
+                  <dd className={s.metaDd}>de cada proyecto</dd>
+                </div>
+              </dl>
+              <ul className={s.panelList} style={{ padding: 0 }}>
+                {['Construcción en orden de impacto', 'Cada entrega genera valor antes del fin del proyecto', 'Capacitación del equipo en el nuevo sistema', 'Seguimiento de adopción post-entrega', 'Ajuste incluido en los primeros 30 días'].map(item => (
+                  <li key={item} className={s.panelItem}>
+                    <span className={s.panelDot} aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div style={{ marginTop: 36 }}>
+                <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
+                  Consultar <ArrowRight size={14} />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── LAS 4 ÁREAS EN DETALLE ── */}
+      {AREAS.map((a) => (
+        <div key={a.area} className={s.band}>
+          <div className={`${s.bandGrid} ${a.flip ? s.bandGridFlip : ''}`}>
+            <div className={`${s.reveal}`} data-reveal="">
+              <p className={s.bandNum}>{a.n} — Área</p>
+              <h2 className={s.bandTitle}>{a.area}</h2>
+              <p className={s.bandBody}>{a.desc}</p>
+              <div style={{ marginTop: 32 }}>
+                <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnGhost}>
+                  Consultar esta área <ArrowRight size={14} />
+                </a>
+              </div>
+            </div>
             <div className={`${s.bandRight} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
               <div className={s.bandPanel}>
                 <span className={s.bandPanelBorder} aria-hidden="true" />
-                <p style={{ margin: '0 0 20px', fontFamily: 'ui-monospace, monospace', fontSize: 9, fontWeight: 600, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#1a6fff' }}>Incluye</p>
+                <p style={{ margin: '0 0 20px', fontFamily: 'ui-monospace, monospace', fontSize: 9, fontWeight: 600, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#1a6fff' }}>
+                  El diagnóstico incluye
+                </p>
                 <ul className={s.panelList}>
-                  {svc.panel.map((item) => (
+                  {a.items.map(item => (
                     <li key={item} className={s.panelItem}>
                       <span className={s.panelDot} aria-hidden="true" />
                       {item}
@@ -170,17 +211,27 @@ export default function ServiciosPage() {
         </div>
       ))}
 
+      {/* ── QUOTE ── */}
+      <section className={`${s.quoteBand} ${s.reveal}`} data-reveal="">
+        <div className={s.quoteInner}>
+          <p className={s.quoteText}>
+            "Micro-emprendimientos no. Trabajamos con empresas que ya tienen operación establecida, múltiples áreas diferenciadas y un CEO que creció más rápido que sus procesos."
+          </p>
+          <span className={s.quoteAuthor}>Areté Soluciones · Perfil de cliente</span>
+        </div>
+      </section>
+
       <section className={s.ctaBand}>
         <div className={s.inner}>
           <div className={s.reveal} data-reveal="">
-            <h2 className={s.ctaTitle}>¿No sabés por dónde empezar?</h2>
-            <p className={s.ctaSub}>Hablemos 30 minutos. Te decimos qué tiene más sentido para tu situación.</p>
+            <h2 className={s.ctaTitle}>¿Por dónde empezamos?</h2>
+            <p className={s.ctaSub}>Una conversación de 30 minutos para entender tu situación. Sin costo.</p>
             <div className={s.ctaRow}>
               <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
-                Escribinos por WhatsApp <ArrowRight size={15} />
+                Hablar con el equipo <ArrowRight size={15} />
               </a>
               <Link href="/empresa/contacto" className={s.btnGhost}>
-                Ver formas de contacto
+                Otras formas de contacto
               </Link>
             </div>
           </div>

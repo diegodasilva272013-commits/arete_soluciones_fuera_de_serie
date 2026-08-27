@@ -5,41 +5,38 @@ import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
 
 export const metadata: Metadata = {
-  title: 'Nosotros',
-  description: 'Quiénes somos, cómo trabajamos y por qué el método Areté produce resultados que se mantienen.',
+  title: 'Nosotros — Areté Soluciones',
+  description: 'Quiénes somos, el Principio Areté y por qué diseñamos sistemas que se adaptan a la empresa, no al revés.',
 };
 
 const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
-const TEAM = [
-  {
-    initials: 'DD',
-    name: 'Diego Da Silva',
-    role: 'Fundador & Director Comercial',
-    body1: '12 años liderando equipos de ventas en empresas B2B de Argentina y Latinoamérica. Diseñó el método Areté después de ver que los equipos que fracasaban no lo hacían por falta de esfuerzo, sino por falta de estructura.',
-    body2: 'Su especialidad es la apertura: cómo entrar en una conversación sin sonar a vendedor, y cómo hacer que el prospecto sienta que la solución fue idea suya.',
-  },
-  {
-    initials: 'VO',
-    name: 'Valeria Ortiz',
-    role: 'Mentora Senior — Setter Track',
-    body1: 'Ex-directora comercial en una empresa SaaS con más de 200 vendedores distribuidos en cinco países. Especialista en calificación de prospectos de alto valor y en la transición setter-closer.',
-    body2: 'Formó equipos completos de outbound desde cero, incluyendo los procesos de onboarding que reducen el tiempo de ramping de 90 a 30 días.',
-  },
-  {
-    initials: 'MR',
-    name: 'Martín Rodas',
-    role: 'Mentor Senior — Closer Track',
-    body1: '8 años cerrando negocios B2B de ticket alto en sectores de tecnología, consultoría y servicios financieros. Hoy entrena a closers en cómo transformar objeciones en compromisos sin presionar.',
-    body2: 'Su mayor contribución al método es el protocolo de manejo de objeciones: una estructura que no esquiva el "está caro" sino que lo convierte en una conversación sobre valor.',
-  },
-];
-
 const PRINCIPIOS = [
-  { n: '01', title: 'Práctica antes que teoría', body: 'Cada concepto va seguido de un ejercicio. Sin práctica guiada no hay incorporación real, solo conocimiento flotante que se olvida en la primera conversación difícil.' },
-  { n: '02', title: 'Casos reales, no simulados', body: 'Trabajamos con las conversaciones y leads reales de cada persona. El aprendizaje que no se conecta a la realidad del vendedor no produce cambio.' },
-  { n: '03', title: 'Resultados medibles', body: 'Definimos métricas desde el inicio. Si no podemos medir el impacto, no podemos decir que el trabajo funcionó.' },
-  { n: '04', title: 'Método, no guion', body: 'Un guión memorizado muere ante la primera respuesta inesperada. Un método da respuestas a situaciones que no imaginaste.' },
+  {
+    n: '01',
+    title: 'Si no entendemos el proceso, no podemos automatizarlo',
+    body: 'Cada proyecto empieza con inmersión en la operación real. Nunca con un documento de requerimientos escrito por el cliente.',
+  },
+  {
+    n: '02',
+    title: 'Si no sabemos qué problema resolvemos, no desarrollamos',
+    body: 'Antes de construir cualquier cosa, sabemos exactamente qué fricción va a desaparecer y quién va a sentir la diferencia.',
+  },
+  {
+    n: '03',
+    title: 'Si una tecnología no genera impacto, no la implementamos',
+    body: 'No vendemos herramientas. Si la solución más efectiva para un problema es una planilla bien diseñada, eso entregamos.',
+  },
+  {
+    n: '04',
+    title: 'Si podemos simplificar antes de automatizar, simplificamos',
+    body: 'Automatizar un proceso mal diseñado solo produce errores más rápido. El orden correcto es: diseñar, simplificar, automatizar.',
+  },
+  {
+    n: '05',
+    title: 'Si el sistema obliga a la empresa a trabajar peor para poder usarlo, diseñamos mal',
+    body: 'Un sistema que no adopta el equipo es un gasto, no una inversión. Si no funciona en la práctica real, volvemos al diseño.',
+  },
 ];
 
 export default function NosotrosPage() {
@@ -54,31 +51,30 @@ export default function NosotrosPage() {
             <span className={s.kickerLabel}>Nosotros</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Enseñamos a vender<br />resolviendo problemas
+            Partimos de la empresa.<br />Siempre.
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-            Areté nació de una pregunta simple: ¿por qué los equipos que se esfuerzan no siempre cierran?
+            No somos una agencia de software. No somos una consultora de procesos. Somos el equipo que diseña cómo debería funcionar tu operación y lo construye.
           </p>
         </div>
       </section>
 
-      {/* Historia */}
+      {/* ── EL NOMBRE ── */}
       <section className={s.section}>
         <div className={s.inner}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
             <div className={`${s.reveal}`} data-reveal="">
               <div className={s.sectionLockup}>
-                <p style={{ margin: '0 0 12px', fontFamily: 'ui-monospace, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '0.34em', textTransform: 'uppercase', color: '#1a6fff' }}>2021 — Buenos Aires</p>
-                <h2 className={s.sectionTitle}>Fundada por vendedores, para vendedores</h2>
-                <p className={s.sectionSub}>No contratamos coaches sin experiencia comercial. Cada mentor tiene años de campo encima.</p>
+                <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Por qué "Areté"</p>
+                <h2 className={s.sectionTitle}>Una palabra griega que no tiene traducción exacta</h2>
               </div>
             </div>
             <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
-              <p style={{ margin: '0 0 18px', fontSize: 15, lineHeight: 1.8, color: 'rgba(242,239,233,0.55)' }}>
-                Areté Soluciones nació con una premisa: el vendedor promedio no falla por falta de producto o precio, sino porque nadie le enseñó a entender el problema del cliente antes de proponer la solución.
+              <p style={{ margin: '0 0 20px', fontSize: 15, lineHeight: 1.78, color: 'rgba(242,239,233,0.55)' }}>
+                En griego antiguo, <em style={{ fontStyle: 'normal', color: '#f2efe9' }}>Areté</em> significa excelencia en el propio oficio. No excelencia en general, sino la expresión máxima de lo que alguien está hecho para hacer.
               </p>
-              <p style={{ margin: '0 0 18px', fontSize: 15, lineHeight: 1.8, color: 'rgba(242,239,233,0.55)' }}>
-                Empezamos trabajando con equipos pequeños de startups argentinas. Hoy acompañamos empresas de toda Latinoamérica con un método que evolucionó conversación por conversación, error por error.
+              <p style={{ margin: '0 0 20px', fontSize: 15, lineHeight: 1.78, color: 'rgba(242,239,233,0.55)' }}>
+                Lo elegimos como nombre porque describe exactamente lo que buscamos en cada proyecto: que la empresa funcione de la manera más excelente posible para lo que <em style={{ fontStyle: 'normal', color: '#f2efe9' }}>esa empresa en particular</em> necesita. No un modelo genérico. No una plantilla de industria. Su versión propia de funcionar bien.
               </p>
               <blockquote style={{
                 margin: 0,
@@ -90,73 +86,45 @@ export default function NosotrosPage() {
                 lineHeight: 1.6,
                 color: 'rgba(242,239,233,0.78)',
               }}>
-                "Areté" en griego antiguo significa excelencia en el propio oficio. Eso es lo que buscamos en cada vendedor: que sea excelente a su manera.
+                Por eso el sistema se adapta a la empresa, no la empresa al sistema.
               </blockquote>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Equipo — bandas */}
-      {TEAM.map((member, i) => (
-        <div key={member.name} className={s.band}>
-          <div className={`${s.bandGrid} ${i % 2 === 1 ? s.bandGridFlip : ''}`}>
-            <div className={`${s.reveal}`} data-reveal="">
-              <p className={s.bandNum}>{member.role}</p>
-              <h2 className={s.bandTitle}>{member.name}</h2>
-              <p className={s.bandBody}>{member.body1}</p>
-              <p className={s.bandBody}>{member.body2}</p>
-            </div>
-            <div className={`${s.bandRight} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-              <div className={s.bandPanel} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 240 }}>
-                <span className={s.bandPanelBorder} aria-hidden="true" />
-                <div style={{
-                  width: 96,
-                  height: 96,
-                  borderRadius: '50%',
-                  background: 'rgba(26,111,255,0.1)',
-                  border: '1px solid rgba(26,111,255,0.3)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 800,
-                  fontSize: 28,
-                  color: '#1a6fff',
-                  letterSpacing: '-0.02em',
-                }}>
-                  {member.initials}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-
-      {/* Principios */}
+      {/* ── PRINCIPIO ARETÉ ── */}
       <section className={`${s.section} ${s.sectionAlt}`}>
         <div className={s.inner}>
           <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 56 }}>
-            <p style={{ margin: '0 0 12px', fontFamily: 'ui-monospace, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '0.34em', textTransform: 'uppercase', color: '#1a6fff' }}>Cómo pensamos</p>
-            <h2 className={s.sectionTitle}>Los principios que guían cada sesión</h2>
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>El Principio Areté</p>
+            <h2 className={s.sectionTitle}>Cinco reglas que no se negocian</h2>
+            <p className={s.sectionSub}>
+              Cada proyecto que tomamos cumple estos cinco criterios. Son la diferencia entre entregar algo que funciona y entregar algo que parece que funciona.
+            </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {PRINCIPIOS.map((p, i) => (
               <div
                 key={p.n}
-                className={`${s.reveal} ${i % 2 === 1 ? s.revealDelay1 : ''}`}
+                className={`${s.reveal}`}
                 data-reveal=""
                 style={{
-                  display: 'flex',
-                  gap: 24,
-                  padding: '36px 32px',
+                  display: 'grid',
+                  gridTemplateColumns: '100px 1fr',
+                  gap: 48,
+                  padding: '40px 0',
                   borderTop: '1px solid rgba(242,239,233,0.07)',
-                  borderRight: i % 2 === 0 ? '1px solid rgba(242,239,233,0.07)' : 'none',
+                  alignItems: 'start',
                 }}
               >
-                <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11, fontWeight: 700, color: 'rgba(26,111,255,0.45)', flexShrink: 0, marginTop: 3 }}>{p.n}</span>
                 <div>
-                  <h3 style={{ margin: '0 0 10px', fontWeight: 700, fontSize: 16, letterSpacing: '-0.01em', color: '#f2efe9' }}>{p.title}</h3>
-                  <p style={{ margin: 0, fontSize: 14, lineHeight: 1.75, color: 'rgba(242,239,233,0.5)' }}>{p.body}</p>
+                  <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.28em', color: 'rgba(26,111,255,0.5)' }}>{p.n}</span>
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 12px', fontWeight: 700, fontSize: 17, letterSpacing: '-0.02em', color: '#f2efe9', lineHeight: 1.3, textWrap: 'balance' } as React.CSSProperties}>{p.title}</h3>
+                  <p style={{ margin: 0, fontSize: 14, lineHeight: 1.78, color: 'rgba(242,239,233,0.5)' }}>{p.body}</p>
                 </div>
               </div>
             ))}
@@ -164,17 +132,88 @@ export default function NosotrosPage() {
         </div>
       </section>
 
+      {/* ── QUOTE ── */}
+      <section className={`${s.quoteBand} ${s.reveal}`} data-reveal="">
+        <div className={s.quoteInner}>
+          <p className={s.quoteText}>
+            "Empezamos entendiendo la operación real. Recién cuando tenemos ese mapa elegimos las herramientas, como <em>consecuencia</em> del diseño."
+          </p>
+          <span className={s.quoteAuthor}>Areté Soluciones · Forma de trabajar</span>
+        </div>
+      </section>
+
+      {/* ── PARA QUIÉN TRABAJAMOS ── */}
+      <section className={s.section}>
+        <div className={s.inner}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
+            <div className={`${s.reveal}`} data-reveal="">
+              <div className={s.sectionLockup}>
+                <p className={s.kickerLabel} style={{ marginBottom: 14 }}>El cliente que buscamos</p>
+                <h2 className={s.sectionTitle}>No trabajamos con todos</h2>
+                <p className={s.sectionSub}>
+                  Tenemos un perfil de cliente muy definido. Si no hay un match real, lo decimos en la primera conversación.
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {[
+                {
+                  title: 'Sí trabajamos con',
+                  items: [
+                    'Empresas mid-market con múltiples áreas diferenciadas',
+                    'CEOs que sienten que la operación los controla a ellos',
+                    'Negocios que crecieron y los procesos no acompañaron',
+                    'Organizaciones con equipo establecido y operación en marcha',
+                  ],
+                  color: '#1a6fff',
+                },
+                {
+                  title: 'No trabajamos con',
+                  items: [
+                    'Micro-emprendimientos o proyectos unipersonales',
+                    'Empresas sin operación establecida todavía',
+                    'Quienes buscan software como solución mágica',
+                    'Proyectos donde el problema aún no está definido',
+                  ],
+                  color: 'rgba(242,239,233,0.2)',
+                },
+              ].map(({ title, items, color }) => (
+                <div
+                  key={title}
+                  className={`${s.reveal}`}
+                  data-reveal=""
+                  style={{
+                    padding: '32px 0',
+                    borderTop: '1px solid rgba(242,239,233,0.07)',
+                  }}
+                >
+                  <p style={{ margin: '0 0 16px', fontFamily: 'ui-monospace, monospace', fontSize: 9, fontWeight: 600, letterSpacing: '0.28em', textTransform: 'uppercase', color }}>{title}</p>
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {items.map(item => (
+                      <li key={item} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', fontSize: 14, lineHeight: 1.6, color: 'rgba(242,239,233,0.58)' }}>
+                        <span style={{ width: 5, height: 5, background: color, flexShrink: 0, marginTop: 7, clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className={s.ctaBand}>
         <div className={s.inner}>
           <div className={s.reveal} data-reveal="">
-            <h2 className={s.ctaTitle}>Conocé el método en persona</h2>
-            <p className={s.ctaSub}>Una llamada de 30 minutos para ver si hay fit.</p>
+            <h2 className={s.ctaTitle}>¿Tiene sentido hablar?</h2>
+            <p className={s.ctaSub}>30 minutos para entender si hay un problema que podemos resolver.</p>
             <div className={s.ctaRow}>
               <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
-                Agendar llamada <ArrowRight size={15} />
+                Hablar con el equipo <ArrowRight size={15} />
               </a>
-              <Link href="/empresa/resultados" className={s.btnGhost}>
-                Ver resultados
+              <Link href="/empresa/servicios" className={s.btnGhost}>
+                Ver servicios y precios
               </Link>
             </div>
           </div>
