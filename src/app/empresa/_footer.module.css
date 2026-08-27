@@ -1,0 +1,127 @@
+.footer {
+  border-top: 1px solid rgba(242, 239, 233, 0.07);
+  margin-top: 0;
+}
+
+.inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 72px 40px 56px;
+  display: grid;
+  grid-template-columns: 1.8fr 1fr 1fr 1.2fr;
+  gap: 48px;
+}
+
+/* Col 1 */
+.brand { display: flex; flex-direction: column; gap: 20px; }
+
+.tagline {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(242, 239, 233, 0.4);
+  max-width: 280px;
+}
+
+.contact { display: flex; flex-direction: column; gap: 12px; }
+
+.contactLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(242, 239, 233, 0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.contactLink:hover { color: #fff; }
+
+/* Cols */
+.col { display: flex; flex-direction: column; gap: 16px; }
+
+.colTitle {
+  margin: 0;
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #1a6fff;
+}
+
+.colList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.colLink {
+  font-size: 13px;
+  color: rgba(242, 239, 233, 0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.colLink:hover { color: #fff; }
+
+.colBody {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(242, 239, 233, 0.42);
+}
+
+.colCta {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #1a6fff;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.colCta:hover { opacity: 0.75; }
+
+/* Bottom bar */
+.bottom {
+  border-top: 1px solid rgba(242, 239, 233, 0.05);
+}
+
+.bottomInner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(242, 239, 233, 0.22);
+  letter-spacing: 0.04em;
+}
+
+.bottomLinks { display: flex; gap: 20px; }
+
+.bottomLink {
+  font-size: 11px;
+  color: rgba(242, 239, 233, 0.22);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bottomLink:hover { color: rgba(242, 239, 233, 0.5); }
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .inner { grid-template-columns: 1fr 1fr; gap: 40px; }
+}
+
+@media (max-width: 640px) {
+  .inner { grid-template-columns: 1fr; padding: 48px 24px 40px; }
+  .bottomInner { flex-direction: column; gap: 12px; padding: 16px 24px; text-align: center; }
+}
