@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
-import { Brandmark } from '@/components/brand/brandmark';
 import s from './_header.module.css';
 
 const NAV = [
@@ -35,7 +35,16 @@ export function CorpHeader() {
   return (
     <header className={`${s.header} ${scrolled ? s.scrolled : ''}`}>
       <div className={s.inner}>
-        <Brandmark variant="lockup" size="sm" href="/empresa" priority />
+        <Link href="/empresa" style={{ display: 'flex', alignItems: 'center' }}>
+            <Image
+              src="/LOGO_ARETE.png"
+              alt="Areté Soluciones"
+              width={140}
+              height={40}
+              style={{ height: 36, width: 'auto', objectFit: 'contain' }}
+              priority
+            />
+          </Link>
 
         <nav className={s.nav} aria-label="Navegación principal">
           {NAV.map(({ href, label }) => (
