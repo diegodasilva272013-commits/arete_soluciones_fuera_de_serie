@@ -1,36 +1,40 @@
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import s from './corp.module.css';
 import { RevealObserver } from './_reveal';
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20el%20diagn%C3%B3stico%20de%20Aret%C3%A9%20Soluciones';
+const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
-const DOLORES = [
-  {
-    title: 'La información no llega a tiempo',
-    body: 'Para saber cómo viene el mes hay que preguntarle a tres personas. Cuando llega la respuesta, ya pasó el momento de decidir.',
-  },
-  {
-    title: 'Las herramientas no se hablan entre sí',
-    body: 'Cada área usa algo distinto. La misma información se carga dos o tres veces, en distintos formatos, con distintos criterios.',
-  },
-  {
-    title: 'La operación depende de una persona',
-    body: 'Si falta Juan, o se va, algo se frena. El conocimiento está en la cabeza de alguien, no en el sistema.',
-  },
-  {
-    title: 'Crecieron los clientes, no los procesos',
-    body: 'Lo que funcionaba con diez clientes no escala a cien. El equipo trabaja más horas para sostener el mismo resultado.',
-  },
+const FRICCIONES = [
+  { n: 'Fricción', t: 'Información duplicada', d: 'El mismo dato se carga tres veces porque los sistemas no se hablan.' },
+  { n: 'Fricción', t: 'Dependencia de personas', d: '"Eso lo maneja Sandra." Si Sandra no está, el proceso se frena.' },
+  { n: 'Fricción', t: 'Decisiones a ciegas', d: 'Para saber cómo viene el mes hay que llamar a cinco personas.' },
+  { n: 'Fricción', t: 'Equipos que repiten', d: 'El mismo error, en el mismo punto, semana tras semana. Sin sistema, no hay corrección.' },
 ];
 
 const ETAPAS = [
-  { n: '01', title: 'Inmersión', body: 'Entendemos cómo funciona la empresa desde adentro. Hablamos con quien dirige y con quien ejecuta. No partimos de supuestos.' },
-  { n: '02', title: 'Auditoría', body: 'Mapeamos la operación completa e identificamos dónde se pierde tiempo, información y dinero.' },
-  { n: '03', title: 'Priorización', body: 'Pareto 80/20: dónde está el 20% de problemas que genera el 80% de la pérdida. Eso se resuelve primero.' },
-  { n: '04', title: 'Arquitectura', body: 'Diseñamos cómo debería funcionar la empresa. Recién acá se elige tecnología, como consecuencia del diseño.' },
-  { n: '05', title: 'Implementación', body: 'Construimos en orden de impacto. Cada entrega genera valor antes de que termine el proyecto.' },
-  { n: '06', title: 'Evolución', body: 'Medimos, observamos y ajustamos. Un sistema que no evoluciona deja de ser útil.' },
+  { n: '01', t: 'Inmersión',        d: 'Entender la empresa desde adentro. Con dirección y con quien ejecuta.' },
+  { n: '02', t: 'Auditoría',        d: 'Mapear la operación real. Fricciones, duplicaciones, dependencias.' },
+  { n: '03', t: 'Priorización',     d: 'El 20% de problemas que genera el 80% de la pérdida.' },
+  { n: '04', t: 'Arquitectura',     d: 'Diseñar cómo debería funcionar. Recién acá se elige tecnología.' },
+  { n: '05', t: 'Implementación',   d: 'Construir por prioridad de impacto, no todo junto.' },
+  { n: '06', t: 'Evolución',        d: 'Medir, observar, ajustar. Una empresa no es estática.' },
+];
+
+const PRIN_SISTEMAS = [
+  'Si no entendemos el proceso, no podemos automatizarlo.',
+  'Si no sabemos qué problema resolvemos, no debemos desarrollar.',
+  'Si una tecnología no genera impacto, no la implementamos.',
+  'Si podemos simplificar antes de automatizar, simplificamos.',
+  'Si el sistema obliga a la empresa a trabajar peor para poder usarlo, diseñamos mal el sistema.',
+];
+
+const PRIN_PERSONAS = [
+  'No formamos vendedores. Formamos solucionadores de problemas.',
+  'La intención se percibe. Primero comprender, después diagnosticar, después decidir.',
+  'Decir que no también es una buena decisión. La reputación está por encima de cualquier venta.',
+  'Conocimiento sin acción es entretenimiento.',
+  'No protegemos egos, protegemos crecimiento. La corrección es información.',
+  'La realidad está por encima de la interpretación. No asumimos, observamos.',
 ];
 
 export default function EmpresaHome() {
@@ -38,178 +42,249 @@ export default function EmpresaHome() {
     <>
       <RevealObserver revealClass={s.revealOn} />
 
-      {/* ── HERO ── */}
-      <section className={s.pageHero}>
-        <div className={s.pageHeroInner}>
-          <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
-            <span className={s.kickerLine} />
-            <span className={s.kickerLabel}>Areté Soluciones · Buenos Aires</span>
-          </div>
-          <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            No hacemos que tu empresa<br />se adapte al software
+      {/* ══════════════ HERO ══════════════ */}
+      <section className={s.homeHero}>
+        <div className={s.homeHeroMedia}>
+          <video autoPlay muted loop playsInline poster="">
+            <source src="/video_pagina.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div className={s.homeHeroVeil} />
+        <div className={s.homeHeroContent}>
+          <div className={`${s.eyebrow} ${s.reveal}`} data-reveal="">Areté</div>
+          <h1 className={`${s.homeH1} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
+            La fricción no está en las herramientas.<br /><em>Está entre ellas.</em>
           </h1>
-          <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-            Hacemos que el software se adapte a tu empresa.
+          <p className={`${s.homeLead} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
+            Una empresa puede tener veinte sistemas y un equipo completo, y seguir funcionando mal. Entramos, entendemos cómo trabaja de verdad, y recién después construimos.
           </p>
-          <div className={`${s.reveal} ${s.revealDelay3}`} data-reveal="" style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
-              Hablar con el equipo <ArrowRight size={14} />
-            </a>
-            <Link href="/empresa/metodologia" className={s.btnGhost}>
-              Ver el método
-            </Link>
+          <div className={`${s.homeActs} ${s.reveal} ${s.revealDelay3}`} data-reveal="">
+            <Link href="/empresa/servicios" className={s.btn}>Ver cómo trabajamos</Link>
+            <Link href="/empresa/metodologia" className={s.btnSec}>El método</Link>
           </div>
         </div>
       </section>
 
-      {/* ── EL PROBLEMA ── */}
-      <section className={s.section}>
+      {/* ══════════════ EL PROBLEMA ══════════════ */}
+      <section className={s.blk}>
         <div className={s.inner}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
-            <div className={`${s.reveal}`} data-reveal="">
-              <div className={s.sectionLockup}>
-                <p className={s.kickerLabel} style={{ marginBottom: 14 }}>El problema que existe en las empresas</p>
-                <h2 className={s.sectionTitle}>Creciste, pero los procesos no acompañaron</h2>
-                <p className={s.sectionSub}>
-                  La mayoría de las empresas que nos contratan no tienen un problema de producto ni de mercado. Tienen un problema operativo que nadie se sentó a diseñar.
-                </p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {DOLORES.map((d, i) => (
-                <div
-                  key={d.title}
-                  className={`${s.reveal} ${i > 0 ? s.revealDelay1 : ''}`}
-                  data-reveal=""
-                  style={{
-                    padding: '28px 0',
-                    borderTop: '1px solid rgba(242,239,233,0.07)',
-                    display: 'grid',
-                    gridTemplateColumns: '24px 1fr',
-                    gap: 20,
-                    alignItems: 'start',
-                  }}
-                >
-                  <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10, color: 'rgba(26,111,255,0.5)', fontWeight: 700, paddingTop: 3 }}>
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <div>
-                    <h3 style={{ margin: '0 0 8px', fontWeight: 700, fontSize: 15, color: '#f2efe9', letterSpacing: '-0.01em' }}>{d.title}</h3>
-                    <p style={{ margin: 0, fontSize: 14, lineHeight: 1.75, color: 'rgba(242,239,233,0.5)' }}>{d.body}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className={`${s.shead} ${s.reveal}`} data-reveal="">
+            <div className={s.mono}>01 · El problema</div>
+            <h2>Cada parte funciona.<br />El conjunto no.</h2>
+            <p>Ventas usa un CRM. Marketing otra plataforma. Administración un Excel. Operaciones WhatsApp. Cada herramienta anda bien por separado, y nadie tiene la visión completa.</p>
           </div>
-        </div>
-      </section>
-
-      {/* ── QUOTE CENTRAL ── */}
-      <section className={`${s.quoteBand} ${s.reveal}`} data-reveal="">
-        <div className={s.quoteInner}>
-          <p className={s.quoteText}>
-            "La mayoría de los proveedores parten de una herramienta y buscan dónde ponerla. Nosotros partimos de <em>la empresa</em>."
-          </p>
-          <span className={s.quoteAuthor}>Areté Soluciones · Forma de trabajar</span>
-        </div>
-      </section>
-
-      {/* ── MÉTODO — 6 ETAPAS ── */}
-      <section className={s.section}>
-        <div className={s.inner}>
-          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 60 }}>
-            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>El método</p>
-            <h2 className={s.sectionTitle}>Seis etapas. El orden no se altera.</h2>
-            <p className={s.sectionSub}>
-              No empezamos con un documento de requerimientos escrito por el cliente. Empezamos entendiendo la operación.
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {ETAPAS.map((e, i) => (
-              <div
-                key={e.n}
-                className={`${s.reveal}`}
-                data-reveal=""
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '120px 1fr',
-                  gap: 48,
-                  padding: '36px 0',
-                  borderTop: '1px solid rgba(242,239,233,0.07)',
-                  alignItems: 'start',
-                }}
-              >
-                <div>
-                  <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.28em', color: 'rgba(26,111,255,0.45)' }}>{e.n}</span>
-                  <h3 style={{ margin: '8px 0 0', fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', color: '#f2efe9' }}>{e.title}</h3>
-                </div>
-                <p style={{ margin: '20px 0 0', fontSize: 15, lineHeight: 1.75, color: 'rgba(242,239,233,0.52)' }}>{e.body}</p>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ marginTop: 48, display: 'flex', gap: 16 }}>
-            <Link href="/empresa/metodologia" className={s.btnGhost}>
-              Ver el método en detalle <ArrowRight size={14} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 4 ÁREAS ── */}
-      <section className={`${s.section} ${s.sectionAlt}`}>
-        <div className={s.inner}>
-          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 60 }}>
-            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Las cuatro áreas</p>
-            <h2 className={s.sectionTitle}>Un circuito único,<br />no cuatro silos</h2>
-            <p className={s.sectionSub}>
-              Ventas, Marketing, Administración y Delivery no son departamentos separados. Son partes de un mismo sistema. Si una falla, las demás lo sienten.
-            </p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: 'rgba(242,239,233,0.06)' }}>
-            {[
-              { area: 'Ventas', desc: 'Del primer contacto al cierre. Cómo llegan las oportunidades, cómo se califican y cómo se convierten.' },
-              { area: 'Marketing', desc: 'Qué hace que los clientes correctos lleguen solos. Qué se mide, qué no, y qué dice ese número.' },
-              { area: 'Administración', desc: 'Facturación, cobros, reportes. Dónde se pierde información y qué tarda más de lo que debería.' },
-              { area: 'Delivery', desc: 'Cómo se entrega lo que se vendió. Dónde está el cuelllo de botella entre el sí del cliente y el resultado.' },
-            ].map(({ area, desc }, i) => (
-              <div
-                key={area}
-                className={`${s.reveal} ${i > 0 ? s.revealDelay1 : ''}`}
-                data-reveal=""
-                style={{ padding: '40px 32px', background: '#050505', display: 'flex', flexDirection: 'column', gap: 16 }}
-              >
-                <span style={{
-                  fontFamily: 'ui-monospace, monospace',
-                  fontSize: 9,
-                  fontWeight: 600,
-                  letterSpacing: '0.28em',
-                  textTransform: 'uppercase',
-                  color: '#1a6fff',
-                }}>{String(i + 1).padStart(2, '0')}</span>
-                <h3 style={{ margin: 0, fontWeight: 800, fontSize: 22, letterSpacing: '-0.03em', color: '#f2efe9' }}>{area}</h3>
-                <p style={{ margin: 0, fontSize: 13, lineHeight: 1.75, color: 'rgba(242,239,233,0.48)' }}>{desc}</p>
+          <div className={`${s.frict} ${s.reveal}`} data-reveal="">
+            {FRICCIONES.map(f => (
+              <div key={f.t} className={s.frictItem}>
+                <div className={s.frictN}>{f.n}</div>
+                <div className={s.frictT}>{f.t}</div>
+                <div className={s.frictD}>{f.d}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* ══════════════ BIFURCACIÓN ══════════════ */}
+      <section className={s.blk}>
+        <div className={s.inner}>
+          <div className={`${s.shead} ${s.reveal}`} data-reveal="">
+            <div className={s.mono}>02 · Dos frentes, un criterio</div>
+            <h2>La fricción está en los sistemas<br />o está en las personas.</h2>
+            <p>Casi siempre está en los dos. Por eso Areté trabaja los dos, con el mismo método: comprender antes de proponer.</p>
+          </div>
+
+          <div className={`${s.bif} ${s.reveal}`} data-reveal="">
+            {/* Areté Soluciones */}
+            <Link className={s.rama} href="/empresa/servicios">
+              <div className={s.ramaFoto}>
+                <div className={s.ramaSlot}>
+                  <span className={s.ramaSlotLabel}>Areté Soluciones</span>
+                </div>
+              </div>
+              <div className={s.ramaBody}>
+                <div className={s.ramaKick}>Línea 01 · Sistemas</div>
+                <h3 className={s.ramaTitle}>Areté Soluciones</h3>
+                <div className={s.ramaSub}>Diseñamos e implementamos sistemas empresariales que se adaptan a cómo trabaja tu empresa. No al revés.</div>
+                <ul className={s.ramaList}>
+                  <li className={s.ramaListItem}>Diagnóstico de las cuatro áreas</li>
+                  <li className={s.ramaListItem}>Arquitectura antes que tecnología</li>
+                  <li className={s.ramaListItem}>Desarrollo a medida</li>
+                  <li className={s.ramaListItem}>Precio según el trabajo</li>
+                </ul>
+              </div>
+              <span className={s.ramaGo}>
+                <span className={s.ramaGoLine} />
+                Ver la línea
+              </span>
+            </Link>
+
+            {/* Areté Fuera de Serie */}
+            <div className={s.rama}>
+              <div className={s.ramaFoto}>
+                <div className={s.ramaSlot}>
+                  <span className={s.ramaSlotLabel}>Areté Fuera de Serie</span>
+                </div>
+              </div>
+              <div className={s.ramaBody}>
+                <div className={s.ramaKick}>Línea 02 · Personas</div>
+                <h3 className={s.ramaTitle}>Areté Fuera de Serie</h3>
+                <div className={s.ramaSub}>No formamos vendedores. Formamos solucionadores de problemas: personas capaces de comprender una situación y decidir qué corresponde hacer.</div>
+                <ul className={s.ramaList}>
+                  <li className={s.ramaListItem}>Personal formado para tu empresa</li>
+                  <li className={s.ramaListItem}>Capacitación de tu equipo comercial</li>
+                  <li className={s.ramaListItem}>Mentorías individuales</li>
+                  <li className={s.ramaListItem}>Precio según el trabajo</li>
+                </ul>
+              </div>
+              <span className={s.ramaGo}>
+                <span className={s.ramaGoLine} />
+                Próximamente
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════ BANDA 1: Soluciones ══════════════ */}
+      <div className={s.band}>
+        <div className={s.bandGrid}>
+          <div className={`${s.bandFig} ${s.reveal}`} data-reveal="">
+            <div className={s.bandFigFrame}>
+              <div className={s.slot}><span className={s.slotLabel}>Video · diagnóstico en empresa real</span></div>
+            </div>
+          </div>
+          <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
+            <div className={s.bandNum}>Areté Soluciones</div>
+            <h3 className={s.bandTitle}>Primero entender.<br />Después construir.</h3>
+            <p className={s.bandBody}>Entramos en la empresa y hablamos con quien dirige, pero también con quien ejecuta. El CEO dice que el proceso funciona perfecto; la secretaria dice que hace lo mismo siete veces por día. Las dos miradas importan.</p>
+            <p className={s.bandBody}>Del relevamiento sale un mapa de la operación con lo que cada proceso está costando, y el orden en que conviene intervenirlo. Recién ahí se decide qué construir.</p>
+            <div className={s.meta}>
+              <div className={s.metaItem}>
+                <span className={s.metaDt}>Áreas</span>
+                <span className={s.metaDd}>Ventas · Marketing · Administración · Delivery</span>
+              </div>
+              <div className={s.metaItem}>
+                <span className={s.metaDt}>Inversión</span>
+                <span className={s.metaDd}>Según el trabajo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════ BANDA 2: Personas ══════════════ */}
+      <div className={s.band}>
+        <div className={`${s.bandGrid} ${s.bandGridFlip}`}>
+          <div className={`${s.bandFig} ${s.reveal}`} data-reveal="">
+            <div className={s.bandFigFrame}>
+              <div className={s.slot}><span className={s.slotLabel}>Imagen · persona en sesión de formación</span></div>
+            </div>
+          </div>
+          <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
+            <div className={s.bandNum}>Areté Fuera de Serie</div>
+            <h3 className={s.bandTitle}>No entrenamos respuestas.<br />Entrenamos pensamiento.</h3>
+            <p className={s.bandBody}>Los guiones cambian. Los mercados cambian. Las herramientas cambian. Una persona capaz de observar una situación, comprenderla y decidir qué corresponde hacer siempre va a tener valor.</p>
+            <p className={s.bandBody}>Por eso no creamos personajes comerciales ni copias. Desarrollamos capacidades sobre la identidad que cada uno ya tiene.</p>
+            <div className={s.meta}>
+              <div className={s.metaItem}>
+                <span className={s.metaDt}>Formatos</span>
+                <span className={s.metaDd}>Personal · Equipos · Individual</span>
+              </div>
+              <div className={s.metaItem}>
+                <span className={s.metaDt}>Inversión</span>
+                <span className={s.metaDd}>Según el trabajo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════ BANDA 3: La plataforma ══════════════ */}
+      <div className={s.band}>
+        <div className={s.bandGrid}>
+          <div className={`${s.bandFig} ${s.reveal}`} data-reveal="">
+            <div className={s.bandFigFrame}>
+              <video autoPlay muted loop playsInline>
+                <source src="/video_2.mp4" type="video/mp4" />
+              </video>
+              <div className={s.slot}><span className={s.slotLabel}>Video · la plataforma en uso</span></div>
+            </div>
+          </div>
+          <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
+            <div className={s.bandNum}>La prueba</div>
+            <h3 className={s.bandTitle}>La plataforma que usamos<br />la construimos nosotros.</h3>
+            <p className={s.bandBody}>El sistema de entrenamiento de Fuera de Serie es, literalmente, un sistema empresarial a medida hecho por Areté Soluciones. Simulador de campo, matriz de evaluación, historial de evidencia por persona y detección de patrones.</p>
+            <p className={s.bandBody}>No hay mejor demostración de lo que hacemos que mostrar lo que construimos para nosotros mismos.</p>
+            <div className={s.meta}>
+              <div className={s.metaItem}>
+                <span className={s.metaDt}>Ciclo</span>
+                <span className={s.metaDd}>Aprender · Aplicar · Evaluar · Corregir</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════ MÉTODO ══════════════ */}
+      <section className={s.blk}>
+        <div className={s.inner}>
+          <div className={`${s.shead} ${s.reveal}`} data-reveal="">
+            <div className={s.mono}>03 · El método</div>
+            <h2>Seis etapas.<br />El orden no se altera.</h2>
+            <p>El mismo criterio ordena una auditoría de procesos y una conversación comercial: comprender antes de proponer, diagnosticar antes de decidir.</p>
+          </div>
+          <div className={`${s.etapasGrid} ${s.reveal}`} data-reveal="">
+            {ETAPAS.map(e => (
+              <div key={e.n} className={s.etapa}>
+                <div className={s.etapaN}>{e.n}</div>
+                <h4 className={s.etapaTitle}>{e.t}</h4>
+                <p className={s.etapaBody}>{e.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════ PRINCIPIOS ══════════════ */}
+      <section className={s.blk}>
+        <div className={s.inner}>
+          <div className={`${s.shead} ${s.reveal}`} data-reveal="">
+            <div className={s.mono}>04 · Los principios</div>
+            <h2>Lo que no negociamos.</h2>
+            <p>Que las dos listas convivan es deliberado. Son la misma idea en dos planos.</p>
+          </div>
+          <div className={`${s.prin} ${s.reveal}`} data-reveal="">
+            <div>
+              <div className={s.prinColHead}>Sistemas · Areté Soluciones</div>
+              <ol className={s.prinList}>
+                {PRIN_SISTEMAS.map(p => <li key={p} className={s.prinItem}>{p}</li>)}
+              </ol>
+            </div>
+            <div>
+              <div className={s.prinColHead}>Personas · Areté Fuera de Serie</div>
+              <ol className={s.prinList}>
+                {PRIN_PERSONAS.map(p => <li key={p} className={s.prinItem}>{p}</li>)}
+              </ol>
+            </div>
+          </div>
+          <div className={`${s.cita} ${s.reveal}`} data-reveal="">
+            Los resultados sostenibles no nacen de memorizar respuestas.<br />
+            <span>Nacen de aprender a pensar.</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════ CIERRE CTA ══════════════ */}
       <section className={s.ctaBand}>
         <div className={s.inner}>
           <div className={s.reveal} data-reveal="">
-            <h2 className={s.ctaTitle}>¿Reconocés alguno de esos problemas?</h2>
-            <p className={s.ctaSub}>El diagnóstico empieza con una conversación de 30 minutos. Sin costo.</p>
+            <div className={s.mono} style={{ marginBottom: 22, display: 'block', textAlign: 'center' }}>Empezamos por entender</div>
+            <h2 className={s.ctaTitle}>Contanos cómo<br />trabaja tu empresa.</h2>
+            <p className={s.ctaSub}>Una conversación para ver dónde está la fricción. Si vemos que no hay nada para hacer, te lo decimos.</p>
             <div className={s.ctaRow}>
-              <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
-                Hablar con el equipo <ArrowRight size={15} />
-              </a>
-              <Link href="/empresa/servicios" className={s.btnGhost}>
-                Ver servicios y precios
-              </Link>
+              <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btn}>Escribir a Areté</a>
+              <Link href="/empresa/contacto" className={s.btnSec}>Ver formas de contacto</Link>
             </div>
           </div>
         </div>

@@ -8,14 +8,11 @@ import { Menu, X } from 'lucide-react';
 import s from './_header.module.css';
 
 const NAV = [
-  { href: '/empresa',              label: 'Inicio'      },
-  { href: '/empresa/servicios',    label: 'Servicios'   },
-  { href: '/empresa/metodologia',  label: 'Metodología' },
-  { href: '/empresa/nosotros',     label: 'Nosotros'    },
-  { href: '/empresa/contacto',     label: 'Contacto'    },
+  { href: '/empresa/servicios',   label: 'Soluciones'  },
+  { href: '/empresa/metodologia', label: 'Método'      },
+  { href: '/empresa/nosotros',    label: 'Nosotros'    },
+  { href: '/empresa/contacto',    label: 'Contacto'    },
 ];
-
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
 export function CorpHeader() {
   const pathname = usePathname();
@@ -23,28 +20,27 @@ export function CorpHeader() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => setScrolled(window.scrollY > 40);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Cierra el menú si cambia la ruta
   useEffect(() => { setOpen(false); }, [pathname]);
 
   return (
     <header className={`${s.header} ${scrolled ? s.scrolled : ''}`}>
       <div className={s.inner}>
-        <Link href="/empresa" style={{ display: 'flex', alignItems: 'center' }}>
-            <Image
-              src="/LOGO_ARETE.png"
-              alt="Areté Soluciones"
-              width={140}
-              height={40}
-              style={{ height: 36, width: 'auto', objectFit: 'contain' }}
-              priority
-            />
-          </Link>
+        <Link href="/empresa" className={s.logoWrap}>
+          <Image
+            src="/LOGO_ARETE.png"
+            alt="Areté Soluciones"
+            width={140}
+            height={40}
+            style={{ height: 34, width: 'auto', objectFit: 'contain' }}
+            priority
+          />
+        </Link>
 
         <nav className={s.nav} aria-label="Navegación principal">
           {NAV.map(({ href, label }) => (
@@ -58,9 +54,7 @@ export function CorpHeader() {
           ))}
         </nav>
 
-        <a href={WA} target="_blank" rel="noopener noreferrer" className={s.cta}>
-          Hablemos
-        </a>
+        <Link href="/acceso" className={s.cta}>Acceso</Link>
 
         <button
           className={s.burger}
@@ -71,8 +65,6 @@ export function CorpHeader() {
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
-
-      <div className={s.hairline} aria-hidden="true" />
 
       {open && (
         <div className={s.mobile}>
@@ -85,9 +77,7 @@ export function CorpHeader() {
               {label}
             </Link>
           ))}
-          <a href={WA} target="_blank" rel="noopener noreferrer" className={s.mobileCta}>
-            Escribinos por WhatsApp →
-          </a>
+          <Link href="/acceso" className={s.mobileCta}>Acceso →</Link>
         </div>
       )}
     </header>
