@@ -3,18 +3,7 @@
    Tipografía: Montserrat (display) · Spectral (texto) · JetBrains Mono
    ============================================================ */
 
-/* ── Variables ── */
-:root {
-  --azul: #2F7BF6;
-  --azul-luz: #5C9AFF;
-  --hueso: #F2EFE9;
-  --negro: #050505;
-  --negro-2: #0A0A0B;
-  --negro-3: #111113;
-  --ceniza: #8A8A8A;
-  --linea: rgba(242,239,233,.12);
-  --linea-2: rgba(242,239,233,.22);
-}
+/* Variables definidas en globals.css — disponibles en todo el sitio */
 
 /* ── Reveal ── */
 .reveal {

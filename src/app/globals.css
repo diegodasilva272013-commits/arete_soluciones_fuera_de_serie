@@ -26,6 +26,16 @@
   --gold: #1a6fff;
   --gold-soft: #0f52cc;
   --gold-deep: #0a3d9f;
+  /* Tokens web corporativa /empresa */
+  --azul: #2F7BF6;
+  --azul-luz: #5C9AFF;
+  --hueso: #F2EFE9;
+  --negro: #050505;
+  --negro-2: #0A0A0B;
+  --negro-3: #111113;
+  --ceniza: #8A8A8A;
+  --linea: rgba(242,239,233,.12);
+  --linea-2: rgba(242,239,233,.22);
   /* Sombras */
   --shadow-card: 0 1px 0 0 rgba(26, 111, 255, 0.08) inset,
                  0 20px 40px -30px rgba(0, 0, 0, 0.8);
