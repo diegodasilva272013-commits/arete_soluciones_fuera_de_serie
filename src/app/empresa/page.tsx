@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import s from './corp.module.css';
 import { RevealObserver } from './_reveal';
 import { HeroVideo } from './_hero-video';
@@ -96,10 +97,14 @@ export default function EmpresaHome() {
           <div className={`${s.bif} ${s.reveal}`} data-reveal="">
             {/* Areté Soluciones */}
             <Link className={s.rama} href="/empresa/servicios">
-              <div className={s.ramaFoto}>
-                <div className={s.ramaSlot}>
-                  <span className={s.ramaSlotLabel}>Areté Soluciones</span>
-                </div>
+              <div className={s.ramaFoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0B' }}>
+                <Image
+                  src="/LOGO_ARETE.png"
+                  alt="Areté Soluciones"
+                  width={260}
+                  height={80}
+                  style={{ width: '55%', height: 'auto', objectFit: 'contain' }}
+                />
               </div>
               <div className={s.ramaBody}>
                 <div className={s.ramaKick}>Línea 01 · Sistemas</div>
@@ -120,10 +125,14 @@ export default function EmpresaHome() {
 
             {/* Areté Fuera de Serie */}
             <div className={s.rama}>
-              <div className={s.ramaFoto}>
-                <div className={s.ramaSlot}>
-                  <span className={s.ramaSlotLabel}>Areté Fuera de Serie</span>
-                </div>
+              <div className={s.ramaFoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0B' }}>
+                <Image
+                  src="/Aretea_fuera _de_serie_logo.png"
+                  alt="Areté Fuera de Serie"
+                  width={260}
+                  height={80}
+                  style={{ width: '55%', height: 'auto', objectFit: 'contain' }}
+                />
               </div>
               <div className={s.ramaBody}>
                 <div className={s.ramaKick}>Línea 02 · Personas</div>
