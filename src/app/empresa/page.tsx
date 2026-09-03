@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import s from './corp.module.css';
 import { RevealObserver } from './_reveal';
+import { HeroVideo } from './_hero-video';
 
 const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
@@ -45,9 +46,7 @@ export default function EmpresaHome() {
       {/* ══════════════ HERO ══════════════ */}
       <section className={s.homeHero}>
         <div className={s.homeHeroMedia}>
-          <video autoPlay muted loop playsInline poster="">
-            <source src="/video_pagina.mp4" type="video/mp4" />
-          </video>
+          <HeroVideo />
         </div>
         <div className={s.homeHeroVeil} />
         <div className={s.homeHeroContent}>
