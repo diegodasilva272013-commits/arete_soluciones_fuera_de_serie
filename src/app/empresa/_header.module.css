@@ -82,38 +82,42 @@
   display: none;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: 1px solid rgba(255,255,255,.14);
-  color: rgba(255,255,255,.7);
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.3);
+  color: rgba(255,255,255,.9);
   cursor: pointer;
-  padding: 6px;
+  padding: 8px;
   margin-left: auto;
   transition: border-color .2s, color .2s;
 }
 
-.burger:hover { border-color: rgba(47,123,246,.5); color: #fff; }
+.burger:hover { border-color: rgba(47,123,246,.7); color: #fff; }
 
-/* Mobile menu */
+/* Mobile menu — position fixed para evitar bugs de backdrop-filter en iOS */
 .mobile {
+  position: fixed;
+  top: 67px;
+  left: 0;
+  right: 0;
+  z-index: 99;
   display: flex;
   flex-direction: column;
-  background: rgba(5,5,5,.99);
-  border-top: 1px solid rgba(255,255,255,.06);
-  padding: 12px 40px 28px;
-  position: relative;
-  z-index: 70;
+  background: #050505;
+  border-top: 1px solid rgba(255,255,255,.1);
+  padding: 16px 40px 32px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.6);
 }
 
 .mobileLink {
   display: block;
-  padding: 13px 0;
+  padding: 16px 0;
   font-family: var(--f-mono), ui-monospace, monospace;
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: rgba(255,255,255,.55);
+  color: rgba(255,255,255,.7);
   text-decoration: none;
-  border-bottom: 1px solid rgba(255,255,255,.05);
+  border-bottom: 1px solid rgba(255,255,255,.08);
   transition: color .2s;
 }
 
@@ -121,16 +125,16 @@
 
 .mobileCta {
   display: block;
-  margin-top: 20px;
+  margin-top: 24px;
   font-family: var(--f-mono), ui-monospace, monospace;
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: #2F7BF6;
   text-decoration: none;
 }
 
-/* Hairline (no se usa pero lo dejo para compatibilidad) */
+/* Hairline */
 .hairline { display: none; }
 
 /* ── Responsive ── */
@@ -138,9 +142,16 @@
   .nav { display: none; }
   .cta { display: none; }
   .burger { display: flex; }
+
+  /* En mobile: header completamente opaco, sin backdrop-filter (bug iOS) */
+  .header {
+    background: rgba(5,5,5,.97);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 @media (max-width: 480px) {
-  .inner { padding: 14px 22px; }
-  .mobile { padding: 12px 22px 24px; }
+  .inner { padding: 14px 20px; }
+  .mobile { padding: 16px 20px 32px; top: 63px; }
 }
