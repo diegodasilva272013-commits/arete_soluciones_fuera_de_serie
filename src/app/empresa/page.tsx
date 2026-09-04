@@ -188,7 +188,12 @@ export default function EmpresaHome() {
         <div className={`${s.bandGrid} ${s.bandGridFlip}`}>
           <div className={`${s.bandFig} ${s.reveal}`} data-reveal="">
             <div className={s.bandFigFrame}>
-              <div className={s.slot}><span className={s.slotLabel}>Imagen · persona en sesión de formación</span></div>
+              <Image
+                src="/Foto_acompañamiento.png"
+                alt="Persona en sesión de formación"
+                fill
+                style={{ objectFit: 'cover' }}
+              />
             </div>
           </div>
           <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
