@@ -159,7 +159,9 @@ export default function EmpresaHome() {
         <div className={s.bandGrid}>
           <div className={`${s.bandFig} ${s.reveal}`} data-reveal="">
             <div className={s.bandFigFrame}>
-              <div className={s.slot}><span className={s.slotLabel}>Video · diagnóstico en empresa real</span></div>
+              <video autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}>
+                <source src="/video_1.mp4" type="video/mp4" />
+              </video>
             </div>
           </div>
           <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
