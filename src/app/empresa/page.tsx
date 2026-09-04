@@ -160,7 +160,7 @@ export default function EmpresaHome() {
           <div className={`${s.bandFig} ${s.reveal}`} data-reveal="">
             <div className={s.bandFigFrame}>
               <video autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}>
-                <source src="/video_1.mp4" type="video/mp4" />
+                <source src="/Video_diagnostico.mp4" type="video/mp4" />
               </video>
             </div>
           </div>
