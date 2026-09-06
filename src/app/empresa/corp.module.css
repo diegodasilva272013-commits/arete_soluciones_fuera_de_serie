@@ -3,7 +3,9 @@
    Tipografía: Montserrat (display) · Spectral (texto) · JetBrains Mono
    ============================================================ */
 
-/* Variables definidas en globals.css — disponibles en todo el sitio */
+/* Variables de marca de Areté — definidas en src/app/globals.css
+   (un .module.css no puede tener un :root "puro": Next.js lo rechaza
+   por no tener clase/id local — por eso NUNCA pudieron vivir acá). */
 
 /* ── Reveal ── */
 .reveal {

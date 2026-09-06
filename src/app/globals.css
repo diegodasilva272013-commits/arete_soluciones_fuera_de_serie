@@ -17,14 +17,33 @@ body {
 }
 
 :root {
-  /* Azul de marca (--azul / --azul-luz, definidos en empresa/) no cumple
-     4.5:1 con texto blanco encima. Para fondos de botón con texto blanco
-     usar estos dos, mas oscuros, en vez de --azul / --azul-luz. */
+  /* ── Marca Areté (usadas en src/app/empresa/**) ──────────────────────
+     Estaban referenciadas por todo corp.module.css / _header.module.css /
+     _footer.module.css vía var(--azul) etc. pero jamás se habían definido
+     en ningún :root real: un .module.css no puede tener un :root "puro"
+     (Next.js lo rechaza por no tener clase local), así que solo podían
+     vivir acá. El sitio se veía bien igual porque un build viejo había
+     quedado cacheado en Vercel con estos colores ya resueltos; al forzar
+     varios deploys nuevos esa cache se invalidó y quedó expuesto: sin
+     esto, todo lo "azul" caía al color heredado y todo `border: 1px solid
+     var(--linea)` perdía el marco (border-style se vuelve "none"). */
+  --azul: #2F7BF6;
+  --azul-luz: #5C9AFF;
+  --hueso: #F2EFE9;
+  --negro: #050505;
+  --negro-2: #0A0A0B;
+  --negro-3: #111113;
+  --ceniza: #8A8A8A;
+  --linea: rgba(242,239,233,.12);
+  --linea-2: rgba(242,239,233,.22);
+
+  /* Azul de marca (--azul / --azul-luz) no cumple 4.5:1 con texto blanco
+     encima. Para fondos de botón con texto blanco usar estos dos, mas
+     oscuros, en vez de --azul / --azul-luz. */
   --azul-btn: #2969D1;
   --azul-btn-hover: #2259B2;
-  /* Triplete RGB de --azul (#2F7BF6), para poder usarlo dentro de rgba()
-     en vez de repetir "26,111,255" (un azul ligeramente distinto) suelto
-     en estilos inline. */
+  /* Triplete RGB de --azul, para usarlo dentro de rgba() en vez de
+     repetir "26,111,255" (un azul ligeramente distinto) suelto. */
   --azul-rgb: 47, 123, 246;
 }
 
