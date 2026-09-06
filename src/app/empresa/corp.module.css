@@ -420,10 +420,6 @@
               transform 0.55s cubic-bezier(0.16, 0.84, 0.28, 1);
 }
 
-.frictItem:hover {
-  background: var(--negro-2);
-}
-
 .frictN {
   font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
   font-size: 10px;
@@ -433,16 +429,12 @@
   transition: color 0.3s;
 }
 
-.frictItem:hover .frictN { color: var(--azul); }
-
 @keyframes frictSnag {
   0% { transform: translateX(0); }
   35% { transform: translateX(-2px); }
   60% { transform: translateX(1px); }
   100% { transform: translateX(0); }
 }
-
-.frictItem:hover .frictT { animation: frictSnag 0.26s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
 
 @media (prefers-reduced-motion: reduce) {
   .frictItem:hover .frictT { animation: none; }
@@ -488,12 +480,6 @@
   flex-direction: column;
 }
 
-.rama:hover {
-  border-color: var(--azul);
-  transform: translateY(-5px);
-  box-shadow: 0 24px 48px -28px rgba(26,111,255,.4);
-}
-
 .rama:focus-visible {
   outline: 2px solid var(--azul-luz);
   outline-offset: 3px;
@@ -513,12 +499,6 @@
   width: 100%; height: 100%; object-fit: cover;
   filter: saturate(0.75) contrast(1.05);
   transition: transform 0.6s cubic-bezier(0.16, 0.84, 0.28, 1), filter 0.6s;
-}
-
-.rama:hover .ramaFoto img,
-.rama:hover .ramaFoto video {
-  transform: scale(1.045);
-  filter: saturate(0.95) contrast(1.05);
 }
 
 .ramaSlot {
@@ -621,9 +601,6 @@
   transition: transform 0.35s cubic-bezier(0.16, 0.84, 0.28, 1);
   display: block;
 }
-
-.rama:hover .ramaGoLine { transform: scaleX(1.6923); }
-.rama:hover .ramaGo { color: var(--azul-luz); }
 
 /* ═══════════════════════════════════════════
    BANDA (alternada)
@@ -837,12 +814,6 @@
   z-index: 0;
 }
 
-.etapa:hover {
-  background: var(--negro-2);
-  transform: translateY(-3px);
-  z-index: 1;
-}
-
 .etapaN {
   font-family: var(--f-display), Montserrat, system-ui, sans-serif;
   font-weight: 900;
@@ -853,10 +824,6 @@
   line-height: 1;
   letter-spacing: -0.03em;
   transition: -webkit-text-fill-color 0.4s ease;
-}
-
-.etapa:hover .etapaN {
-  -webkit-text-fill-color: var(--azul-luz);
 }
 
 .etapaTitle {
@@ -1056,7 +1023,6 @@
   text-decoration: none;
 }
 
-.btn:hover { background: var(--azul-btn-hover); transform: translateY(-2px); }
 .btn:active { transform: translateY(0); }
 
 .btnSec {
@@ -1076,7 +1042,6 @@
   transition: border-color 0.22s, color 0.22s, transform 0.2s cubic-bezier(0.16, 0.84, 0.28, 1);
 }
 
-.btnSec:hover { border-color: var(--azul); color: var(--azul-luz); transform: translateY(-2px); }
 .btnSec:active { transform: translateY(0); }
 
 /* Compatibilidad con nombres anteriores */
@@ -1099,7 +1064,6 @@
   clip-path: none;
 }
 
-.btnPrimary:hover { background: var(--azul-btn-hover); opacity: 1; transform: translateY(-2px); }
 .btnPrimary:active { transform: translateY(0); }
 
 .btnGhost {
@@ -1121,7 +1085,6 @@
   height: auto;
 }
 
-.btnGhost:hover { border-color: var(--azul); color: var(--azul-luz); transform: translateY(-2px); }
 .btnGhost:active { transform: translateY(0); }
 
 .btn:focus-visible,
@@ -1137,6 +1100,42 @@
   .rama:hover, .etapa:hover {
     transform: none;
   }
+}
+
+/* ═══════════════════════════════════════════
+   HOVERS — solo para mouse real (emil-design-eng)
+   En touch, :hover normal se dispara con el tap y queda
+   "pegado" (la tarjeta no vuelve a su estado normal hasta
+   tocar otra cosa). Se agrupan todos acá adentro de una vez. */
+@media (hover: hover) and (pointer: fine) {
+  .frictItem:hover { background: var(--negro-2); }
+  .frictItem:hover .frictN { color: var(--azul); }
+  .frictItem:hover .frictT { animation: frictSnag 0.26s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+
+  .rama:hover {
+    border-color: var(--azul);
+    transform: translateY(-5px);
+    box-shadow: 0 24px 48px -28px rgba(26,111,255,.4);
+  }
+  .rama:hover .ramaFoto img,
+  .rama:hover .ramaFoto video {
+    transform: scale(1.045);
+    filter: saturate(0.95) contrast(1.05);
+  }
+  .rama:hover .ramaGoLine { transform: scaleX(1.6923); }
+  .rama:hover .ramaGo { color: var(--azul-luz); }
+
+  .etapa:hover {
+    background: var(--negro-2);
+    transform: translateY(-3px);
+    z-index: 1;
+  }
+  .etapa:hover .etapaN { -webkit-text-fill-color: var(--azul-luz); }
+
+  .btn:hover { background: var(--azul-btn-hover); transform: translateY(-2px); }
+  .btnSec:hover { border-color: var(--azul); color: var(--azul-luz); transform: translateY(-2px); }
+  .btnPrimary:hover { background: var(--azul-btn-hover); opacity: 1; transform: translateY(-2px); }
+  .btnGhost:hover { border-color: var(--azul); color: var(--azul-luz); transform: translateY(-2px); }
 }
 
 /* ═══════════════════════════════════════════
