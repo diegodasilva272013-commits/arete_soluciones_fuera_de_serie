@@ -11,7 +11,6 @@
   transform: translateY(22px) scale(0.985);
   transition: opacity 0.85s cubic-bezier(0.16, 0.84, 0.28, 1),
               transform 0.9s cubic-bezier(0.16, 0.84, 0.28, 1);
-  will-change: opacity, transform;
 }
 .revealDelay1 { transition-delay: 0.14s; }
 .revealDelay2 { transition-delay: 0.28s; }
@@ -95,8 +94,8 @@
     transform: none;
     transition: none;
   }
-  .kickerLine { width: 34px !important; transition: none; }
-  .eyebrow::after { width: 70px !important; transition: none; }
+  .kickerLine { transform: scaleX(1) !important; transition: none; }
+  .eyebrow::after { transform: scaleX(1) !important; transition: none; }
   .pageHero::before,
   .ctaBand::before {
     animation: none;
@@ -160,14 +159,16 @@
 }
 
 .kickerLine {
-  width: 0;
+  width: 34px;
   height: 1px;
   background: var(--azul);
   flex-shrink: 0;
-  transition: width 0.6s cubic-bezier(0.16, 0.84, 0.28, 1) 0.15s;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.16, 0.84, 0.28, 1) 0.15s;
 }
 
-.kicker.revealOn .kickerLine { width: 34px; }
+.kicker.revealOn .kickerLine { transform: scaleX(1); }
 
 .kickerLabel {
   font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
@@ -313,12 +314,14 @@
 .eyebrow::after {
   content: '';
   height: 1px;
-  width: 0;
+  width: 70px;
   background: linear-gradient(90deg, var(--azul), transparent);
-  transition: width 0.7s cubic-bezier(0.16, 0.84, 0.28, 1) 0.2s;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.7s cubic-bezier(0.16, 0.84, 0.28, 1) 0.2s;
 }
 
-.eyebrow.revealOn::after { width: 70px; }
+.eyebrow.revealOn::after { transform: scaleX(1); }
 
 .homeH1 {
   font-family: var(--f-display), Montserrat, system-ui, sans-serif;
@@ -400,28 +403,13 @@
 .frictItem {
   background: var(--negro);
   padding: 26px 24px;
-  position: relative;
   transition: background 0.3s,
               opacity 0.55s cubic-bezier(0.16, 0.84, 0.28, 1),
               transform 0.55s cubic-bezier(0.16, 0.84, 0.28, 1);
 }
 
-/* Filo que se traba al asomar — la fricción, hecha interacción */
-.frictItem::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 0;
-  background: var(--azul);
-  transition: width 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
 .frictItem:hover {
   background: var(--negro-2);
-}
-
-.frictItem:hover::before {
-  width: 3px;
 }
 
 .frictN {
