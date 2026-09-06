@@ -605,11 +605,12 @@
   width: 26px;
   height: 1px;
   background: var(--azul);
-  transition: width 0.35s cubic-bezier(0.16, 0.84, 0.28, 1);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.16, 0.84, 0.28, 1);
   display: block;
 }
 
-.rama:hover .ramaGoLine { width: 44px; }
+.rama:hover .ramaGoLine { transform: scaleX(1.6923); }
 .rama:hover .ramaGo { color: var(--azul-luz); }
 
 /* ═══════════════════════════════════════════
@@ -1022,7 +1023,7 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 16px 30px;
-  background: var(--azul);
+  background: var(--azul-btn);
   color: #fff;
   transition: background 0.22s, transform 0.2s cubic-bezier(0.16, 0.84, 0.28, 1);
   border: none;
@@ -1033,7 +1034,7 @@
   text-decoration: none;
 }
 
-.btn:hover { background: var(--azul-luz); transform: translateY(-2px); }
+.btn:hover { background: var(--azul-btn-hover); transform: translateY(-2px); }
 .btn:active { transform: translateY(0); }
 
 .btnSec {
@@ -1063,7 +1064,7 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 16px 30px;
-  background: var(--azul);
+  background: var(--azul-btn);
   color: #fff;
   transition: background 0.22s, transform 0.2s cubic-bezier(0.16, 0.84, 0.28, 1);
   border: none;
@@ -1076,7 +1077,7 @@
   clip-path: none;
 }
 
-.btnPrimary:hover { background: var(--azul-luz); opacity: 1; transform: translateY(-2px); }
+.btnPrimary:hover { background: var(--azul-btn-hover); opacity: 1; transform: translateY(-2px); }
 .btnPrimary:active { transform: translateY(0); }
 
 .btnGhost {
@@ -1114,6 +1115,46 @@
   .rama:hover, .etapa:hover {
     transform: none;
   }
+}
+
+/* ═══════════════════════════════════════════
+   FORMULARIOS
+   ═══════════════════════════════════════════ */
+.formLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(242,239,233,0.38);
+}
+
+.formInput {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(242,239,233,0.1);
+  color: var(--hueso);
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.formInput:hover {
+  border-color: rgba(242,239,233,0.2);
+}
+
+.formInput:focus {
+  border-color: var(--azul);
+  background: rgba(26,111,255,0.06);
+  outline: 2px solid var(--azul-luz);
+  outline-offset: 1px;
+}
+
+.formTextarea {
+  resize: vertical;
 }
 
 /* ── Responsive ── */

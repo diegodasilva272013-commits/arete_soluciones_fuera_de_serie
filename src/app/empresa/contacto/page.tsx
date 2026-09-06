@@ -72,7 +72,7 @@ export default function ContactoPage() {
                     <MessageCircle size={20} color="white" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: '#f2efe9' }}>WhatsApp</p>
+                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>WhatsApp</p>
                     <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#25D366' }}>+54 9 11 4321-5678</p>
                     <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Respuesta en menos de 2 horas · Lun–Vie 9 a 18 hs</p>
                   </div>
@@ -93,11 +93,11 @@ export default function ContactoPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  <div style={{ width: 46, height: 46, background: 'rgba(26,111,255,0.1)', border: '1px solid rgba(26,111,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>
-                    <Phone size={18} color="#1a6fff" />
+                  <div style={{ width: 46, height: 46, background: 'rgba(var(--azul-rgb),0.1)', border: '1px solid rgba(var(--azul-rgb),0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>
+                    <Phone size={18} color="var(--azul)" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: '#f2efe9' }}>Llamada directa</p>
+                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>Llamada directa</p>
                     <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>+54 11 4321-5678</p>
                     <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Lun–Vie de 9 a 18 hs (ARG)</p>
                   </div>
@@ -118,11 +118,11 @@ export default function ContactoPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  <div style={{ width: 46, height: 46, background: 'rgba(26,111,255,0.1)', border: '1px solid rgba(26,111,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>
-                    <Mail size={18} color="#1a6fff" />
+                  <div style={{ width: 46, height: 46, background: 'rgba(var(--azul-rgb),0.1)', border: '1px solid rgba(var(--azul-rgb),0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>
+                    <Mail size={18} color="var(--azul)" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: '#f2efe9' }}>Email</p>
+                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>Email</p>
                     <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>hola@aretesoluciones.com</p>
                     <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Respuesta en 24 horas hábiles</p>
                   </div>
@@ -145,17 +145,17 @@ export default function ContactoPage() {
             {/* Formulario */}
             <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
               <div style={{ padding: '40px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(242,239,233,0.07)', clipPath: 'polygon(20px 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%,0 20px)' }}>
-                <h3 style={{ margin: '0 0 8px', fontWeight: 700, fontSize: 20, color: '#f2efe9' }}>Envianos un mensaje</h3>
+                <h2 style={{ margin: '0 0 8px', fontWeight: 700, fontSize: 20, color: 'var(--hueso)' }}>Envianos un mensaje</h2>
                 <p style={{ margin: '0 0 32px', fontSize: 14, color: 'rgba(242,239,233,0.38)' }}>Te respondemos en menos de 24 horas hábiles.</p>
 
                 {state === 'done' ? (
                   <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                    <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(26,111,255,0.12)', border: '1px solid rgba(26,111,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a6fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(var(--azul-rgb),0.12)', border: '1px solid rgba(var(--azul-rgb),0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--azul)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     </div>
-                    <p style={{ margin: '0 0 8px', fontWeight: 700, fontSize: 17, color: '#f2efe9' }}>Mensaje recibido</p>
+                    <p style={{ margin: '0 0 8px', fontWeight: 700, fontSize: 17, color: 'var(--hueso)' }}>Mensaje recibido</p>
                     <p style={{ margin: 0, fontSize: 14, color: 'rgba(242,239,233,0.45)' }}>Te respondemos antes de las 24 horas hábiles.</p>
                   </div>
                 ) : (
@@ -166,30 +166,32 @@ export default function ContactoPage() {
                       { id: 'email', label: 'Email', type: 'email', placeholder: 'tu@empresa.com' },
                     ].map(field => (
                       <div key={field.id}>
-                        <label style={{ display: 'block', marginBottom: 8, fontFamily: 'ui-monospace, monospace', fontSize: 9, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.38)' }}>
+                        <label htmlFor={`contacto-${field.id}`} className={s.formLabel}>
                           {field.label}
                         </label>
                         <input
+                          id={`contacto-${field.id}`}
                           type={field.type}
                           required
                           placeholder={field.placeholder}
                           value={(form as Record<string, string>)[field.id]}
                           onChange={e => setForm(f => ({ ...f, [field.id]: e.target.value }))}
-                          style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(242,239,233,0.1)', color: '#f2efe9', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                          className={s.formInput}
                         />
                       </div>
                     ))}
                     <div>
-                      <label style={{ display: 'block', marginBottom: 8, fontFamily: 'ui-monospace, monospace', fontSize: 9, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.38)' }}>
+                      <label htmlFor="contacto-mensaje" className={s.formLabel}>
                         ¿En qué podemos ayudar?
                       </label>
                       <textarea
+                        id="contacto-mensaje"
                         required
                         rows={4}
                         placeholder="Contanos brevemente tu situación y qué estás buscando..."
                         value={form.mensaje}
                         onChange={e => setForm(f => ({ ...f, mensaje: e.target.value }))}
-                        style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(242,239,233,0.1)', color: '#f2efe9', fontSize: 14, outline: 'none', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                        className={`${s.formInput} ${s.formTextarea}`}
                       />
                     </div>
                     <button

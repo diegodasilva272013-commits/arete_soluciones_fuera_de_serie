@@ -58,7 +58,7 @@
   position: absolute;
   bottom: -2px; left: 0; right: 0;
   height: 1px;
-  background: #2F7BF6;
+  background: var(--azul);
 }
 
 /* CTA — "Acceso" */
@@ -75,7 +75,7 @@
   transition: border-color .2s, color .2s;
 }
 
-.cta:hover { border-color: #2F7BF6; color: #5C9AFF; }
+.cta:hover { border-color: var(--azul); color: var(--azul-luz); }
 
 /* Mobile burger */
 .burger {
@@ -86,12 +86,12 @@
   border: 1px solid rgba(255,255,255,.3);
   color: rgba(255,255,255,.9);
   cursor: pointer;
-  padding: 8px;
+  padding: 12px;
   margin-left: auto;
   transition: border-color .2s, color .2s;
 }
 
-.burger:hover { border-color: rgba(47,123,246,.7); color: #fff; }
+.burger:hover { border-color: rgba(var(--azul-rgb),.7); color: #fff; }
 
 /* Mobile menu — position fixed para evitar bugs de backdrop-filter en iOS */
 .mobile {
@@ -130,8 +130,18 @@
   font-size: 14px;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: #2F7BF6;
+  color: var(--azul);
   text-decoration: none;
+}
+
+.link:focus-visible,
+.cta:focus-visible,
+.burger:focus-visible,
+.mobileLink:focus-visible,
+.mobileCta:focus-visible,
+.logoWrap:focus-visible {
+  outline: 2px solid var(--azul-luz);
+  outline-offset: 3px;
 }
 
 /* Hairline */

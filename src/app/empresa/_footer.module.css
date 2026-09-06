@@ -47,7 +47,7 @@
   font-weight: 600;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #1a6fff;
+  color: var(--azul);
 }
 
 .colList {
@@ -81,7 +81,7 @@
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: #1a6fff;
+  color: var(--azul);
   text-decoration: none;
   transition: opacity 0.2s;
 }
@@ -115,6 +115,14 @@
 }
 
 .bottomLink:hover { color: rgba(242, 239, 233, 0.5); }
+
+.contactLink:focus-visible,
+.colLink:focus-visible,
+.colCta:focus-visible,
+.bottomLink:focus-visible {
+  outline: 2px solid #5C9AFF;
+  outline-offset: 3px;
+}
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {

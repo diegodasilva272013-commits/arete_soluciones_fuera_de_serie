@@ -65,6 +65,7 @@ export function HeroVideo() {
         muted
         playsInline
         preload="auto"
+        poster="/video_hero-poster.jpg"
         style={videoStyle}
       />
       <video
@@ -72,6 +73,7 @@ export function HeroVideo() {
         muted
         playsInline
         preload="auto"
+        poster="/video_hero2-poster.jpg"
         style={{ ...videoStyle, opacity: 0 }}
       />
     </>
