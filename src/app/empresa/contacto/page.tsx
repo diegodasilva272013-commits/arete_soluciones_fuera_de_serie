@@ -44,7 +44,7 @@ export default function ContactoPage() {
       {/* Contacto */}
       <section className={s.section}>
         <div className={s.inner}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
+          <div className={s.splitGrid}>
 
             {/* Canales */}
             <div className={`${s.reveal}`} data-reveal="">

@@ -1159,6 +1159,26 @@
   resize: vertical;
 }
 
+/* ═══════════════════════════════════════════
+   SPLIT GRID — dos columnas de contenido completo
+   (contacto, nosotros, servicios/precios). Sin esta
+   clase quedaban con grid-template-columns:'1fr 1fr'
+   fijo por inline style, sin ningún breakpoint: en
+   mobile cada columna terminaba con ~140px de ancho.
+   ═══════════════════════════════════════════ */
+.splitGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.splitGridTight {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
 /* ── Responsive ── */
 @media (max-width: 960px) {
   .frict { grid-template-columns: 1fr 1fr; }
@@ -1167,6 +1187,8 @@
   .bandGridFlip .bandRight { order: 0; }
   .etapasGrid { grid-template-columns: 1fr 1fr; }
   .prin { grid-template-columns: 1fr; gap: 40px; }
+  .splitGrid { grid-template-columns: 1fr; gap: 48px; }
+  .splitGridTight { grid-template-columns: 1fr; gap: 1px; }
   .inner, .pageHeroInner, .bandGrid, .bandGridFlip { padding-left: 24px; padding-right: 24px; }
   .quoteInner { padding: 0 24px; }
   .homeHeroContent { padding-left: 24px; padding-right: 24px; }

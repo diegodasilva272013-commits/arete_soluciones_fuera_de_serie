@@ -105,7 +105,7 @@ export default function ServiciosPage() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <div className={s.splitGridTight}>
             {/* Diagnóstico */}
             <div className={`${s.reveal}`} data-reveal="" style={{ padding: '48px 40px', border: '1px solid rgba(242,239,233,0.08)', borderRight: 'none', position: 'relative' }}>
               <p className={s.bandNum} style={{ marginBottom: 24 }}>Etapa 01</p>

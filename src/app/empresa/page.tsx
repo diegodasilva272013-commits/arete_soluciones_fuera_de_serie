@@ -220,10 +220,9 @@ export default function EmpresaHome() {
         <div className={s.bandGrid}>
           <div className={`${s.bandFig} ${s.reveal}`} data-reveal="">
             <div className={s.bandFigFrame}>
-              <video autoPlay muted loop playsInline poster="/video_2-poster.jpg">
-                <source src="/video_2.mp4" type="video/mp4" />
+              <video autoPlay muted loop playsInline poster="/Video_diagnostico-poster.jpg" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}>
+                <source src="/Video_diagnostico.mp4" type="video/mp4" />
               </video>
-              <div className={s.slot}><span className={s.slotLabel}>Video · la plataforma en uso</span></div>
             </div>
           </div>
           <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">

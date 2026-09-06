@@ -62,7 +62,7 @@ export default function NosotrosPage() {
       {/* ── EL NOMBRE ── */}
       <section className={s.section}>
         <div className={s.inner}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
+          <div className={s.splitGrid}>
             <div className={`${s.reveal}`} data-reveal="">
               <div className={s.sectionLockup}>
                 <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Por qué "Areté"</p>
@@ -145,7 +145,7 @@ export default function NosotrosPage() {
       {/* ── PARA QUIÉN TRABAJAMOS ── */}
       <section className={s.section}>
         <div className={s.inner}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
+          <div className={s.splitGrid}>
             <div className={`${s.reveal}`} data-reveal="">
               <div className={s.sectionLockup}>
                 <p className={s.kickerLabel} style={{ marginBottom: 14 }}>El cliente que buscamos</p>
