@@ -51,7 +51,7 @@ export default function NosotrosPage() {
             <span className={s.kickerLabel}>Nosotros</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Partimos de la empresa.<br />Siempre.
+            Partimos de la empresa.<br /><em>Siempre.</em>
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
             No somos una agencia de software. No somos una consultora de procesos. Somos el equipo que diseña cómo debería funcionar tu operación y lo construye.

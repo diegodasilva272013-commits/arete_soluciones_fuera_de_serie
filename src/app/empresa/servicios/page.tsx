@@ -78,7 +78,7 @@ export default function ServiciosPage() {
             <span className={s.kickerLabel}>Servicios</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Cuatro áreas.<br />Un solo sistema.
+            Cuatro áreas.<br /><em>Un solo sistema.</em>
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
             Trabajamos sobre las áreas que generan fricción operativa. No vendemos tecnología: diseñamos cómo debería funcionar la empresa y elegimos la herramienta como consecuencia.
@@ -99,7 +99,7 @@ export default function ServiciosPage() {
         <div className={s.inner}>
           <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 56 }}>
             <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Dos etapas de trabajo</p>
-            <h2 className={s.sectionTitle}>Diagnóstico primero.<br />Implementación después.</h2>
+            <h2 className={s.sectionTitle}>Diagnóstico primero.<br /><em>Implementación después.</em></h2>
             <p className={s.sectionSub}>
               Nunca implementamos sin entender. El diagnóstico es el primer servicio: un análisis a fondo de la operación que termina en un plan priorizado.
             </p>

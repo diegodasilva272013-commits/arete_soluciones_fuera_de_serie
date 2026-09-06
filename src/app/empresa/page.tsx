@@ -70,7 +70,7 @@ export default function EmpresaHome() {
         <div className={s.inner}>
           <div className={`${s.shead} ${s.reveal}`} data-reveal="">
             <div className={s.mono}>01 · El problema</div>
-            <h2>Cada parte funciona.<br />El conjunto no.</h2>
+            <h2>Cada parte funciona.<br /><em>El conjunto no.</em></h2>
             <p>Ventas usa un CRM. Marketing otra plataforma. Administración un Excel. Operaciones WhatsApp. Cada herramienta anda bien por separado, y nadie tiene la visión completa.</p>
           </div>
           <div className={`${s.frict} ${s.reveal}`} data-reveal="">
@@ -90,7 +90,7 @@ export default function EmpresaHome() {
         <div className={s.inner}>
           <div className={`${s.shead} ${s.reveal}`} data-reveal="">
             <div className={s.mono}>02 · Dos frentes, un criterio</div>
-            <h2>La fricción está en los sistemas<br />o está en las personas.</h2>
+            <h2>La fricción está en los sistemas<br /><em>o está en las personas.</em></h2>
             <p>Casi siempre está en los dos. Por eso Areté trabaja los dos, con el mismo método: comprender antes de proponer.</p>
           </div>
 
@@ -166,7 +166,7 @@ export default function EmpresaHome() {
           </div>
           <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
             <div className={s.bandNum}>Areté Soluciones</div>
-            <h3 className={s.bandTitle}>Primero entender.<br />Después construir.</h3>
+            <h3 className={s.bandTitle}>Primero entender.<br /><em>Después construir.</em></h3>
             <p className={s.bandBody}>Entramos en la empresa y hablamos con quien dirige, pero también con quien ejecuta. El CEO dice que el proceso funciona perfecto; la secretaria dice que hace lo mismo siete veces por día. Las dos miradas importan.</p>
             <p className={s.bandBody}>Del relevamiento sale un mapa de la operación con lo que cada proceso está costando, y el orden en que conviene intervenirlo. Recién ahí se decide qué construir.</p>
             <div className={s.meta}>
@@ -198,7 +198,7 @@ export default function EmpresaHome() {
           </div>
           <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
             <div className={s.bandNum}>Areté Fuera de Serie</div>
-            <h3 className={s.bandTitle}>No entrenamos respuestas.<br />Entrenamos pensamiento.</h3>
+            <h3 className={s.bandTitle}>No entrenamos respuestas.<br /><em>Entrenamos pensamiento.</em></h3>
             <p className={s.bandBody}>Los guiones cambian. Los mercados cambian. Las herramientas cambian. Una persona capaz de observar una situación, comprenderla y decidir qué corresponde hacer siempre va a tener valor.</p>
             <p className={s.bandBody}>Por eso no creamos personajes comerciales ni copias. Desarrollamos capacidades sobre la identidad que cada uno ya tiene.</p>
             <div className={s.meta}>
@@ -227,7 +227,7 @@ export default function EmpresaHome() {
           </div>
           <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
             <div className={s.bandNum}>La prueba</div>
-            <h3 className={s.bandTitle}>La plataforma que usamos<br />la construimos nosotros.</h3>
+            <h3 className={s.bandTitle}>La plataforma que usamos<br /><em>la construimos nosotros.</em></h3>
             <p className={s.bandBody}>El sistema de entrenamiento de Fuera de Serie es, literalmente, un sistema empresarial a medida hecho por Areté Soluciones. Simulador de campo, matriz de evaluación, historial de evidencia por persona y detección de patrones.</p>
             <p className={s.bandBody}>No hay mejor demostración de lo que hacemos que mostrar lo que construimos para nosotros mismos.</p>
             <div className={s.meta}>
@@ -245,7 +245,7 @@ export default function EmpresaHome() {
         <div className={s.inner}>
           <div className={`${s.shead} ${s.reveal}`} data-reveal="">
             <div className={s.mono}>03 · El método</div>
-            <h2>Seis etapas.<br />El orden no se altera.</h2>
+            <h2>Seis etapas.<br /><em>El orden no se altera.</em></h2>
             <p>El mismo criterio ordena una auditoría de procesos y una conversación comercial: comprender antes de proponer, diagnosticar antes de decidir.</p>
           </div>
           <div className={`${s.etapasGrid} ${s.reveal}`} data-reveal="">
@@ -294,7 +294,7 @@ export default function EmpresaHome() {
         <div className={s.inner}>
           <div className={s.reveal} data-reveal="">
             <div className={s.mono} style={{ marginBottom: 22, display: 'block', textAlign: 'center' }}>Empezamos por entender</div>
-            <h2 className={s.ctaTitle}>Contanos cómo<br />trabaja tu empresa.</h2>
+            <h2 className={s.ctaTitle}>Contanos cómo<br /><em>trabaja tu empresa.</em></h2>
             <p className={s.ctaSub}>Una conversación para ver dónde está la fricción. Si vemos que no hay nada para hacer, te lo decimos.</p>
             <div className={s.ctaRow}>
               <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btn}>Escribir a Areté</a>

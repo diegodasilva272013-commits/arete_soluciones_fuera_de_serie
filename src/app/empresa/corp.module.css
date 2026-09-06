@@ -247,6 +247,11 @@
   text-wrap: balance;
 }
 
+.sectionTitle em {
+  font-style: normal;
+  color: var(--azul);
+}
+
 .sectionSub {
   margin: 0;
   font-family: var(--f-texto), Spectral, Georgia, serif;
@@ -380,6 +385,11 @@
   margin: 18px 0 0;
   text-transform: uppercase;
   color: var(--hueso);
+}
+
+.shead h2 em {
+  font-style: normal;
+  color: var(--azul);
 }
 
 .shead p {
@@ -658,6 +668,11 @@
   letter-spacing: -0.025em;
   color: var(--hueso);
   text-wrap: balance;
+}
+
+.bandTitle em {
+  font-style: normal;
+  color: var(--azul);
 }
 
 .bandBody {
@@ -997,6 +1012,11 @@
   text-wrap: balance;
 }
 
+.ctaTitle em {
+  font-style: normal;
+  color: var(--azul);
+}
+
 .ctaSub {
   margin: 0 0 40px;
   font-family: var(--f-texto), Spectral, Georgia, serif;
@@ -1157,6 +1177,12 @@
 
 .formTextarea {
   resize: vertical;
+  min-height: 180px;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .formTextarea { min-height: 220px; }
 }
 
 /* ═══════════════════════════════════════════

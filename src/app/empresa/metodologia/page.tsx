@@ -86,7 +86,7 @@ export default function MetodologiaPage() {
             <span className={s.kickerLabel}>Metodología</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Seis etapas.<br />El orden no se altera.
+            Seis etapas.<br /><em>El orden no se altera.</em>
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
             Empezamos entendiendo. Terminamos midiendo. Lo que hay en el medio es diseño antes que tecnología.

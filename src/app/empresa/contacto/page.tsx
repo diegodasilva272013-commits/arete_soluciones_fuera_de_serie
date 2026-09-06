@@ -187,7 +187,7 @@ export default function ContactoPage() {
                       <textarea
                         id="contacto-mensaje"
                         required
-                        rows={4}
+                        rows={7}
                         placeholder="Contanos brevemente tu situación y qué estás buscando..."
                         value={form.mensaje}
                         onChange={e => setForm(f => ({ ...f, mensaje: e.target.value }))}

@@ -68,7 +68,7 @@ export default function ResultadosPage() {
             <span className={s.kickerLabel}>Resultados</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Números reales<br />de equipos reales
+            Números reales<br /><em>de equipos reales</em>
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
             No prometemos resultados mágicos. Te mostramos lo que lograron otros equipos y cómo lo midieron.
