@@ -57,7 +57,7 @@ export default function EmpresaHome() {
           <h1 className={s.homeH1} style={{ margin: '0 auto 24px', textAlign: 'center' }}>
             La fricción no está en las herramientas.<br /><em>Está entre ellas.</em>
           </h1>
-          <p style={{ fontFamily: 'var(--f-texto), Georgia, serif', fontStyle: 'italic', fontWeight: 300, fontSize: 20, lineHeight: 1.65, color: '#C9C6C0' }}>
+          <p style={{ fontFamily: 'var(--f-texto), Spectral, Georgia, serif', fontWeight: 300, fontSize: 20, lineHeight: 1.65, color: '#C9C6C0' }}>
             Una empresa puede tener veinte sistemas y un equipo completo, y seguir funcionando mal. Entramos, entendemos cómo trabaja de verdad, y recién después construimos.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>

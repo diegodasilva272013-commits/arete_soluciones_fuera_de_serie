@@ -291,7 +291,12 @@ const ScrollExpandMedia = ({
                   {date && (
                     <p
                       className='text-2xl text-[var(--azul-luz)]'
-                      style={{ transform: `translateX(-${textTranslateX}vw)` }}
+                      style={{
+                        transform: `translateX(-${textTranslateX}vw)`,
+                        fontFamily: 'var(--f-mono), "JetBrains Mono", ui-monospace, monospace',
+                        letterSpacing: '0.3em',
+                        textTransform: 'uppercase',
+                      }}
                     >
                       {date}
                     </p>
@@ -299,7 +304,12 @@ const ScrollExpandMedia = ({
                   {scrollToExpand && (
                     <p
                       className='text-[var(--azul-luz)] font-medium text-center'
-                      style={{ transform: `translateX(${textTranslateX}vw)` }}
+                      style={{
+                        transform: `translateX(${textTranslateX}vw)`,
+                        fontFamily: 'var(--f-mono), "JetBrains Mono", ui-monospace, monospace',
+                        letterSpacing: '0.28em',
+                        textTransform: 'uppercase',
+                      }}
                     >
                       {scrollToExpand}
                     </p>
