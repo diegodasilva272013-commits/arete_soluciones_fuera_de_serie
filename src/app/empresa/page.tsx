@@ -3,6 +3,7 @@ import Image from 'next/image';
 import s from './corp.module.css';
 import { RevealObserver } from './_reveal';
 import ScrollExpandMedia from '@/components/ui/scroll-expansion-hero';
+import { SvgPathDrawingTextAnimation } from '@/components/ui/path-drawing-portfolio-hero';
 
 const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
@@ -100,12 +101,14 @@ export default function EmpresaHome() {
             {/* Areté Soluciones */}
             <Link className={s.rama} href="/empresa/servicios">
               <div className={s.ramaFoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0B' }}>
-                <Image
-                  src="/LOGO_ARETE.png"
-                  alt="Areté Soluciones"
-                  width={260}
-                  height={80}
-                  style={{ width: '55%', height: 'auto', objectFit: 'contain' }}
+                <SvgPathDrawingTextAnimation
+                  text="ARETÉ SOLUCIONES"
+                  fromColor="var(--azul)"
+                  toColor="var(--azul-luz)"
+                  fontSize={54}
+                  viewBoxWidth={900}
+                  viewBoxHeight={150}
+                  strokeWidth={2}
                 />
               </div>
               <div className={s.ramaBody}>
@@ -128,12 +131,14 @@ export default function EmpresaHome() {
             {/* Areté Fuera de Serie */}
             <div className={s.rama}>
               <div className={s.ramaFoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0B' }}>
-                <Image
-                  src="/Aretea_fuera _de_serie_logo.png"
-                  alt="Areté Fuera de Serie"
-                  width={260}
-                  height={80}
-                  style={{ width: '55%', height: 'auto', objectFit: 'contain' }}
+                <SvgPathDrawingTextAnimation
+                  text="ARETÉ FUERA DE SERIE"
+                  fromColor="var(--azul)"
+                  toColor="var(--azul-luz)"
+                  fontSize={44}
+                  viewBoxWidth={1000}
+                  viewBoxHeight={150}
+                  strokeWidth={2}
                 />
               </div>
               <div className={s.ramaBody}>
