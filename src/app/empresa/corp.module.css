@@ -1118,6 +1118,13 @@
 
 .btnGhost:active { transform: translateY(0); }
 
+/* Icono opcional dentro de .btn/.btnSec (gap:10px ya los separa del texto).
+   Sin :hover no hace nada distinto a un icono comun; el giro vive en el
+   bloque @media (hover:hover) mas abajo. */
+.btnIcon {
+  transition: transform 0.3s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+
 .btn:focus-visible,
 .btnSec:focus-visible,
 .btnPrimary:focus-visible,
@@ -1129,6 +1136,9 @@
 @media (prefers-reduced-motion: reduce) {
   .btn:hover, .btnSec:hover, .btnPrimary:hover, .btnGhost:hover,
   .rama:hover, .etapa:hover {
+    transform: none;
+  }
+  .btn:hover .btnIcon, .btnSec:hover .btnIcon {
     transform: none;
   }
 }
@@ -1167,6 +1177,9 @@
   .btnSec:hover { border-color: var(--azul); color: var(--azul-luz); transform: translateY(-2px); }
   .btnPrimary:hover { background: var(--azul-btn-hover); opacity: 1; transform: translateY(-2px); }
   .btnGhost:hover { border-color: var(--azul); color: var(--azul-luz); transform: translateY(-2px); }
+
+  .btn:hover .btnIcon,
+  .btnSec:hover .btnIcon { transform: translate(2px, -2px) rotate(45deg); }
 }
 
 /* ═══════════════════════════════════════════

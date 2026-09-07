@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ArrowUpRight } from 'lucide-react';
 import s from './corp.module.css';
 import { RevealObserver } from './_reveal';
 import ScrollExpandMedia from '@/components/ui/scroll-expansion-hero';
@@ -63,8 +64,14 @@ export default function EmpresaHome() {
             Una empresa puede tener veinte sistemas y un equipo completo, y seguir funcionando mal. Entramos, entendemos cómo trabaja de verdad, y recién después construimos.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
-            <Link href="/empresa/servicios" className={s.btn}>Ver cómo trabajamos</Link>
-            <Link href="/empresa/metodologia" className={s.btnSec}>El método</Link>
+            <Link href="/empresa/servicios" className={s.btn}>
+              Ver cómo trabajamos
+              <ArrowUpRight size={14} className={s.btnIcon} />
+            </Link>
+            <Link href="/empresa/metodologia" className={s.btnSec}>
+              El método
+              <ArrowUpRight size={14} className={s.btnIcon} />
+            </Link>
           </div>
         </div>
       </ScrollExpandMedia>
