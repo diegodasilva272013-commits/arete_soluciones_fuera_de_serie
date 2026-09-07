@@ -97,7 +97,17 @@ export default function Component() {
   const yCol4 = useTransform(smoothProgress, [0.15, 1], ["-30%", "20%"]);
 
   return (
-    <div className="w-full overflow-x-hidden bg-[#050505]">
+    // Nota: sin overflow-x-hidden aca. En CSS, "overflow-x: hidden" sin
+    // overflow-y explicito hace que el eje "visible" pase a computarse
+    // como "auto" (regla del spec de overflow), lo que convierte este div
+    // en un contenedor de scroll nuevo — y position:sticky adentro calcula
+    // su rango de anclaje contra ESE ancestro en vez de la ventana, asi
+    // que se despega mucho antes de tiempo (confirmado: a mitad del
+    // recorrido el sticky ya tenia top:-2000px en vez de 0, y la galeria
+    // se iba de pantalla para siempre). El recorte horizontal del grid de
+    // 120vw ya lo hace el propio div "sticky ... overflow-hidden" de abajo,
+    // asi que este wrapper no necesita (ni puede tener) su propio overflow.
+    <div className="w-full bg-[#050505]">
       <section
         ref={containerRef}
         className="relative w-full h-[600vh] bg-[#050505] text-white font-sans selection:bg-white selection:text-black"
