@@ -29,6 +29,8 @@ type SvgPathDrawingTextAnimationProps = {
   className?: string;
   /** Overrides the default 200px min-height (e.g. to fit a title-sized slot) */
   minHeight?: number;
+  /** Font family for the drawn text (defaults to the original Arial/Helvetica) */
+  fontFamily?: string;
 };
 
 function loadImage(url: string): Promise<HTMLImageElement> {
@@ -137,6 +139,7 @@ export function SvgPathDrawingTextAnimation({
   fontSize = 88,
   className,
   minHeight,
+  fontFamily = "Arial, Helvetica, sans-serif",
 }: SvgPathDrawingTextAnimationProps) {
   const reactId = useId().replace(/:/g, "");
   const gradientId = `pathGradient-${reactId}`;
@@ -251,7 +254,7 @@ export function SvgPathDrawingTextAnimation({
           strokeLinecap="round"
           fontSize={fontSize}
           fontWeight="bold"
-          fontFamily="Arial, Helvetica, sans-serif"
+          fontFamily={fontFamily}
           letterSpacing="0.02em"
         >
           {display}
