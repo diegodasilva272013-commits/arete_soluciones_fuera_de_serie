@@ -101,7 +101,7 @@ export default function EmpresaHome() {
             {/* Areté Soluciones */}
             <Link className={s.rama} href="/empresa/servicios">
               <div className={s.ramaFoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0B' }}>
-                <video autoPlay muted loop playsInline style={{ width: '55%', height: 'auto', objectFit: 'contain', display: 'block' }}>
+                <video autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}>
                   <source src="/video_logo_arete.mp4" type="video/mp4" />
                 </video>
               </div>
