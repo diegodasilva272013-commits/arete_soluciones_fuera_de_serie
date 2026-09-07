@@ -49,7 +49,7 @@ export default function EmpresaHome() {
         <div className={s.homeHeroMedia}>
           <HeroVideo />
         </div>
-        <div className={s.homeHeroVeil} />
+        <div className={`${s.homeHeroLine} ${s.reveal}`} data-reveal="" aria-hidden="true" />
         <div className={s.homeHeroContent}>
           <div className={`${s.eyebrow} ${s.reveal}`} data-reveal="">Areté</div>
           <h1 className={`${s.homeH1} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
