@@ -28,6 +28,19 @@ export function Hero() {
 
   return (
     <section className={s.hero}>
+      <div className={s.mediaCol}>
+        <div ref={mediaRef} className={s.mediaColInner}>
+          <MediaFrame
+            aspect="full"
+            light="left"
+            bevel={false}
+            className={s.mediaColInner}
+            videoSrc="/Video_diagnostico.mp4"
+            poster={undefined}
+          />
+        </div>
+      </div>
+
       <div className={s.textCol}>
         <MaskTitle
           as="h1"
@@ -55,19 +68,6 @@ export function Hero() {
         <div className={s.scrollCue} aria-hidden="true">
           <span className={s.scrollLabel}>Scroll</span>
           <span className={s.scrollLine} />
-        </div>
-      </div>
-
-      <div className={s.mediaCol}>
-        <div ref={mediaRef} className={s.mediaColInner}>
-          <MediaFrame
-            aspect="full"
-            light="left"
-            bevel={false}
-            className={s.mediaColInner}
-            videoSrc="/video_hero.mp4"
-            poster="/video_hero-poster.jpg"
-          />
         </div>
       </div>
     </section>
