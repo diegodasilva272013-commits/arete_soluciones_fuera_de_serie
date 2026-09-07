@@ -13,8 +13,8 @@ export const Component = () => {
           <Image
             src="/Aretea_fuera _de_serie_logo.png"
             alt="Areté Fuera de Serie"
-            width={80}
-            height={80}
+            width={220}
+            height={220}
             priority
           />
         </div>

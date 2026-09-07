@@ -6,8 +6,8 @@
 
 .loader {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: clamp(220px, 42vmin, 420px);
+  height: clamp(220px, 42vmin, 420px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,8 +26,8 @@
 .loader > .box:nth-child(3),
 .loader > .box:nth-child(4),
 .loader > .box:nth-child(5) {
-  width: 64px;
-  height: 64px;
+  width: 48%;
+  height: 48%;
   box-shadow: 0 0 0 1px rgba(47, 123, 246, 0.35);
 }
 .loader > .box:nth-child(2) { animation-delay: 0s; }
@@ -40,8 +40,8 @@
    original, pensado para un fill de vector — este logo es un PNG). */
 .logoBox {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 48%;
+  height: 48%;
   border-radius: 50%;
   background: var(--negro-2, #0a0a0b);
   display: flex;
