@@ -15,7 +15,7 @@
 .item {
   position: relative;
   padding: 20px 0 20px 28px;
-  opacity: 0.22;
+  opacity: 0.55;
   transition: opacity 500ms var(--ease-ui);
 }
 

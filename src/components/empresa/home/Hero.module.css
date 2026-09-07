@@ -39,13 +39,15 @@
 
 .title {
   margin: 0 0 28px;
+  max-width: 100%;
   font-family: var(--f-display), Montserrat, system-ui, sans-serif;
   font-weight: 900;
-  font-size: clamp(56px, 9.5vw, 148px);
-  line-height: 0.90;
-  letter-spacing: -0.035em;
+  font-size: clamp(40px, 5vw, 80px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
   color: var(--hueso);
   text-wrap: balance;
+  overflow-wrap: break-word;
 }
 
 .title em {

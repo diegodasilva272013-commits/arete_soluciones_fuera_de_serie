@@ -33,7 +33,7 @@ export function WordReveal({ text, className = '', wordClassName = '' }: WordRev
 
     const wordEls = root.querySelectorAll<HTMLElement>('[data-word]');
     const ctx = gsap.context(() => {
-      gsap.set(wordEls, { opacity: 0.14 });
+      gsap.set(wordEls, { opacity: 0.55 });
       gsap.to(wordEls, {
         opacity: 1,
         stagger: 0.5 / Math.max(wordEls.length, 1),
