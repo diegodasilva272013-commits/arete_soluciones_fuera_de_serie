@@ -163,15 +163,15 @@
     -webkit-backdrop-filter: none;
   }
 
-  /* Sin nav/cta a la derecha, el logo centrado se ve mejor que pegado
-     a la izquierda. El burger queda fijo a la derecha via position. */
-  .inner { position: relative; justify-content: center; }
-  .logoWrap { position: relative; }
-  .burger { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); margin-left: 0; }
+  /* El boton del menu ya muestra el logo — tener ademas el logo
+     principal al lado es redundante. Se oculta el logo principal y
+     el boton (unico elemento que queda) se centra solo. */
+  .logoWrap { display: none; }
+  .inner { justify-content: center; }
+  .burger { margin-left: 0; }
 }
 
 @media (max-width: 480px) {
   .inner { padding: 14px 20px; }
   .mobile { padding: 16px 20px 32px; top: 63px; }
-  .burger { right: 20px; }
 }
