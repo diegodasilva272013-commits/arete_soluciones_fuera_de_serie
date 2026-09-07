@@ -290,10 +290,11 @@ const ScrollExpandMedia = ({
                 <div className='flex flex-col items-center text-center relative z-10 mt-4 transition-none'>
                   {date && (
                     <p
-                      className='text-2xl text-[var(--azul-luz)]'
+                      className='text-[var(--azul-luz)]'
                       style={{
                         transform: `translateX(-${textTranslateX}vw)`,
                         fontFamily: 'var(--f-mono), "JetBrains Mono", ui-monospace, monospace',
+                        fontSize: '11px',
                         letterSpacing: '0.3em',
                         textTransform: 'uppercase',
                       }}
@@ -303,11 +304,13 @@ const ScrollExpandMedia = ({
                   )}
                   {scrollToExpand && (
                     <p
-                      className='text-[var(--azul-luz)] font-medium text-center'
+                      className='text-[var(--azul-luz)] text-center'
                       style={{
                         transform: `translateX(${textTranslateX}vw)`,
                         fontFamily: 'var(--f-mono), "JetBrains Mono", ui-monospace, monospace',
-                        letterSpacing: '0.28em',
+                        fontSize: '10px',
+                        fontWeight: 500,
+                        letterSpacing: '0.32em',
                         textTransform: 'uppercase',
                       }}
                     >
