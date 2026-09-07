@@ -1,8 +1,6 @@
 'use client';
 
-import { waLink } from './constants';
-
-const WA = waLink('Hola, me interesa saber más sobre Areté Soluciones');
+const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
 export function WhatsAppFloat() {
   return (

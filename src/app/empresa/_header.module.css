@@ -2,35 +2,24 @@
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  /* Sin scrollear: fondo solido, sin blur — puede estar sobre el media
-     del hero, y backdrop-filter nunca va sobre media. */
-  background: var(--sombra, #050505);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: rgba(5,5,5,.72);
   border-bottom: 1px solid rgba(242,239,233,.12);
-  transition: border-color 240ms var(--ease-ui, cubic-bezier(.4,0,.2,1)), background 240ms var(--ease-ui, cubic-bezier(.4,0,.2,1));
+  transition: border-color .3s;
 }
 
 .scrolled {
-  /* Scrolleado: ya paso el hero, esta sobre contenido solido — acá si
-     entra el backdrop-filter. */
-  background: rgba(5,5,5,.72);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   border-bottom-color: rgba(242,239,233,.22);
 }
 
 .inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 40px;
-  height: 88px;
+  padding: 16px 40px;
   display: flex;
   align-items: center;
   gap: 34px;
-  transition: height 240ms var(--ease-ui, cubic-bezier(.4,0,.2,1));
-}
-
-.scrolled .inner {
-  height: 64px;
 }
 
 /* Logo */
@@ -63,20 +52,13 @@
 
 .link:hover { color: rgba(242,239,233,1); }
 
-/* Ruta activa: un punto de luz azul debajo del label, no un color de
-   texto distinto ni una barra — es la unica fuente visible en el nav. */
 .link.active { color: rgba(242,239,233,1); }
 .link.active::after {
   content: '';
   position: absolute;
-  bottom: -6px;
-  left: 50%;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  transform: translateX(-50%);
+  bottom: -2px; left: 0; right: 0;
+  height: 1px;
   background: var(--azul);
-  box-shadow: 0 0 8px 1px rgba(var(--azul-rgb, 47,123,246), .8);
 }
 
 /* CTA — "Acceso" */

@@ -44,19 +44,6 @@
   /* Triplete RGB de --azul, para usarlo dentro de rgba() en vez de
      repetir "26,111,255" (un azul ligeramente distinto) suelto. */
   --azul-rgb: 47, 123, 246;
-
-  /* ── Rediseño cinematográfico /empresa v3 — valores de luz ────────────
-     --azul/--hueso/--negro de arriba ya coinciden en hex con esta paleta;
-     estos son los tonos nuevos que faltaban (penumbra, medio-tono, mute)
-     mas las dos curvas de easing unicas del sitio. */
-  --negro-total: #000000;
-  --sombra: #050505;
-  --penumbra: #0E0E0E;
-  --medio-tono: #1A1A1A;
-  --hueso-mute: rgba(242, 239, 233, 0.56);
-  --gris: #8A8A8A;
-  --ease-out: cubic-bezier(0.16, 1, 0.30, 1);
-  --ease-ui: cubic-bezier(0.40, 0, 0.20, 1);
   /* Sombras */
   --shadow-card: 0 1px 0 0 rgba(26, 111, 255, 0.08) inset,
                  0 20px 40px -30px rgba(0, 0, 0, 0.8);

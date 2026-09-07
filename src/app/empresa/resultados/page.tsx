@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
 
@@ -8,9 +9,7 @@ export const metadata: Metadata = {
   description: 'Casos reales, métricas concretas y lo que dicen quienes pasaron por el método Areté.',
 };
 
-import { waLink } from '../constants';
-
-const WA = waLink('Hola, me interesa saber más sobre Areté Soluciones');
+const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
 const CASES = [
   {
@@ -164,7 +163,7 @@ export default function ResultadosPage() {
             <p className={s.ctaSub}>Empezamos con un diagnóstico. Sin compromiso, sin presión.</p>
             <div className={s.ctaRow}>
               <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
-                Agendar diagnóstico
+                Agendar diagnóstico <ArrowRight size={15} />
               </a>
               <Link href="/empresa/contacto" className={s.btnGhost}>
                 Otras formas de contacto
