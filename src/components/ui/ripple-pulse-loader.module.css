@@ -6,8 +6,8 @@
 
 .loader {
   position: relative;
-  width: clamp(220px, 42vmin, 420px);
-  height: clamp(220px, 42vmin, 420px);
+  width: clamp(280px, 50vmin, 520px);
+  height: clamp(280px, 50vmin, 520px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,14 +21,17 @@
   animation: ripple 2.4s cubic-bezier(0.34, 1.2, 0.64, 1) infinite;
 }
 
-/* Las 4 cajas "onda": mismo tamaño, disparadas en cascada */
+/* Las 4 cajas "onda": mismo tamaño, disparadas en cascada. Relleno
+   azul translucido + borde solido, no solo una linea fina, para que
+   el color se note de verdad. */
 .loader > .box:nth-child(2),
 .loader > .box:nth-child(3),
 .loader > .box:nth-child(4),
 .loader > .box:nth-child(5) {
   width: 48%;
   height: 48%;
-  box-shadow: 0 0 0 1px rgba(47, 123, 246, 0.35);
+  background: rgba(47, 123, 246, 0.22);
+  box-shadow: 0 0 0 2px rgba(92, 154, 255, 0.6), 0 0 50px 6px rgba(47, 123, 246, 0.4);
 }
 .loader > .box:nth-child(2) { animation-delay: 0s; }
 .loader > .box:nth-child(3) { animation-delay: 0.6s; }
@@ -37,24 +40,26 @@
 
 /* La primera caja: el logo quieto en el centro, sin ripple, con un
    respiro suave de opacidad (reemplaza el color-change del SVG
-   original, pensado para un fill de vector — este logo es un PNG). */
+   original, pensado para un fill de vector — este logo es un PNG).
+   Sin circulo de fondo propio (leia como un segundo aro compitiendo
+   con las ondas y dejaba el logo chico) — solo un glow suave detras. */
 .logoBox {
   position: relative;
-  width: 48%;
-  height: 48%;
+  width: 62%;
+  height: 62%;
   border-radius: 50%;
-  background: var(--negro-2, #0a0a0b);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   animation: none;
   z-index: 1;
-  box-shadow: 0 0 24px -4px rgba(47, 123, 246, 0.5);
+  filter: drop-shadow(0 0 30px rgba(47, 123, 246, 0.6));
 }
 
 .logo {
-  width: 70%;
-  height: 70%;
+  width: 88%;
+  height: 88%;
   animation: breathe 2.4s ease-in-out infinite;
 }
 
@@ -67,16 +72,18 @@
 @keyframes ripple {
   0% {
     transform: scale(0.4);
-    opacity: 0.9;
-    box-shadow: 0 0 0 1px rgba(47, 123, 246, 0.5);
+    opacity: 1;
+    background: rgba(47, 123, 246, 0.5);
+    box-shadow: 0 0 0 2px rgba(92, 154, 255, 0.8), 0 0 20px 2px rgba(47, 123, 246, 0.6);
   }
   70% {
-    opacity: 0.15;
+    opacity: 0.25;
   }
   100% {
-    transform: scale(1.9);
+    transform: scale(2.1);
     opacity: 0;
-    box-shadow: 0 0 0 1px rgba(47, 123, 246, 0);
+    background: rgba(47, 123, 246, 0);
+    box-shadow: 0 0 0 2px rgba(92, 154, 255, 0), 0 0 60px 8px rgba(47, 123, 246, 0);
   }
 }
 

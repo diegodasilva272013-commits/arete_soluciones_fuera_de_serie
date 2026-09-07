@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 import { X, Boxes, Compass, Users, MessageCircle, LogIn } from 'lucide-react';
 
 interface NavItem {
@@ -26,12 +25,13 @@ const NAV_ITEMS: NavItem[] = [
  * (React desmontaba el div de golpe). Se agrega AnimatePresence para que
  * el exit realmente corra. `bg-background` (clase de shadcn, no
  * configurada en este proyecto) se reemplaza por --negro real.
+ *
+ * Controlado desde afuera (isOpen/onClose): no tiene boton propio, va
+ * en el lugar del hamburger del header mobile.
  */
-export function CircularNav() {
-  const [isOpen, setIsOpen] = useState(false);
+export function CircularNav({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [radius, setRadius] = useState(150);
-  const toggleMenu = () => setIsOpen((v) => !v);
 
   // El circulo se achica en pantallas chicas (max-w-[92vw]); si el radio
   // de los items quedara fijo en 150px, en celular se saldrian del borde.
@@ -47,43 +47,12 @@ export function CircularNav() {
 
   return (
     <>
-      <button
-        onClick={toggleMenu}
-        aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
-        aria-expanded={isOpen}
-        style={{
-          position: 'fixed',
-          bottom: 28,
-          left: 28,
-          zIndex: 200,
-          width: 56,
-          height: 56,
-          borderRadius: '50%',
-          background: 'var(--negro-2)',
-          border: '1px solid var(--azul)',
-          boxShadow: '0 4px 20px rgba(47,123,246,0.35)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          padding: 0,
-        }}
-      >
-        <Image
-          src="/LOGO_ARETE.png"
-          alt="Menú"
-          width={34}
-          height={34}
-          style={{ width: 30, height: 'auto', objectFit: 'contain' }}
-        />
-      </button>
-
       <AnimatePresence>
         {isOpen && (
           <div
             className="fixed inset-0 flex items-center justify-center"
             style={{ zIndex: 3100, background: 'rgba(5,5,5,0.85)' }}
-            onClick={toggleMenu}
+            onClick={onClose}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0 }}
@@ -100,7 +69,7 @@ export function CircularNav() {
               onClick={(e) => e.stopPropagation()}
             >
               <button
-                onClick={toggleMenu}
+                onClick={onClose}
                 aria-label="Cerrar menú"
                 className="absolute flex items-center justify-center w-12 h-12 rounded-full z-10"
                 style={{ background: 'var(--azul)', color: '#fff', border: 'none', cursor: 'pointer' }}
@@ -135,7 +104,7 @@ export function CircularNav() {
                       }}
                       onMouseEnter={() => setHovered(item.name)}
                       onMouseLeave={() => setHovered(null)}
-                      onClick={toggleMenu}
+                      onClick={onClose}
                     >
                       <Icon className="w-6 h-6 mb-1" />
                       <span style={{ fontSize: 11, fontWeight: 500 }}>{item.name}</span>

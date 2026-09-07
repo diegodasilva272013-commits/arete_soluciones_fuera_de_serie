@@ -4,8 +4,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import s from './_header.module.css';
+import { CircularNav } from './_circular-nav';
 
 const NAV = [
   { href: '/empresa/servicios',   label: 'Soluciones'  },
@@ -62,24 +63,21 @@ export function CorpHeader() {
           aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
           aria-expanded={open}
         >
-          {open ? <X size={20} /> : <Menu size={20} />}
+          {open ? (
+            <X size={20} />
+          ) : (
+            <Image
+              src="/LOGO_ARETE.png"
+              alt=""
+              width={26}
+              height={26}
+              style={{ width: 22, height: 'auto', objectFit: 'contain' }}
+            />
+          )}
         </button>
       </div>
 
-      {open && (
-        <div className={s.mobile}>
-          {NAV.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`${s.mobileLink} ${pathname === href ? s.active : ''}`}
-            >
-              {label}
-            </Link>
-          ))}
-          <Link href="/acceso" className={s.mobileCta}>Acceso →</Link>
-        </div>
-      )}
+      <CircularNav isOpen={open} onClose={() => setOpen(false)} />
     </header>
   );
 }

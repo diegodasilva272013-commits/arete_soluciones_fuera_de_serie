@@ -77,16 +77,19 @@
 
 .cta:hover { border-color: var(--azul); color: var(--azul-luz); }
 
-/* Mobile burger */
+/* Disparador del menu circular en mobile (antes: hamburguesa de 3 lineas) */
 .burger {
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.3);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--negro-2);
+  border: 1px solid var(--azul);
   color: rgba(255,255,255,.9);
   cursor: pointer;
-  padding: 12px;
+  padding: 0;
   margin-left: auto;
   transition: border-color .2s, color .2s;
 }
@@ -159,9 +162,16 @@
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
+
+  /* Sin nav/cta a la derecha, el logo centrado se ve mejor que pegado
+     a la izquierda. El burger queda fijo a la derecha via position. */
+  .inner { position: relative; justify-content: center; }
+  .logoWrap { position: relative; }
+  .burger { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); margin-left: 0; }
 }
 
 @media (max-width: 480px) {
   .inner { padding: 14px 20px; }
   .mobile { padding: 16px 20px 32px; top: 63px; }
+  .burger { right: 20px; }
 }
