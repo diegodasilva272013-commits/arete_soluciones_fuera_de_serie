@@ -116,6 +116,7 @@ export default function EmpresaHome() {
                     text="Areté Soluciones"
                     fromColor="var(--azul)"
                     toColor="var(--azul-luz)"
+                    fillColor="var(--azul)"
                     fontFamily="var(--f-display), Montserrat, system-ui, sans-serif"
                     exactMeasure={false}
                     fontSize={40}
@@ -157,6 +158,7 @@ export default function EmpresaHome() {
                     text="Areté Fuera de Serie"
                     fromColor="var(--azul)"
                     toColor="var(--azul-luz)"
+                    fillColor="var(--azul)"
                     fontFamily="var(--f-display), Montserrat, system-ui, sans-serif"
                     exactMeasure={false}
                     fontSize={32}

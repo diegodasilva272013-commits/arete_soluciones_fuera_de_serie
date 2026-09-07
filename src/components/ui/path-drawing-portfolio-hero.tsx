@@ -40,6 +40,12 @@ type SvgPathDrawingTextAnimationProps = {
    * but always matches the font actually on screen).
    */
   exactMeasure?: boolean;
+  /**
+   * Solid fill painted underneath the animated stroke, so the letters read
+   * as a solid title from the first frame instead of a hollow outline.
+   * Omit to keep the original hollow/outline-only look.
+   */
+  fillColor?: string;
 };
 
 function loadImage(url: string): Promise<HTMLImageElement> {
@@ -66,7 +72,11 @@ async function rasterInk(
 ): Promise<number> {
   const clone = source.cloneNode(true) as SVGSVGElement;
   clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  const text = clone.querySelector("text");
+  // Si hay un texto de relleno solido (fillColor) ademas del animado, es el
+  // ULTIMO <text> en el SVG (se pinta encima). Tomamos el ultimo siempre,
+  // asi con un solo texto (caso por defecto) el comportamiento no cambia.
+  const texts = clone.querySelectorAll("text");
+  const text = texts[texts.length - 1];
   if (!text) return 0;
   apply(text as SVGTextElement);
   text.setAttribute("stroke", "#ffffff");
@@ -150,6 +160,7 @@ export function SvgPathDrawingTextAnimation({
   minHeight,
   fontFamily = "Arial, Helvetica, sans-serif",
   exactMeasure = true,
+  fillColor,
 }: SvgPathDrawingTextAnimationProps) {
   const reactId = useId().replace(/:/g, "");
   const gradientId = `pathGradient-${reactId}`;
@@ -260,6 +271,22 @@ export function SvgPathDrawingTextAnimation({
             <stop offset="100%" stopColor={toColor} />
           </linearGradient>
         </defs>
+
+        {fillColor ? (
+          <text
+            x="50%"
+            y="50%"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fill={fillColor}
+            fontSize={fontSize}
+            fontWeight="bold"
+            fontFamily={fontFamily}
+            letterSpacing="0.02em"
+          >
+            {display}
+          </text>
+        ) : null}
 
         <text
           ref={textRef}
