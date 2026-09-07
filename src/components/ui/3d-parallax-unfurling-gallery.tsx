@@ -34,7 +34,6 @@ const ImageCard = ({ src, onLoad }: ImageCardProps) => {
 };
 
 export default function Component() {
-  const scrollWrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isReady, setIsReady] = useState(false);
   const loadedCountRef = useRef(0);
@@ -63,10 +62,15 @@ export default function Component() {
     };
   }, []);
 
-  // LINKED SCROLL: Now tells Framer Motion exactly which div is doing the scrolling
+  // Scroll de la PAGINA normal (no un contenedor propio anidado): el
+  // contenedor overflow-y-auto original quedaba embebido en el medio
+  // de una pagina mas larga y atrapaba/perdia el scroll real del
+  // mouse/touch (confirmado: la rueda real nunca movia el transform,
+  // y en celular directamente trababa el scroll). Mismo patron que
+  // ScrollExpandMedia: track alto (600vh) + sticky adentro, todo
+  // dentro del flujo normal de la pagina.
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    container: scrollWrapperRef,
     offset: ["start start", "end end"],
   });
 
@@ -80,7 +84,6 @@ export default function Component() {
   const bannerWidth = useTransform(smoothProgress, [0, 0.15], ["90vw", "100vw"]);
   const bannerHeight = useTransform(smoothProgress, [0, 0.15], ["80vh", "100vh"]);
   const bannerRadius = useTransform(smoothProgress, [0, 0.15], ["48px", "0px"]);
-  const bannerBorderWidth = useTransform(smoothProgress, [0, 0.15], ["4px", "0px"]);
 
   // 3D Matrix animations
   const rotateY = useTransform(smoothProgress, [0.15, 1], [-45, -8]);
@@ -95,10 +98,7 @@ export default function Component() {
   const yCol4 = useTransform(smoothProgress, [0.15, 1], ["-30%", "20%"]);
 
   return (
-    <div
-      ref={scrollWrapperRef}
-      className="w-full h-screen overflow-y-auto overflow-x-hidden bg-[#050505]"
-    >
+    <div className="w-full overflow-x-hidden bg-[#050505]">
       <section
         ref={containerRef}
         className="relative w-full h-[600vh] bg-[#050505] text-white font-sans selection:bg-white selection:text-black"
@@ -109,8 +109,6 @@ export default function Component() {
               width: bannerWidth,
               height: bannerHeight,
               borderRadius: bannerRadius,
-              borderWidth: bannerBorderWidth,
-              borderColor: "var(--azul, #2c2738)",
             }}
             className="relative bg-black overflow-hidden flex items-center justify-center max-w-[1920px] mx-auto will-change-transform backface-hidden preserve-3d"
           >
