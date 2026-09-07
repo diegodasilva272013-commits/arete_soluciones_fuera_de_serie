@@ -34,6 +34,15 @@ const ScrollExpandMedia = ({
   textBlend,
   children,
 }: ScrollExpandMediaProps) => {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
   const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [showContent, setShowContent] = useState<boolean>(false);
   const [mediaFullyExpanded, setMediaFullyExpanded] = useState<boolean>(false);
@@ -241,17 +250,23 @@ const ScrollExpandMedia = ({
                       />
                     </div>
                   ) : (
-                    <div className='relative w-full h-full pointer-events-none'>
+                    <div
+                      className={
+                        prefersReducedMotion
+                          ? 'relative w-full h-full'
+                          : 'relative w-full h-full pointer-events-none'
+                      }
+                    >
                       <video
                         src={mediaSrc}
                         poster={posterSrc}
-                        autoPlay
+                        autoPlay={!prefersReducedMotion}
                         muted
-                        loop
+                        loop={!prefersReducedMotion}
                         playsInline
                         preload='auto'
                         className='w-full h-full object-cover rounded-xl'
-                        controls={false}
+                        controls={prefersReducedMotion}
                         disablePictureInPicture
                         disableRemotePlayback
                       />

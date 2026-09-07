@@ -4,6 +4,7 @@ import s from './corp.module.css';
 import { RevealObserver } from './_reveal';
 import ScrollExpandMedia from '@/components/ui/scroll-expansion-hero';
 import { SvgPathDrawingTextAnimation } from '@/components/ui/path-drawing-portfolio-hero';
+import { AutoplayVideo } from './_autoplay-video';
 
 const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
@@ -101,9 +102,7 @@ export default function EmpresaHome() {
             {/* Areté Soluciones */}
             <Link className={s.rama} href="/empresa/servicios">
               <div className={s.ramaFoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0B' }}>
-                <video autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}>
-                  <source src="/video_logo_arete.mp4" type="video/mp4" />
-                </video>
+                <AutoplayVideo src="/video_logo_arete.mp4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               </div>
               <div className={s.ramaBody}>
                 <div className={s.ramaKick}>Línea 01 · Sistemas</div>
@@ -249,9 +248,7 @@ export default function EmpresaHome() {
         <div className={s.bandGrid}>
           <div className={`${s.bandFig} ${s.reveal}`} data-reveal="">
             <div className={s.bandFigFrame}>
-              <video autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}>
-                <source src="/video_plataforma.mp4" type="video/mp4" />
-              </video>
+              <AutoplayVideo src="/video_plataforma.mp4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             </div>
           </div>
           <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
