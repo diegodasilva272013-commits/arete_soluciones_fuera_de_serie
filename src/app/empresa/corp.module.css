@@ -1125,6 +1125,14 @@
   transition: transform 0.3s cubic-bezier(0.16, 0.84, 0.28, 1);
 }
 
+/* En touch no hay :hover, pero si :active (mientras el dedo esta
+   tocando). Asi el icono tambien gira en celular, sin quedarse
+   "pegado" como pasaria si sacaramos el filtro de hover de arriba. */
+.btn:active .btnIcon,
+.btnSec:active .btnIcon {
+  transform: translate(2px, -2px) rotate(45deg);
+}
+
 .btn:focus-visible,
 .btnSec:focus-visible,
 .btnPrimary:focus-visible,
@@ -1138,7 +1146,8 @@
   .rama:hover, .etapa:hover {
     transform: none;
   }
-  .btn:hover .btnIcon, .btnSec:hover .btnIcon {
+  .btn:hover .btnIcon, .btnSec:hover .btnIcon,
+  .btn:active .btnIcon, .btnSec:active .btnIcon {
     transform: none;
   }
 }
