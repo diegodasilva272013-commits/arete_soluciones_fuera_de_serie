@@ -11,7 +11,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 // Fotos reales del proyecto. El componente reparte por columna con
 // i % 4 — con estas 5 la columna 4 ya tiene contenido (antes vacia).
-const GALLERY_IMAGES = ["/1.png", "/2.png", "/3.png", "/galeria1.png", "/galeria2.png", "/galeria3.png"];
+const GALLERY_IMAGES = ["/1.png", "/2.png", "/3.png", "/galeria1.png", "/galeria2.png", "/galeria3.png", "/galeria4.png"];
 
 interface ImageCardProps {
   src: string;
@@ -85,9 +85,9 @@ export default function Component() {
   const bannerRadius = useTransform(smoothProgress, [0, 0.15], ["48px", "0px"]);
 
   // 3D Matrix animations
-  const rotateY = useTransform(smoothProgress, [0.15, 1], [-45, -8]);
-  const rotateX = useTransform(smoothProgress, [0.15, 1], [25, 4]);
-  const rotateZ = useTransform(smoothProgress, [0.15, 1], [15, 2]);
+  const rotateY = useTransform(smoothProgress, [0.15, 1], [-45, 0]);
+  const rotateX = useTransform(smoothProgress, [0.15, 1], [25, 0]);
+  const rotateZ = useTransform(smoothProgress, [0.15, 1], [15, 0]);
   const translateZ = useTransform(smoothProgress, [0.15, 1], [-800, 0]);
 
   // Track columns parallax animations
