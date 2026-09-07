@@ -1,78 +1,68 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
+import { MaskTitle } from '@/components/empresa/MaskTitle';
+import { Track, type Etapa } from '@/components/empresa/metodologia/Track';
+import { waLink } from '../constants';
 
 export const metadata: Metadata = {
   title: 'Metodología — Areté Soluciones',
   description: 'Las seis etapas del método Areté: de la inmersión en la operación a la evolución continua del sistema.',
 };
 
-import { waLink } from '../constants';
-
 const WA = waLink('Hola, me interesa saber más sobre Areté Soluciones');
 
-const ETAPAS = [
+// El desarrollo completo vive acá — en el home queda solo una línea por
+// etapa, para que la página interna no repita lo mismo.
+const ETAPAS: Etapa[] = [
   {
     n: '01',
     title: 'Inmersión',
     duration: '1–2 semanas',
-    sub: 'Entendemos antes de proponer',
     body: 'Arrancamos hablando con quien dirige y con quien ejecuta. No con un formulario de requerimientos: con conversaciones sobre cómo funciona la empresa realmente. Lo que está escrito en el manual y lo que pasa en la práctica rara vez son lo mismo.',
     pull: 'Partimos de la empresa. No de supuestos sobre cómo debería funcionar.',
     items: ['Entrevistas con dirección y equipo', 'Observación del flujo operativo real', 'Relevamiento de herramientas actuales', 'Mapa inicial de la operación'],
-    flip: false,
   },
   {
     n: '02',
     title: 'Auditoría',
     duration: '1–2 semanas',
-    sub: 'Dónde se pierde tiempo, información y dinero',
     body: 'Con el mapa de la operación, auditamos en profundidad cada área relevante. Identificamos los puntos de fuga: dónde se pierde información, dónde se tarda más de lo necesario, dónde el trabajo depende de una persona que no puede faltar.',
     pull: 'No hay que arreglar todo. Hay que encontrar qué es lo que más daño hace.',
     items: ['Análisis detallado por área', 'Identificación de dependencias críticas', 'Cuantificación del impacto de cada problema', 'Listado de fricciones priorizadas'],
-    flip: true,
   },
   {
     n: '03',
     title: 'Priorización',
     duration: '3–5 días',
-    sub: 'El 20% que genera el 80% del problema',
     body: 'Pareto aplicado a la operación. No todos los problemas pesan igual. Esta etapa define qué se resuelve primero y en qué orden. El criterio no es lo que parece urgente: es lo que genera más impacto por unidad de esfuerzo.',
     pull: 'El orden de resolución importa tanto como la solución.',
     items: ['Priorización por impacto vs esfuerzo', 'Definición de quick wins de impacto inmediato', 'Hoja de ruta del proyecto', 'Presupuesto por etapa de implementación'],
-    flip: false,
   },
   {
     n: '04',
     title: 'Arquitectura',
     duration: '1–2 semanas',
-    sub: 'Primero el diseño. Después la tecnología.',
-    body: 'Diseñamos cómo debería funcionar la empresa. Flujos, roles, información, decisiones. Recién cuando el diseño está aprobado elegimos las herramientas: como consecuencia del diseño, no antes. Si la solución más efectiva para un problema es una planilla bien pensada, eso es lo que proponemos.',
+    body: 'Diseñamos cómo debería funcionar la empresa. Flujos, roles, información, decisiones. Recién cuando el diseño está aprobado elegimos las herramientas: como consecuencia del diseño, no antes.',
     pull: 'La herramienta se elige al final, no al principio.',
     items: ['Diseño del flujo operativo futuro', 'Definición de roles y responsabilidades', 'Selección de herramientas según el diseño', 'Prototipo funcional para validación'],
-    flip: true,
   },
   {
     n: '05',
     title: 'Implementación',
     duration: 'Variable según proyecto',
-    sub: 'En orden de impacto',
-    body: 'Construimos siguiendo el plan de prioridades. Cada entrega genera valor antes de que termine el proyecto. El equipo empieza a usar el nuevo sistema antes de que esté completo, lo que permite detectar ajustes tempranos y mantener la adopción alta desde el día uno.',
+    body: 'Construimos siguiendo el plan de prioridades. Cada entrega genera valor antes de que termine el proyecto. El equipo empieza a usar el nuevo sistema antes de que esté completo, lo que permite detectar ajustes tempranos.',
     pull: 'Cada semana de implementación tiene que producir algo que el equipo ya puede usar.',
     items: ['Construcción en sprints por área', 'Capacitación del equipo en cada entrega', 'Ajustes en tiempo real según feedback', 'Documentación del nuevo sistema'],
-    flip: false,
   },
   {
     n: '06',
     title: 'Evolución',
     duration: 'Continua post-entrega',
-    sub: 'Un sistema que no evoluciona deja de ser útil',
     body: 'El trabajo no termina en la entrega. Medimos adopción, observamos cómo usa el equipo el nuevo sistema en la práctica real, y ajustamos. La empresa cambia, el sistema tiene que poder cambiar con ella.',
     pull: 'Lo que entregamos no es un sistema terminado: es un sistema que puede mejorar.',
     items: ['Seguimiento de adopción por área', 'Métricas de uso y resultado', 'Sesiones de ajuste incluidas en los primeros 30 días', 'Protocolo de evolución a largo plazo'],
-    flip: true,
   },
 ];
 
@@ -81,65 +71,35 @@ export default function MetodologiaPage() {
     <>
       <RevealObserver revealClass={s.revealOn} />
 
-      <section className={s.pageHero}>
+      <section className={s.pageHero} style={{ background: 'var(--sombra)' }}>
         <div className={s.pageHeroInner}>
-          <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
-            <span className={s.kickerLine} />
-            <span className={s.kickerLabel}>Metodología</span>
-          </div>
-          <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Seis etapas.<br /><em>El orden no se altera.</em>
-          </h1>
+          <MaskTitle
+            as="h1"
+            trigger="load"
+            className={s.heroTitle}
+            lines={['Seis etapas.', <em key="e">El orden no se altera.</em>]}
+          />
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
             Empezamos entendiendo. Terminamos midiendo. Lo que hay en el medio es diseño antes que tecnología.
           </p>
           <div className={`${s.reveal} ${s.revealDelay3}`} data-reveal="" style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
-              Hablar con el equipo <ArrowRight size={14} />
+            <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btn}>
+              Hablar con el equipo
             </a>
-            <Link href="/empresa/servicios" className={s.btnGhost}>
+            <Link href="/empresa/servicios" className={s.btnSec}>
               Ver servicios y precios
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── ETAPAS COMO BANDAS ── */}
-      {ETAPAS.map((e) => (
-        <div key={e.n} className={s.band}>
-          <div className={`${s.bandGrid} ${e.flip ? s.bandGridFlip : ''}`}>
-            <div className={`${s.reveal}`} data-reveal="">
-              <p className={s.bandNum}>{e.n} — {e.duration}</p>
-              <h2 className={s.bandTitle}>{e.title}</h2>
-              <p style={{ margin: '0 0 20px', fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 17, lineHeight: 1.6, color: 'rgba(242,239,233,0.7)' }}>{e.sub}</p>
-              <p className={s.bandBody}>{e.body}</p>
-              <p className={s.bandPull}>{e.pull}</p>
-            </div>
-            <div className={`${s.bandRight} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-              <div className={s.bandPanel}>
-                <span className={s.bandPanelBorder} aria-hidden="true" />
-                <p style={{ margin: '0 0 20px', fontFamily: 'ui-monospace, monospace', fontSize: 9, fontWeight: 600, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#1a6fff' }}>
-                  Qué sucede en esta etapa
-                </p>
-                <ul className={s.panelList}>
-                  {e.items.map(item => (
-                    <li key={item} className={s.panelItem}>
-                      <span className={s.panelDot} aria-hidden="true" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
+      <Track etapas={ETAPAS} />
 
-      {/* ── QUOTE FINAL ── */}
       <section className={`${s.quoteBand} ${s.reveal}`} data-reveal="">
         <div className={s.quoteInner}>
           <p className={s.quoteText}>
-            "No empezamos con una herramienta y buscamos dónde ponerla. Empezamos con <em>la empresa</em> y diseñamos cómo debería funcionar."
+            "No empezamos con una herramienta y buscamos dónde ponerla. Empezamos con <em>la empresa</em> y diseñamos
+            cómo debería funcionar."
           </p>
           <span className={s.quoteAuthor}>Areté Soluciones · Forma de trabajar</span>
         </div>
@@ -151,10 +111,10 @@ export default function MetodologiaPage() {
             <h2 className={s.ctaTitle}>¿Tiene sentido arrancar?</h2>
             <p className={s.ctaSub}>Una conversación de 30 minutos. Sin compromiso, sin presión.</p>
             <div className={s.ctaRow}>
-              <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
-                Agendar conversación <ArrowRight size={15} />
+              <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btn}>
+                Agendar conversación
               </a>
-              <Link href="/empresa/nosotros" className={s.btnGhost}>
+              <Link href="/empresa/nosotros" className={s.btnSec}>
                 Conocer el equipo
               </Link>
             </div>

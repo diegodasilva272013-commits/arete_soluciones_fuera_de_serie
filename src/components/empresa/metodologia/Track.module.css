@@ -1,0 +1,128 @@
+.wrapper {
+  position: relative;
+  background: var(--sombra);
+}
+
+.wrapper[data-pinned='true'] {
+  height: 600vh;
+}
+
+.pinned {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+/* Fuente de luz fija al centro del viewport — no se mueve, se mueve la
+   escena. mix-blend-mode hace que ilumine al panel que tenga debajo,
+   sin ningun calculo de "panel activo" por JS. */
+.fixedLight {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 900px;
+  height: 900px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(47, 123, 246, 0.5), transparent 65%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.track {
+  display: flex;
+  gap: 4vw;
+  padding: 0 14vw;
+  will-change: transform;
+}
+
+.panel {
+  position: relative;
+  flex-shrink: 0;
+  width: 72vw;
+  padding: 48px clamp(24px, 4vw, 56px);
+  background: var(--penumbra);
+}
+
+.number {
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-weight: 700;
+  font-size: clamp(80px, 10vw, 160px);
+  line-height: 1;
+  color: var(--medio-tono);
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0 0 6px;
+  font-family: var(--f-display), Montserrat, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 3vw, 44px);
+  letter-spacing: -0.02em;
+  color: var(--hueso);
+}
+
+.duration {
+  display: block;
+  margin-bottom: 20px;
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gris);
+}
+
+.body {
+  margin: 0 0 20px;
+  max-width: 52ch;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--hueso-mute);
+}
+
+.pull {
+  margin: 0 0 24px;
+  max-width: 46ch;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--hueso);
+}
+
+.items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.items li {
+  padding: 10px 0;
+  border-top: 1px solid rgba(242, 239, 233, 0.08);
+  font-size: 13px;
+  color: var(--hueso-mute);
+}
+.items li:first-child { border-top: none; }
+
+/* <1024px: sin pin ni track, bloques verticales */
+.stacked { display: none; }
+
+@media (max-width: 1023px) {
+  .pinned, .fixedLight { display: none; }
+  .stacked {
+    display: flex;
+    flex-direction: column;
+  }
+  .stacked .panel {
+    width: auto;
+    background: transparent;
+    border-top: 1px solid rgba(242, 239, 233, 0.08);
+    padding: 40px clamp(20px, 6vw, 40px);
+  }
+  .stacked .panel:first-child { border-top: none; }
+}

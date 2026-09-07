@@ -13,10 +13,10 @@ const NAV = [
 ];
 
 const AREAS = [
-  { href: '/empresa/servicios', label: 'Ventas'         },
-  { href: '/empresa/servicios', label: 'Marketing'      },
-  { href: '/empresa/servicios', label: 'Administración' },
-  { href: '/empresa/servicios', label: 'Delivery'       },
+  { href: '/empresa/servicios#ventas',         label: 'Ventas'         },
+  { href: '/empresa/servicios#marketing',      label: 'Marketing'      },
+  { href: '/empresa/servicios#administracion', label: 'Administración' },
+  { href: '/empresa/servicios#delivery',       label: 'Delivery'       },
 ];
 
 const WA = waLink('Hola, quiero saber más sobre el diagnóstico de Areté Soluciones');

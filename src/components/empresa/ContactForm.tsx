@@ -50,7 +50,7 @@ export function ContactForm() {
           transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
           style={{ textAlign: 'center', padding: '40px 0' }}
         >
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(var(--azul-rgb),0.12)', border: '1px solid rgba(var(--azul-rgb),0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+          <div style={{ width: 56, height: 56, clipPath: 'polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)', background: 'rgba(var(--azul-rgb),0.12)', border: '1px solid rgba(var(--azul-rgb),0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--azul)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
             </svg>

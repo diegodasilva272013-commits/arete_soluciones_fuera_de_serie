@@ -31,6 +31,7 @@ type MediaFrameProps = {
   description?: string;
   className?: string;
   videoClassName?: string;
+  mediaClassName?: string;
 };
 
 /**
@@ -48,6 +49,7 @@ export function MediaFrame({
   description,
   className = '',
   videoClassName = '',
+  mediaClassName = '',
 }: MediaFrameProps) {
   const hasMedia = Boolean(videoSrc || imageSrc);
 
@@ -61,7 +63,7 @@ export function MediaFrame({
       {hasMedia ? (
         videoSrc ? (
           <video
-            className={`${s.media} ${videoClassName}`}
+            className={`${s.media} ${videoClassName} ${mediaClassName}`}
             src={videoSrc}
             poster={poster}
             autoPlay
@@ -73,7 +75,7 @@ export function MediaFrame({
           />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
-          <img className={s.media} src={imageSrc} alt="" aria-hidden="true" />
+          <img className={`${s.media} ${mediaClassName}`} src={imageSrc} alt="" aria-hidden="true" />
         )
       ) : (
         <div className={`${s.empty} ${LIGHT_CLASS[light]}`} />

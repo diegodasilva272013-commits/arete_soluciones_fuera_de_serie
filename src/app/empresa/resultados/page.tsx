@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
 
@@ -165,7 +164,7 @@ export default function ResultadosPage() {
             <p className={s.ctaSub}>Empezamos con un diagnóstico. Sin compromiso, sin presión.</p>
             <div className={s.ctaRow}>
               <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
-                Agendar diagnóstico <ArrowRight size={15} />
+                Agendar diagnóstico
               </a>
               <Link href="/empresa/contacto" className={s.btnGhost}>
                 Otras formas de contacto
