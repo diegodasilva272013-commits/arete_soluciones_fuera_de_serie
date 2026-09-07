@@ -139,13 +139,7 @@ export default function EmpresaHome() {
             {/* Areté Fuera de Serie */}
             <div className={s.rama}>
               <div className={s.ramaFoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0B' }}>
-                <Image
-                  src="/Aretea_fuera _de_serie_logo.png"
-                  alt="Areté Fuera de Serie"
-                  width={260}
-                  height={80}
-                  style={{ width: '55%', height: 'auto', objectFit: 'contain' }}
-                />
+                <AutoplayVideo src="/video_logo_fuera_de_serie.mp4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               </div>
               <div className={s.ramaBody}>
                 <div className={s.ramaKick}>Línea 02 · Personas</div>
