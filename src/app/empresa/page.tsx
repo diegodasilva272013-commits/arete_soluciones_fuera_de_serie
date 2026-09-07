@@ -101,19 +101,28 @@ export default function EmpresaHome() {
             {/* Areté Soluciones */}
             <Link className={s.rama} href="/empresa/servicios">
               <div className={s.ramaFoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0B' }}>
-                <SvgPathDrawingTextAnimation
-                  text="ARETÉ SOLUCIONES"
-                  fromColor="var(--azul)"
-                  toColor="var(--azul-luz)"
-                  fontSize={54}
-                  viewBoxWidth={900}
-                  viewBoxHeight={150}
-                  strokeWidth={2}
+                <Image
+                  src="/LOGO_ARETE.png"
+                  alt="Areté Soluciones"
+                  width={260}
+                  height={80}
+                  style={{ width: '55%', height: 'auto', objectFit: 'contain' }}
                 />
               </div>
               <div className={s.ramaBody}>
                 <div className={s.ramaKick}>Línea 01 · Sistemas</div>
-                <h3 className={s.ramaTitle}>Areté Soluciones</h3>
+                <h3 className={s.ramaTitle}>
+                  <SvgPathDrawingTextAnimation
+                    text="Areté Soluciones"
+                    fromColor="var(--azul)"
+                    toColor="var(--azul-luz)"
+                    fontSize={40}
+                    viewBoxWidth={480}
+                    viewBoxHeight={70}
+                    strokeWidth={1.5}
+                    minHeight={46}
+                  />
+                </h3>
                 <div className={s.ramaSub}>Diseñamos e implementamos sistemas empresariales que se adaptan a cómo trabaja tu empresa. No al revés.</div>
                 <ul className={s.ramaList}>
                   <li className={s.ramaListItem}>Diagnóstico de las cuatro áreas</li>
@@ -131,19 +140,28 @@ export default function EmpresaHome() {
             {/* Areté Fuera de Serie */}
             <div className={s.rama}>
               <div className={s.ramaFoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0B' }}>
-                <SvgPathDrawingTextAnimation
-                  text="ARETÉ FUERA DE SERIE"
-                  fromColor="var(--azul)"
-                  toColor="var(--azul-luz)"
-                  fontSize={44}
-                  viewBoxWidth={1000}
-                  viewBoxHeight={150}
-                  strokeWidth={2}
+                <Image
+                  src="/Aretea_fuera _de_serie_logo.png"
+                  alt="Areté Fuera de Serie"
+                  width={260}
+                  height={80}
+                  style={{ width: '55%', height: 'auto', objectFit: 'contain' }}
                 />
               </div>
               <div className={s.ramaBody}>
                 <div className={s.ramaKick}>Línea 02 · Personas</div>
-                <h3 className={s.ramaTitle}>Areté Fuera de Serie</h3>
+                <h3 className={s.ramaTitle}>
+                  <SvgPathDrawingTextAnimation
+                    text="Areté Fuera de Serie"
+                    fromColor="var(--azul)"
+                    toColor="var(--azul-luz)"
+                    fontSize={32}
+                    viewBoxWidth={480}
+                    viewBoxHeight={70}
+                    strokeWidth={1.3}
+                    minHeight={46}
+                  />
+                </h3>
                 <div className={s.ramaSub}>No formamos vendedores. Formamos solucionadores de problemas: personas capaces de comprender una situación y decidir qué corresponde hacer.</div>
                 <ul className={s.ramaList}>
                   <li className={s.ramaListItem}>Personal formado para tu empresa</li>

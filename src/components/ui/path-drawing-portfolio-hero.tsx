@@ -27,6 +27,8 @@ type SvgPathDrawingTextAnimationProps = {
   viewBoxHeight?: number;
   fontSize?: number;
   className?: string;
+  /** Overrides the default 200px min-height (e.g. to fit a title-sized slot) */
+  minHeight?: number;
 };
 
 function loadImage(url: string): Promise<HTMLImageElement> {
@@ -134,6 +136,7 @@ export function SvgPathDrawingTextAnimation({
   viewBoxHeight = 160,
   fontSize = 88,
   className,
+  minHeight,
 }: SvgPathDrawingTextAnimationProps) {
   const reactId = useId().replace(/:/g, "");
   const gradientId = `pathGradient-${reactId}`;
@@ -216,6 +219,7 @@ export function SvgPathDrawingTextAnimation({
         "flex min-h-[200px] w-full items-center justify-center",
         className,
       )}
+      style={minHeight !== undefined ? { minHeight } : undefined}
     >
       <svg
         ref={svgRef}
