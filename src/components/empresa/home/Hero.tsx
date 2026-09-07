@@ -60,7 +60,14 @@ export function Hero() {
 
       <div className={s.mediaCol}>
         <div ref={mediaRef} className={s.mediaColInner}>
-          <MediaFrame aspect="full" light="left" bevel={false} className={s.mediaColInner} />
+          <MediaFrame
+            aspect="full"
+            light="left"
+            bevel={false}
+            className={s.mediaColInner}
+            videoSrc="/video_hero.mp4"
+            poster="/video_hero-poster.jpg"
+          />
         </div>
       </div>
     </section>

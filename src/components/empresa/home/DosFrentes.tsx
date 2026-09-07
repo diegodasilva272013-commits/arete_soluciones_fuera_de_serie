@@ -1,5 +1,4 @@
 import s from './DosFrentes.module.css';
-import { MediaFrame } from '../MediaFrame';
 
 const FRENTES = [
   {
@@ -8,6 +7,7 @@ const FRENTES = [
     desc: 'Diseñamos e implementamos sistemas empresariales que se adaptan a cómo trabaja tu empresa. No al revés.',
     items: ['Diagnóstico de las cuatro áreas', 'Arquitectura antes que tecnología', 'Desarrollo a medida'],
     light: 'left' as const,
+    imageSrc: '/LOGO_ARETE.png',
   },
   {
     href: null,
@@ -15,6 +15,7 @@ const FRENTES = [
     desc: 'No formamos vendedores. Formamos solucionadores de problemas: personas capaces de comprender una situación y decidir qué corresponde hacer.',
     items: ['Personal formado para tu empresa', 'Capacitación de tu equipo comercial', 'Mentorías individuales'],
     light: 'right' as const,
+    imageSrc: '/Aretea_fuera _de_serie_logo.png',
   },
 ];
 
@@ -26,7 +27,10 @@ export function DosFrentes() {
         const inner = (
           <>
             <div className={s.mediaZone}>
-              <MediaFrame aspect="full" light={f.light} bevel={false} />
+              <div className={s.logoWrap}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={f.imageSrc} alt={f.title} className={s.logo} />
+              </div>
               <span className={s.cutLight} aria-hidden="true" />
             </div>
             <div className={s.contentZone}>
