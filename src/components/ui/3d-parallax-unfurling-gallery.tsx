@@ -11,7 +11,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 // Fotos reales del proyecto. El componente reparte por columna con
 // i % 4 — con estas 5 la columna 4 ya tiene contenido (antes vacia).
-const GALLERY_IMAGES = ["/1.png", "/2.png", "/3.png", "/galeria1.png", "/galeria2.png", "/galeria3.png", "/galeria4.png"];
+const GALLERY_IMAGES = ["/1.png", "/2.png", "/3.png", "/galeria1.png", "/galeria2.png", "/galeria3.png", "/galeria4.png", "/galeria5.png"];
 
 interface ImageCardProps {
   src: string;
