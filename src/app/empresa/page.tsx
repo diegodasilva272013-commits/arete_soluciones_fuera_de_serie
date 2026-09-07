@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import s from './corp.module.css';
 import { RevealObserver } from './_reveal';
-import { HeroVideo } from './_hero-video';
+import ScrollExpandMedia from '@/components/ui/scroll-expansion-hero';
 
 const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
@@ -45,27 +45,25 @@ export default function EmpresaHome() {
       <RevealObserver revealClass={s.revealOn} />
 
       {/* ══════════════ HERO ══════════════ */}
-      <section className={s.homeHero}>
-        <div className={s.homeHeroMedia}>
-          <HeroVideo />
-        </div>
-        <div className={`${s.homeHeroLine} ${s.reveal}`} data-reveal="" aria-hidden="true" />
-        <div className={s.homeHeroContent}>
-          <div className={s.homeHeroInner}>
-            <div className={`${s.eyebrow} ${s.reveal}`} data-reveal="">Areté</div>
-            <h1 className={`${s.homeH1} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-              La fricción no está en las herramientas.<br /><em>Está entre ellas.</em>
-            </h1>
-            <p className={`${s.homeLead} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-              Una empresa puede tener veinte sistemas y un equipo completo, y seguir funcionando mal. Entramos, entendemos cómo trabaja de verdad, y recién después construimos.
-            </p>
-            <div className={`${s.homeActs} ${s.reveal} ${s.revealDelay3}`} data-reveal="">
-              <Link href="/empresa/servicios" className={s.btn}>Ver cómo trabajamos</Link>
-              <Link href="/empresa/metodologia" className={s.btnSec}>El método</Link>
-            </div>
+      <ScrollExpandMedia
+        mediaType="video"
+        mediaSrc="/video_hero.mp4"
+        posterSrc="/video_hero-poster.jpg"
+        bgImageSrc="/video_hero-poster.jpg"
+        title="La fricción no está en las herramientas. Está entre ellas."
+        date="Areté"
+        scrollToExpand="Desplazá para explorar"
+      >
+        <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
+          <p style={{ fontFamily: 'var(--f-texto), Georgia, serif', fontStyle: 'italic', fontWeight: 300, fontSize: 20, lineHeight: 1.65, color: '#C9C6C0' }}>
+            Una empresa puede tener veinte sistemas y un equipo completo, y seguir funcionando mal. Entramos, entendemos cómo trabaja de verdad, y recién después construimos.
+          </p>
+          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
+            <Link href="/empresa/servicios" className={s.btn}>Ver cómo trabajamos</Link>
+            <Link href="/empresa/metodologia" className={s.btnSec}>El método</Link>
           </div>
         </div>
-      </section>
+      </ScrollExpandMedia>
 
       {/* ══════════════ EL PROBLEMA ══════════════ */}
       <section className={s.blk}>
