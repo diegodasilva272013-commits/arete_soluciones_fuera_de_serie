@@ -3,6 +3,7 @@ import { Montserrat, Spectral, JetBrains_Mono } from 'next/font/google';
 import { CorpHeader } from './_header';
 import { CorpFooter } from './_footer';
 import { WhatsAppFloat } from './_whatsapp';
+import { CircularNav } from './_circular-nav';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -57,6 +58,7 @@ export default function EmpresaLayout({ children }: { children: React.ReactNode 
       </main>
       <CorpFooter />
       <WhatsAppFloat />
+      <CircularNav />
     </div>
   );
 }

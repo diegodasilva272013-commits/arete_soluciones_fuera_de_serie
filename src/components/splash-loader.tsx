@@ -1,21 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Component as RipplePulseLoader } from './ui/ripple-pulse-loader';
 
 const SHOW_MS = 1800;
+const FADE_MS = 450;
 
 export function SplashLoader() {
   const [show, setShow] = useState(true);
   const [fading, setFading] = useState(false);
+  const dismissedRef = useRef(false);
+
+  function dismiss() {
+    if (dismissedRef.current) return;
+    dismissedRef.current = true;
+    setFading(true);
+    window.setTimeout(() => setShow(false), FADE_MS);
+  }
 
   useEffect(() => {
-    const fadeTimer = window.setTimeout(() => setFading(true), SHOW_MS);
-    const hideTimer = window.setTimeout(() => setShow(false), SHOW_MS + 450);
-    return () => {
-      window.clearTimeout(fadeTimer);
-      window.clearTimeout(hideTimer);
-    };
+    const timer = window.setTimeout(dismiss, SHOW_MS);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!show) return null;
@@ -27,6 +33,7 @@ export function SplashLoader() {
         (fading ? 'opacity-0' : 'opacity-100')
       }
       aria-hidden="true"
+      onClick={dismiss}
     >
       <RipplePulseLoader />
     </div>
