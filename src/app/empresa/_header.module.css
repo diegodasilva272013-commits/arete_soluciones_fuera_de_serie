@@ -77,9 +77,19 @@
 
 .cta:hover { border-color: var(--azul); color: var(--azul-luz); }
 
-/* Disparador del menu circular en mobile (antes: hamburguesa de 3 lineas) */
-.burger {
+/* Disparador del menu circular en mobile (antes: hamburguesa de 3 lineas).
+   Sin texto, el logo solo no deja claro que hay mas paginas atras —
+   se le agrega la etiqueta "Menú" debajo. */
+.burgerWrap {
   display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.burger {
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
@@ -90,11 +100,18 @@
   color: rgba(255,255,255,.9);
   cursor: pointer;
   padding: 0;
-  margin-left: auto;
   transition: border-color .2s, color .2s;
 }
 
 .burger:hover { border-color: rgba(var(--azul-rgb),.7); color: #fff; }
+
+.burgerLabel {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(242,239,233,.5);
+}
 
 /* Mobile menu — position fixed para evitar bugs de backdrop-filter en iOS */
 .mobile {
@@ -154,7 +171,7 @@
 @media (max-width: 820px) {
   .nav { display: none; }
   .cta { display: none; }
-  .burger { display: flex; }
+  .burgerWrap { display: flex; }
 
   /* En mobile: header completamente opaco, sin backdrop-filter (bug iOS) */
   .header {
@@ -168,7 +185,7 @@
      el boton (unico elemento que queda) se centra solo. */
   .logoWrap { display: none; }
   .inner { justify-content: center; }
-  .burger { margin-left: 0; }
+  .burgerWrap { margin-left: 0; }
 }
 
 @media (max-width: 480px) {

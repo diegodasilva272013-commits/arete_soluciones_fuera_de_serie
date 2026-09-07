@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { ArrowLeft } from 'lucide-react';
 import { brand } from '@/constants/branding';
 import { BrandLogo } from '@/components/brand/brand-logo';
 import { AccesoForm } from './_acceso-form';
@@ -25,6 +26,13 @@ export default function AccesoPage() {
           <source src="/video_2.mp4" type="video/mp4" />
         </video>
       </div>
+
+      <Link
+        href="/empresa"
+        className="absolute left-4 top-4 z-30 flex items-center gap-2 text-xs uppercase tracking-widest text-white/60 hover:text-white sm:left-8 sm:top-8"
+      >
+        <ArrowLeft size={16} /> Volver
+      </Link>
 
       {/* Contenido */}
       <div className="relative z-20 w-full max-w-md">

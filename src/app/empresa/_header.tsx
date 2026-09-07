@@ -57,24 +57,27 @@ export function CorpHeader() {
 
         <Link href="/acceso" className={s.cta}>Acceso</Link>
 
-        <button
-          className={s.burger}
-          onClick={() => setOpen(v => !v)}
-          aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
-          aria-expanded={open}
-        >
-          {open ? (
-            <X size={20} />
-          ) : (
-            <Image
-              src="/LOGO_ARETE.png"
-              alt=""
-              width={26}
-              height={26}
-              style={{ width: 22, height: 'auto', objectFit: 'contain' }}
-            />
-          )}
-        </button>
+        <div className={s.burgerWrap}>
+          <button
+            className={s.burger}
+            onClick={() => setOpen(v => !v)}
+            aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={open}
+          >
+            {open ? (
+              <X size={20} />
+            ) : (
+              <Image
+                src="/LOGO_ARETE.png"
+                alt=""
+                width={26}
+                height={26}
+                style={{ width: 22, height: 'auto', objectFit: 'contain' }}
+              />
+            )}
+          </button>
+          <span className={s.burgerLabel}>Menú</span>
+        </div>
       </div>
 
       <CircularNav isOpen={open} onClose={() => setOpen(false)} />
