@@ -117,6 +117,7 @@ export default function EmpresaHome() {
                     fromColor="var(--azul)"
                     toColor="var(--azul-luz)"
                     fontFamily="var(--f-display), Montserrat, system-ui, sans-serif"
+                    exactMeasure={false}
                     fontSize={40}
                     viewBoxWidth={480}
                     viewBoxHeight={70}
@@ -157,6 +158,7 @@ export default function EmpresaHome() {
                     fromColor="var(--azul)"
                     toColor="var(--azul-luz)"
                     fontFamily="var(--f-display), Montserrat, system-ui, sans-serif"
+                    exactMeasure={false}
                     fontSize={32}
                     viewBoxWidth={480}
                     viewBoxHeight={70}

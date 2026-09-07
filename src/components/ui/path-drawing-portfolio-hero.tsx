@@ -31,6 +31,15 @@ type SvgPathDrawingTextAnimationProps = {
   minHeight?: number;
   /** Font family for the drawn text (defaults to the original Arial/Helvetica) */
   fontFamily?: string;
+  /**
+   * The precise raster-based ink measurement renders the SVG in an isolated
+   * offscreen image, which can't see the page's web fonts (only system
+   * fonts) — with a custom font like Montserrat that mismatch draws the
+   * wrong glyph shapes. Set to false to skip it and measure the real,
+   * already-rendered text element instead (slightly less pixel-perfect,
+   * but always matches the font actually on screen).
+   */
+  exactMeasure?: boolean;
 };
 
 function loadImage(url: string): Promise<HTMLImageElement> {
@@ -140,6 +149,7 @@ export function SvgPathDrawingTextAnimation({
   className,
   minHeight,
   fontFamily = "Arial, Helvetica, sans-serif",
+  exactMeasure = true,
 }: SvgPathDrawingTextAnimationProps) {
   const reactId = useId().replace(/:/g, "");
   const gradientId = `pathGradient-${reactId}`;
@@ -155,25 +165,35 @@ export function SvgPathDrawingTextAnimation({
     if (!svg) return;
 
     let cancelled = false;
+    const measureFromRealText = () => {
+      const el = textRef.current;
+      if (!el || cancelled) return;
+      const width = el.getComputedTextLength() || display.length * fontSize * 0.62;
+      setDashLength(Math.max(1, Math.ceil(width * 1.15)));
+    };
+
     const run = async () => {
-      try {
-        await document.fonts.ready;
-        if (cancelled || !svgRef.current) return;
-        const dash = await measureExactDashLength(svgRef.current);
-        if (!cancelled) setDashLength(dash);
-      } catch {
-        const el = textRef.current;
-        if (!el || cancelled) return;
-        const width = el.getComputedTextLength() || display.length * fontSize * 0.62;
-        setDashLength(Math.max(1, Math.ceil(width * 1.15)));
+      await document.fonts.ready;
+      if (cancelled || !svgRef.current) return;
+
+      if (exactMeasure) {
+        try {
+          const dash = await measureExactDashLength(svgRef.current);
+          if (!cancelled) setDashLength(dash);
+          return;
+        } catch {
+          // sigue al fallback de abajo, que mide el texto real en pantalla
+        }
       }
+
+      measureFromRealText();
     };
 
     void run();
     return () => {
       cancelled = true;
     };
-  }, [display, fontSize, viewBoxWidth, strokeWidth, reduceMotion]);
+  }, [display, fontSize, viewBoxWidth, strokeWidth, reduceMotion, exactMeasure]);
 
   useLayoutEffect(() => {
     const el = textRef.current;
