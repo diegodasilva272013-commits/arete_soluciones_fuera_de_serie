@@ -3,6 +3,7 @@ import Image from 'next/image';
 import s from './corp.module.css';
 import { RevealObserver } from './_reveal';
 import ScrollExpandMedia from '@/components/ui/scroll-expansion-hero';
+import { SvgPathDrawingTextAnimation } from '@/components/ui/path-drawing-portfolio-hero';
 
 const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
@@ -110,7 +111,21 @@ export default function EmpresaHome() {
               </div>
               <div className={s.ramaBody}>
                 <div className={s.ramaKick}>Línea 01 · Sistemas</div>
-                <h3 className={s.ramaTitle}>Areté Soluciones</h3>
+                <h3 className={s.ramaTitle}>
+                  <SvgPathDrawingTextAnimation
+                    text="Areté Soluciones"
+                    fromColor="var(--azul)"
+                    toColor="var(--azul-luz)"
+                    fillColor="var(--hueso)"
+                    fontFamily="var(--f-display), Montserrat, system-ui, sans-serif"
+                    exactMeasure={false}
+                    fontSize={40}
+                    viewBoxWidth={480}
+                    viewBoxHeight={70}
+                    strokeWidth={1.5}
+                    minHeight={46}
+                  />
+                </h3>
                 <div className={s.ramaSub}>Diseñamos e implementamos sistemas empresariales que se adaptan a cómo trabaja tu empresa. No al revés.</div>
                 <ul className={s.ramaList}>
                   <li className={s.ramaListItem}>Diagnóstico de las cuatro áreas</li>
@@ -138,7 +153,21 @@ export default function EmpresaHome() {
               </div>
               <div className={s.ramaBody}>
                 <div className={s.ramaKick}>Línea 02 · Personas</div>
-                <h3 className={s.ramaTitle}>Areté Fuera de Serie</h3>
+                <h3 className={s.ramaTitle}>
+                  <SvgPathDrawingTextAnimation
+                    text="Areté Fuera de Serie"
+                    fromColor="var(--azul)"
+                    toColor="var(--azul-luz)"
+                    fillColor="var(--hueso)"
+                    fontFamily="var(--f-display), Montserrat, system-ui, sans-serif"
+                    exactMeasure={false}
+                    fontSize={32}
+                    viewBoxWidth={480}
+                    viewBoxHeight={70}
+                    strokeWidth={1.3}
+                    minHeight={46}
+                  />
+                </h3>
                 <div className={s.ramaSub}>No formamos vendedores. Formamos solucionadores de problemas: personas capaces de comprender una situación y decidir qué corresponde hacer.</div>
                 <ul className={s.ramaList}>
                   <li className={s.ramaListItem}>Personal formado para tu empresa</li>
