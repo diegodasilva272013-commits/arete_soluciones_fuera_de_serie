@@ -1,0 +1,16 @@
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link:hover .icon {
+    transform: translateX(4px);
+  }
+}

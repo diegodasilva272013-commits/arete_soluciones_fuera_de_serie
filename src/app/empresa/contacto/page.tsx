@@ -1,26 +1,23 @@
-'use client';
-
-import { useState } from 'react';
-import { ArrowRight, Phone, Mail, MessageCircle, MapPin } from 'lucide-react';
+import type { Metadata } from 'next';
+import { Phone, Mail, MessageCircle, MapPin } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
+import { waLink, EMAIL, WA_NUMBER_DISPLAY, PHONE_TEL, PHONE_DISPLAY } from '../constants';
+import { ContactForm } from '@/components/empresa/ContactForm';
+import { ArrowIcon } from '@/components/empresa/ArrowLink';
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20el%20diagn%C3%B3stico%20de%20Aret%C3%A9%20Soluciones';
+export const metadata: Metadata = {
+  title: 'Contacto — Areté Soluciones',
+  description: 'Hablemos de tu operación. WhatsApp, teléfono, email o el formulario — elegí el canal que prefieras.',
+};
 
-type FormState = 'idle' | 'sending' | 'done' | 'error';
+const WA = waLink('Hola, quiero saber más sobre el diagnóstico de Areté Soluciones');
+
+// El formulario solo se muestra si hay un proveedor de mail configurado.
+// Nunca se simula un envío — si no hay RESEND_API_KEY, queda solo WhatsApp.
+const FORM_ENABLED = Boolean(process.env.RESEND_API_KEY);
 
 export default function ContactoPage() {
-  const [form, setForm] = useState({ nombre: '', empresa: '', email: '', mensaje: '' });
-  const [state, setState] = useState<FormState>('idle');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setState('sending');
-    // TODO: reemplazar con endpoint real
-    await new Promise(r => setTimeout(r, 1200));
-    setState('done');
-  };
-
   return (
     <>
       <RevealObserver revealClass={s.revealOn} />
@@ -44,7 +41,7 @@ export default function ContactoPage() {
       {/* Contacto */}
       <section className={s.section}>
         <div className={s.inner}>
-          <div className={s.splitGrid}>
+          <div className={FORM_ENABLED ? s.splitGrid : undefined} style={FORM_ENABLED ? undefined : { maxWidth: 640, margin: '0 auto' }}>
 
             {/* Canales */}
             <div className={`${s.reveal}`} data-reveal="">
@@ -73,15 +70,15 @@ export default function ContactoPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>WhatsApp</p>
-                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#25D366' }}>+54 9 11 4321-5678</p>
-                    <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Respuesta en menos de 2 horas · Lun–Vie 9 a 18 hs</p>
+                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#25D366' }}>{WA_NUMBER_DISPLAY}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Respuesta en menos de 2 horas, lunes a viernes de 9 a 18</p>
                   </div>
-                  <ArrowRight size={16} color="rgba(37,211,102,0.6)" />
+                  <ArrowIcon />
                 </a>
 
                 {/* Teléfono */}
                 <a
-                  href="tel:+541143215678"
+                  href={`tel:${PHONE_TEL}`}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -98,15 +95,15 @@ export default function ContactoPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>Llamada directa</p>
-                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>+54 11 4321-5678</p>
-                    <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Lun–Vie de 9 a 18 hs (ARG)</p>
+                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>{PHONE_DISPLAY}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Lunes a viernes de 9 a 18 (Argentina)</p>
                   </div>
-                  <ArrowRight size={16} color="rgba(242,239,233,0.22)" />
+                  <ArrowIcon />
                 </a>
 
                 {/* Email */}
                 <a
-                  href="mailto:hola@aretesoluciones.com"
+                  href={`mailto:${EMAIL}`}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -123,10 +120,10 @@ export default function ContactoPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>Email</p>
-                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>hola@aretesoluciones.com</p>
+                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>{EMAIL}</p>
                     <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Respuesta en 24 horas hábiles</p>
                   </div>
-                  <ArrowRight size={16} color="rgba(242,239,233,0.22)" />
+                  <ArrowIcon />
                 </a>
 
                 {/* Ubicación */}
@@ -136,77 +133,22 @@ export default function ContactoPage() {
                   </div>
                   <div>
                     <p style={{ margin: '0 0 2px', fontWeight: 600, fontSize: 14, color: 'rgba(242,239,233,0.55)' }}>Buenos Aires, Argentina</p>
-                    <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.28)' }}>Operamos 100% remoto · Toda Latinoamérica</p>
+                    <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.28)' }}>Operamos 100% remoto, en toda Latinoamérica</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Formulario */}
-            <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
-              <div style={{ padding: '40px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(242,239,233,0.07)', clipPath: 'polygon(20px 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%,0 20px)' }}>
-                <h2 style={{ margin: '0 0 8px', fontWeight: 700, fontSize: 20, color: 'var(--hueso)' }}>Envianos un mensaje</h2>
-                <p style={{ margin: '0 0 32px', fontSize: 14, color: 'rgba(242,239,233,0.38)' }}>Te respondemos en menos de 24 horas hábiles.</p>
-
-                {state === 'done' ? (
-                  <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                    <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(var(--azul-rgb),0.12)', border: '1px solid rgba(var(--azul-rgb),0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--azul)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
-                    </div>
-                    <p style={{ margin: '0 0 8px', fontWeight: 700, fontSize: 17, color: 'var(--hueso)' }}>Mensaje recibido</p>
-                    <p style={{ margin: 0, fontSize: 14, color: 'rgba(242,239,233,0.45)' }}>Te respondemos antes de las 24 horas hábiles.</p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                    {[
-                      { id: 'nombre', label: 'Nombre completo', type: 'text', placeholder: 'Tu nombre' },
-                      { id: 'empresa', label: 'Empresa', type: 'text', placeholder: 'Nombre de tu empresa' },
-                      { id: 'email', label: 'Email', type: 'email', placeholder: 'tu@empresa.com' },
-                    ].map(field => (
-                      <div key={field.id}>
-                        <label htmlFor={`contacto-${field.id}`} className={s.formLabel}>
-                          {field.label}
-                        </label>
-                        <input
-                          id={`contacto-${field.id}`}
-                          type={field.type}
-                          required
-                          placeholder={field.placeholder}
-                          value={(form as Record<string, string>)[field.id]}
-                          onChange={e => setForm(f => ({ ...f, [field.id]: e.target.value }))}
-                          className={s.formInput}
-                        />
-                      </div>
-                    ))}
-                    <div>
-                      <label htmlFor="contacto-mensaje" className={s.formLabel}>
-                        ¿En qué podemos ayudar?
-                      </label>
-                      <textarea
-                        id="contacto-mensaje"
-                        required
-                        rows={7}
-                        placeholder="Contanos brevemente tu situación y qué estás buscando..."
-                        value={form.mensaje}
-                        onChange={e => setForm(f => ({ ...f, mensaje: e.target.value }))}
-                        className={`${s.formInput} ${s.formTextarea}`}
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={state === 'sending'}
-                      className={s.btnPrimary}
-                      style={{ justifyContent: 'center', opacity: state === 'sending' ? 0.7 : 1, cursor: state === 'sending' ? 'wait' : 'pointer', border: 'none', width: '100%' }}
-                    >
-                      {state === 'sending' ? 'Enviando...' : 'Enviar mensaje'}
-                      {state !== 'sending' && <ArrowRight size={15} />}
-                    </button>
-                  </form>
-                )}
+            {/* Formulario — solo si hay proveedor de mail configurado */}
+            {FORM_ENABLED && (
+              <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
+                <div style={{ padding: '40px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(242,239,233,0.07)', clipPath: 'polygon(20px 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%,0 20px)' }}>
+                  <h2 style={{ margin: '0 0 8px', fontWeight: 700, fontSize: 20, color: 'var(--hueso)' }}>Envianos un mensaje</h2>
+                  <p style={{ margin: '0 0 32px', fontSize: 14, color: 'rgba(242,239,233,0.38)' }}>Te respondemos en menos de 24 horas hábiles.</p>
+                  <ContactForm />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>

@@ -9,7 +9,9 @@ export const metadata: Metadata = {
   description: 'Diagnóstico operativo e implementación de sistemas para empresas que necesitan volver a crecer sin depender de una persona.',
 };
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20el%20diagn%C3%B3stico%20operativo%20de%20Aret%C3%A9%20Soluciones';
+import { waLink } from '../constants';
+
+const WA = waLink('Hola, me interesa el diagnóstico operativo de Areté Soluciones');
 
 const AREAS = [
   {
