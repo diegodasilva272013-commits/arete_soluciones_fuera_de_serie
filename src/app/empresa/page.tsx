@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowUpRight } from 'lucide-react';
 import s from './corp.module.css';
 import { RevealObserver } from './_reveal';
 import ScrollExpandMedia from '@/components/ui/scroll-expansion-hero';
 import { SvgPathDrawingTextAnimation } from '@/components/ui/path-drawing-portfolio-hero';
 import { AutoplayVideo } from './_autoplay-video';
+import { IconLink } from './_icon-link';
 
 const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
@@ -64,14 +64,12 @@ export default function EmpresaHome() {
             Una empresa puede tener veinte sistemas y un equipo completo, y seguir funcionando mal. Entramos, entendemos cómo trabaja de verdad, y recién después construimos.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
-            <Link href="/empresa/servicios" className={s.btn}>
+            <IconLink href="/empresa/servicios" className={s.btn}>
               Ver cómo trabajamos
-              <ArrowUpRight size={14} className={s.btnIcon} />
-            </Link>
-            <Link href="/empresa/metodologia" className={s.btnSec}>
+            </IconLink>
+            <IconLink href="/empresa/metodologia" className={s.btnSec}>
               El método
-              <ArrowUpRight size={14} className={s.btnIcon} />
-            </Link>
+            </IconLink>
           </div>
         </div>
       </ScrollExpandMedia>

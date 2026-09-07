@@ -1133,6 +1133,14 @@
   transform: translate(2px, -2px) rotate(45deg);
 }
 
+/* Version controlada por JS (onTouchStart/onTouchEnd en _icon-link.tsx):
+   :active en un <a> no es confiable en iOS y aunque lo fuera, el toque
+   navega casi al instante y no da tiempo a verlo. Esta clase se agrega
+   y saca a mano, sin depender de eso. */
+.btnIconActive {
+  transform: translate(2px, -2px) rotate(45deg);
+}
+
 .btn:focus-visible,
 .btnSec:focus-visible,
 .btnPrimary:focus-visible,
