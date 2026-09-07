@@ -122,7 +122,8 @@ export default function EmpresaHome() {
                     fontSize={40}
                     viewBoxWidth={480}
                     viewBoxHeight={70}
-                    strokeWidth={1.5}
+                    strokeWidth={2.6}
+                    durationSec={8}
                     minHeight={46}
                   />
                 </h3>
@@ -164,7 +165,8 @@ export default function EmpresaHome() {
                     fontSize={32}
                     viewBoxWidth={480}
                     viewBoxHeight={70}
-                    strokeWidth={1.3}
+                    strokeWidth={2.2}
+                    durationSec={8}
                     minHeight={46}
                   />
                 </h3>
@@ -251,8 +253,8 @@ export default function EmpresaHome() {
         <div className={s.bandGrid}>
           <div className={`${s.bandFig} ${s.reveal}`} data-reveal="">
             <div className={s.bandFigFrame}>
-              <video autoPlay muted loop playsInline poster="/Video_diagnostico-poster.jpg" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}>
-                <source src="/Video_diagnostico.mp4" type="video/mp4" />
+              <video autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}>
+                <source src="/video_plataforma.mp4" type="video/mp4" />
               </video>
             </div>
           </div>
