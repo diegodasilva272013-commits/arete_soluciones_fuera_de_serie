@@ -51,16 +51,18 @@ export default function EmpresaHome() {
         </div>
         <div className={`${s.homeHeroLine} ${s.reveal}`} data-reveal="" aria-hidden="true" />
         <div className={s.homeHeroContent}>
-          <div className={`${s.eyebrow} ${s.reveal}`} data-reveal="">Areté</div>
-          <h1 className={`${s.homeH1} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            La fricción no está en las herramientas.<br /><em>Está entre ellas.</em>
-          </h1>
-          <p className={`${s.homeLead} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-            Una empresa puede tener veinte sistemas y un equipo completo, y seguir funcionando mal. Entramos, entendemos cómo trabaja de verdad, y recién después construimos.
-          </p>
-          <div className={`${s.homeActs} ${s.reveal} ${s.revealDelay3}`} data-reveal="">
-            <Link href="/empresa/servicios" className={s.btn}>Ver cómo trabajamos</Link>
-            <Link href="/empresa/metodologia" className={s.btnSec}>El método</Link>
+          <div className={s.homeHeroInner}>
+            <div className={`${s.eyebrow} ${s.reveal}`} data-reveal="">Areté</div>
+            <h1 className={`${s.homeH1} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
+              La fricción no está en las herramientas.<br /><em>Está entre ellas.</em>
+            </h1>
+            <p className={`${s.homeLead} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
+              Una empresa puede tener veinte sistemas y un equipo completo, y seguir funcionando mal. Entramos, entendemos cómo trabaja de verdad, y recién después construimos.
+            </p>
+            <div className={`${s.homeActs} ${s.reveal} ${s.revealDelay3}`} data-reveal="">
+              <Link href="/empresa/servicios" className={s.btn}>Ver cómo trabajamos</Link>
+              <Link href="/empresa/metodologia" className={s.btnSec}>El método</Link>
+            </div>
           </div>
         </div>
       </section>
