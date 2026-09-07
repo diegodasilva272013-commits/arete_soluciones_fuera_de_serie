@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import s from './corp.module.css';
 import { RevealObserver } from './_reveal';
 import ScrollExpandMedia from '@/components/ui/scroll-expansion-hero';
 import { SvgPathDrawingTextAnimation } from '@/components/ui/path-drawing-portfolio-hero';
 import { AutoplayVideo } from './_autoplay-video';
 import { IconLink } from './_icon-link';
+import ParallaxGallery from '@/components/ui/3d-parallax-unfurling-gallery';
 
 const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
 
@@ -210,20 +210,10 @@ export default function EmpresaHome() {
         </div>
       </div>
 
-      {/* ══════════════ BANDA 2: Personas ══════════════ */}
+      {/* ══════════════ BANDA 2: Personas — texto ══════════════ */}
       <div className={s.band}>
-        <div className={`${s.bandGrid} ${s.bandGridFlip}`}>
-          <div className={`${s.bandFig} ${s.reveal}`} data-reveal="">
-            <div className={s.bandFigFrame}>
-              <Image
-                src="/Foto_acompañamiento.png"
-                alt="Persona en sesión de formación"
-                fill
-                style={{ objectFit: 'cover' }}
-              />
-            </div>
-          </div>
-          <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
+        <div className={s.inner}>
+          <div className={`${s.shead} ${s.reveal}`} data-reveal="">
             <div className={s.bandNum}>Areté Fuera de Serie</div>
             <h3 className={s.bandTitle}>No entrenamos respuestas.<br /><em>Entrenamos pensamiento.</em></h3>
             <p className={s.bandBody}>Los guiones cambian. Los mercados cambian. Las herramientas cambian. Una persona capaz de observar una situación, comprenderla y decidir qué corresponde hacer siempre va a tener valor.</p>
@@ -241,6 +231,9 @@ export default function EmpresaHome() {
           </div>
         </div>
       </div>
+
+      {/* Galeria de fotos en paralaje 3D (reemplaza la foto unica de antes) */}
+      <ParallaxGallery />
 
       {/* ══════════════ BANDA 3: La plataforma ══════════════ */}
       <div className={s.band}>
