@@ -145,6 +145,37 @@
   animation: glowBreathe 9s ease-in-out infinite;
 }
 
+/* Variante con video de fondo (hoy: solo /empresa/servicios). No toca
+   .pageHero base para no afectar metodologia/nosotros/resultados/contacto,
+   que siguen con el hero de texto plano de siempre. */
+.pageHeroVideo::before { z-index: 1; }
+
+.pageHeroBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.pageHeroBg video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(.85) brightness(.8);
+}
+
+.pageHeroBgFade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5,5,5,.62) 0%, rgba(5,5,5,.74) 45%, rgba(5,5,5,.9) 100%);
+}
+
+.pageHeroVideo .pageHeroInner {
+  position: relative;
+  z-index: 2;
+}
+
 .pageHeroInner {
   position: relative;
   max-width: 1200px;

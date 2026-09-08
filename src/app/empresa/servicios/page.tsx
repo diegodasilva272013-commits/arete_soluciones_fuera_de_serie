@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
+import { AutoplayVideo } from '../_autoplay-video';
 
 export const metadata: Metadata = {
   title: 'Servicios — Areté Soluciones',
@@ -71,7 +72,11 @@ export default function ServiciosPage() {
     <>
       <RevealObserver revealClass={s.revealOn} />
 
-      <section className={s.pageHero}>
+      <section className={`${s.pageHero} ${s.pageHeroVideo}`}>
+        <div className={s.pageHeroBg}>
+          <AutoplayVideo src="/video_hero_soluciones.mp4" />
+          <div className={s.pageHeroBgFade} />
+        </div>
         <div className={s.pageHeroInner}>
           <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
             <span className={s.kickerLine} />
