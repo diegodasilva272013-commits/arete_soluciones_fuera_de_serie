@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
-import { X, Home, Boxes, Compass, Users, MessageCircle, LogIn } from 'lucide-react';
+import { X, Home, Boxes, Compass, Users, UsersRound, MessageCircle, LogIn } from 'lucide-react';
 
 interface NavItem {
   name: string;
@@ -16,6 +16,7 @@ const NAV_ITEMS: NavItem[] = [
   { name: 'Soluciones', icon: Boxes, href: '/empresa/servicios' },
   { name: 'Método', icon: Compass, href: '/empresa/metodologia' },
   { name: 'Nosotros', icon: Users, href: '/empresa/nosotros' },
+  { name: 'Equipo', icon: UsersRound, href: '/empresa/equipo' },
   { name: 'Contacto', icon: MessageCircle, href: '/empresa/contacto' },
   { name: 'Acceso', icon: LogIn, href: '/acceso' },
 ];
