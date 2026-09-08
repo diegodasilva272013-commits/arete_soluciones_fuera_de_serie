@@ -760,6 +760,61 @@
   pointer-events: none;
 }
 
+/* Pantalla flotante con video que se inclina hacia el cursor (hero de
+   Nosotros). Mismo motivo de filete azul desfasado que .bandFig::after,
+   para que no lea como un elemento nuevo sino como parte del mismo
+   lenguaje visual. */
+.tiltStage {
+  position: relative;
+  perspective: 1400px;
+}
+
+.tiltGlow {
+  position: absolute;
+  inset: -12%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(47,123,246,.25), transparent 65%);
+  filter: blur(44px);
+  pointer-events: none;
+  z-index: -2;
+}
+
+.tiltCard {
+  position: relative;
+  aspect-ratio: 4/5;
+  max-width: 420px;
+  margin: 0 auto;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* El recorte del video va en un hijo aparte: si overflow:hidden
+   estuviera en .tiltCard, se comería el filete desfasado de ::after,
+   que a propósito sobresale del borde (mismo problema que .bandFig
+   resuelve separando el frame del wrapper). */
+.tiltCardInner {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--negro-3);
+  box-shadow: 0 40px 90px rgba(0,0,0,.55);
+}
+
+.tiltCardInner video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.tiltCard::after {
+  content: '';
+  position: absolute;
+  inset: 16px -16px -16px 16px;
+  border: 1px solid var(--azul);
+  z-index: -1;
+  pointer-events: none;
+}
+
+@media (max-width: 960px) {
+  .tiltCard { max-width: 360px; }
+}
+
 /* Panel lateral (para sub-páginas) */
 .bandPanel {
   padding: 40px;

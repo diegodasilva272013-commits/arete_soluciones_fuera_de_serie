@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
+import { TiltVideoCard } from '../_tilt-video-card';
 
 export const metadata: Metadata = {
   title: 'Nosotros — Areté Soluciones',
@@ -46,16 +47,23 @@ export default function NosotrosPage() {
 
       <section className={s.pageHero}>
         <div className={s.pageHeroInner}>
-          <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
-            <span className={s.kickerLine} />
-            <span className={s.kickerLabel}>Nosotros</span>
+          <div className={s.splitGrid} style={{ alignItems: 'center' }}>
+            <div>
+              <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
+                <span className={s.kickerLine} />
+                <span className={s.kickerLabel}>Nosotros</span>
+              </div>
+              <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
+                Partimos de la empresa.<br /><em>Siempre.</em>
+              </h1>
+              <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
+                No somos una agencia de software. No somos una consultora de procesos. Somos el equipo que diseña cómo debería funcionar tu operación y lo construye.
+              </p>
+            </div>
+            <div className={`${s.reveal} ${s.revealDelay3}`} data-reveal="">
+              <TiltVideoCard src="/video_hero_nosotros.mp4" />
+            </div>
           </div>
-          <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Partimos de la empresa.<br /><em>Siempre.</em>
-          </h1>
-          <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-            No somos una agencia de software. No somos una consultora de procesos. Somos el equipo que diseña cómo debería funcionar tu operación y lo construye.
-          </p>
         </div>
       </section>
 
