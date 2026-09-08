@@ -990,13 +990,18 @@ export default function MusicHero({
 // broken-off fragments float independently — pieces of the same
 // language, scattered. Keyframes are self-contained here so the
 // component works wherever it's rendered.
-// Two stacked video elements, crossfading into each other right
-// before the loop point, instead of relying on the native `loop`
-// attribute's hard seek-and-restart — which is what actually causes
-// the little stutter, regardless of how well the file itself loops.
-// The inactive video is started and faded in during the last second
-// of the active one; once the fade completes, they swap roles.
-const CROSSFADE_S = 1
+// Originally two stacked video elements, crossfading into each other
+// right before the loop point, to avoid the tiny stutter of the
+// native `loop` attribute's hard seek-and-restart. In practice that
+// crossfade — two full-size <video> elements overlapping under this
+// hero's scale(1.45) 3D transform, with opacity swapping at the same
+// moment one video is paused/seeked/played — triggered a real desktop
+// GPU-compositing bug: a hard vertical tear showing two unrelated
+// frames side by side for a moment at every loop point. Not visible
+// on mobile (lighter compositing load), but a broken loop on desktop
+// is worse than a barely-there stutter, so this is back to a single
+// native looping video — the same pattern every other video on this
+// site already uses without issue.
 function SeamlessLoopVideo({
   src,
   muted,
@@ -1010,74 +1015,24 @@ function SeamlessLoopVideo({
   playing: boolean
   style?: React.CSSProperties
 }) {
-  const aRef = useRef<HTMLVideoElement>(null)
-  const bRef = useRef<HTMLVideoElement>(null)
-  const activeRef = useRef<"a" | "b">("a")
-  const crossfadingRef = useRef(false)
-  const [aOpacity, setAOpacity] = useState(1)
-  const [bOpacity, setBOpacity] = useState(0)
+  const ref = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    ;[aRef.current, bRef.current].forEach((v) => {
-      if (!v) return
-      v.muted = muted
-      v.volume = volume
-    })
+    const v = ref.current
+    if (!v) return
+    v.muted = muted
+    v.volume = volume
   }, [muted, volume])
 
   useEffect(() => {
-    const active = activeRef.current === "a" ? aRef.current : bRef.current
-    if (!active) return
-    if (playing) active.play().catch(() => {})
-    else active.pause()
+    const v = ref.current
+    if (!v) return
+    if (playing) v.play().catch(() => {})
+    else v.pause()
   }, [playing])
 
-  useEffect(() => {
-    const a = aRef.current
-    const b = bRef.current
-    if (!a || !b) return
-    a.play().catch(() => {})
-    let rafId = 0
-    const tick = () => {
-      const active = activeRef.current === "a" ? a : b
-      const inactive = activeRef.current === "a" ? b : a
-      if (active.duration) {
-        const remaining = active.duration - active.currentTime
-        if (!crossfadingRef.current && remaining <= CROSSFADE_S) {
-          crossfadingRef.current = true
-          inactive.currentTime = 0
-          inactive.play().catch(() => {})
-        }
-        if (crossfadingRef.current) {
-          const t = Math.min(1, Math.max(0, 1 - remaining / CROSSFADE_S))
-          if (activeRef.current === "a") {
-            setAOpacity(1 - t)
-            setBOpacity(t)
-          } else {
-            setBOpacity(1 - t)
-            setAOpacity(t)
-          }
-          if (remaining <= 0.03) {
-            active.pause()
-            crossfadingRef.current = false
-            activeRef.current = activeRef.current === "a" ? "b" : "a"
-          }
-        }
-      }
-      rafId = requestAnimationFrame(tick)
-    }
-    rafId = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafId)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const base: React.CSSProperties = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }
-  return (
-    <>
-      <video ref={aRef} src={src} playsInline preload="auto" style={{ ...base, ...style, opacity: aOpacity }} />
-      <video ref={bRef} src={src} playsInline preload="auto" style={{ ...base, ...style, opacity: bOpacity }} />
-    </>
-  )
+  return <video ref={ref} src={src} playsInline preload="auto" loop autoPlay style={{ ...base, ...style }} />
 }
 
 function MinimalBackdrop() {
