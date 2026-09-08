@@ -842,8 +842,15 @@ export default function MusicHero({
         )}
 
         {/* the wide-angle "lens" wrapper — the whole screen breathes
-            and tilts, not just the list inside it */}
-        <div style={{ position: "relative" }}>
+            and tilts, not just the list inside it. In fullscreen this
+            needs an explicit size: everything inside it (the glow, the
+            card) is position:absolute, so with no content contributing
+            layout size this wrapper collapses to 0x0 — and cardRef's
+            top:0/left:0 then resolves against that 0x0 point instead of
+            the real viewport corner, shifting the whole video sideways
+            and leaving a gap where the ambient background photo shows
+            through. Same fix already applied to the mobile branch above. */}
+        <div style={{ position: "relative", width: effectiveFullscreen ? "100%" : undefined, height: effectiveFullscreen ? "100%" : undefined }}>
           <div
             aria-hidden="true"
             style={{
