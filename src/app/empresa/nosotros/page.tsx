@@ -40,18 +40,35 @@ const PRINCIPIOS = [
   },
 ];
 
-// Mismos 5 principios de mas abajo en esta pagina, reusados como
+// Los 5 principios de mas abajo en esta pagina, reusados como
 // contenido real de la lista del hero — el componente pegado traia
 // nombres de bandas/canciones inventados, que no tienen nada que ver
 // con Areté. Nada de contenido nuevo: es texto que ya existe en esta
 // misma pagina, solo que tambien se muestra aca.
-const NOSOTROS_TRACKS: Track[] = PRINCIPIOS.map((p) => ({
-  id: p.n,
-  title: p.title,
-  artist: `Principio ${p.n}`,
-  colorA: '#5C9AFF',
-  colorB: '#0b407d',
-}));
+//
+// El primer item (01) es distinto de los demas: tiene su propio video
+// (con su propio audio real, no el loop ambiente mudo) — al
+// seleccionarlo, el fondo del hero cambia a ese video y se escucha su
+// audio. Los 5 principios pasan a ser 02-06 en esta lista (siguen
+// siendo 01-05 mas abajo, en la seccion real "Principio Areté" — son
+// listas distintas).
+const NOSOTROS_TRACKS: Track[] = [
+  {
+    id: 'nombre-arete',
+    title: 'De dónde sale el nombre Areté',
+    artist: '01',
+    colorA: '#5C9AFF',
+    colorB: '#0b407d',
+    videoSrc: '/video_nombre_arete.mp4',
+  },
+  ...PRINCIPIOS.map((p, i) => ({
+    id: p.n,
+    title: p.title,
+    artist: `Principio ${String(i + 2).padStart(2, '0')}`,
+    colorA: '#5C9AFF',
+    colorB: '#0b407d',
+  })),
+];
 
 export default function NosotrosPage() {
   return (
@@ -63,6 +80,7 @@ export default function NosotrosPage() {
         backgroundSrc="/1.png"
         title="Partimos de la empresa. Siempre."
         tracks={NOSOTROS_TRACKS}
+        initialIndex={1}
         signature={false}
       />
 

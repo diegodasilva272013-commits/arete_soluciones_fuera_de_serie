@@ -23,6 +23,11 @@ export interface Track {
   artist: string
   colorA: string
   colorB: string
+  // Optional: this track has its own video (with its own real audio/
+  // music), separate from the hero's default background video. When
+  // this track becomes active, the background video switches to this
+  // src and plays with sound instead of the silent ambient loop.
+  videoSrc?: string
 }
 
 const REPO = "https://raw.githubusercontent.com/gughigug/run-hero-assets/main"
@@ -49,6 +54,13 @@ export interface MusicHeroProps {
   videoSrc?: string
   backgroundSrc?: string
   tracks?: Track[]
+  // Which track is active on first render. Defaults to 0 — only set
+  // this away from 0 when track 0 carries its own videoSrc (an
+  // intro/extra item at the top of the list) and the hero should still
+  // open on the regular default video, letting that item be something
+  // the visitor actively selects rather than something that autoplays
+  // with sound the moment the page loads.
+  initialIndex?: number
   signature?: { name: string; url: string } | false
   sound?: boolean
   fullBleed?: boolean
@@ -117,6 +129,7 @@ export default function MusicHero({
   videoSrc = DEFAULT_VIDEO,
   backgroundSrc = DEFAULT_BG,
   tracks = DEFAULT_TRACKS,
+  initialIndex = 0,
   signature = DEFAULT_SIGNATURE,
   sound = true,
   fullBleed = true,
@@ -140,7 +153,11 @@ export default function MusicHero({
   const videoWrapRef = useRef<HTMLDivElement>(null)
   const bgRef = useRef<HTMLDivElement>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
-  const offsetRef = useRef(0)
+  // Starts in sync with initialIndex — the physics loop below derives
+  // activeIndex straight from this offset every frame (offset / row
+  // height, rounded), so if this stayed at 0 it would immediately snap
+  // activeIndex back to 0 regardless of initialIndex.
+  const offsetRef = useRef(initialIndex * ROW_HEIGHT)
   const velocityRef = useRef(0)
   const snapTargetRef = useRef<number | null>(null)
   const lastDetentRef = useRef(0)
@@ -155,7 +172,7 @@ export default function MusicHero({
   // up loud enough to compete with the click.
   const [videoSoundOn, setVideoSoundOn] = useState(false)
   const [videoVolume, setVideoVolume] = useState(0.16)
-  const [activeIndex, setActiveIndex] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(initialIndex)
   const [announcement, setAnnouncement] = useState("")
   const announceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [isPlaying, setIsPlaying] = useState(true)
@@ -205,6 +222,23 @@ export default function MusicHero({
   useEffect(() => {
     setAnnouncement(isPlaying ? "Playing" : "Paused")
   }, [isPlaying])
+
+  // A track with its own videoSrc carries its own real audio (voice,
+  // music) — selecting it swaps the background video and turns its
+  // sound on automatically, instead of staying on the silent ambient
+  // loop. Going back to a track without its own video returns to the
+  // regular muted ambient behavior.
+  useEffect(() => {
+    const t = tracks[activeIndex]
+    if (t?.videoSrc) {
+      setVideoSoundOn(true)
+      setVideoVolume(1)
+    } else {
+      setVideoSoundOn(false)
+      setVideoVolume(0.16)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIndex, tracks])
 
   function getCtx(): AudioContext | null {
     try {
@@ -452,6 +486,9 @@ export default function MusicHero({
   }
 
   const activeTrack = tracks[activeIndex]
+  // The playing background video: the active track's own video if it
+  // has one, otherwise the hero's regular default video.
+  const activeVideoSrc = activeTrack?.videoSrc || videoSrc
 
   // ── MOBILE: entirely different, simplified composition —
   // no background image, no floating card, just the video filling
@@ -489,7 +526,7 @@ export default function MusicHero({
         <div style={{ position: "relative", width: "100%", height: "100%", background: bgVar, overflow: "hidden" }}>
           {theme === "video" ? (
             <>
-              <SeamlessLoopVideo src={videoSrc} muted={!videoSoundOn} volume={videoVolume} playing={isPlaying} />
+              <SeamlessLoopVideo src={activeVideoSrc} muted={!videoSoundOn} volume={videoVolume} playing={isPlaying} />
               <div
                 style={{
                   position: "absolute",
@@ -927,7 +964,7 @@ export default function MusicHero({
                     transition: "transform 0.5s cubic-bezier(.2,.8,.2,1)",
                   }}
                 >
-                  <SeamlessLoopVideo src={videoSrc} muted={!videoSoundOn} volume={videoVolume} playing={isPlaying} />
+                  <SeamlessLoopVideo src={activeVideoSrc} muted={!videoSoundOn} volume={videoVolume} playing={isPlaying} />
                 </div>
                 {/* lens vignette — the "wide angle" read on the screen itself */}
                 <div
