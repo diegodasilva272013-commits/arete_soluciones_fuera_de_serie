@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
-import { ParallaxHeroVideo } from '../_parallax-hero-video';
+import MusicHero, { type Track } from '@/components/ui/scroll-locked-video-hero';
 
 export const metadata: Metadata = {
   title: 'Nosotros — Areté Soluciones',
@@ -40,26 +40,31 @@ const PRINCIPIOS = [
   },
 ];
 
+// Mismos 5 principios de mas abajo en esta pagina, reusados como
+// contenido real de la lista del hero — el componente pegado traia
+// nombres de bandas/canciones inventados, que no tienen nada que ver
+// con Areté. Nada de contenido nuevo: es texto que ya existe en esta
+// misma pagina, solo que tambien se muestra aca.
+const NOSOTROS_TRACKS: Track[] = PRINCIPIOS.map((p) => ({
+  id: p.n,
+  title: p.title,
+  artist: `Principio ${p.n}`,
+  colorA: '#5C9AFF',
+  colorB: '#0b407d',
+}));
+
 export default function NosotrosPage() {
   return (
     <>
       <RevealObserver revealClass={s.revealOn} />
 
-      <section className={`${s.pageHero} ${s.pageHeroVideo}`}>
-        <ParallaxHeroVideo src="/video_hero_nosotros.mp4" side />
-        <div className={s.pageHeroInner}>
-          <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
-            <span className={s.kickerLine} />
-            <span className={s.kickerLabel}>Nosotros</span>
-          </div>
-          <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Partimos de la empresa.<br /><em>Siempre.</em>
-          </h1>
-          <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-            No somos una agencia de software. No somos una consultora de procesos. Somos el equipo que diseña cómo debería funcionar tu operación y lo construye.
-          </p>
-        </div>
-      </section>
+      <MusicHero
+        videoSrc="/video_hero_nosotros.mp4"
+        backgroundSrc="/1.png"
+        title="Partimos de la empresa. Siempre."
+        tracks={NOSOTROS_TRACKS}
+        signature={false}
+      />
 
       {/* ── EL NOMBRE ── */}
       <section className={s.section}>
