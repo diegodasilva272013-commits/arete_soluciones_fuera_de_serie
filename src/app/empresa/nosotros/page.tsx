@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
-import { TiltVideoCard } from '../_tilt-video-card';
+import { ParallaxHeroVideo } from '../_parallax-hero-video';
 
 export const metadata: Metadata = {
   title: 'Nosotros — Areté Soluciones',
@@ -45,25 +45,19 @@ export default function NosotrosPage() {
     <>
       <RevealObserver revealClass={s.revealOn} />
 
-      <section className={s.pageHero}>
+      <section className={`${s.pageHero} ${s.pageHeroVideo}`}>
+        <ParallaxHeroVideo src="/video_hero_nosotros.mp4" side />
         <div className={s.pageHeroInner}>
-          <div className={s.splitGrid} style={{ alignItems: 'center' }}>
-            <div>
-              <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
-                <span className={s.kickerLine} />
-                <span className={s.kickerLabel}>Nosotros</span>
-              </div>
-              <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-                Partimos de la empresa.<br /><em>Siempre.</em>
-              </h1>
-              <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-                No somos una agencia de software. No somos una consultora de procesos. Somos el equipo que diseña cómo debería funcionar tu operación y lo construye.
-              </p>
-            </div>
-            <div className={`${s.reveal} ${s.revealDelay3}`} data-reveal="">
-              <TiltVideoCard src="/video_hero_nosotros.mp4" />
-            </div>
+          <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
+            <span className={s.kickerLine} />
+            <span className={s.kickerLabel}>Nosotros</span>
           </div>
+          <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
+            Partimos de la empresa.<br /><em>Siempre.</em>
+          </h1>
+          <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
+            No somos una agencia de software. No somos una consultora de procesos. Somos el equipo que diseña cómo debería funcionar tu operación y lo construye.
+          </p>
         </div>
       </section>
 

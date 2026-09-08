@@ -145,9 +145,9 @@
   animation: glowBreathe 9s ease-in-out infinite;
 }
 
-/* Variante con video de fondo (hoy: solo /empresa/servicios). No toca
-   .pageHero base para no afectar metodologia/nosotros/resultados/contacto,
-   que siguen con el hero de texto plano de siempre. */
+/* Variante con video de fondo (hoy: servicios y nosotros). No toca
+   .pageHero base para no afectar metodologia/resultados/contacto, que
+   siguen con el hero de texto plano de siempre. */
 .pageHeroVideo::before { z-index: 1; }
 
 .pageHeroBg {
@@ -169,6 +169,19 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(5,5,5,.62) 0%, rgba(5,5,5,.74) 45%, rgba(5,5,5,.9) 100%);
+}
+
+/* Variante lateral: oscuro solo del lado donde vive el texto
+   (izquierda), transparente del otro — para heros donde el video debe
+   quedar visible en la mayor parte del cuadro en vez de lavado parejo
+   de punta a punta (hero de Nosotros: texto corto, sin botones abajo,
+   no necesita oscurecer todo el alto). */
+.pageHeroBgFadeSide {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg, rgba(5,5,5,.88) 0%, rgba(5,5,5,.6) 32%, rgba(5,5,5,.18) 56%, transparent 74%),
+    linear-gradient(180deg, rgba(5,5,5,.35) 0%, transparent 30%, transparent 75%, rgba(5,5,5,.55) 100%);
 }
 
 .pageHeroVideo .pageHeroInner {
@@ -760,59 +773,13 @@
   pointer-events: none;
 }
 
-/* Pantalla flotante con video que se inclina hacia el cursor (hero de
-   Nosotros). Mismo motivo de filete azul desfasado que .bandFig::after,
-   para que no lea como un elemento nuevo sino como parte del mismo
-   lenguaje visual. */
-.tiltStage {
-  position: relative;
-  perspective: 1400px;
-}
-
-.tiltGlow {
+/* Video de fondo del pageHero con parallax de scroll (hero de
+   Nosotros: video 16:9 pensado para ocupar todo el hero, no una
+   tarjeta al costado). Reutiliza .pageHeroBg/.pageHeroBgFade, ya
+   definidos para el hero de Servicios. */
+.pageHeroBgVideoWrap {
   position: absolute;
-  inset: -12%;
-  background: radial-gradient(ellipse at 50% 50%, rgba(47,123,246,.25), transparent 65%);
-  filter: blur(44px);
-  pointer-events: none;
-  z-index: -2;
-}
-
-.tiltCard {
-  position: relative;
-  aspect-ratio: 4/5;
-  max-width: 420px;
-  margin: 0 auto;
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-/* El recorte del video va en un hijo aparte: si overflow:hidden
-   estuviera en .tiltCard, se comería el filete desfasado de ::after,
-   que a propósito sobresale del borde (mismo problema que .bandFig
-   resuelve separando el frame del wrapper). */
-.tiltCardInner {
-  position: absolute;
-  inset: 0;
-  border-radius: 4px;
-  overflow: hidden;
-  background: var(--negro-3);
-  box-shadow: 0 40px 90px rgba(0,0,0,.55);
-}
-
-.tiltCardInner video { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-.tiltCard::after {
-  content: '';
-  position: absolute;
-  inset: 16px -16px -16px 16px;
-  border: 1px solid var(--azul);
-  z-index: -1;
-  pointer-events: none;
-}
-
-@media (max-width: 960px) {
-  .tiltCard { max-width: 360px; }
+  inset: -10% 0;
 }
 
 /* Panel lateral (para sub-páginas) */
