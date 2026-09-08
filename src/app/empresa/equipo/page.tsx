@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
-import ArcFlowCarousel, { type SmoothSliderItem } from '@/components/ui/arc-flow-carousel';
+import type { SmoothSliderItem } from '@/components/ui/arc-flow-carousel';
+import { EquipoCarousel } from './_equipo-carousel';
 
 export const metadata: Metadata = {
   title: 'Equipo — Areté Soluciones',
@@ -38,23 +39,7 @@ export default function EquipoPage() {
         </div>
       </section>
 
-      <ArcFlowCarousel
-        items={EQUIPO_IMAGES}
-        surfaceColor="#050505"
-        radiusRatio={0.85}
-        cardRatio={0.21}
-        maxCardWidth={320}
-        cardAspect={0.62}
-        overlap={-0.04}
-        arcOffset={0.5}
-        smoothing={5.5}
-        dragSensitivity={1.2}
-        momentum={1}
-        snap
-        wheelControl="horizontal"
-        autoRotateSpeed={0.12}
-        pauseOnHover
-      />
+      <EquipoCarousel items={EQUIPO_IMAGES} />
     </>
   );
 }
