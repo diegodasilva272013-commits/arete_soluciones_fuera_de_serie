@@ -608,7 +608,12 @@ export default function MusicHero({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "clamp(16px, 3vw, 48px)",
+        // En fullscreen el video tiene que llegar de punta a punta (hero
+        // a sangre completa) — este padding es para el modo tarjeta
+        // compacta. Dejarlo fijo acá metia un margen de ~48px alrededor
+        // de la tarjeta fullscreen, dejando ver el fondo ambiental (el
+        // resplandor celeste) como un filo en el borde del video.
+        padding: effectiveFullscreen ? 0 : "clamp(16px, 3vw, 48px)",
         boxSizing: "border-box",
         ...style,
       }}
