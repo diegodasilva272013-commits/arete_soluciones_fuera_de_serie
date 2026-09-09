@@ -28,6 +28,9 @@ export interface Track {
   // this track becomes active, the background video switches to this
   // src and plays with sound instead of the silent ambient loop.
   videoSrc?: string
+  // Optional: a real still frame from that video, shown in the row's
+  // little square instead of the plain colorA/colorB gradient block.
+  thumbnail?: string
 }
 
 const REPO = "https://raw.githubusercontent.com/gughigug/run-hero-assets/main"
@@ -1278,6 +1281,17 @@ function TrackRow({
           boxShadow: isActive ? `0 0 20px ${t.colorA}55, 0 2px 6px rgba(0,0,0,0.4)` : "0 2px 8px rgba(0,0,0,0.55)",
         }}
       >
+        {/* Real still frame from the track's own video when there is
+            one — falls back to the plain color gradient (still visible
+            underneath, and as the img's own background) otherwise. */}
+        {t.thumbnail && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={t.thumbnail}
+            alt=""
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        )}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0) 55%)" }} />
       </div>
       <div style={{ minWidth: 0, flex: 1 }}>
