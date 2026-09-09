@@ -46,15 +46,15 @@ const PRINCIPIOS = [
 // que ver con Areté. Nada de contenido nuevo: es texto que ya existe
 // en esta misma pagina, solo que tambien se muestra aca.
 //
-// Los primeros tres items (01, 02, 03) son distintos de los demas:
-// cada uno tiene su propio video (con su propio audio real, no el
-// loop ambiente mudo) y su propia miniatura (un frame real de ese
-// video, en vez del cuadrado de color plano) — al seleccionarlos, el
-// fondo del hero cambia a ese video y se escucha su audio. "02" y "03"
-// sustituyen a los primeros dos principios (que ya no aparecen en
-// esta lista — siguen estando en la seccion real "Principio Areté"
-// mas abajo, son listas distintas); los 3 restantes pasan a ser
-// 04-06 aca.
+// Los primeros cuatro items (01-04) son distintos de los demas: cada
+// uno tiene su propio video (con su propio audio real, no el loop
+// ambiente mudo) y su propia miniatura (un frame real de ese video,
+// en vez del cuadrado de color plano) — al seleccionarlos, el fondo
+// del hero cambia a ese video y se escucha su audio. "02", "03" y
+// "04" sustituyen a los primeros tres principios (que ya no aparecen
+// en esta lista — siguen estando en la seccion real "Principio Areté"
+// mas abajo, son listas distintas); los 2 restantes pasan a ser
+// 05-06 aca.
 const NOSOTROS_TRACKS: Track[] = [
   {
     id: 'nombre-arete',
@@ -83,10 +83,19 @@ const NOSOTROS_TRACKS: Track[] = [
     videoSrc: '/video_vision.mp4',
     thumbnail: '/thumb_vision.jpg',
   },
-  ...PRINCIPIOS.slice(2).map((p, i) => ({
+  {
+    id: 'cultura-arete',
+    title: 'Cultura de la empresa Areté',
+    artist: '04',
+    colorA: '#5C9AFF',
+    colorB: '#0b407d',
+    videoSrc: '/video_cultura.mp4',
+    thumbnail: '/thumb_cultura.jpg',
+  },
+  ...PRINCIPIOS.slice(3).map((p, i) => ({
     id: p.n,
     title: p.title,
-    artist: `Principio ${String(i + 4).padStart(2, '0')}`,
+    artist: `Principio ${String(i + 5).padStart(2, '0')}`,
     colorA: '#5C9AFF',
     colorB: '#0b407d',
   })),
@@ -102,7 +111,7 @@ export default function NosotrosPage() {
         backgroundSrc="/1.png"
         title="Partimos de la empresa. Siempre."
         tracks={NOSOTROS_TRACKS}
-        initialIndex={3}
+        initialIndex={4}
         signature={false}
       />
 
