@@ -40,18 +40,19 @@ const PRINCIPIOS = [
   },
 ];
 
-// Los 5 principios de mas abajo en esta pagina, reusados como
-// contenido real de la lista del hero — el componente pegado traia
-// nombres de bandas/canciones inventados, que no tienen nada que ver
-// con Areté. Nada de contenido nuevo: es texto que ya existe en esta
-// misma pagina, solo que tambien se muestra aca.
+// El resto de los 5 principios de mas abajo en esta pagina, reusados
+// como contenido real de la lista del hero — el componente pegado
+// traia nombres de bandas/canciones inventados, que no tienen nada
+// que ver con Areté. Nada de contenido nuevo: es texto que ya existe
+// en esta misma pagina, solo que tambien se muestra aca.
 //
-// El primer item (01) es distinto de los demas: tiene su propio video
-// (con su propio audio real, no el loop ambiente mudo) — al
-// seleccionarlo, el fondo del hero cambia a ese video y se escucha su
-// audio. Los 5 principios pasan a ser 02-06 en esta lista (siguen
-// siendo 01-05 mas abajo, en la seccion real "Principio Areté" — son
-// listas distintas).
+// Los primeros dos items (01, 02) son distintos de los demas: cada
+// uno tiene su propio video (con su propio audio real, no el loop
+// ambiente mudo) — al seleccionarlos, el fondo del hero cambia a ese
+// video y se escucha su audio. "02" sustituye al primer principio
+// (que ya no aparece en esta lista — sigue estando en la seccion real
+// "Principio Areté" mas abajo, son listas distintas); los 4 restantes
+// pasan a ser 03-06 aca.
 const NOSOTROS_TRACKS: Track[] = [
   {
     id: 'nombre-arete',
@@ -61,10 +62,18 @@ const NOSOTROS_TRACKS: Track[] = [
     colorB: '#0b407d',
     videoSrc: '/video_nombre_arete.mp4',
   },
-  ...PRINCIPIOS.map((p, i) => ({
+  {
+    id: 'mision-arete',
+    title: 'Misión de la empresa Areté',
+    artist: '02',
+    colorA: '#5C9AFF',
+    colorB: '#0b407d',
+    videoSrc: '/video_mision.mp4',
+  },
+  ...PRINCIPIOS.slice(1).map((p, i) => ({
     id: p.n,
     title: p.title,
-    artist: `Principio ${String(i + 2).padStart(2, '0')}`,
+    artist: `Principio ${String(i + 3).padStart(2, '0')}`,
     colorA: '#5C9AFF',
     colorB: '#0b407d',
   })),
@@ -80,7 +89,7 @@ export default function NosotrosPage() {
         backgroundSrc="/1.png"
         title="Partimos de la empresa. Siempre."
         tracks={NOSOTROS_TRACKS}
-        initialIndex={1}
+        initialIndex={2}
         signature={false}
       />
 
