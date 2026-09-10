@@ -40,21 +40,14 @@ const PRINCIPIOS = [
   },
 ];
 
-// El resto de los 5 principios de mas abajo en esta pagina, reusados
-// como contenido real de la lista del hero — el componente pegado
-// traia nombres de bandas/canciones inventados, que no tienen nada
-// que ver con Areté. Nada de contenido nuevo: es texto que ya existe
-// en esta misma pagina, solo que tambien se muestra aca.
-//
-// Los primeros cuatro items (01-04) son distintos de los demas: cada
-// uno tiene su propio video (con su propio audio real, no el loop
-// ambiente mudo) y su propia miniatura (un frame real de ese video,
-// en vez del cuadrado de color plano) — al seleccionarlos, el fondo
-// del hero cambia a ese video y se escucha su audio. "02", "03" y
-// "04" sustituyen a los primeros tres principios (que ya no aparecen
-// en esta lista — siguen estando en la seccion real "Principio Areté"
-// mas abajo, son listas distintas); los 2 restantes pasan a ser
-// 05-06 aca.
+// Cada item de esta lista tiene su propio video real (con su propio
+// audio) y su propia miniatura (un frame real de ese video) — al
+// seleccionarlo, el fondo del hero cambia a ese video y se escucha su
+// audio. Ya no quedan items "vacíos" (principios sin video propio,
+// mostrando solo texto sobre el loop ambiente mudo): a medida que
+// hubo video real para cada uno, fueron sustituyendo a los principios
+// que ocupaban esas posiciones — esos principios siguen estando en la
+// seccion real "Principio Areté" mas abajo, es contenido aparte.
 const NOSOTROS_TRACKS: Track[] = [
   {
     id: 'nombre-arete',
@@ -92,13 +85,15 @@ const NOSOTROS_TRACKS: Track[] = [
     videoSrc: '/video_cultura.mp4',
     thumbnail: '/thumb_cultura.jpg',
   },
-  ...PRINCIPIOS.slice(3).map((p, i) => ({
-    id: p.n,
-    title: p.title,
-    artist: `Principio ${String(i + 5).padStart(2, '0')}`,
+  {
+    id: 'porque-elegirnos',
+    title: 'Por qué elegirnos',
+    artist: '05',
     colorA: '#5C9AFF',
     colorB: '#0b407d',
-  })),
+    videoSrc: '/video_porque_elegirnos.mp4',
+    thumbnail: '/thumb_porque_elegirnos.jpg',
+  },
 ];
 
 export default function NosotrosPage() {
@@ -111,7 +106,7 @@ export default function NosotrosPage() {
         backgroundSrc="/1.png"
         title="Partimos de la empresa. Siempre."
         tracks={NOSOTROS_TRACKS}
-        initialIndex={4}
+        initialIndex={0}
         signature={false}
       />
 

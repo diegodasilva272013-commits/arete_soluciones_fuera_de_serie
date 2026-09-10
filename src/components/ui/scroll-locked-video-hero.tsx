@@ -231,7 +231,20 @@ export default function MusicHero({
   // sound on automatically, instead of staying on the silent ambient
   // loop. Going back to a track without its own video returns to the
   // regular muted ambient behavior.
+  //
+  // Skipped on the very first run (mount): if initialIndex itself
+  // points at a track with its own video — every track can, now that
+  // there's no plain "no video" item left in some lists — the hero
+  // would otherwise blast that track's audio the instant the page
+  // loads, before anyone asked for sound. Any later change (including
+  // navigating back to that same track) still turns its sound on
+  // normally; only the opening frame stays silent.
+  const didMountAudioRef = useRef(false)
   useEffect(() => {
+    if (!didMountAudioRef.current) {
+      didMountAudioRef.current = true
+      return
+    }
     const t = tracks[activeIndex]
     if (t?.videoSrc) {
       setVideoSoundOn(true)
