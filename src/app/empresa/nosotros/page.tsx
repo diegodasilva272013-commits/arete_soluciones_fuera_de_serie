@@ -104,7 +104,7 @@ export default function NosotrosPage() {
       <MusicHero
         videoSrc="/video_hero_nosotros.mp4"
         backgroundSrc="/1.png"
-        title="Partimos de la empresa. Siempre."
+        title=""
         tracks={NOSOTROS_TRACKS}
         initialIndex={0}
         signature={false}

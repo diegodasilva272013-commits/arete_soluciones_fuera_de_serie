@@ -590,19 +590,21 @@ export default function MusicHero({
                 <path d="M21 12a9 9 0 0 1-9 9c-2.5 0-4.7-1-6.3-2.7M3 12a9 9 0 0 1 9-9c2.5 0 4.7 1 6.3 2.7M3 8v4h4M21 16v-4h-4" />
               </svg>
             </button>
-            <span
-              style={{
-                textAlign: "center",
-                fontFamily: SANS,
-                fontWeight: 800,
-                fontSize: "clamp(17px, 5.4vw, 24px)",
-                lineHeight: 1.15,
-                color: "#fff",
-                textShadow: "0 4px 20px rgba(0,0,0,0.6)",
-              }}
-            >
-              {title}
-            </span>
+            {title && (
+              <span
+                style={{
+                  textAlign: "center",
+                  fontFamily: SANS,
+                  fontWeight: 800,
+                  fontSize: "clamp(17px, 5.4vw, 24px)",
+                  lineHeight: 1.15,
+                  color: "#fff",
+                  textShadow: "0 4px 20px rgba(0,0,0,0.6)",
+                }}
+              >
+                {title}
+              </span>
+            )}
             {signature && (
               <a
                 href={signature.url}
@@ -851,30 +853,32 @@ export default function MusicHero({
           height: effectiveFullscreen ? "100%" : undefined,
         }}
       >
-        <span
-          style={{
-            fontFamily: SANS,
-            fontWeight: 800,
-            fontSize: "clamp(20px, 3vw, 32px)",
-            letterSpacing: "-0.01em",
-            color: fgVar,
-            textAlign: "center",
-            textShadow: "0 4px 30px rgba(0,10,40,0.6)",
-            // Fullscreen hace que la tarjeta cubra toda la seccion — el
-            // titulo flota encima como overlay propio. "absolute" en vez
-            // de "fixed" (que tapaba la ventana entera para siempre): se
-            // ancla al contenedor position:relative del hero, no al
-            // viewport, asi que se va scrolleando con el resto de la
-            // pagina en vez de quedar pegado.
-            position: effectiveFullscreen ? "absolute" : "static",
-            top: effectiveFullscreen ? "clamp(16px, 4vh, 28px)" : undefined,
-            left: effectiveFullscreen ? 0 : undefined,
-            right: effectiveFullscreen ? 0 : undefined,
-            zIndex: effectiveFullscreen ? 20 : undefined,
-          }}
-        >
-          {title}
-        </span>
+        {title && (
+          <span
+            style={{
+              fontFamily: SANS,
+              fontWeight: 800,
+              fontSize: "clamp(20px, 3vw, 32px)",
+              letterSpacing: "-0.01em",
+              color: fgVar,
+              textAlign: "center",
+              textShadow: "0 4px 30px rgba(0,10,40,0.6)",
+              // Fullscreen hace que la tarjeta cubra toda la seccion — el
+              // titulo flota encima como overlay propio. "absolute" en vez
+              // de "fixed" (que tapaba la ventana entera para siempre): se
+              // ancla al contenedor position:relative del hero, no al
+              // viewport, asi que se va scrolleando con el resto de la
+              // pagina en vez de quedar pegado.
+              position: effectiveFullscreen ? "absolute" : "static",
+              top: effectiveFullscreen ? "clamp(16px, 4vh, 28px)" : undefined,
+              left: effectiveFullscreen ? 0 : undefined,
+              right: effectiveFullscreen ? 0 : undefined,
+              zIndex: effectiveFullscreen ? 20 : undefined,
+            }}
+          >
+            {title}
+          </span>
+        )}
         {signature && (
           <a
             href={signature.url}
