@@ -6,9 +6,33 @@ import c from '../empresa/corp.module.css';
 import s from './recl.module.css';
 
 export const metadata: Metadata = {
-  title: 'Reclutamiento — Areté',
-  description: 'Sumate como Setter o Cold Caller. Compromiso real, no un currículum perfecto.',
+  title: 'Unirse al equipo',
+  description: 'Buscamos setters y cold callers con compromiso real. Sin excusas, todos los días.',
   robots: { index: false, follow: false },
+
+  // OG explícito para que WhatsApp/iMessage no hereden el título del layout raíz
+  openGraph: {
+    type: 'website',
+    url: 'https://arete-soluciones-plataforma.vercel.app/reclutamiento',
+    siteName: 'Areté Soluciones',
+    title: 'Unirse al equipo — Areté Soluciones',
+    description: 'Buscamos setters y cold callers que ejecuten todos los días. Postulate y mostranos quién sos.',
+    locale: 'es_AR',
+    images: [
+      {
+        url: 'https://arete-soluciones-plataforma.vercel.app/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Reclutamiento — Areté Soluciones',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Unirse al equipo — Areté Soluciones',
+    description: 'Buscamos setters y cold callers que ejecuten todos los días.',
+    images: ['https://arete-soluciones-plataforma.vercel.app/opengraph-image'],
+  },
 };
 
 export default function ReclutamientoPage() {
