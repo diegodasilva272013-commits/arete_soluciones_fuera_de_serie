@@ -113,6 +113,51 @@
   flex-shrink: 0;
 }
 
+/* ── Form section — video background igual a /acceso ── */
+.formSection {
+  position: relative;
+  overflow: hidden;
+}
+
+.formVideoBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Overlay oscuro para que el formulario sea legible */
+.formVideoOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(5,5,5,0.82);
+}
+
+.formVideoEl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* El contenido flota sobre el video */
+.formContent {
+  position: relative;
+  z-index: 2;
+}
+
+/* Card glassmorphism — mismo patrón que /acceso */
+.formCard {
+  background: rgba(5,5,5,0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(242,239,233,.08);
+  border-radius: 16px;
+  padding: 40px;
+  margin-top: 0;
+}
+
 /* ── Form ── */
 .formGrid {
   display: grid;
