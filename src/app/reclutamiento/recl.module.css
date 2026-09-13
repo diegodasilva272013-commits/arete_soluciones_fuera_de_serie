@@ -59,13 +59,13 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1200px;
+  max-width: min(92vw, 1480px);
   margin: 0 auto;
-  padding: 80px 40px;
+  padding: 80px clamp(32px, 5vw, 80px);
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 40px;
+  gap: clamp(32px, 4vw, 72px);
   box-sizing: border-box;
 }
 
@@ -74,7 +74,7 @@
 }
 
 .heroRight {
-  height: 520px;
+  height: clamp(400px, 50vw, 620px);
   position: relative;
 }
 

@@ -109,8 +109,9 @@ export function NeonMesh({ className = '' }: NeonMeshProps) {
 
     handleResize();
     window.addEventListener('resize', handleResize);
-    container.addEventListener('mousemove', handleMouseMove);
-    container.addEventListener('mouseleave', handleMouseLeave);
+    // Escucha en window para que funcione aunque el container tenga pointer-events:none
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseleave', handleMouseLeave);
 
     let time = 0;
 
@@ -232,8 +233,8 @@ export function NeonMesh({ className = '' }: NeonMeshProps) {
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', handleResize);
-      container.removeEventListener('mousemove', handleMouseMove);
-      container.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
