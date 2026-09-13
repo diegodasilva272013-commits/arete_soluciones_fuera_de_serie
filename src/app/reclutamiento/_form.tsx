@@ -44,33 +44,26 @@ async function uploadFoto(uploadUrl: string, file: File): Promise<void> {
 
 /**
  * Video: TUS resumable upload en chunks de 6 MB.
- * Usa el anon key + políticas RLS en storage.objects (el token firmado de
- * createSignedUploadUrl solo sirve para PUT directo, no para TUS).
- * Cada PATCH tarda pocos segundos — no hay timeout aunque la conexión sea lenta.
- * Si se corta, retoma desde donde estaba (retryDelays).
+ *
+ * Flujo probado manualmente contra Supabase:
+ *  1. Servidor crea la sesión TUS con service role key → devuelve sessionUrl
+ *  2. Cliente usa uploadUrl (sesión ya creada) + anon key para los PATCHes
+ *  PATCH → 204, Upload-Offset avanza — confirmado sin necesitar RLS policies.
  */
 async function uploadVideoTus(
-  bucket: string,
-  path: string,
+  sessionUrl: string,
   file: File,
   onProgress: (pct: number) => void,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const upload = new Upload(file, {
-      endpoint: `${SUPABASE_URL}/storage/v1/upload/resumable`,
+      uploadUrl: sessionUrl,           // sesión ya creada por el servidor
       retryDelays: [0, 3000, 5000, 10000, 20000],
       headers: {
         authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        'x-upsert': 'true',
       },
       uploadDataDuringCreation: true,
       removeFingerprintOnSuccess: true,
-      metadata: {
-        bucketName: bucket,
-        objectName: path,
-        contentType: file.type || 'video/mp4',
-        cacheControl: '3600',
-      },
       chunkSize: 6 * 1024 * 1024,
       onError: (err: Error) => reject(new Error(`Error al subir el video: ${err.message}`)),
       onProgress: (uploaded: number, total: number) => {
@@ -166,18 +159,20 @@ export function ReclutamientoForm() {
       await uploadFoto(fotoData.uploadUrl, foto);
       setProgreso(100);
 
-      // 3. Subir el video con TUS (chunks de 6 MB — funciona en móvil lento, sin timeout)
+      // 3. Subir el video con TUS resumable (chunks de 6 MB, sin timeout)
+      //    Servidor crea la sesión TUS con service role key → retorna sessionUrl
+      //    Cliente PATCHea con anon key — probado: PATCH → 204, funciona.
       setPaso('subiendo_video');
       setProgreso(0);
-      const videoUrlRes = await fetch(`/api/reclutamiento/${id}/upload-url`, {
+      const tusInitRes = await fetch(`/api/reclutamiento/${id}/tus-init`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kind: 'video', size: video.size, contentType: video.type }),
       });
-      const videoData = await videoUrlRes.json();
-      if (!videoUrlRes.ok) throw new Error(videoData.error ?? 'No se pudo iniciar la subida del video');
+      const tusData = await tusInitRes.json();
+      if (!tusInitRes.ok) throw new Error(tusData.error ?? 'No se pudo iniciar la subida del video');
 
-      await uploadVideoTus(videoData.bucket, videoData.path, video, setProgreso);
+      await uploadVideoTus(tusData.sessionUrl, video, setProgreso);
 
       setPaso('listo');
     } catch (err: any) {
