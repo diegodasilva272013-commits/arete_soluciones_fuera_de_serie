@@ -62,7 +62,6 @@ export function ReclutamientoForm() {
   const [motivacion,  setMotivacion]  = useState('');
   const [foto,        setFoto]        = useState<File | null>(null);
   const [video,       setVideo]       = useState<File | null>(null);
-  const [website,     setWebsite]     = useState(''); // honeypot
 
   const [paso,     setPaso]     = useState<Paso>('idle');
   const [progreso, setProgreso] = useState(0);
@@ -107,7 +106,7 @@ export function ReclutamientoForm() {
         body: JSON.stringify({
           nombre, apellido, email,
           edad: Number(edad),
-          experiencia, motivo, motivacion, website,
+          experiencia, motivo, motivacion,
         }),
       });
       const created = await createRes.json();
@@ -169,17 +168,6 @@ export function ReclutamientoForm() {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* Honeypot */}
-      <input
-        type="text"
-        value={website}
-        onChange={(e) => setWebsite(e.target.value)}
-        style={{ display: 'none' }}
-        tabIndex={-1}
-        autoComplete="off"
-        aria-hidden
-      />
-
       <div className={s.formGrid}>
         <Field label="Nombre *">
           <input required value={nombre} onChange={(e) => setNombre(e.target.value)} className={c.formInput} disabled={procesando} />

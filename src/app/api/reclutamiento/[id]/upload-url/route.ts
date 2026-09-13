@@ -29,12 +29,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const admin = createSupabaseAdminClient() as any;
 
-  const { data: postulante } = await admin
+  const { data: postulante, error: lookupError } = await admin
     .from('reclutamiento_postulantes')
     .select('id')
     .eq('id', id)
     .maybeSingle();
-  if (!postulante) return NextResponse.json({ error: 'Postulación no encontrada' }, { status: 404 });
+  if (lookupError) return NextResponse.json({ error: lookupError.message }, { status: 500 });
+  if (!postulante) return NextResponse.json({ error: 'Postulación no encontrada (id inválido)' }, { status: 404 });
 
   if (kind === 'foto') {
     if (typeof size === 'number' && size > MAX_FOTO_BYTES) {
