@@ -12,7 +12,9 @@
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
-"@studio-freight/lenis": "^1.0.42",
+    "@splinetool/react-spline": "2.2.6",
+    "@splinetool/runtime": "0.9.543",
+    "@studio-freight/lenis": "^1.0.42",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.46.1",
     "@types/pg": "^8.20.0",

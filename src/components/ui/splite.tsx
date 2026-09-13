@@ -1,31 +1,42 @@
 'use client';
 
+import { Suspense, lazy } from 'react';
+
+// @splinetool/react-spline v2.x — sin dependencias WASM
+const Spline = lazy(() => import('@splinetool/react-spline'));
+
 interface SplineSceneProps {
   scene: string;
   className?: string;
-  style?: React.CSSProperties;
 }
 
-/**
- * Embeds a Spline scene via iframe — evita totalmente los problemas de webpack/WASM.
- * La URL de runtime  https://prod.spline.design/<ID>/scene.splinecode
- * se convierte en    https://my.spline.design/<ID>/
- */
-export function SplineScene({ scene, className, style }: SplineSceneProps) {
-  // Extraer ID: "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" → "kZDDjO5HuC9GJUM2"
-  const match = scene.match(/\/([A-Za-z0-9]+)\/scene\.splinecode$/);
-  const embedUrl = match
-    ? `https://my.spline.design/${match[1]}/`
-    : scene;
-
+export function SplineScene({ scene, className }: SplineSceneProps) {
   return (
-    <iframe
-      src={embedUrl}
-      className={className}
-      style={{ border: 'none', width: '100%', height: '100%', ...style }}
-      allow="autoplay"
-      loading="lazy"
-      title="Spline 3D Scene"
-    />
+    <Suspense
+      fallback={
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <span
+            style={{
+              width: '32px',
+              height: '32px',
+              border: '2px solid rgba(47,123,246,.25)',
+              borderTopColor: '#2F7BF6',
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite',
+            }}
+          />
+        </div>
+      }
+    >
+      <Spline scene={scene} className={className} />
+    </Suspense>
   );
 }
