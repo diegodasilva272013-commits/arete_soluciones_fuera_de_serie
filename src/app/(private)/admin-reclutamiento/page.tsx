@@ -20,6 +20,7 @@ interface Postulante {
   nombre: string;
   apellido: string;
   email: string;
+  telefono: string | null;
   edad: number;
   experiencia: string | null;
   motivo: string;
@@ -162,10 +163,20 @@ function Card({ p: init, index, onHide }: { p: Postulante; index: number; onHide
               <p className="text-white break-all">{p.email}</p>
             </div>
             <div className="rounded-xl bg-white/3 border border-white/6 p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wide mb-1">Teléfono</p>
+              {p.telefono ? (
+                <a href={`https://wa.me/${p.telefono.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:text-green-300 underline underline-offset-2 break-all">
+                  {p.telefono}
+                </a>
+              ) : (
+                <p className="text-white/30">No indicado</p>
+              )}
+            </div>
+            <div className="rounded-xl bg-white/3 border border-white/6 p-3">
               <p className="text-[10px] text-white/30 uppercase tracking-wide mb-1">Edad</p>
               <p className="text-white">{p.edad} años</p>
             </div>
-            <div className="rounded-xl bg-white/3 border border-white/6 p-3">
+            <div className="rounded-xl bg-white/3 border border-white/6 p-3 col-span-2 sm:col-span-3">
               <p className="text-[10px] text-white/30 uppercase tracking-wide mb-1">Experiencia</p>
               <p className="text-white">{p.experiencia ?? 'No indicada'}</p>
             </div>

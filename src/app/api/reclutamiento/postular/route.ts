@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   if (!body) return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
 
   const {
-    nombre, apellido, email, edad,
+    nombre, apellido, email, edad, telefono,
     experiencia, motivo, motivacion,
     // Honeypot: campo invisible para humanos en el form; si viene
     // completo, es un bot rellenando todos los inputs del DOM.
@@ -52,18 +52,21 @@ export async function POST(req: NextRequest) {
 
   const admin = createSupabaseAdminClient() as any;
 
-  // Verificar si el email ya existe
-  const { data: existing } = await admin
-    .from('reclutamiento_postulantes')
-    .select('id')
-    .eq('email', email.trim().toLowerCase())
-    .maybeSingle();
+  // Verificar si el teléfono ya existe
+  const telefonoClean = typeof telefono === 'string' && telefono.trim() ? telefono.trim() : null;
+  if (telefonoClean) {
+    const { data: existing } = await admin
+      .from('reclutamiento_postulantes')
+      .select('id')
+      .eq('telefono', telefonoClean)
+      .maybeSingle();
 
-  if (existing) {
-    return NextResponse.json(
-      { error: 'Este email ya tiene una postulación registrada.' },
-      { status: 409 }
-    );
+    if (existing) {
+      return NextResponse.json(
+        { error: 'Este número de teléfono ya tiene una postulación registrada.' },
+        { status: 409 }
+      );
+    }
   }
 
   const { data, error } = await admin
@@ -73,6 +76,7 @@ export async function POST(req: NextRequest) {
       apellido: apellido.trim(),
       email: email.trim().toLowerCase(),
       edad: edadNum,
+      telefono: typeof telefono === 'string' && telefono.trim() ? telefono.trim() : null,
       experiencia: typeof experiencia === 'string' ? experiencia.trim() : null,
       motivo: motivo.trim(),
       motivacion: motivacion.trim(),

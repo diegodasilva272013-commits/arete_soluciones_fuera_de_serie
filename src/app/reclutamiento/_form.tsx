@@ -82,6 +82,7 @@ export function ReclutamientoForm() {
   const [nombre,      setNombre]      = useState('');
   const [apellido,    setApellido]    = useState('');
   const [email,       setEmail]       = useState('');
+  const [telefono,    setTelefono]    = useState('');
   const [edad,        setEdad]        = useState('');
   const [experiencia, setExperiencia] = useState('');
   const [motivo,      setMotivo]      = useState('');
@@ -140,7 +141,7 @@ export function ReclutamientoForm() {
       const createRes = await fetch('/api/reclutamiento/postular', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, apellido, email, edad: Number(edad), experiencia, motivo, motivacion }),
+        body: JSON.stringify({ nombre, apellido, email, telefono, edad: Number(edad), experiencia, motivo, motivacion }),
       });
       const created = await createRes.json();
       if (!createRes.ok) throw new Error(created.error ?? 'No se pudo guardar la postulación');
@@ -218,6 +219,9 @@ export function ReclutamientoForm() {
         </Field>
         <Field label="Email *">
           <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={c.formInput} disabled={procesando} />
+        </Field>
+        <Field label="Teléfono / WhatsApp *">
+          <input required type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} className={c.formInput} disabled={procesando} placeholder="+54 9 11 1234-5678" />
         </Field>
         <Field label="Edad *">
           <input required type="number" min={16} max={90} value={edad} onChange={(e) => setEdad(e.target.value)} className={c.formInput} disabled={procesando} />
