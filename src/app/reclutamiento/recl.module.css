@@ -270,6 +270,9 @@
     margin: 0 -20px;
   }
 
+  /* Countdown centrado en mobile */
+  .countdownWrap { align-items: center; }
+
   /* Countdown: números más chicos */
   .countdownNum { font-size: 30px; }
   .countdownCell { padding-right: 10px; }
@@ -283,6 +286,23 @@
 
   /* Zona de archivos: más compacta */
   .fileZone { padding: 20px 16px; }
+
+  /*
+   * Video en mobile: el section es ~1400px de alto por todos los inputs apilados.
+   * object-fit:cover en un container tan alto agranda el video ×6 y muestra nada.
+   * Solución: el videoBg cubre solo los primeros 50vh (el área del título/lockup),
+   * el resto del section tiene fondo oscuro plano — el video se ve bien.
+   */
+  .formVideoBg {
+    bottom: auto;          /* cancela el inset:0 que ponía bottom:0 */
+    height: 50vh;          /* cubre solo la mitad superior del section */
+  }
+  .formVideoEl {
+    object-position: center top;  /* muestra la parte más interesante del video */
+  }
+  .formVideoOverlay {
+    background: rgba(5,5,5,0.60);  /* menos opaco en mobile */
+  }
 }
 
 /* Teléfonos muy chicos (< 390px) */

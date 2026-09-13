@@ -30,20 +30,38 @@ export function Cultura() {
   return (
     <section className={c.section} style={{ position: 'relative', overflow: 'hidden' }}>
 
-      {/* ── NeonMesh 3D de fondo — colores Areté azul ── */}
+      {/*
+       * Feedback táctil para las cards en mobile.
+       * En desktop los efectos vienen de corp.module.css @media(hover:hover).
+       * En touch (pointer:coarse) las cards no tienen :hover —
+       * este bloque agrega un :active táctil con el mismo estilo.
+       */}
+      <style>{`
+        @media (hover: none) and (pointer: coarse) {
+          .etapa-recl:active {
+            background: rgba(47,123,246,.07) !important;
+            transform: translateY(-2px) !important;
+          }
+          .etapa-recl:active .etapaN-recl {
+            -webkit-text-fill-color: #5C9AFF !important;
+          }
+        }
+      `}</style>
+
+      {/* ── NeonMesh 3D de fondo ── */}
       <div
         aria-hidden
         style={{
           position: 'absolute',
           inset: 0,
           zIndex: 0,
-          // El canvas llena el section completo
+          pointerEvents: 'none', /* los toques pasan a las cards debajo */
         }}
       >
         <NeonMesh />
       </div>
 
-      {/* Gradiente superior e inferior para fundir el mesh con el negro de la página */}
+      {/* Gradiente que funde el mesh con el negro de la página */}
       <div
         aria-hidden
         style={{
@@ -70,11 +88,11 @@ export function Cultura() {
           </p>
         </div>
 
-        {/* Grid de puntos */}
+        {/* Grid de puntos — las clases extra habilitan el :active táctil */}
         <div className={`${c.etapasGrid} ${c.revealOn}`}>
           {PUNTOS.map((p) => (
-            <div key={p.n} className={c.etapa}>
-              <div className={c.etapaN}>{p.n}</div>
+            <div key={p.n} className={`${c.etapa} etapa-recl`}>
+              <div className={`${c.etapaN} etapaN-recl`}>{p.n}</div>
               <h3 className={c.etapaTitle}>{p.title}</h3>
               <p className={c.etapaBody}>{p.body}</p>
             </div>
