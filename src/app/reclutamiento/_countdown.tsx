@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import s from './recl.module.css';
 
 // Lunes 14/09/2026, 12:00 (hora Argentina, UTC-3) — fecha pedida
 // explícitamente para el cierre de esta convocatoria.
@@ -24,8 +25,7 @@ const UNITS: { key: keyof ReturnType<typeof split>; label: string }[] = [
 
 export function Countdown() {
   // Se calcula recién en el cliente (evita mismatch de hidratación
-  // contra la hora del servidor) — arranca en null y se llena al
-  // montar.
+  // contra la hora del servidor) — arranca en null y se llena al montar.
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -40,23 +40,18 @@ export function Countdown() {
   const parts = split(DEADLINE - now);
 
   return (
-    <div className="inline-flex flex-col items-center gap-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#D4AF37]">
+    <div className={s.countdownWrap}>
+      <p className={s.countdownLabel}>
         {closed ? 'Convocatoria cerrada' : 'La convocatoria cierra en'}
       </p>
       {!closed && (
-        <div className="flex items-stretch gap-2 sm:gap-3">
+        <div className={s.countdownGrid}>
           {UNITS.map(({ key, label }) => (
-            <div
-              key={key}
-              className="card-premium flex w-[64px] flex-col items-center py-3 backdrop-blur"
-            >
-              <span className="font-mono text-2xl font-bold tabular-nums text-brand-text sm:text-3xl">
+            <div key={key} className={s.countdownCell}>
+              <span className={s.countdownNum}>
                 {String(parts[key]).padStart(2, '0')}
               </span>
-              <span className="mt-1 text-[9px] uppercase tracking-widest text-brand-muted">
-                {label}
-              </span>
+              <span className={s.countdownUnit}>{label}</span>
             </div>
           ))}
         </div>

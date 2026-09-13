@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import s from './recl.module.css';
 
 type Paso =
   | 'idle'
@@ -171,9 +172,9 @@ export function ReclutamientoForm() {
 
   if (paso === 'listo') {
     return (
-      <div className="card-premium p-10 text-center">
-        <p className="text-2xl font-semibold text-brand-text">¡Postulación recibida!</p>
-        <p className="mt-3 text-sm text-brand-muted">
+      <div className={s.successBox}>
+        <p className={s.successTitle}>¡Postulación recibida!</p>
+        <p className={s.successBody}>
           Revisamos tu video y tu perfil. Si hay match, te contactamos por el email que dejaste.
         </p>
       </div>
@@ -181,46 +182,46 @@ export function ReclutamientoForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Honeypot — invisible para una persona, un bot que rellena todo el DOM sí lo completa */}
       <input
         type="text"
         value={website}
         onChange={(e) => setWebsite(e.target.value)}
-        className="hidden"
+        style={{ display: 'none' }}
         tabIndex={-1}
         autoComplete="off"
         aria-hidden="true"
       />
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className={s.formGrid}>
         <Field label="Nombre *">
-          <input required value={nombre} onChange={(e) => setNombre(e.target.value)} className={inputCls} disabled={procesando} />
+          <input required value={nombre} onChange={(e) => setNombre(e.target.value)} className={s.input} disabled={procesando} />
         </Field>
         <Field label="Apellido *">
-          <input required value={apellido} onChange={(e) => setApellido(e.target.value)} className={inputCls} disabled={procesando} />
+          <input required value={apellido} onChange={(e) => setApellido(e.target.value)} className={s.input} disabled={procesando} />
         </Field>
         <Field label="Email *">
-          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} disabled={procesando} />
+          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={s.input} disabled={procesando} />
         </Field>
         <Field label="Edad *">
-          <input required type="number" min={16} max={90} value={edad} onChange={(e) => setEdad(e.target.value)} className={inputCls} disabled={procesando} />
+          <input required type="number" min={16} max={90} value={edad} onChange={(e) => setEdad(e.target.value)} className={s.input} disabled={procesando} />
         </Field>
       </div>
 
       <Field label="Experiencia previa (ventas, atención al cliente, lo que sea relevante)">
-        <textarea rows={3} value={experiencia} onChange={(e) => setExperiencia(e.target.value)} className={inputCls} disabled={procesando} />
+        <textarea rows={3} value={experiencia} onChange={(e) => setExperiencia(e.target.value)} className={s.input} disabled={procesando} />
       </Field>
 
       <Field label="¿Por qué querés ser parte del equipo? *">
-        <textarea required minLength={10} rows={3} value={motivo} onChange={(e) => setMotivo(e.target.value)} className={inputCls} disabled={procesando} />
+        <textarea required minLength={10} rows={3} value={motivo} onChange={(e) => setMotivo(e.target.value)} className={s.input} disabled={procesando} />
       </Field>
 
       <Field label="¿Qué te motiva a tomar este puesto? *">
-        <textarea required minLength={10} rows={3} value={motivacion} onChange={(e) => setMotivacion(e.target.value)} className={inputCls} disabled={procesando} />
+        <textarea required minLength={10} rows={3} value={motivacion} onChange={(e) => setMotivacion(e.target.value)} className={s.input} disabled={procesando} />
       </Field>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className={s.formGrid}>
         <FileField
           label="Tu foto *"
           hint="JPG, PNG o WEBP — hasta 5 MB"
@@ -241,19 +242,17 @@ export function ReclutamientoForm() {
         />
       </div>
 
-      {error && (
-        <div className="rounded-lg border border-red-900/40 bg-red-950/20 p-3 text-sm text-red-400">{error}</div>
-      )}
+      {error && <div className={s.errorBox}>{error}</div>}
 
       {procesando && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 text-sm text-brand-muted">
-            <span className="h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-[rgba(212,175,55,0.3)] border-t-[#D4AF37]" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className={s.progressRow}>
+            <span className={s.spinner} />
             {PASO_MSG[paso]}
           </div>
           {progreso > 0 && (
-            <div className="h-1.5 overflow-hidden rounded-full bg-[#111111]">
-              <div className="h-full rounded-full bg-[#D4AF37] transition-all duration-200" style={{ width: `${progreso}%` }} />
+            <div className={s.progressBar}>
+              <div className={s.progressFill} style={{ width: `${progreso}%` }} />
             </div>
           )}
         </div>
@@ -262,7 +261,8 @@ export function ReclutamientoForm() {
       <button
         type="submit"
         disabled={procesando}
-        className="w-full rounded-xl bg-gradient-to-br from-[#f4dfa0] to-[#D4AF37] py-3.5 text-sm font-semibold text-[#0a0a0a] shadow-[0_8px_24px_-12px_rgba(212,175,55,0.6)] transition hover:brightness-110 disabled:opacity-40"
+        className={s.btnPrimary}
+        style={{ width: '100%', justifyContent: 'center' }}
       >
         {procesando ? 'Enviando...' : 'Postularme'}
       </button>
@@ -270,13 +270,10 @@ export function ReclutamientoForm() {
   );
 }
 
-const inputCls =
-  'w-full rounded-lg border border-[rgba(212,175,55,0.18)] bg-[#0d0d0d] px-3.5 py-2.5 text-sm text-brand-text placeholder-brand-muted/50 outline-none transition focus:border-[rgba(212,175,55,0.5)] disabled:opacity-50';
-
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-xs font-medium text-brand-muted">{label}</span>
+    <label style={{ display: 'block' }}>
+      <span className={s.fieldLabel}>{label}</span>
       {children}
     </label>
   );
@@ -294,22 +291,19 @@ function FileField({
   disabled: boolean;
 }) {
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-xs font-medium text-brand-muted">{label}</span>
+    <label style={{ display: 'block' }}>
+      <span className={s.fieldLabel}>{label}</span>
       <div
         onClick={() => !disabled && inputRef.current?.click()}
-        className={`cursor-pointer rounded-lg border-2 border-dashed p-4 text-center transition ${
-          file ? 'border-emerald-700/50 bg-emerald-950/10' : 'border-[rgba(212,175,55,0.25)] hover:border-[rgba(212,175,55,0.5)]'
-        } ${disabled ? 'pointer-events-none opacity-50' : ''}`}
+        className={`${s.fileZone} ${file ? s.fileZoneActive : ''} ${disabled ? '' : ''}`}
+        style={disabled ? { opacity: 0.45, pointerEvents: 'none' } : {}}
       >
-        <input ref={inputRef} type="file" accept={accept} onChange={onChange} className="hidden" disabled={disabled} />
-        {file ? (
-          <p className="text-sm text-emerald-400">{file.name}</p>
-        ) : (
-          <p className="text-sm text-brand-muted">Click para elegir archivo</p>
-        )}
+        <input ref={inputRef} type="file" accept={accept} onChange={onChange} style={{ display: 'none' }} disabled={disabled} />
+        <p className={s.fileZoneLabel}>
+          {file ? file.name : 'Click para elegir archivo'}
+        </p>
       </div>
-      <p className="mt-1.5 text-[11px] leading-relaxed text-brand-muted/70">{hint}</p>
+      <p className={s.fileHint}>{hint}</p>
     </label>
   );
 }

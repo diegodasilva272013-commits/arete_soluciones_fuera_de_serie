@@ -1,3 +1,5 @@
+import s from './recl.module.css';
+
 const PUNTOS = [
   {
     title: 'Buscamos personas, no robots',
@@ -22,36 +24,32 @@ const DESCALIFICA = [
 
 export function Cultura() {
   return (
-    <section className="border-t border-[rgba(212,175,55,0.12)] bg-[#050505] py-20 sm:py-28">
-      <div className="mx-auto max-w-5xl px-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#D4AF37]">
-          Nuestra cultura
-        </p>
-        <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-brand-text sm:text-4xl">
-          Ser distinto no es un slogan acá — es el filtro.
-        </h2>
+    <section className={s.blk}>
+      <div className={s.inner}>
+        <div className={s.shead}>
+          <p className={s.mono}>Nuestra cultura</p>
+          <h2>Ser distinto no es un slogan acá — es el filtro.</h2>
+        </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-3">
+        <div className={s.culturaGrid}>
           {PUNTOS.map((p) => (
-            <div key={p.title} className="card-premium">
-              <h3 className="text-base font-semibold text-brand-text">{p.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-brand-muted">{p.body}</p>
+            <div key={p.title} className={s.culturaItem}>
+              <h3 className={s.culturaTitle}>{p.title}</h3>
+              <p className={s.culturaBody}>{p.body}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-10 rounded-2xl border border-red-900/30 bg-red-950/10 p-6">
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-red-400">
-            Esto te descalifica
-          </h3>
-          <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
+        <div className={s.descalifica}>
+          <span className={s.descalificaTitle}>Esto te descalifica</span>
+          <div className={s.descalificaGrid}>
             {DESCALIFICA.map((d) => (
-              <li key={d} className="flex items-start gap-2.5 text-sm text-brand-muted">
-                <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-red-500" />
+              <div key={d} className={s.descalificaItem}>
+                <span className={s.descalificaDot} aria-hidden />
                 {d}
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </div>
     </section>
