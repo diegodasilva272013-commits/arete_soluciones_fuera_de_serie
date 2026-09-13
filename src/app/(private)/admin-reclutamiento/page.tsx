@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Image from 'next/image';
 import {
   RefreshCw, AlertCircle, User, Mail,
   Calendar, Video, Camera, FileText, ChevronDown, ChevronUp,
@@ -23,8 +22,21 @@ interface Postulante {
   video_path: string | null;
   foto_url: string | null;
   video_url: string | null;
+  estado: string | null;
+  notas_admin: string | null;
   created_at: string;
 }
+
+const ESTADOS = ['nuevo', 'revisando', 'entrevista', 'aceptado', 'rechazado'] as const;
+type Estado = typeof ESTADOS[number];
+
+const ESTADO_CONFIG: Record<Estado, { label: string; color: string; bg: string }> = {
+  nuevo:       { label: 'Nuevo',      color: 'text-white/60',    bg: 'bg-white/5 border-white/10'          },
+  revisando:   { label: 'Revisando',  color: 'text-yellow-400',  bg: 'bg-yellow-500/10 border-yellow-500/20' },
+  entrevista:  { label: 'Entrevista', color: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/20'    },
+  aceptado:    { label: 'Aceptado',   color: 'text-green-400',   bg: 'bg-green-500/10 border-green-500/20'  },
+  rechazado:   { label: 'Rechazado',  color: 'text-red-400',     bg: 'bg-red-500/10 border-red-500/20'      },
+};
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -55,9 +67,41 @@ function timeAgo(iso: string) {
 
 // ─── Card expandible por postulante ──────────────────────────────────────────
 
-function PostulanteCard({ p, index }: { p: Postulante; index: number }) {
+function PostulanteCard({ p: initialP, index }: { p: Postulante; index: number }) {
   const [open, setOpen] = useState(false);
   const [imgErr, setImgErr] = useState(false);
+  const [p, setP] = useState(initialP);
+  const [savingEstado, setSavingEstado] = useState(false);
+  const [notas, setNotas] = useState(initialP.notas_admin ?? '');
+  const [savingNotas, setSavingNotas] = useState(false);
+
+  async function updateEstado(estado: string) {
+    setSavingEstado(true);
+    try {
+      await fetch(`/api/admin/reclutamiento/${p.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado }),
+      });
+      setP(prev => ({ ...prev, estado }));
+    } finally {
+      setSavingEstado(false);
+    }
+  }
+
+  async function saveNotas() {
+    setSavingNotas(true);
+    try {
+      await fetch(`/api/admin/reclutamiento/${p.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notas_admin: notas }),
+      });
+      setP(prev => ({ ...prev, notas_admin: notas }));
+    } finally {
+      setSavingNotas(false);
+    }
+  }
 
   const fullName = `${p.nombre} ${p.apellido}`;
   const initials = `${p.nombre[0]}${p.apellido[0]}`.toUpperCase();
@@ -81,11 +125,11 @@ function PostulanteCard({ p, index }: { p: Postulante; index: number }) {
         {/* Avatar/foto */}
         <div className="relative w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/10 overflow-hidden shrink-0">
           {p.foto_url && !imgErr ? (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               src={p.foto_url}
               alt={fullName}
-              fill
-              className="object-cover"
+              className="w-full h-full object-cover"
               onError={() => setImgErr(true)}
             />
           ) : (
@@ -104,10 +148,15 @@ function PostulanteCard({ p, index }: { p: Postulante; index: number }) {
         {/* Edad */}
         <span className="hidden sm:block text-xs text-white/30 shrink-0">{p.edad} años</span>
 
-        {/* Experiencia badge */}
-        <span className="hidden md:block rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-[10px] font-medium text-white/50 shrink-0 whitespace-nowrap">
-          {EXPERIENCIA_LABELS[p.experiencia ?? ''] ?? p.experiencia ?? '—'}
-        </span>
+        {/* Estado badge */}
+        {(() => {
+          const cfg = ESTADO_CONFIG[(p.estado ?? 'nuevo') as Estado] ?? ESTADO_CONFIG.nuevo;
+          return (
+            <span className={`hidden sm:block rounded-full border px-2.5 py-0.5 text-[10px] font-bold shrink-0 whitespace-nowrap ${cfg.bg} ${cfg.color}`}>
+              {cfg.label}
+            </span>
+          );
+        })()}
 
         {/* Media badges */}
         <div className="flex gap-1.5 shrink-0">
@@ -185,12 +234,12 @@ function PostulanteCard({ p, index }: { p: Postulante; index: number }) {
                       <ExternalLink size={11} />
                     </a>
                   </div>
-                  <div className="relative h-48 sm:h-64 bg-black">
-                    <Image
+                  <div className="h-48 sm:h-64 bg-black flex items-center justify-center overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={p.foto_url}
                       alt={`Foto de ${fullName}`}
-                      fill
-                      className="object-contain"
+                      className="max-h-full max-w-full object-contain"
                     />
                   </div>
                 </div>
@@ -238,6 +287,53 @@ function PostulanteCard({ p, index }: { p: Postulante; index: number }) {
               )}
             </div>
           )}
+
+          {/* ── Estado + Notas ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Cambiar estado */}
+            <div className="rounded-xl bg-white/3 border border-white/6 p-4 space-y-2">
+              <p className="text-[10px] uppercase tracking-wider text-white/30">Estado de la postulación</p>
+              <div className="flex flex-wrap gap-2">
+                {ESTADOS.map(e => {
+                  const cfg = ESTADO_CONFIG[e];
+                  const active = (p.estado ?? 'nuevo') === e;
+                  return (
+                    <button
+                      key={e}
+                      type="button"
+                      onClick={() => updateEstado(e)}
+                      disabled={savingEstado}
+                      className={`rounded-full border px-3 py-1 text-[11px] font-bold transition disabled:opacity-40 ${
+                        active ? `${cfg.bg} ${cfg.color} ring-1 ring-white/20` : 'bg-transparent border-white/10 text-white/30 hover:border-white/25'
+                      }`}
+                    >
+                      {cfg.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Notas internas */}
+            <div className="rounded-xl bg-white/3 border border-white/6 p-4 space-y-2">
+              <p className="text-[10px] uppercase tracking-wider text-white/30">Notas internas</p>
+              <textarea
+                value={notas}
+                onChange={e => setNotas(e.target.value)}
+                rows={3}
+                placeholder="Escribí notas sobre este postulante..."
+                className="w-full rounded-lg bg-white/5 border border-white/8 px-3 py-2 text-sm text-white placeholder-white/20 resize-none focus:outline-none focus:border-white/20 transition"
+              />
+              <button
+                type="button"
+                onClick={saveNotas}
+                disabled={savingNotas}
+                className="rounded-lg bg-white/8 border border-white/10 px-3 py-1.5 text-xs font-medium text-white/60 hover:text-white hover:bg-white/12 transition disabled:opacity-30"
+              >
+                {savingNotas ? 'Guardando...' : 'Guardar notas'}
+              </button>
+            </div>
+          </div>
 
           {/* Footer: fecha exacta */}
           <p className="text-[10px] text-white/20 text-right">
