@@ -1,4 +1,5 @@
 import c from '../empresa/corp.module.css';
+import { NeonMesh } from '@/components/ui/neon-mesh';
 
 const PUNTOS = [
   {
@@ -27,8 +28,36 @@ const DESCALIFICA = [
 
 export function Cultura() {
   return (
-    <section className={c.section}>
-      <div className={c.inner}>
+    <section className={c.section} style={{ position: 'relative', overflow: 'hidden' }}>
+
+      {/* ── NeonMesh 3D de fondo — colores Areté azul ── */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
+          // El canvas llena el section completo
+        }}
+      >
+        <NeonMesh />
+      </div>
+
+      {/* Gradiente superior e inferior para fundir el mesh con el negro de la página */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1,
+          background:
+            'linear-gradient(to bottom, #050505 0%, transparent 14%, transparent 86%, #050505 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Contenido sobre el mesh */}
+      <div className={c.inner} style={{ position: 'relative', zIndex: 2 }}>
         <div className={c.sectionLockup}>
           <span className={c.mono}>Nuestra cultura</span>
           <h2 className={c.sectionTitle}>
@@ -41,7 +70,7 @@ export function Cultura() {
           </p>
         </div>
 
-        {/* Grid de puntos — revealOn hace visibles los .etapa items */}
+        {/* Grid de puntos */}
         <div className={`${c.etapasGrid} ${c.revealOn}`}>
           {PUNTOS.map((p) => (
             <div key={p.n} className={c.etapa}>
@@ -52,7 +81,7 @@ export function Cultura() {
           ))}
         </div>
 
-        {/* Descalifica — revealOn hace visibles los .panelItem items */}
+        {/* Descalifica */}
         <div
           className={`${c.bandPanel} ${c.revealOn}`}
           style={{
