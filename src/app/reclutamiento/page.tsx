@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { Hero } from './_hero';
 import { Cultura } from './_cultura';
 import { ReclutamientoForm } from './_form';
@@ -91,6 +92,36 @@ export default function ReclutamientoPage() {
           </div>
         </div>
       </section>
+
+      {/* ── Footer minimal reclutamiento ── */}
+      <footer style={{
+        borderTop: '1px solid rgba(242,239,233,.07)',
+        padding: '32px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '12px',
+        background: '#050505',
+      }}>
+        <Image
+          src="/LOGO_ARETE.png"
+          alt="Areté Soluciones"
+          width={36}
+          height={36}
+          style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: '50%', opacity: 0.7 }}
+        />
+        <p style={{
+          fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+          fontSize: '10px',
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          color: 'rgba(242,239,233,.3)',
+          margin: 0,
+          textAlign: 'center',
+        }}>
+          © {new Date().getFullYear()} Areté Soluciones · Buenos Aires, Argentina
+        </p>
+      </footer>
     </main>
   );
 }
