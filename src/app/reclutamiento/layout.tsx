@@ -35,7 +35,7 @@ export default function ReclutamientoLayout({ children }: { children: React.Reac
         background: 'rgba(5,5,5,.92)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(212,175,55,.12)',
+        borderBottom: '1px solid rgba(47,123,246,.18)',
         display: 'flex',
         alignItems: 'center',
         padding: '0 40px',
@@ -54,12 +54,12 @@ export default function ReclutamientoLayout({ children }: { children: React.Reac
         <span style={{
           marginLeft: '20px',
           paddingLeft: '20px',
-          borderLeft: '1px solid rgba(212,175,55,.2)',
+          borderLeft: '1px solid rgba(47,123,246,.25)',
           fontFamily: 'var(--f-mono, "JetBrains Mono", monospace)',
           fontSize: '9px',
           letterSpacing: '0.28em',
           textTransform: 'uppercase',
-          color: 'rgba(212,175,55,.55)',
+          color: 'rgba(47,123,246,.7)',
         }}>
           Reclutamiento
         </span>

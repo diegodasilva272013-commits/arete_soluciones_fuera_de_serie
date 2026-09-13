@@ -1,6 +1,6 @@
 /* ============================================================
    Areté Fuera de Serie — Reclutamiento
-   Misma base que corp.module.css pero acento dorado #D4AF37
+   Misma base que corp.module.css pero acento dorado #2F7BF6
    ============================================================ */
 
 /* ── Reveal ── */
@@ -38,7 +38,7 @@
   font-size: 10px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #D4AF37;
+  color: #2F7BF6;
 }
 
 /* ── Hero ── */
@@ -55,7 +55,7 @@
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F4DF9F 50%, #D4AF37 70%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, #2F7BF6 30%, #9BBFFF 50%, #2F7BF6 70%, transparent 100%);
 }
 
 .hero::before {
@@ -63,8 +63,8 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(212,175,55,.1) 0%, transparent 65%),
-    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(212,175,55,.04) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(47,123,246,.1) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(47,123,246,.04) 0%, transparent 60%);
   pointer-events: none;
 }
 
@@ -85,7 +85,7 @@
   font-size: 10px;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: #D4AF37;
+  color: #2F7BF6;
   margin-bottom: 32px;
 }
 
@@ -94,11 +94,11 @@
   content: '';
   width: 48px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #D4AF37);
+  background: linear-gradient(90deg, transparent, #2F7BF6);
 }
 
 .eyebrow::after {
-  background: linear-gradient(90deg, #D4AF37, transparent);
+  background: linear-gradient(90deg, #2F7BF6, transparent);
 }
 
 .heroH1 {
@@ -118,13 +118,13 @@
 .heroDivider {
   width: 48px;
   height: 2px;
-  background: #D4AF37;
+  background: #2F7BF6;
   margin: 8px auto 32px;
 }
 
 .heroH1 em {
   font-style: normal;
-  color: #D4AF37;
+  color: #2F7BF6;
 }
 
 .heroLead {
@@ -147,19 +147,19 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   padding: 17px 38px;
-  background: #D4AF37;
+  background: #2F7BF6;
   color: #050505;
   font-weight: 700;
   border: none;
   cursor: pointer;
   text-decoration: none;
   transition: background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 0 32px rgba(212,175,55,.2);
+  box-shadow: 0 0 32px rgba(47,123,246,.2);
 }
 
 .btnPrimary:hover {
-  background: #E8C84A;
-  box-shadow: 0 0 40px rgba(212,175,55,.35);
+  background: #5C9AFF;
+  box-shadow: 0 0 40px rgba(47,123,246,.35);
 }
 .btnPrimary:disabled { opacity: 0.45; cursor: wait; box-shadow: none; }
 
@@ -177,15 +177,15 @@
   font-size: 10px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: rgba(212,175,55,.55);
+  color: rgba(47,123,246,.55);
 }
 
 .countdownGrid {
   display: flex;
   align-items: stretch;
   gap: 1px;
-  background: rgba(212,175,55,.14);
-  border: 1px solid rgba(212,175,55,.14);
+  background: rgba(47,123,246,.14);
+  border: 1px solid rgba(47,123,246,.14);
 }
 
 .countdownCell {
@@ -213,7 +213,7 @@
   font-size: 8px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(212,175,55,.5);
+  color: rgba(47,123,246,.5);
 }
 
 /* ── Sección genérica ── */
@@ -269,7 +269,7 @@
   top: 0; left: 0;
   width: 32px;
   height: 2px;
-  background: #D4AF37;
+  background: #2F7BF6;
 }
 
 .culturaTitle {
@@ -333,7 +333,7 @@
 /* ── Formulario ── */
 .formSection {
   padding: 100px 0;
-  border-top: 1px solid rgba(212,175,55,.12);
+  border-top: 1px solid rgba(47,123,246,.12);
   position: relative;
   overflow: hidden;
 }
@@ -342,7 +342,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 60% 100% at 50% 50%, rgba(212,175,55,.04) 0%, transparent 70%);
+  background: radial-gradient(ellipse 60% 100% at 50% 50%, rgba(47,123,246,.04) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -371,7 +371,7 @@
   width: 100%;
   padding: 13px 16px;
   background: #0A0A0B;
-  border: 1px solid rgba(212,175,55,.18);
+  border: 1px solid rgba(47,123,246,.18);
   color: #F2EFE9;
   font-family: Georgia, serif;
   font-size: 14px;
@@ -381,21 +381,21 @@
   resize: vertical;
 }
 
-.input:focus { border-color: rgba(212,175,55,.55); }
+.input:focus { border-color: rgba(47,123,246,.55); }
 .input:disabled { opacity: 0.45; }
 .input::placeholder { color: rgba(242,239,233,.22); }
 
 /* ── File upload area ── */
 .fileZone {
   padding: 28px 20px;
-  border: 1px solid rgba(212,175,55,.2);
+  border: 1px solid rgba(47,123,246,.2);
   background: #0A0A0B;
   cursor: pointer;
   text-align: center;
   transition: border-color 0.2s;
 }
 
-.fileZone:hover { border-color: rgba(212,175,55,.5); }
+.fileZone:hover { border-color: rgba(47,123,246,.5); }
 .fileZone:disabled { opacity: 0.45; pointer-events: none; }
 
 .fileZoneActive {
@@ -437,8 +437,8 @@
 .spinner {
   width: 14px;
   height: 14px;
-  border: 1.5px solid rgba(212,175,55,.25);
-  border-top-color: #D4AF37;
+  border: 1.5px solid rgba(47,123,246,.25);
+  border-top-color: #2F7BF6;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   flex-shrink: 0;
@@ -455,7 +455,7 @@
 
 .progressFill {
   height: 100%;
-  background: #D4AF37;
+  background: #2F7BF6;
   transition: width 0.2s;
 }
 
@@ -474,7 +474,7 @@
 .successBox {
   padding: 60px 40px;
   text-align: center;
-  border: 1px solid rgba(212,175,55,.2);
+  border: 1px solid rgba(47,123,246,.2);
   background: #0A0A0B;
 }
 
