@@ -3,21 +3,6 @@
    Misma base que corp.module.css pero acento dorado #D4AF37
    ============================================================ */
 
-/* ── Variables locales ── */
-:local(.wrap) {
-  --oro: #D4AF37;
-  --oro-dim: rgba(212,175,55,.55);
-  --oro-linea: rgba(212,175,55,.14);
-  --oro-linea2: rgba(212,175,55,.26);
-  --bg: #050505;
-  --bg2: #0A0A0B;
-  --bg3: #111113;
-  --hueso: #F2EFE9;
-  --ceniza: #8A8A8A;
-  --linea: rgba(242,239,233,.1);
-  --linea2: rgba(242,239,233,.2);
-}
-
 /* ── Reveal ── */
 .reveal {
   opacity: 0;
