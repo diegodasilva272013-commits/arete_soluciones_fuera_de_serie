@@ -1,23 +1,29 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  eslint: { ignoreDuringBuilds: true },
-  typescript: { ignoreBuildErrors: true },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
     ],
   },
-  webpack: (config, { dev, nextRuntime }) => {
-    if (dev && nextRuntime === 'edge') {
-      // Node 22 bloquea eval() en sandbox de edge runtime.
-      // Next.js revierte devtool a eval-source-map; eliminamos el plugin directamente.
-      config.devtool = false;
-      config.plugins = config.plugins.filter((p) => {
-        const name = p?.constructor?.name ?? '';
-        return !name.includes('EvalSourceMap') && !name.includes('SourceMapDev');
-      });
+  webpack: (config, { isServer }) => {
+    // @splinetool/runtime usa archivos .wasm que webpack necesita manejar
+    config.experiments = {
+      ...config.experiments,
+      asyncWebAssembly: true,
+      layers: true,
+    };
+
+    // En server-side, externalize los paquetes de Spline para que no se bundleen
+    if (isServer) {
+      const existingExternals = Array.isArray(config.externals) ? config.externals : [];
+      config.externals = [
+        ...existingExternals,
+        '@splinetool/runtime',
+        '@splinetool/react-spline',
+      ];
     }
+
     return config;
   },
 };
