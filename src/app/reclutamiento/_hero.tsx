@@ -12,6 +12,7 @@ export function Hero() {
     <section className={s.heroWrap}>
       <Spotlight size={480} />
       <div className={s.heroGlow} />
+      <div className={s.heroGoldOrb} />
 
       <div className={s.heroSplit}>
 
