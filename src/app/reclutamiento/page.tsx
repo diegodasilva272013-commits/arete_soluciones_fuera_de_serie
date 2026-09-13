@@ -2,26 +2,27 @@ import type { Metadata } from 'next';
 import { Hero } from './_hero';
 import { Cultura } from './_cultura';
 import { ReclutamientoForm } from './_form';
-import s from './recl.module.css';
+import c from '../empresa/corp.module.css';
 
 export const metadata: Metadata = {
-  title: 'Reclutamiento — Camino al Closing',
+  title: 'Reclutamiento — Areté',
   description: 'Sumate como Setter o Cold Caller. Compromiso real, no un currículum perfecto.',
-  robots: { index: false, follow: false }, // convocatoria puntual, no queremos que quede indexada
+  robots: { index: false, follow: false },
 };
 
 export default function ReclutamientoPage() {
   return (
-    <main style={{ minHeight: '100vh', background: '#050505' }}>
+    <main style={{ background: '#050505', minHeight: '100vh' }}>
       <Hero />
       <Cultura />
 
-      <section id="postularme" className={s.formSection}>
-        <div className={`${s.innerNarrow} ${s.formInner}`}>
-          <div className={s.shead}>
-            <p className={s.mono}>Postulate</p>
-            <h2>Contanos quién sos.</h2>
-            <p>
+      {/* Sección formulario */}
+      <section id="postularme" className={c.section}>
+        <div className={c.inner} style={{ maxWidth: '760px' }}>
+          <div className={c.sectionLockup}>
+            <span className={c.mono}>Postulate</span>
+            <h2 className={c.sectionTitle}>Contanos quién sos.</h2>
+            <p className={c.sectionSub}>
               Todos los campos marcados con * son obligatorios.
               El video de presentación es lo que más pesa en la decisión.
             </p>

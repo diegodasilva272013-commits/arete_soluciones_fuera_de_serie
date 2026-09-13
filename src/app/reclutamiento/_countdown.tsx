@@ -3,29 +3,26 @@
 import { useEffect, useState } from 'react';
 import s from './recl.module.css';
 
-// Lunes 14/09/2026, 12:00 (hora Argentina, UTC-3) — fecha pedida
-// explícitamente para el cierre de esta convocatoria.
+// Lunes 14/09/2026, 12:00 (hora Argentina, UTC-3)
 const DEADLINE = new Date('2026-09-14T12:00:00-03:00').getTime();
 
 function split(msLeft: number) {
   const clamped = Math.max(0, msLeft);
-  const days = Math.floor(clamped / 86_400_000);
-  const hours = Math.floor((clamped % 86_400_000) / 3_600_000);
+  const days    = Math.floor(clamped / 86_400_000);
+  const hours   = Math.floor((clamped % 86_400_000) / 3_600_000);
   const minutes = Math.floor((clamped % 3_600_000) / 60_000);
   const seconds = Math.floor((clamped % 60_000) / 1000);
   return { days, hours, minutes, seconds };
 }
 
 const UNITS: { key: keyof ReturnType<typeof split>; label: string }[] = [
-  { key: 'days', label: 'Días' },
-  { key: 'hours', label: 'Hs' },
-  { key: 'minutes', label: 'Min' },
-  { key: 'seconds', label: 'Seg' },
+  { key: 'days',    label: 'Días' },
+  { key: 'hours',   label: 'Hs'   },
+  { key: 'minutes', label: 'Min'  },
+  { key: 'seconds', label: 'Seg'  },
 ];
 
 export function Countdown() {
-  // Se calcula recién en el cliente (evita mismatch de hidratación
-  // contra la hora del servidor) — arranca en null y se llena al montar.
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -37,7 +34,7 @@ export function Countdown() {
   if (now === null) return null;
 
   const closed = now >= DEADLINE;
-  const parts = split(DEADLINE - now);
+  const parts  = split(DEADLINE - now);
 
   return (
     <div className={s.countdownWrap}>

@@ -1,180 +1,66 @@
 /* ============================================================
-   Areté Fuera de Serie — Reclutamiento
-   Misma base que corp.module.css pero acento dorado #2F7BF6
+   Reclutamiento — solo layout del hero + countdown
+   Tipografía, botones, secciones → corp.module.css
    ============================================================ */
 
-/* ── Reveal ── */
-.reveal {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.85s cubic-bezier(0.16, 0.84, 0.28, 1),
-              transform 0.85s cubic-bezier(0.16, 0.84, 0.28, 1);
-}
-.revealDelay1 { transition-delay: 0.12s; }
-.revealDelay2 { transition-delay: 0.24s; }
-.revealDelay3 { transition-delay: 0.36s; }
-.revealOn { opacity: 1; transform: none; }
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; transition: none; }
-}
-
-/* ── Contenedor ── */
-.inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 40px;
-}
-
-.innerNarrow {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0 40px;
-}
-
-/* ── Mono label ── */
-.mono {
-  font-family: var(--f-mono, 'JetBrains Mono', ui-monospace, monospace);
-  font-size: 10px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: #2F7BF6;
-}
-
-/* ── Hero ── */
-.hero {
+/* ── Hero wrapper ── */
+.heroWrap {
   position: relative;
+  min-height: 88vh;
   background: #050505;
-  padding: 110px 0 90px;
   overflow: hidden;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(242,239,233,.1);
 }
 
-/* Barra dorada horizontal en el tope del hero — marca inmediata */
-.heroTopBar {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent 0%, #2F7BF6 30%, #9BBFFF 50%, #2F7BF6 70%, transparent 100%);
-}
-
-.hero::before {
-  content: '';
+/* Glow ambiental */
+.heroGlow {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(47,123,246,.1) 0%, transparent 65%),
-    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(47,123,246,.04) 0%, transparent 60%);
+  background: radial-gradient(ellipse 55% 100% at 0% 60%, rgba(47,123,246,.08) 0%, transparent 65%);
   pointer-events: none;
 }
 
-.heroInner {
+/* Split grid hero */
+.heroSplit {
   position: relative;
   z-index: 1;
-  display: flex;
-  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
+  gap: 40px;
+  box-sizing: border-box;
 }
 
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  justify-content: center;
-  font-family: var(--f-mono, 'JetBrains Mono', ui-monospace, monospace);
-  font-size: 10px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: #2F7BF6;
-  margin-bottom: 32px;
+.heroLeft {
+  /* columna de texto */
 }
 
-.eyebrow::before,
-.eyebrow::after {
-  content: '';
-  width: 48px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #2F7BF6);
+.heroRight {
+  height: 520px;
+  position: relative;
 }
 
-.eyebrow::after {
-  background: linear-gradient(90deg, #2F7BF6, transparent);
+.splineCanvas {
+  width: 100%;
+  height: 100%;
 }
-
-.heroH1 {
-  font-family: var(--f-display, 'Montserrat', system-ui, sans-serif);
-  font-weight: 900;
-  font-size: clamp(42px, 6.5vw, 88px);
-  line-height: 0.95;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
-  color: #F2EFE9;
-  max-width: 12ch;
-  text-wrap: balance;
-  margin: 0 auto 32px;
-}
-
-/* Separador dorado entre lead y CTA */
-.heroDivider {
-  width: 48px;
-  height: 2px;
-  background: #2F7BF6;
-  margin: 8px auto 32px;
-}
-
-.heroH1 em {
-  font-style: normal;
-  color: #2F7BF6;
-}
-
-.heroLead {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(16px, 2vw, 19px);
-  font-weight: 300;
-  line-height: 1.7;
-  color: rgba(242,239,233,.6);
-  max-width: 52ch;
-  margin: 0 auto 40px;
-}
-
-/* ── Botón principal ── */
-.btnPrimary {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--f-mono, 'JetBrains Mono', ui-monospace, monospace);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  padding: 17px 38px;
-  background: #2F7BF6;
-  color: #050505;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 0 32px rgba(47,123,246,.2);
-}
-
-.btnPrimary:hover {
-  background: #5C9AFF;
-  box-shadow: 0 0 40px rgba(47,123,246,.35);
-}
-.btnPrimary:disabled { opacity: 0.45; cursor: wait; box-shadow: none; }
 
 /* ── Countdown ── */
 .countdownWrap {
-  margin-top: 60px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
 
 .countdownLabel {
   font-family: var(--f-mono, 'JetBrains Mono', ui-monospace, monospace);
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: rgba(47,123,246,.55);
@@ -184,24 +70,24 @@
   display: flex;
   align-items: stretch;
   gap: 1px;
-  background: rgba(47,123,246,.14);
-  border: 1px solid rgba(47,123,246,.14);
+  background: rgba(242,239,233,.1);
+  border: 1px solid rgba(242,239,233,.1);
 }
 
 .countdownCell {
   background: #0A0A0B;
-  padding: 20px 24px;
+  padding: 14px 18px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  min-width: 72px;
+  gap: 4px;
+  min-width: 64px;
 }
 
 .countdownNum {
   font-family: var(--f-display, 'Montserrat', system-ui, sans-serif);
   font-weight: 900;
-  font-size: 32px;
+  font-size: 26px;
   line-height: 1;
   letter-spacing: -0.03em;
   color: #F2EFE9;
@@ -210,220 +96,53 @@
 
 .countdownUnit {
   font-family: var(--f-mono, 'JetBrains Mono', ui-monospace, monospace);
-  font-size: 8px;
-  letter-spacing: 0.22em;
+  font-size: 7px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(47,123,246,.5);
+  color: rgba(47,123,246,.45);
 }
 
-/* ── Sección genérica ── */
-.blk {
-  padding: 100px 0;
-  border-top: 1px solid rgba(242,239,233,.1);
-}
-
-.shead {
-  margin-bottom: 56px;
-}
-
-.shead h2 {
-  font-family: var(--f-display, 'Montserrat', system-ui, sans-serif);
-  font-weight: 800;
-  font-size: clamp(26px, 3.5vw, 42px);
-  letter-spacing: -0.03em;
-  line-height: 1.08;
-  text-transform: uppercase;
-  color: #F2EFE9;
-  margin: 16px 0 0;
-  text-wrap: balance;
-}
-
-.shead p {
-  color: rgba(242,239,233,.52);
-  font-family: Georgia, serif;
-  font-size: 18px;
-  font-weight: 300;
-  margin: 18px 0 0;
-  line-height: 1.7;
-}
-
-/* ── Grid de cultura ── */
-.culturaGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: rgba(242,239,233,.1);
-  border: 1px solid rgba(242,239,233,.1);
-  margin-bottom: 32px;
-}
-
-.culturaItem {
-  background: #050505;
-  padding: 32px 28px;
-  position: relative;
-}
-
-.culturaItem::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 32px;
-  height: 2px;
-  background: #2F7BF6;
-}
-
-.culturaTitle {
-  font-family: var(--f-display, 'Montserrat', system-ui, sans-serif);
-  font-weight: 700;
-  font-size: 17px;
-  letter-spacing: -0.01em;
-  color: #F2EFE9;
-  margin: 20px 0 12px;
-}
-
-.culturaBody {
-  font-family: Georgia, serif;
-  font-size: 15px;
-  line-height: 1.7;
-  color: rgba(242,239,233,.52);
-}
-
-/* ── Descalifica ── */
-.descalifica {
-  border: 1px solid rgba(239,68,68,.2);
-  background: rgba(239,68,68,.04);
-  padding: 32px;
-}
-
-.descalificaTitle {
-  font-family: var(--f-mono, 'JetBrains Mono', ui-monospace, monospace);
-  font-size: 9px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: rgba(239,68,68,.7);
-  margin-bottom: 20px;
-  display: block;
-}
-
-.descalificaGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px 40px;
-}
-
-.descalificaItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  font-family: Georgia, serif;
-  font-size: 15px;
-  line-height: 1.6;
-  color: rgba(242,239,233,.52);
-}
-
-.descalificaDot {
-  width: 4px;
-  height: 4px;
-  background: rgba(239,68,68,.6);
-  flex-shrink: 0;
-  margin-top: 8px;
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-}
-
-/* ── Formulario ── */
-.formSection {
-  padding: 100px 0;
-  border-top: 1px solid rgba(47,123,246,.12);
-  position: relative;
-  overflow: hidden;
-}
-
-.formSection::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse 60% 100% at 50% 50%, rgba(47,123,246,.04) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.formInner {
-  position: relative;
-  z-index: 1;
-}
-
+/* ── Form ── */
 .formGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
-.fieldLabel {
-  display: block;
-  margin-bottom: 8px;
-  font-family: var(--f-mono, 'JetBrains Mono', ui-monospace, monospace);
-  font-size: 9px;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgba(242,239,233,.38);
-}
-
-.input {
-  width: 100%;
-  padding: 13px 16px;
-  background: #0A0A0B;
-  border: 1px solid rgba(47,123,246,.18);
-  color: #F2EFE9;
-  font-family: Georgia, serif;
-  font-size: 14px;
-  outline: none;
-  box-sizing: border-box;
-  transition: border-color 0.2s;
-  resize: vertical;
-}
-
-.input:focus { border-color: rgba(47,123,246,.55); }
-.input:disabled { opacity: 0.45; }
-.input::placeholder { color: rgba(242,239,233,.22); }
-
-/* ── File upload area ── */
 .fileZone {
   padding: 28px 20px;
-  border: 1px solid rgba(47,123,246,.2);
-  background: #0A0A0B;
+  border: 1px solid rgba(242,239,233,.1);
+  background: rgba(255,255,255,.04);
   cursor: pointer;
   text-align: center;
   transition: border-color 0.2s;
 }
 
-.fileZone:hover { border-color: rgba(47,123,246,.5); }
-.fileZone:disabled { opacity: 0.45; pointer-events: none; }
+.fileZone:hover { border-color: rgba(47,123,246,.4); }
 
 .fileZoneActive {
-  border-color: rgba(34,197,94,.4);
+  border-color: rgba(34,197,94,.35);
   background: rgba(34,197,94,.04);
 }
 
 .fileZoneLabel {
   font-family: var(--f-mono, 'JetBrains Mono', ui-monospace, monospace);
-  font-size: 10px;
-  letter-spacing: 0.16em;
+  font-size: 9px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(242,239,233,.38);
 }
 
-.fileZoneActive .fileZoneLabel {
-  color: rgba(34,197,94,.8);
-}
+.fileZoneActive .fileZoneLabel { color: rgba(34,197,94,.8); }
 
 .fileHint {
-  font-family: Georgia, serif;
+  font-family: var(--f-texto, Georgia, serif);
   font-size: 12px;
   color: rgba(242,239,233,.3);
   margin-top: 10px;
   line-height: 1.6;
 }
 
-/* ── Progress ── */
 .progressRow {
   display: flex;
   align-items: center;
@@ -459,53 +178,19 @@
   transition: width 0.2s;
 }
 
-/* ── Error ── */
-.errorBox {
-  border: 1px solid rgba(239,68,68,.3);
-  background: rgba(239,68,68,.06);
-  padding: 14px 18px;
-  font-family: Georgia, serif;
-  font-size: 14px;
-  color: rgba(239,68,68,.85);
-  line-height: 1.5;
-}
-
-/* ── Success ── */
-.successBox {
-  padding: 60px 40px;
-  text-align: center;
-  border: 1px solid rgba(47,123,246,.2);
-  background: #0A0A0B;
-}
-
-.successTitle {
-  font-family: var(--f-display, 'Montserrat', system-ui, sans-serif);
-  font-weight: 800;
-  font-size: 28px;
-  letter-spacing: -0.025em;
-  text-transform: uppercase;
-  color: #F2EFE9;
-  margin: 0 0 12px;
-}
-
-.successBody {
-  font-family: Georgia, serif;
-  font-size: 16px;
-  color: rgba(242,239,233,.48);
-  line-height: 1.65;
-}
-
 /* ── Responsive ── */
-@media (max-width: 900px) {
-  .inner, .innerNarrow { padding-left: 24px; padding-right: 24px; }
-  .culturaGrid { grid-template-columns: 1fr; }
+@media (max-width: 820px) {
+  .heroSplit {
+    grid-template-columns: 1fr;
+    padding: 60px 24px;
+  }
+  .heroRight { display: none; }
   .formGrid { grid-template-columns: 1fr; }
-  .descalificaGrid { grid-template-columns: 1fr; }
+  .countdownGrid { display: grid; grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 640px) {
-  .blk, .formSection { padding: 70px 0; }
-  .hero { padding: 72px 0 56px; }
-  .countdownCell { min-width: 58px; padding: 16px 14px; }
-  .countdownNum { font-size: 24px; }
+  .heroWrap { min-height: auto; }
+  .countdownCell { min-width: 54px; padding: 12px 12px; }
+  .countdownNum { font-size: 22px; }
 }
