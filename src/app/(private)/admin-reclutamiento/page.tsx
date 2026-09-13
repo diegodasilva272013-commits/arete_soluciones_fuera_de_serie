@@ -129,10 +129,12 @@ function Card({ p: init, index, onHide }: { p: Postulante; index: number; onHide
           {p.video_url && <span className="hidden md:flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/10 text-blue-400"><Video size={11} /></span>}
           <span className="hidden lg:block text-[10px] text-white/25">{timeAgo(p.created_at)}</span>
 
-          {/* ── BORRAR (ocultar del front) ── */}
+          {/* ── BORRAR (ocultar del front, con confirmación) ── */}
           <button
             type="button"
-            onClick={() => onHide(p.id)}
+            onClick={() => {
+              if (window.confirm(`¿Sacar a ${p.nombre} ${p.apellido} de la lista?`)) onHide(p.id);
+            }}
             title="Sacar de la lista"
             className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/8 text-white/25 hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400 transition"
           >
