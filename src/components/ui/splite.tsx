@@ -2,8 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 
-// @splinetool/viewer como web component — carga via CDN en el browser,
-// no pasa por webpack ni tiene problemas de WASM en el build.
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -32,8 +30,8 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
       document.head.appendChild(s);
     }
 
-    // 2. Ocultar el badge "Built with Spline" inyectando CSS en el shadow root.
-    //    Se reintenta cada 300 ms hasta que el shadow root esté disponible (máx 8 s).
+    // 2. Ocultar el badge "Built with Spline" via shadow DOM.
+    //    Se reintenta cada 300 ms hasta que el shadow root esté disponible.
     let attempts = 0;
     const timer = setInterval(() => {
       attempts++;
@@ -46,7 +44,7 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
           [class*="logo"],
           [id*="logo"],
           a[href*="spline"],
-          div[style*="position: absolute"][style*="bottom"] a {
+          a[target="_blank"] {
             display: none !important;
             opacity: 0 !important;
             pointer-events: none !important;
@@ -61,29 +59,15 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
     return () => clearInterval(timer);
   }, []);
 
+  // Sin cover div — evita el cuadrado negro visible en mobile.
+  // El badge se oculta únicamente via shadow DOM (arriba).
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      {/* @ts-ignore — custom element */}
-      <spline-viewer
-        ref={viewerRef}
-        url={scene}
-        className={className}
-        style={{ width: '100%', height: '100%', display: 'block' }}
-      />
-      {/* Tapa de respaldo: cubre el rincón donde aparece el badge */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          right: 0,
-          width: 180,
-          height: 56,
-          background: '#050505',
-          pointerEvents: 'none',
-          zIndex: 10,
-        }}
-      />
-    </div>
+    // @ts-ignore — custom element ref
+    <spline-viewer
+      ref={viewerRef}
+      url={scene}
+      className={className}
+      style={{ width: '100%', height: '100%', display: 'block' }}
+    />
   );
 }

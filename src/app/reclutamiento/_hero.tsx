@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Spotlight } from '@/components/ui/spotlight';
 import { SplineScene } from '@/components/ui/splite';
 import { Countdown } from './_countdown';
@@ -7,9 +8,17 @@ import c from '../empresa/corp.module.css';
 import s from './recl.module.css';
 
 export function Hero() {
+  // Spotlight solo en dispositivos con cursor preciso (mouse).
+  // En touch (pointer:coarse), el mouseenter al tocar muestra el glow dorado
+  // como una bola visible — lo ocultamos en esos dispositivos.
+  const [hasCursor, setHasCursor] = useState(false);
+  useEffect(() => {
+    setHasCursor(!window.matchMedia('(pointer: coarse)').matches);
+  }, []);
+
   return (
     <section className={s.heroWrap}>
-      <Spotlight size={480} />
+      {hasCursor && <Spotlight size={480} />}
       <div className={s.heroGlow} />
 
       <div className={s.heroSplit}>
