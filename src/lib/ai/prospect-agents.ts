@@ -37,7 +37,7 @@ async function extractProfile(
       .replace(/https?:\/\/(www\.)?instagram\.com\/?/, '')
       .replace(/\//g, '')
       .replace('@', '');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // @ts-ignore — openai.responses no está en los tipos oficiales todavía
     const r = await (openai as any).responses.create({
       model: 'gpt-4o',
       tools: [{ type: 'web_search_preview' }],
@@ -49,7 +49,7 @@ Buscá en Google, sitios de noticias, su web. Organizá todo en español.`,
   }
 
   const username = profileUrl.split('/in/')[1]?.replace(/\//g, '') || profileUrl;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // @ts-ignore — openai.responses no está en los tipos oficiales todavía
   const r = await (openai as any).responses.create({
     model: 'gpt-4o',
     tools: [{ type: 'web_search_preview' }],
