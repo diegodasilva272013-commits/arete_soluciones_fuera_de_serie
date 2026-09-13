@@ -48,15 +48,16 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     if (error || !data) return NextResponse.json({ error: error?.message ?? 'Error creando URL' }, { status: 500 });
 
     await admin.from('reclutamiento_postulantes').update({ foto_path: path }).eq('id', id);
-    return NextResponse.json({ uploadUrl: data.signedUrl, token: data.token, path });
+    // Retorna también bucket y path para que el cliente use uploadToSignedUrl del SDK
+    return NextResponse.json({ uploadUrl: data.signedUrl, token: data.token, path, bucket: 'reclutamiento-fotos' });
   }
 
-  // video — siempre se sube ya comprimido a mp4 por el browser
-  // (ffmpeg.wasm), mismo pipeline que VideoUploader.
-  const path = `${id}/video.mp4`;
+  // video — se sube directo desde el browser (sin ffmpeg.wasm para compatibilidad mobile)
+  const ext = (bodyContentType ?? '').includes('webm') ? 'webm' : 'mp4';
+  const path = `${id}/video.${ext}`;
   const { data, error } = await admin.storage.from('reclutamiento-videos').createSignedUploadUrl(path);
   if (error || !data) return NextResponse.json({ error: error?.message ?? 'Error creando URL' }, { status: 500 });
 
   await admin.from('reclutamiento_postulantes').update({ video_path: path }).eq('id', id);
-  return NextResponse.json({ uploadUrl: data.signedUrl, token: data.token, path });
+  return NextResponse.json({ uploadUrl: data.signedUrl, token: data.token, path, bucket: 'reclutamiento-videos' });
 }

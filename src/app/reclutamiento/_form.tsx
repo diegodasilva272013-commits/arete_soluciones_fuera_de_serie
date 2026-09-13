@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { createSupabaseBrowserClient } from '@/lib/supabase-client';
 import c from '../empresa/corp.module.css';
 import s from './recl.module.css';
 
@@ -8,7 +9,6 @@ type Paso =
   | 'idle'
   | 'guardando'
   | 'subiendo_foto'
-  | 'comprimiendo_video'
   | 'subiendo_video'
   | 'listo'
   | 'error';
@@ -17,7 +17,6 @@ const PASO_MSG: Record<Paso, string> = {
   idle: '',
   guardando: 'Guardando tus datos...',
   subiendo_foto: 'Subiendo tu foto...',
-  comprimiendo_video: 'Procesando tu video...',
   subiendo_video: 'Subiendo tu video...',
   listo: '¡Listo!',
   error: '',
@@ -25,49 +24,49 @@ const PASO_MSG: Record<Paso, string> = {
 
 const FOTO_TYPES: Record<string, string> = {
   'image/jpeg': 'image/jpeg',
-  'image/png': 'image/png',
+  'image/png':  'image/png',
   'image/webp': 'image/webp',
 };
-const MAX_FOTO_MB = 5;
-const MAX_VIDEO_MB_ORIGINAL = 300;
+const MAX_FOTO_MB  = 5;
+const MAX_VIDEO_MB = 200;
 
-async function putSigned(
-  uploadUrl: string,
-  body: Blob | File,
+/**
+ * Sube un archivo a Supabase Storage usando uploadToSignedUrl del SDK oficial.
+ * El SDK maneja CORS y headers correctamente en todos los navegadores, incluyendo
+ * móviles — a diferencia de XHR directo a la URL firmada.
+ */
+async function uploadToStorage(
+  bucket: string,
+  path: string,
+  token: string,
+  file: Blob | File,
   contentType: string,
-  onProgress?: (pct: number) => void,
-) {
-  await new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
-    };
-    xhr.onload = () => (xhr.status < 400 ? resolve() : reject(new Error(`Falló la subida (${xhr.status})`)));
-    xhr.onerror = () => reject(new Error('Error de red al subir el archivo'));
-    xhr.open('PUT', uploadUrl);
-    xhr.setRequestHeader('Content-Type', contentType);
-    xhr.send(body);
-  });
+): Promise<void> {
+  const supabase = createSupabaseBrowserClient();
+  const { error } = await (supabase.storage as any)
+    .from(bucket)
+    .uploadToSignedUrl(path, token, file, { contentType });
+  if (error) throw new Error(error.message ?? 'No se pudo subir el archivo');
 }
 
 export function ReclutamientoForm() {
   const fotoRef  = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
 
-  const [nombre,     setNombre]     = useState('');
-  const [apellido,   setApellido]   = useState('');
-  const [email,      setEmail]      = useState('');
-  const [edad,       setEdad]       = useState('');
-  const [experiencia,setExperiencia]= useState('');
-  const [motivo,     setMotivo]     = useState('');
-  const [motivacion, setMotivacion] = useState('');
-  const [foto,       setFoto]       = useState<File | null>(null);
-  const [video,      setVideo]      = useState<File | null>(null);
-  const [website,    setWebsite]    = useState(''); // honeypot
+  const [nombre,      setNombre]      = useState('');
+  const [apellido,    setApellido]    = useState('');
+  const [email,       setEmail]       = useState('');
+  const [edad,        setEdad]        = useState('');
+  const [experiencia, setExperiencia] = useState('');
+  const [motivo,      setMotivo]      = useState('');
+  const [motivacion,  setMotivacion]  = useState('');
+  const [foto,        setFoto]        = useState<File | null>(null);
+  const [video,       setVideo]       = useState<File | null>(null);
+  const [website,     setWebsite]     = useState(''); // honeypot
 
-  const [paso,    setPaso]    = useState<Paso>('idle');
-  const [progreso,setProgreso]= useState(0);
-  const [error,   setError]   = useState<string | null>(null);
+  const [paso,     setPaso]     = useState<Paso>('idle');
+  const [progreso, setProgreso] = useState(0);
+  const [error,    setError]    = useState<string | null>(null);
 
   const procesando = !['idle', 'listo', 'error'].includes(paso);
 
@@ -84,7 +83,10 @@ export function ReclutamientoForm() {
     const f = e.target.files?.[0];
     if (!f) return;
     if (!f.type.startsWith('video/')) { setError('El archivo tiene que ser un video'); return; }
-    if (f.size > MAX_VIDEO_MB_ORIGINAL * 1024 * 1024) { setError(`El video no puede pesar más de ${MAX_VIDEO_MB_ORIGINAL} MB`); return; }
+    if (f.size > MAX_VIDEO_MB * 1024 * 1024) {
+      setError(`El video no puede pesar más de ${MAX_VIDEO_MB} MB. Grabá desde el celular directamente (quedan más livianos).`);
+      return;
+    }
     setError(null);
     setVideo(f);
   }
@@ -97,58 +99,46 @@ export function ReclutamientoForm() {
     if (!video) { setError('Subí tu video de presentación'); return; }
 
     try {
-      // 1. Crear la postulación con los datos de texto.
+      // 1. Crear la postulación (datos de texto)
       setPaso('guardando');
       const createRes = await fetch('/api/reclutamiento/postular', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, apellido, email, edad: Number(edad), experiencia, motivo, motivacion, website }),
+        body: JSON.stringify({
+          nombre, apellido, email,
+          edad: Number(edad),
+          experiencia, motivo, motivacion, website,
+        }),
       });
       const created = await createRes.json();
       if (!createRes.ok) throw new Error(created.error ?? 'No se pudo guardar la postulación');
       const id = created.id as string;
 
-      // 2. Subir la foto.
+      // 2. Subir la foto
       setPaso('subiendo_foto');
       setProgreso(0);
-      const fotoUrlRes  = await fetch(`/api/reclutamiento/${id}/upload-url`, {
+      const fotoUrlRes = await fetch(`/api/reclutamiento/${id}/upload-url`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kind: 'foto', size: foto.size, contentType: foto.type }),
       });
-      const fotoUrlData = await fotoUrlRes.json();
-      if (!fotoUrlRes.ok) throw new Error(fotoUrlData.error ?? 'No se pudo subir la foto');
-      await putSigned(fotoUrlData.uploadUrl, foto, foto.type, setProgreso);
+      const fotoData = await fotoUrlRes.json();
+      if (!fotoUrlRes.ok) throw new Error(fotoData.error ?? 'No se pudo subir la foto');
+      await uploadToStorage(fotoData.bucket, fotoData.path, fotoData.token, foto, foto.type);
+      setProgreso(100);
 
-      // 3. Comprimir el video en el browser.
-      setPaso('comprimiendo_video');
-      setProgreso(0);
-      const { FFmpeg } = await import('@ffmpeg/ffmpeg');
-      const { fetchFile, toBlobURL } = await import('@ffmpeg/util');
-      const ffmpeg = new FFmpeg();
-      await ffmpeg.load({
-        coreURL: await toBlobURL('https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.js', 'text/javascript'),
-        wasmURL: await toBlobURL('https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.wasm', 'application/wasm'),
-      });
-      ffmpeg.on('progress', ({ progress }: { progress: number }) => setProgreso(Math.round(progress * 100)));
-      await ffmpeg.writeFile('input', await fetchFile(video));
-      await ffmpeg.exec(['-i','input','-vf','scale=-2:720','-c:v','libx264','-preset','fast','-crf','26','-c:a','aac','-b:a','128k','-movflags','+faststart','output.mp4']);
-      const outputData = await ffmpeg.readFile('output.mp4');
-      const videoBlob  = new Blob([outputData as unknown as BlobPart], { type: 'video/mp4' });
-      await ffmpeg.deleteFile('input');
-      await ffmpeg.deleteFile('output.mp4');
-
-      // 4. Subir el video comprimido.
+      // 3. Subir el video directamente (sin compresión — funciona en mobile y desktop)
       setPaso('subiendo_video');
       setProgreso(0);
-      const videoUrlRes  = await fetch(`/api/reclutamiento/${id}/upload-url`, {
+      const videoUrlRes = await fetch(`/api/reclutamiento/${id}/upload-url`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind: 'video' }),
+        body: JSON.stringify({ kind: 'video', size: video.size, contentType: video.type }),
       });
-      const videoUrlData = await videoUrlRes.json();
-      if (!videoUrlRes.ok) throw new Error(videoUrlData.error ?? 'No se pudo subir el video');
-      await putSigned(videoUrlData.uploadUrl, videoBlob, 'video/mp4', setProgreso);
+      const videoData = await videoUrlRes.json();
+      if (!videoUrlRes.ok) throw new Error(videoData.error ?? 'No se pudo subir el video');
+      await uploadToStorage(videoData.bucket, videoData.path, videoData.token, video, video.type);
+      setProgreso(100);
 
       setPaso('listo');
     } catch (err: any) {
@@ -229,7 +219,7 @@ export function ReclutamientoForm() {
         />
         <FileField
           label="Tu video de presentación *"
-          hint="Grabate hablando a cámara. Un video genérico queda descartado automáticamente."
+          hint={`Grabate hablando a cámara — hasta ${MAX_VIDEO_MB} MB. Un video genérico queda descartado automáticamente.`}
           inputRef={videoRef}
           accept="video/*"
           file={video}
@@ -310,7 +300,7 @@ function FileField({
       >
         <input ref={inputRef} type="file" accept={accept} onChange={onChange} style={{ display: 'none' }} disabled={disabled} />
         <p className={s.fileZoneLabel}>
-          {file ? file.name : 'Click para elegir archivo'}
+          {file ? file.name : 'Tocá para elegir archivo'}
         </p>
       </div>
       <p className={s.fileHint}>{hint}</p>
