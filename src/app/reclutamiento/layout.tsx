@@ -1,7 +1,4 @@
 import { Montserrat, Spectral, JetBrains_Mono } from 'next/font/google';
-import { CorpHeader } from '../empresa/_header';
-import { CorpFooter } from '../empresa/_footer';
-import { ReclutamientoAudio } from './_audio';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -23,6 +20,8 @@ const mono = JetBrains_Mono({
   display: 'swap',
 });
 
+// Landing page de reclutamiento — sin header ni footer para no distraer.
+// El audio está embebido en el hero directamente.
 export default function ReclutamientoLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -35,12 +34,9 @@ export default function ReclutamientoLayout({ children }: { children: React.Reac
         WebkitFontSmoothing: 'antialiased',
       }}
     >
-      <CorpHeader />
-      <main style={{ paddingTop: '68px' }}>
+      <main>
         {children}
       </main>
-      <CorpFooter />
-      <ReclutamientoAudio />
     </div>
   );
 }

@@ -51,6 +51,104 @@
   height: 100%;
 }
 
+/* ── Audio player inline ── */
+
+@keyframes audioRing {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  100% { transform: scale(2.8); opacity: 0;   }
+}
+
+/* Contenedor fila: botón + texto */
+.audioBlock {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 36px 0 44px;
+}
+
+/* Botón: posición relativa para que los anillos salgan desde el centro */
+.audioBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+/* Anillos pulsantes */
+.audioRing {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: audioRing 2.4s ease-out infinite;
+  border: 1.5px solid rgba(47,123,246,.55);
+  pointer-events: none;
+}
+.audioRing2 { animation-delay: 0.8s;  border-color: rgba(47,123,246,.35); }
+.audioRing3 { animation-delay: 1.6s;  border-color: rgba(47,123,246,.18); }
+
+/* Círculo central con ícono */
+.audioDot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(47,123,246,.12);
+  border: 1.5px solid rgba(47,123,246,.5);
+  color: #2F7BF6;
+  box-shadow: 0 0 18px rgba(47,123,246,.25), inset 0 0 12px rgba(47,123,246,.08);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.audioDotPlaying {
+  background: rgba(47,123,246,.2);
+  box-shadow: 0 0 28px rgba(47,123,246,.45), inset 0 0 16px rgba(47,123,246,.12);
+}
+.audioDotErr {
+  background: rgba(200,50,50,.12);
+  border-color: rgba(200,50,50,.4);
+  color: #f87171;
+  box-shadow: none;
+}
+
+/* Textos a la derecha del botón */
+.audioText {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.audioEyebrow {
+  font-family: var(--f-mono, 'JetBrains Mono', monospace);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #2F7BF6;
+}
+.audioLabel {
+  font-family: var(--f-display, 'Montserrat', sans-serif);
+  font-size: 17px;
+  font-weight: 700;
+  color: #F2EFE9;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.audioErr {
+  font-family: var(--f-mono, 'JetBrains Mono', monospace);
+  font-size: 10px;
+  color: #f87171;
+  letter-spacing: 0.05em;
+}
+
 /* ── Countdown ── */
 .countdownWrap {
   display: flex;

@@ -3,6 +3,7 @@
 import { Spotlight } from '@/components/ui/spotlight';
 import { SplineScene } from '@/components/ui/splite';
 import { Countdown } from './_countdown';
+import { ReclutamientoAudio } from './_audio';
 import c from '../empresa/corp.module.css';
 import s from './recl.module.css';
 
@@ -57,6 +58,8 @@ export function Hero() {
             Buscamos setters y cold callers que ejecuten todos los días, sin excusas.
             Compromiso real — no un currículum perfecto.
           </p>
+
+          <ReclutamientoAudio />
 
           <a href="#postularme" className={c.btn}>
             Postularme
