@@ -3,8 +3,8 @@
 import { Fragment, useEffect, useState } from 'react';
 import s from './recl.module.css';
 
-// Lunes 14/09/2026, 12:00 (hora Argentina, UTC-3)
-const DEADLINE = new Date('2026-09-14T12:00:00-03:00').getTime();
+// Viernes 18/09/2026, 00:00 (hora Argentina, UTC-3)
+const DEADLINE = new Date('2026-09-19T03:00:00Z').getTime();
 
 function split(msLeft: number) {
   const clamped = Math.max(0, msLeft);
