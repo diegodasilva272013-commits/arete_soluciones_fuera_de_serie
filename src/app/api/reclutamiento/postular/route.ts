@@ -51,6 +51,21 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createSupabaseAdminClient() as any;
+
+  // Verificar si el email ya existe
+  const { data: existing } = await admin
+    .from('reclutamiento_postulantes')
+    .select('id')
+    .eq('email', email.trim().toLowerCase())
+    .maybeSingle();
+
+  if (existing) {
+    return NextResponse.json(
+      { error: 'Este email ya tiene una postulación registrada.' },
+      { status: 409 }
+    );
+  }
+
   const { data, error } = await admin
     .from('reclutamiento_postulantes')
     .insert({
