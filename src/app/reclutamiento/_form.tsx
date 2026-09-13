@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { createSupabaseBrowserClient } from '@/lib/supabase-client';
 import c from '../empresa/corp.module.css';
 import s from './recl.module.css';
 
@@ -31,22 +30,24 @@ const MAX_FOTO_MB  = 5;
 const MAX_VIDEO_MB = 200;
 
 /**
- * Sube un archivo a Supabase Storage usando uploadToSignedUrl del SDK oficial.
- * El SDK maneja CORS y headers correctamente en todos los navegadores, incluyendo
- * móviles — a diferencia de XHR directo a la URL firmada.
+ * Sube un archivo directo a la URL firmada de Supabase Storage via fetch.
+ * CORS confirmado: Access-Control-Allow-Origin: * en el endpoint de Supabase.
+ * Probado manualmente: PUT → 200 OK con Key del archivo.
  */
 async function uploadToStorage(
-  bucket: string,
-  path: string,
-  token: string,
+  uploadUrl: string,
   file: Blob | File,
   contentType: string,
 ): Promise<void> {
-  const supabase = createSupabaseBrowserClient();
-  const { error } = await (supabase.storage as any)
-    .from(bucket)
-    .uploadToSignedUrl(path, token, file, { contentType });
-  if (error) throw new Error(error.message ?? 'No se pudo subir el archivo');
+  const res = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': contentType },
+    body: file,
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(`Error al subir el archivo (${res.status})${txt ? ': ' + txt : ''}`);
+  }
 }
 
 export function ReclutamientoForm() {
@@ -123,7 +124,7 @@ export function ReclutamientoForm() {
       });
       const fotoData = await fotoUrlRes.json();
       if (!fotoUrlRes.ok) throw new Error(fotoData.error ?? 'No se pudo subir la foto');
-      await uploadToStorage(fotoData.bucket, fotoData.path, fotoData.token, foto, foto.type);
+      await uploadToStorage(fotoData.uploadUrl, foto, foto.type);
       setProgreso(100);
 
       // 3. Subir el video directamente (sin compresión — funciona en mobile y desktop)
@@ -136,7 +137,7 @@ export function ReclutamientoForm() {
       });
       const videoData = await videoUrlRes.json();
       if (!videoUrlRes.ok) throw new Error(videoData.error ?? 'No se pudo subir el video');
-      await uploadToStorage(videoData.bucket, videoData.path, videoData.token, video, video.type);
+      await uploadToStorage(videoData.uploadUrl, video, video.type);
       setProgreso(100);
 
       setPaso('listo');
