@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import s from './recl.module.css';
 
 // Lunes 14/09/2026, 12:00 (hora Argentina, UTC-3)
@@ -43,13 +43,18 @@ export function Countdown() {
       </p>
       {!closed && (
         <div className={s.countdownGrid}>
-          {UNITS.map(({ key, label }) => (
-            <div key={key} className={s.countdownCell}>
-              <span className={s.countdownNum}>
-                {String(parts[key]).padStart(2, '0')}
-              </span>
-              <span className={s.countdownUnit}>{label}</span>
-            </div>
+          {UNITS.map(({ key, label }, i) => (
+            <Fragment key={key}>
+              <div className={s.countdownCell}>
+                <span className={s.countdownNum}>
+                  {String(parts[key]).padStart(2, '0')}
+                </span>
+                <span className={s.countdownUnit}>{label}</span>
+              </div>
+              {i < UNITS.length - 1 && (
+                <span className={s.countdownSep} aria-hidden>:</span>
+              )}
+            </Fragment>
           ))}
         </div>
       )}

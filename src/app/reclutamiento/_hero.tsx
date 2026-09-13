@@ -3,39 +3,32 @@
 import { Spotlight } from '@/components/ui/spotlight';
 import { SplineScene } from '@/components/ui/splite';
 import { Countdown } from './_countdown';
+import c from '../empresa/corp.module.css';
 import s from './recl.module.css';
 
 export function Hero() {
   return (
     <section className={s.heroWrap}>
-      {/* Spotlight — sigue el cursor */}
       <Spotlight size={480} />
-
-      {/* Glow ambiental azul */}
       <div className={s.heroGlow} />
 
-      {/* Split layout */}
       <div className={s.heroSplit}>
 
-        {/* ── Columna izquierda: texto ── */}
+        {/* ── Texto ── */}
         <div className={s.heroLeft}>
 
-          {/* Kicker */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '28px' }}>
             <span style={{ width: '34px', height: '1px', background: '#2F7BF6', flexShrink: 0 }} />
             <span style={{
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '10px',
-              fontWeight: 500,
-              letterSpacing: '0.32em',
-              textTransform: 'uppercase',
+              fontSize: '10px', fontWeight: 500,
+              letterSpacing: '0.32em', textTransform: 'uppercase',
               color: '#5C9AFF',
             }}>
               Areté — Reclutamiento
             </span>
           </div>
 
-          {/* Título */}
           <h1 style={{
             margin: '0 0 28px',
             fontFamily: "'Montserrat', system-ui, sans-serif",
@@ -51,7 +44,6 @@ export function Hero() {
             el proceso?
           </h1>
 
-          {/* Subtítulo */}
           <p style={{
             margin: '0 0 44px',
             fontFamily: "'Spectral', Georgia, serif",
@@ -66,42 +58,20 @@ export function Hero() {
             Compromiso real — no un currículum perfecto.
           </p>
 
-          {/* CTA */}
-          <div>
-            <a
-              href="#postularme"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '14px 28px',
-                background: '#2969D1',
-                color: '#F2EFE9',
-                fontFamily: "'Montserrat', system-ui, sans-serif",
-                fontWeight: 700,
-                fontSize: '13px',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                textDecoration: 'none',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = '#2259B2')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = '#2969D1')}
-            >
-              Postularme
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </a>
-          </div>
+          {/* Botón igual a la web principal */}
+          <a href="#postularme" className={c.btn}>
+            Postularme
+            <svg className={c.btnIcon} width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
 
-          {/* Countdown */}
-          <div style={{ marginTop: '48px' }}>
+          <div style={{ marginTop: '52px' }}>
             <Countdown />
           </div>
         </div>
 
-        {/* ── Columna derecha: escena 3D Spline ── */}
+        {/* ── Spline 3D ── */}
         <div className={s.heroRight}>
           <SplineScene
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
