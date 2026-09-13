@@ -1,6 +1,7 @@
 import { Montserrat, Spectral, JetBrains_Mono } from 'next/font/google';
 import { CorpHeader } from '../empresa/_header';
 import { CorpFooter } from '../empresa/_footer';
+import { ReclutamientoAudio } from './_audio';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -39,6 +40,7 @@ export default function ReclutamientoLayout({ children }: { children: React.Reac
         {children}
       </main>
       <CorpFooter />
+      <ReclutamientoAudio />
     </div>
   );
 }
