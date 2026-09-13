@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Hero } from './_hero';
 import { Cultura } from './_cultura';
 import { ReclutamientoForm } from './_form';
+import { NeonMesh } from '@/components/ui/neon-mesh';
 import c from '../empresa/corp.module.css';
 import s from './recl.module.css';
 
@@ -10,7 +11,6 @@ export const metadata: Metadata = {
   description: 'Buscamos setters y cold callers con compromiso real. Sin excusas, todos los días.',
   robots: { index: false, follow: false },
 
-  // OG explícito para que WhatsApp/iMessage no hereden el título del layout raíz
   openGraph: {
     type: 'website',
     url: 'https://arete-soluciones-plataforma.vercel.app/reclutamiento',
@@ -41,25 +41,41 @@ export default function ReclutamientoPage() {
       <Hero />
       <Cultura />
 
-      {/* ── Sección formulario con video de fondo igual a /acceso ── */}
+      {/* ── Sección formulario ── */}
       <section id="postularme" className={s.formSection}>
 
-        {/* Video fondo */}
+        {/*
+         * Capas de fondo (de atrás hacia adelante):
+         *   z-index 0 — NeonMesh (siempre visible, tapa todo el section)
+         *   z-index 1 — Video (encima del mesh)
+         *     desktop: cubre TODO el section → mesh queda oculto
+         *     mobile:  cubre solo los primeros 50vh → mesh visible debajo
+         *   z-index 2 — Contenido (form card)
+         */}
+
+        {/* Capa 0: NeonMesh de fondo */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        >
+          <NeonMesh />
+        </div>
+
+        {/* Capa 1: Video */}
         <div className={s.formVideoBg}>
           <div className={s.formVideoOverlay} />
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className={s.formVideoEl}
-          >
+          <video autoPlay muted loop playsInline className={s.formVideoEl}>
             <source src="/video_2.mp4" type="video/mp4" />
           </video>
         </div>
 
-        {/* Contenido */}
+        {/* Capa 2: Contenido */}
         <div className={`${c.inner} ${s.formContent}`} style={{ maxWidth: '780px' }}>
           <div className={c.sectionLockup}>
             <span className={c.mono} style={{ color: 'rgba(242,239,233,.5)' }}>Postulate</span>
@@ -70,7 +86,6 @@ export default function ReclutamientoPage() {
             </p>
           </div>
 
-          {/* Card glassmorphism igual a /acceso */}
           <div className={s.formCard}>
             <ReclutamientoForm />
           </div>
