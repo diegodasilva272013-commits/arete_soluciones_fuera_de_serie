@@ -27,7 +27,7 @@ const FOTO_TYPES: Record<string, string> = {
   'image/webp': 'image/webp',
 };
 const MAX_FOTO_MB  = 5;
-const MAX_VIDEO_MB = 200;
+const MAX_VIDEO_MB = 80; // conservador para el plan free de Supabase (limite bucket = 200 MB, pero videos de celular pesan mucho)
 
 /**
  * Sube un archivo directo a la URL firmada de Supabase Storage via fetch.
@@ -84,7 +84,8 @@ export function ReclutamientoForm() {
     if (!f) return;
     if (!f.type.startsWith('video/')) { setError('El archivo tiene que ser un video'); return; }
     if (f.size > MAX_VIDEO_MB * 1024 * 1024) {
-      setError(`El video no puede pesar más de ${MAX_VIDEO_MB} MB. Grabá desde el celular directamente (quedan más livianos).`);
+      const mb = Math.round(f.size / 1024 / 1024);
+      setError(`El video pesa ${mb} MB y el límite es ${MAX_VIDEO_MB} MB. Grabate directo desde la cámara (sin filtros) o recortá el video a menos de 1 minuto.`);
       return;
     }
     setError(null);
