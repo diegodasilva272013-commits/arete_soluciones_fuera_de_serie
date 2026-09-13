@@ -14,12 +14,20 @@
   border-bottom: 1px solid rgba(242,239,233,.1);
 }
 
-/* Glow ambiental */
+/* Glow ambiental — dorado de la marca siempre visible (incluye mobile sin hover) */
+@keyframes heroGlowPulse {
+  0%, 100% { opacity: 0.85; }
+  50%       { opacity: 1;    }
+}
+
 .heroGlow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 55% 100% at 0% 60%, rgba(47,123,246,.08) 0%, transparent 65%);
+  background:
+    radial-gradient(ellipse 75% 60% at 75% 5%,  rgba(212,175,55,.22) 0%, transparent 62%),
+    radial-gradient(ellipse 45% 70% at 5%  65%, rgba(47,123,246,.07) 0%, transparent 55%);
   pointer-events: none;
+  animation: heroGlowPulse 5s ease-in-out infinite;
 }
 
 /* Split grid hero */
