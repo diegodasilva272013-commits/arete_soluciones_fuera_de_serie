@@ -171,7 +171,7 @@ export function ReclutamientoForm() {
 
   if (paso === 'listo') {
     return (
-      <div className="rounded-2xl border border-brand-gold/25 bg-brand-surface/70 p-10 text-center">
+      <div className="card-premium p-10 text-center">
         <p className="text-2xl font-semibold text-brand-text">¡Postulación recibida!</p>
         <p className="mt-3 text-sm text-brand-muted">
           Revisamos tu video y tu perfil. Si hay match, te contactamos por el email que dejaste.
@@ -248,12 +248,12 @@ export function ReclutamientoForm() {
       {procesando && (
         <div className="space-y-2">
           <div className="flex items-center gap-3 text-sm text-brand-muted">
-            <span className="h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-brand-gold/30 border-t-brand-gold" />
+            <span className="h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-[rgba(212,175,55,0.3)] border-t-[#D4AF37]" />
             {PASO_MSG[paso]}
           </div>
           {progreso > 0 && (
-            <div className="h-1.5 overflow-hidden rounded-full bg-brand-surface">
-              <div className="h-full rounded-full bg-brand-gold transition-all duration-200" style={{ width: `${progreso}%` }} />
+            <div className="h-1.5 overflow-hidden rounded-full bg-[#111111]">
+              <div className="h-full rounded-full bg-[#D4AF37] transition-all duration-200" style={{ width: `${progreso}%` }} />
             </div>
           )}
         </div>
@@ -262,7 +262,7 @@ export function ReclutamientoForm() {
       <button
         type="submit"
         disabled={procesando}
-        className="w-full rounded-xl bg-brand-gold py-3.5 text-sm font-semibold text-white transition hover:bg-brand-goldSoft disabled:opacity-40"
+        className="w-full rounded-xl bg-gradient-to-br from-[#f4dfa0] to-[#D4AF37] py-3.5 text-sm font-semibold text-[#0a0a0a] shadow-[0_8px_24px_-12px_rgba(212,175,55,0.6)] transition hover:brightness-110 disabled:opacity-40"
       >
         {procesando ? 'Enviando...' : 'Postularme'}
       </button>
@@ -271,7 +271,7 @@ export function ReclutamientoForm() {
 }
 
 const inputCls =
-  'w-full rounded-lg border border-brand-gold/20 bg-brand-surface px-3.5 py-2.5 text-sm text-brand-text placeholder-brand-muted/50 outline-none transition focus:border-brand-gold/60 disabled:opacity-50';
+  'w-full rounded-lg border border-[rgba(212,175,55,0.18)] bg-[#0d0d0d] px-3.5 py-2.5 text-sm text-brand-text placeholder-brand-muted/50 outline-none transition focus:border-[rgba(212,175,55,0.5)] disabled:opacity-50';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -299,7 +299,7 @@ function FileField({
       <div
         onClick={() => !disabled && inputRef.current?.click()}
         className={`cursor-pointer rounded-lg border-2 border-dashed p-4 text-center transition ${
-          file ? 'border-emerald-700/50 bg-emerald-950/10' : 'border-brand-gold/20 hover:border-brand-gold/40'
+          file ? 'border-emerald-700/50 bg-emerald-950/10' : 'border-[rgba(212,175,55,0.25)] hover:border-[rgba(212,175,55,0.5)]'
         } ${disabled ? 'pointer-events-none opacity-50' : ''}`}
       >
         <input ref={inputRef} type="file" accept={accept} onChange={onChange} className="hidden" disabled={disabled} />

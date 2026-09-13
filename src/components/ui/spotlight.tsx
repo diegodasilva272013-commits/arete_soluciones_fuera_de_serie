@@ -71,7 +71,11 @@ export function Spotlight({
       ref={containerRef}
       className={cn(
         'pointer-events-none absolute rounded-full bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops),transparent_80%)] blur-xl transition-opacity duration-200',
-        'from-brand-gold/40 via-brand-gold/10 to-transparent',
+        // rgba(212,175,55,..) es el dorado real de la marca — el token
+        // "brand-gold" de Tailwind quedó re-apuntado a azul en algún
+        // momento, así que se usa el valor literal directo (mismo que
+        // ya usan card-premium, .btn-gold y el logo).
+        'from-[rgba(212,175,55,0.45)] via-[rgba(212,175,55,0.12)] to-transparent',
         isHovered ? 'opacity-100' : 'opacity-0',
         className
       )}

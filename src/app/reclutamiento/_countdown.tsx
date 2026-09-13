@@ -41,7 +41,7 @@ export function Countdown() {
 
   return (
     <div className="inline-flex flex-col items-center gap-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-brand-gold">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#D4AF37]">
         {closed ? 'Convocatoria cerrada' : 'La convocatoria cierra en'}
       </p>
       {!closed && (
@@ -49,7 +49,7 @@ export function Countdown() {
           {UNITS.map(({ key, label }) => (
             <div
               key={key}
-              className="flex w-[64px] flex-col items-center rounded-xl border border-brand-gold/25 bg-brand-surface/70 py-3 backdrop-blur"
+              className="card-premium flex w-[64px] flex-col items-center py-3 backdrop-blur"
             >
               <span className="font-mono text-2xl font-bold tabular-nums text-brand-text sm:text-3xl">
                 {String(parts[key]).padStart(2, '0')}

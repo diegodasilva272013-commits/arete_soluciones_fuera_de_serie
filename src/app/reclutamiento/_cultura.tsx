@@ -22,18 +22,18 @@ const DESCALIFICA = [
 
 export function Cultura() {
   return (
-    <section className="border-t border-brand-gold/10 bg-brand-black py-20 sm:py-28">
+    <section className="border-t border-[rgba(212,175,55,0.12)] bg-[#050505] py-20 sm:py-28">
       <div className="mx-auto max-w-5xl px-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-brand-gold">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#D4AF37]">
           Nuestra cultura
         </p>
         <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-brand-text sm:text-4xl">
           Ser distinto no es un slogan acá — es el filtro.
         </h2>
 
-        <div className="mt-14 grid gap-8 sm:grid-cols-3">
+        <div className="mt-14 grid gap-6 sm:grid-cols-3">
           {PUNTOS.map((p) => (
-            <div key={p.title} className="rounded-2xl border border-brand-gold/10 bg-brand-surface/60 p-6">
+            <div key={p.title} className="card-premium">
               <h3 className="text-base font-semibold text-brand-text">{p.title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-brand-muted">{p.body}</p>
             </div>

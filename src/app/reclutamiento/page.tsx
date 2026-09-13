@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 
 export default function ReclutamientoPage() {
   return (
-    <main className="min-h-screen bg-brand-black">
+    <main className="min-h-screen bg-[#050505]">
       <Hero />
       <Cultura />
 
-      <section id="postularme" className="border-t border-brand-gold/10 bg-brand-black py-20 sm:py-28">
+      <section id="postularme" className="border-t border-[rgba(212,175,55,0.12)] bg-[#050505] py-20 sm:py-28">
         <div className="mx-auto max-w-2xl px-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-brand-gold">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#D4AF37]">
             Postulate
           </p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-brand-text sm:text-4xl">
