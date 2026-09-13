@@ -1,9 +1,19 @@
 'use client';
 
-import { Suspense, lazy } from 'react';
+import { useEffect } from 'react';
 
-// @splinetool/react-spline v2.x — sin dependencias WASM
-const Spline = lazy(() => import('@splinetool/react-spline'));
+// @splinetool/viewer como web component — carga via CDN en el browser,
+// no pasa por webpack ni tiene problemas de WASM en el build.
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'spline-viewer': React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement> & { url?: string },
+        HTMLElement
+      >;
+    }
+  }
+}
 
 interface SplineSceneProps {
   scene: string;
@@ -11,32 +21,19 @@ interface SplineSceneProps {
 }
 
 export function SplineScene({ scene, className }: SplineSceneProps) {
+  useEffect(() => {
+    if (customElements.get('spline-viewer')) return;
+    const s = document.createElement('script');
+    s.type = 'module';
+    s.src = 'https://unpkg.com/@splinetool/viewer@2.0.46/build/spline-viewer.js';
+    document.head.appendChild(s);
+  }, []);
+
   return (
-    <Suspense
-      fallback={
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <span
-            style={{
-              width: '32px',
-              height: '32px',
-              border: '2px solid rgba(47,123,246,.25)',
-              borderTopColor: '#2F7BF6',
-              borderRadius: '50%',
-              animation: 'spin 0.8s linear infinite',
-            }}
-          />
-        </div>
-      }
-    >
-      <Spline scene={scene} className={className} />
-    </Suspense>
+    <spline-viewer
+      url={scene}
+      className={className}
+      style={{ width: '100%', height: '100%', display: 'block' }}
+    />
   );
 }

@@ -36,12 +36,13 @@ export function Cultura() {
             <em>es el filtro.</em>
           </h2>
           <p className={c.sectionSub}>
-            El equipo que construimos define los resultados que logramos. El filtro es simple: consistencia real, todos los días.
+            El equipo que construimos define los resultados que logramos.
+            El filtro es simple: consistencia real, todos los días.
           </p>
         </div>
 
-        {/* Grid de puntos */}
-        <div className={c.etapasGrid}>
+        {/* Grid de puntos — revealOn hace visibles los .etapa items */}
+        <div className={`${c.etapasGrid} ${c.revealOn}`}>
           {PUNTOS.map((p) => (
             <div key={p.n} className={c.etapa}>
               <div className={c.etapaN}>{p.n}</div>
@@ -51,9 +52,9 @@ export function Cultura() {
           ))}
         </div>
 
-        {/* Descalifica */}
+        {/* Descalifica — revealOn hace visibles los .panelItem items */}
         <div
-          className={c.bandPanel}
+          className={`${c.bandPanel} ${c.revealOn}`}
           style={{
             marginTop: '32px',
             borderColor: 'rgba(239,68,68,.2)',
@@ -61,7 +62,10 @@ export function Cultura() {
           }}
         >
           <div className={c.bandPanelBorder} style={{ borderColor: 'rgba(239,68,68,.15)' }} />
-          <span className={c.mono} style={{ color: 'rgba(239,68,68,.7)', display: 'block', marginBottom: '20px' }}>
+          <span
+            className={c.mono}
+            style={{ color: 'rgba(239,68,68,.7)', display: 'block', marginBottom: '20px' }}
+          >
             Esto te descalifica
           </span>
           <ul className={c.panelList}>
