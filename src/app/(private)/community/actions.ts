@@ -219,7 +219,8 @@ export async function createCommentAction(
             .ilike('full_name', name)
             .maybeSingle();
           if (target && (target as any).id !== user.id) {
-            await admin.from('notifications').insert({
+            // @ts-ignore — tabla notifications no está en los tipos generados todavía
+            await (admin as any).from('notifications').insert({
               user_id: (target as any).id,
               actor_id: user.id,
               type: 'comment_reply',
