@@ -1,8 +1,16 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import c from '../empresa/corp.module.css';
 import s from './recl.module.css';
+
+/** Detecta browsers de apps sociales (Facebook, Instagram, TikTok, Twitter/X)
+ *  que bloquean PUT y uploads grandes — hay que abrir en Chrome/Safari. */
+function isSocialBrowser(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  return /FBAN|FBAV|Instagram|musical_ly|TikTok|Twitter|LinkedInApp/.test(ua);
+}
 
 type Paso =
   | 'idle'
@@ -69,6 +77,8 @@ export function ReclutamientoForm() {
   const [error,    setError]    = useState<string | null>(null);
 
   const procesando = !['idle', 'listo', 'error'].includes(paso);
+  const [socialBrowser, setSocialBrowser] = useState(false);
+  useEffect(() => { setSocialBrowser(isSocialBrowser()); }, []);
 
   function onFoto(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -164,6 +174,46 @@ export function ReclutamientoForm() {
         <p className={c.sectionSub} style={{ margin: 0 }}>
           Revisamos tu video y tu perfil. Si hay match, te contactamos por el email que dejaste.
         </p>
+      </div>
+    );
+  }
+
+  if (socialBrowser) {
+    return (
+      <div style={{
+        border: '1px solid rgba(251,191,36,.35)',
+        background: 'rgba(251,191,36,.06)',
+        borderRadius: '12px',
+        padding: '28px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '14px',
+      }}>
+        <p style={{ margin: 0, fontFamily: 'var(--f-display)', fontWeight: 700, fontSize: '16px', color: '#FCD34D' }}>
+          ⚠️ Abrí esta página en Chrome o Safari
+        </p>
+        <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.6, color: 'rgba(242,239,233,.7)' }}>
+          El browser de Facebook no permite subir archivos. Para postularte, copiá el link y abrilo en tu navegador.
+        </p>
+        <button
+          onClick={() => {
+            navigator.clipboard?.writeText(window.location.href).catch(() => {});
+          }}
+          style={{
+            background: 'rgba(251,191,36,.15)',
+            border: '1px solid rgba(251,191,36,.4)',
+            borderRadius: '8px',
+            padding: '10px 18px',
+            color: '#FCD34D',
+            fontFamily: 'var(--f-mono)',
+            fontSize: '11px',
+            letterSpacing: '0.1em',
+            cursor: 'pointer',
+            alignSelf: 'flex-start',
+          }}
+        >
+          COPIAR LINK
+        </button>
       </div>
     );
   }
