@@ -6,8 +6,12 @@ import s from './recl.module.css';
 export function Hero() {
   return (
     <section className={s.hero}>
+      {/* Línea superior dorada — identidad de marca inmediata */}
+      <div className={s.heroTopBar} />
+
       <div className={`${s.heroInner} ${s.inner}`}>
-        <p className={s.eyebrow}>Areté Fuera de Serie — Reclutamiento</p>
+
+        <p className={s.eyebrow}>Areté Fuera de Serie</p>
 
         <h1 className={s.heroH1}>
           ¿Podés<br />
@@ -17,8 +21,10 @@ export function Hero() {
 
         <p className={s.heroLead}>
           Buscamos setters y cold callers que ejecuten todos los días, sin excusas.
-          Compromiso real, no un currículum perfecto.
+          Compromiso real — no un currículum perfecto.
         </p>
+
+        <div className={s.heroDivider} />
 
         <a href="#postularme" className={s.btnPrimary}>
           Postularme
