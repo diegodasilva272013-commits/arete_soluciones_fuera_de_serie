@@ -103,6 +103,25 @@ export async function logoutAction() {
   redirect('/login');
 }
 
+export async function resetPasswordAction(
+  _prev: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  const password  = String(formData.get('password')  ?? '');
+  const password2 = String(formData.get('password2') ?? '');
+
+  if (!password || !password2) return { error: 'Ingresa la nueva contraseña.' };
+  if (password !== password2)  return { error: 'Las contraseñas no coinciden.' };
+  if (password.length < 6)     return { error: 'La contraseña debe tener al menos 6 caracteres.' };
+
+  const supabase = createSupabaseServerClient();
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) return { error: traduceError(error.message) };
+
+  return { ok: true, message: '¡Contraseña actualizada!' };
+}
+
 function traduceError(msg: string): string {
   const m = msg.toLowerCase();
   if (m.includes('invalid login')) return 'Credenciales inválidas.';
