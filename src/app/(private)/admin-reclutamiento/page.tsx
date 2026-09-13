@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import {
-  RefreshCw, AlertCircle, User, Mail, Phone,
+  RefreshCw, AlertCircle, User, Mail,
   Calendar, Video, Camera, FileText, ChevronDown, ChevronUp,
   ExternalLink,
 } from 'lucide-react';
@@ -256,7 +256,7 @@ export default function AdminReclutamientoPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError]   = useState<string | null>(null);
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -270,9 +270,9 @@ export default function AdminReclutamientoPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   // Totales para el header strip
   const total    = postulantes.length;
