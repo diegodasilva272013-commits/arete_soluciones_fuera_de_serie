@@ -5,7 +5,8 @@ import { Upload } from 'tus-js-client';
 import c from '../empresa/corp.module.css';
 import s from './recl.module.css';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_URL      = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 /** Detecta browsers de apps sociales que bloquean acceso a cámara y uploads. */
 function isSocialBrowser(): boolean {
@@ -43,11 +44,12 @@ async function uploadFoto(uploadUrl: string, file: File): Promise<void> {
 
 /**
  * Video: TUS resumable upload en chunks de 6 MB.
+ * Usa el anon key + políticas RLS en storage.objects (el token firmado de
+ * createSignedUploadUrl solo sirve para PUT directo, no para TUS).
  * Cada PATCH tarda pocos segundos — no hay timeout aunque la conexión sea lenta.
  * Si se corta, retoma desde donde estaba (retryDelays).
  */
 async function uploadVideoTus(
-  token: string,
   bucket: string,
   path: string,
   file: File,
@@ -58,7 +60,7 @@ async function uploadVideoTus(
       endpoint: `${SUPABASE_URL}/storage/v1/upload/resumable`,
       retryDelays: [0, 3000, 5000, 10000, 20000],
       headers: {
-        authorization: `Bearer ${token}`,
+        authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         'x-upsert': 'true',
       },
       uploadDataDuringCreation: true,
@@ -175,7 +177,7 @@ export function ReclutamientoForm() {
       const videoData = await videoUrlRes.json();
       if (!videoUrlRes.ok) throw new Error(videoData.error ?? 'No se pudo iniciar la subida del video');
 
-      await uploadVideoTus(videoData.token, videoData.bucket, videoData.path, video, setProgreso);
+      await uploadVideoTus(videoData.bucket, videoData.path, video, setProgreso);
 
       setPaso('listo');
     } catch (err: any) {
