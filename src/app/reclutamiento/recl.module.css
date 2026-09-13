@@ -130,7 +130,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: rgba(5,5,5,0.82);
+  background: rgba(5,5,5,0.68);
 }
 
 .formVideoEl {
@@ -149,10 +149,10 @@
 
 /* Card glassmorphism — mismo patrón que /acceso */
 .formCard {
-  background: rgba(5,5,5,0.55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(242,239,233,.08);
+  background: rgba(5,5,5,0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(242,239,233,.10);
   border-radius: 16px;
   padding: 40px;
   margin-top: 0;
@@ -238,12 +238,20 @@
 
 /* Tablet / landscape phone */
 @media (max-width: 820px) {
+  /* Hero: una sola columna → texto arriba, robot abajo */
+  .heroWrap { min-height: auto; }
   .heroSplit {
     grid-template-columns: 1fr;
-    padding: 56px 24px 48px;
+    padding: 56px 24px 0;
+    gap: 0;
   }
-  /* Spline 3D: ocultar en mobile, la página funciona sin él */
-  .heroRight { display: none; }
+
+  /* Robot visible en mobile con altura reducida */
+  .heroRight {
+    display: block;
+    height: 320px;
+    margin: 0 -24px;   /* sangra hasta el borde del heroSplit */
+  }
 
   /* Formularios a una sola columna */
   .formGrid { grid-template-columns: 1fr; }
@@ -254,17 +262,20 @@
 
 /* Phone */
 @media (max-width: 640px) {
-  .heroWrap { min-height: auto; }
+  .heroSplit { padding: 40px 20px 0; }
 
-  /* Hero: padding mínimo para no tocar el header */
-  .heroSplit { padding: 40px 20px 36px; }
+  /* Robot más compacto */
+  .heroRight {
+    height: 260px;
+    margin: 0 -20px;
+  }
 
   /* Countdown: números más chicos */
-  .countdownNum { font-size: 32px; }
+  .countdownNum { font-size: 30px; }
   .countdownCell { padding-right: 10px; }
-  .countdownSep { font-size: 20px; padding-bottom: 12px; }
+  .countdownSep { font-size: 19px; padding-bottom: 11px; }
 
-  /* Card formulario: mínimo espacio para no ahogar el contenido */
+  /* Card formulario */
   .formCard {
     padding: 20px 16px;
     border-radius: 12px;
@@ -276,8 +287,9 @@
 
 /* Teléfonos muy chicos (< 390px) */
 @media (max-width: 390px) {
-  .countdownNum { font-size: 28px; }
+  .heroRight { height: 220px; }
+  .countdownNum { font-size: 26px; }
   .countdownCell { padding-right: 8px; }
-  .countdownSep { font-size: 18px; padding-bottom: 10px; }
+  .countdownSep { font-size: 17px; padding-bottom: 9px; }
   .formCard { padding: 16px 12px; }
 }
