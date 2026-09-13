@@ -53,6 +53,32 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/profile') ||
     pathname.startsWith('/chat') ||
     pathname.startsWith('/leaderboard') ||
+    pathname.startsWith('/notifications') ||
+    pathname.startsWith('/search') ||
+    pathname.startsWith('/u/') ||
+    pathname.startsWith('/leads') ||
+    pathname.startsWith('/panel') ||
+    pathname.startsWith('/inbox') ||
+    pathname.startsWith('/formularios') ||
+    pathname.startsWith('/comunicados') ||
+    pathname.startsWith('/conversaciones') ||
+    pathname.startsWith('/reporte-diario') ||
+    pathname.startsWith('/aperturas') ||
+    pathname.startsWith('/trainer') ||
+    pathname.startsWith('/setter-evolucion') ||
+    pathname.startsWith('/setter-recursos') ||
+    pathname.startsWith('/setter-calendario') ||
+    pathname.startsWith('/equipo') ||
+    pathname.startsWith('/tareas') ||
+    pathname.startsWith('/wins') ||
+    pathname.startsWith('/setter-ranking') ||
+    pathname.startsWith('/equipo-ranking') ||
+    pathname.startsWith('/strikes') ||
+    pathname.startsWith('/agenda') ||
+    pathname.startsWith('/formacion') ||
+    pathname.startsWith('/mi-evolucion') ||
+    pathname.startsWith('/bloqueado') ||
+    pathname.startsWith('/onboarding') ||
     pathname.startsWith('/admin');
 
   if (!user && isPrivateRoute) {
@@ -62,11 +88,67 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Redirigir a onboarding si no completó la presentación
+  if (user && isPrivateRoute && pathname !== '/onboarding') {
+    const onboardingDone = user.user_metadata?.onboarding_done === true;
+    if (!onboardingDone) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/onboarding';
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Cuenta bloqueada → redirigir a /bloqueado (excepto si ya está ahí o es admin)
+  if (user && isPrivateRoute && pathname !== '/bloqueado' && !pathname.startsWith('/admin')) {
+    const isBloqueado = user.user_metadata?.bloqueado === true;
+    if (isBloqueado) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/bloqueado';
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+  }
+
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     url.search = '';
     return NextResponse.redirect(url);
+  }
+
+  // Protección extra: solo admins pueden entrar a /admin/*
+  if (user && pathname.startsWith('/admin')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const role = (profile as { role?: string } | null)?.role;
+    if (role !== 'admin') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Protección extra: /agenda/disponibilidad solo para closer y admin
+  if (user && pathname.startsWith('/agenda/disponibilidad')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const role = (profile as { role?: string } | null)?.role;
+    if (role !== 'closer' && role !== 'admin') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/agenda';
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
   }
 
   return response;
