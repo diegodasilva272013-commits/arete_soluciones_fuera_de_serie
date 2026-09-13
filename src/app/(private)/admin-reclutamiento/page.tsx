@@ -1,7 +1,19 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { RefreshCw, AlertCircle, ChevronDown, ChevronUp, Camera, Video, ExternalLink } from 'lucide-react';
+import { RefreshCw, AlertCircle, ChevronDown, ChevronUp, Camera, Video, ExternalLink, EyeOff, Eye, Trash2 } from 'lucide-react';
+
+const HIDDEN_KEY = 'reclutamiento_ocultos';
+
+function getHidden(): Set<string> {
+  try {
+    const raw = localStorage.getItem(HIDDEN_KEY);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch { return new Set(); }
+}
+function saveHidden(set: Set<string>) {
+  try { localStorage.setItem(HIDDEN_KEY, JSON.stringify([...set])); } catch {}
+}
 
 interface Postulante {
   id: string;
@@ -46,12 +58,13 @@ function timeAgo(iso: string) {
   return `hace ${Math.floor(h / 24)}d`;
 }
 
-function Card({ p: init, index }: { p: Postulante; index: number }) {
+function Card({ p: init, index, onHide }: { p: Postulante; index: number; onHide: (id: string) => void }) {
   const [p, setP]       = useState(init);
   const [open, setOpen] = useState(false);
   const [notas, setNotas]       = useState(init.notas_admin ?? '');
   const [savingE, setSavingE]   = useState(false);
   const [savingN, setSavingN]   = useState(false);
+  const [confirmHide, setConfirmHide] = useState(false);
 
   const estado = p.estado ?? 'nuevo';
   const colorClass = ESTADO_COLORS[estado] ?? ESTADO_COLORS.nuevo;
@@ -80,7 +93,7 @@ function Card({ p: init, index }: { p: Postulante; index: number }) {
   }
 
   return (
-    <div className={`rounded-2xl border overflow-hidden ${open ? 'border-[rgba(212,175,55,0.25)]' : 'border-white/8'} bg-[#0d0d0d]`}>
+    <div className={`rounded-2xl border overflow-hidden ${open ? 'border-[rgba(26,111,255,0.25)]' : 'border-white/8'} bg-[#0d0d0d]`}>
       {/* Row */}
       <button
         type="button"
@@ -96,7 +109,7 @@ function Card({ p: init, index }: { p: Postulante; index: number }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={p.foto_url} alt="" className="w-full h-full object-cover" />
           ) : (
-            <span className="text-sm font-bold text-[#D4AF37]">{initials}</span>
+            <span className="text-sm font-bold text-[#1A6FFF]">{initials}</span>
           )}
         </div>
         {/* Name */}
@@ -225,6 +238,39 @@ function Card({ p: init, index }: { p: Postulante; index: number }) {
             </div>
           </div>
 
+          {/* Ocultar */}
+          <div className="flex justify-end pt-1">
+            {!confirmHide ? (
+              <button
+                type="button"
+                onClick={() => setConfirmHide(true)}
+                className="flex items-center gap-2 rounded-lg border border-white/8 bg-white/3 px-3 py-1.5 text-xs text-white/40 hover:text-white/70 hover:border-white/20 transition"
+              >
+                <EyeOff size={12} />
+                Ocultar postulante
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-white/40">¿Seguro?</span>
+                <button
+                  type="button"
+                  onClick={() => setConfirmHide(false)}
+                  className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/40 hover:text-white/70 transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onHide(p.id)}
+                  className="flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs text-red-400 hover:bg-red-500/20 transition"
+                >
+                  <Trash2 size={11} />
+                  Sí, ocultar
+                </button>
+              </div>
+            )}
+          </div>
+
           <p className="text-[10px] text-white/20 text-right">Postulado el {formatDate(p.created_at)}</p>
         </div>
       )}
@@ -233,9 +279,15 @@ function Card({ p: init, index }: { p: Postulante; index: number }) {
 }
 
 export default function AdminReclutamientoPage() {
-  const [rows, setRows]     = useState<Postulante[]>([]);
+  const [rows, setRows]       = useState<Postulante[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState<string | null>(null);
+  const [error, setError]     = useState<string | null>(null);
+  const [hidden, setHidden]   = useState<Set<string>>(new Set());
+  const [showHidden, setShowHidden] = useState(false);
+
+  useEffect(() => {
+    setHidden(getHidden());
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -254,6 +306,27 @@ export default function AdminReclutamientoPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  function handleHide(id: string) {
+    setHidden(prev => {
+      const next = new Set(prev);
+      next.add(id);
+      saveHidden(next);
+      return next;
+    });
+  }
+
+  function handleUnhide(id: string) {
+    setHidden(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      saveHidden(next);
+      return next;
+    });
+  }
+
+  const visible = rows.filter(r => !hidden.has(r.id));
+  const ocultos = rows.filter(r => hidden.has(r.id));
+
   return (
     <div className="mx-auto max-w-3xl space-y-4 px-4 py-6 pb-28">
       <div className="flex items-center justify-between">
@@ -269,9 +342,9 @@ export default function AdminReclutamientoPage() {
       {!loading && !error && (
         <div className="grid grid-cols-3 gap-2 text-center">
           {[
-            { label: 'Postulantes', v: rows.length,                           c: 'text-white'      },
-            { label: 'Con foto',    v: rows.filter(r => r.foto_url).length,   c: 'text-amber-400'  },
-            { label: 'Con video',   v: rows.filter(r => r.video_url).length,  c: 'text-blue-400'   },
+            { label: 'Visibles',  v: visible.length,                             c: 'text-white'      },
+            { label: 'Con foto',  v: visible.filter(r => r.foto_url).length,     c: 'text-amber-400'  },
+            { label: 'Con video', v: visible.filter(r => r.video_url).length,    c: 'text-blue-400'   },
           ].map(m => (
             <div key={m.label} className="rounded-xl border border-white/8 bg-white/3 py-3">
               <p className={`text-2xl font-black ${m.c}`}>{m.v}</p>
@@ -295,15 +368,50 @@ export default function AdminReclutamientoPage() {
         </div>
       )}
 
-      {!loading && !error && rows.length === 0 && (
+      {!loading && !error && visible.length === 0 && ocultos.length === 0 && (
         <div className="flex flex-col items-center gap-3 min-h-[40vh] justify-center text-center">
           <p className="text-sm text-white/40">Todavía no hay postulantes.</p>
         </div>
       )}
 
-      {!loading && !error && rows.length > 0 && (
+      {!loading && !error && visible.length > 0 && (
         <div className="space-y-3">
-          {rows.map((r, i) => <Card key={r.id} p={r} index={i} />)}
+          {visible.map((r, i) => <Card key={r.id} p={r} index={i} onHide={handleHide} />)}
+        </div>
+      )}
+
+      {/* Ocultos */}
+      {!loading && !error && ocultos.length > 0 && (
+        <div className="mt-6 space-y-3">
+          <button
+            type="button"
+            onClick={() => setShowHidden(v => !v)}
+            className="flex items-center gap-2 text-[11px] text-white/25 hover:text-white/50 transition"
+          >
+            <Eye size={12} />
+            {showHidden ? 'Ocultar' : 'Mostrar'} postulantes ocultos ({ocultos.length})
+          </button>
+          {showHidden && ocultos.map((r, i) => (
+            <div key={r.id} className="rounded-2xl border border-white/5 bg-[#0d0d0d] opacity-50">
+              <div className="flex items-center gap-4 px-5 py-4">
+                <div className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-white/10 shrink-0 flex items-center justify-center">
+                  <span className="text-sm font-bold text-white/20">{`${r.nombre[0]}${r.apellido[0]}`.toUpperCase()}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-white/40 truncate">{r.nombre} {r.apellido}</p>
+                  <p className="text-xs text-white/20 truncate">{r.email}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleUnhide(r.id)}
+                  className="flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/30 hover:text-white/60 hover:border-white/20 transition shrink-0"
+                >
+                  <Eye size={11} />
+                  Mostrar
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
