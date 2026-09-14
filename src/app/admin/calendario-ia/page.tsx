@@ -47,8 +47,11 @@ type Contacto = {
   telefono: string | null;
   empresa: string | null;
   resumen: string;
+  transcripcion: string | null;
+  audio_url: string | null;
   duracion_seg: number | null;
   reunion_id: string | null;
+  conversation_id: string | null;
   created_at: string;
 };
 
@@ -123,6 +126,88 @@ function generarSlots(cfg: {
   return slots;
 }
 
+// ── LlamadaCard ────────────────────────────────────────────────────────────────
+function LlamadaCard({ c, card, fmt }: {
+  c: Contacto;
+  card: React.CSSProperties;
+  fmt: (iso: string) => string;
+}) {
+  const [showTranscript, setShowTranscript] = useState(false);
+
+  return (
+    <div style={card}>
+      {/* Fila principal */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1 }}>
+          <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14 }}>
+            {c.nombre ?? 'Anónimo'}{c.empresa ? ` · ${c.empresa}` : ''}
+          </p>
+          <p style={{ margin: '0 0 6px', fontSize: 12, color: 'rgba(242,239,233,0.4)' }}>
+            {c.telefono ?? '—'}{c.email ? ` · ${c.email}` : ''}
+          </p>
+          <p style={{ margin: 0, fontSize: 13, color: 'rgba(242,239,233,0.7)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+            {c.resumen}
+          </p>
+        </div>
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <p style={{ margin: '0 0 4px', fontSize: 11, color: 'rgba(242,239,233,0.35)' }}>{fmt(c.created_at)}</p>
+          {c.duracion_seg != null && (
+            <p style={{ margin: 0, fontSize: 11, color: 'rgba(242,239,233,0.35)' }}>
+              {Math.floor(c.duracion_seg / 60)}:{String(c.duracion_seg % 60).padStart(2, '0')} min
+            </p>
+          )}
+          {c.reunion_id && (
+            <span style={{ fontSize: 11, color: '#22c55e', display: 'block', marginTop: 4 }}>✓ Agendó reunión</span>
+          )}
+        </div>
+      </div>
+
+      {/* Audio player */}
+      {c.audio_url && (
+        <div style={{ marginTop: 14 }}>
+          <p style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.4)' }}>
+            Grabación de audio
+          </p>
+          <audio
+            controls
+            src={c.audio_url}
+            style={{ width: '100%', height: 36, accentColor: 'rgba(26,111,255,1)' }}
+          />
+        </div>
+      )}
+
+      {/* Transcripción expandible */}
+      {c.transcripcion && (
+        <div style={{ marginTop: 12 }}>
+          <button
+            onClick={() => setShowTranscript(v => !v)}
+            style={{
+              background: 'none', border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 6, color: 'rgba(242,239,233,0.5)',
+              padding: '5px 12px', fontSize: 11, fontWeight: 700,
+              cursor: 'pointer', letterSpacing: '0.05em', textTransform: 'uppercase',
+            }}
+          >
+            {showTranscript ? '▲ Ocultar transcripción' : '▼ Ver transcripción completa'}
+          </button>
+          {showTranscript && (
+            <pre style={{
+              marginTop: 10, padding: '14px 16px',
+              background: 'rgba(0,0,0,0.3)', borderRadius: 8,
+              fontSize: 12, lineHeight: 1.7, color: 'rgba(242,239,233,0.65)',
+              whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+              maxHeight: 400, overflowY: 'auto',
+              border: '1px solid rgba(255,255,255,0.06)',
+            }}>
+              {c.transcripcion}
+            </pre>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CalendarioIAPage() {
   const [tab, setTab] = useState<Tab>('disponibilidad');
 
@@ -181,7 +266,7 @@ export default function CalendarioIAPage() {
     setLoading(true);
     const { data } = await supabase
       .from('contactos_ia')
-      .select('id, nombre, email, telefono, empresa, resumen, duracion_seg, reunion_id, created_at')
+      .select('id, nombre, email, telefono, empresa, resumen, transcripcion, audio_url, duracion_seg, reunion_id, conversation_id, created_at')
       .order('created_at', { ascending: false })
       .limit(50);
     setLlamadas(data ?? []);
@@ -535,30 +620,7 @@ export default function CalendarioIAPage() {
               <p style={{ margin: 0, fontSize: 14, color: 'rgba(242,239,233,0.4)' }}>Sin llamadas registradas todavía.</p>
             </div>
           ) : (
-            llamadas.map(c => (
-              <div key={c.id} style={card}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14 }}>
-                      {c.nombre ?? 'Anónimo'}{c.empresa ? ` · ${c.empresa}` : ''}
-                    </p>
-                    <p style={{ margin: '0 0 6px', fontSize: 12, color: 'rgba(242,239,233,0.4)' }}>
-                      {c.telefono ?? '—'}{c.email ? ` · ${c.email}` : ''}
-                    </p>
-                    <p style={{ margin: 0, fontSize: 13, color: 'rgba(242,239,233,0.7)', lineHeight: 1.5 }}>{c.resumen}</p>
-                  </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <p style={{ margin: '0 0 4px', fontSize: 11, color: 'rgba(242,239,233,0.35)' }}>{fmt(c.created_at)}</p>
-                    {c.duracion_seg && (
-                      <p style={{ margin: 0, fontSize: 11, color: 'rgba(242,239,233,0.35)' }}>
-                        {Math.floor(c.duracion_seg / 60)}:{String(c.duracion_seg % 60).padStart(2, '0')} min
-                      </p>
-                    )}
-                    {c.reunion_id && <span style={{ fontSize: 11, color: '#22c55e', display: 'block', marginTop: 4 }}>✓ Agendó reunión</span>}
-                  </div>
-                </div>
-              </div>
-            ))
+            llamadas.map(c => <LlamadaCard key={c.id} c={c} card={card} fmt={fmt} />)
           )
         )}
 
