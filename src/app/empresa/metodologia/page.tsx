@@ -80,7 +80,7 @@ export default function MetodologiaPage() {
     <>
       <RevealObserver revealClass={s.revealOn} />
 
-      <section className={s.pageHero}>
+      <section className={s.pageHero} style={{ isolation: 'isolate' }}>
         <AnimatedGradient config={{ preset: 'Prism' }} />
         <div className={s.pageHeroInner}>
           <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
