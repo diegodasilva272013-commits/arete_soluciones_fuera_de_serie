@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import AnimatedGradient from '@/components/ui/animated-gradient';
 import {
   ChevronRight, ChevronLeft, AlertTriangle, Target,
   Brain, Zap, Eye, Shield, MessageSquare, BookOpen,
@@ -1152,8 +1153,9 @@ export function ManualViewer() {
   return (
     <div className="min-h-screen bg-[#050505]">
       {/* Hero */}
-      <div className="bg-gradient-to-br from-[#0a1428] via-[#050d1e] to-[#050505] border-b border-[rgba(26,111,255,0.15)] px-6 py-12">
-        <div className="max-w-5xl mx-auto">
+      <div className="relative border-b border-[rgba(26,111,255,0.15)] px-6 py-12 overflow-hidden">
+        <AnimatedGradient config={{ preset: 'Prism' }} />
+        <div className="max-w-5xl mx-auto relative z-10">
           <p className="text-[10px] uppercase tracking-[0.3em] text-brand-gold mb-3">Areté Fuera de Serie · Formación</p>
           <h1 className="text-3xl md:text-4xl font-black text-brand-text mb-2">{manual.title}</h1>
           <p className="text-brand-muted text-sm max-w-2xl">{manual.description}</p>
