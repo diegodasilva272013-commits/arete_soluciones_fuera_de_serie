@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
+import AnimatedGradient from '@/components/ui/animated-gradient';
 
 export const metadata: Metadata = {
   title: 'Metodología — Areté Soluciones',
@@ -80,6 +81,7 @@ export default function MetodologiaPage() {
       <RevealObserver revealClass={s.revealOn} />
 
       <section className={s.pageHero}>
+        <AnimatedGradient config={{ preset: 'Prism' }} />
         <div className={s.pageHeroInner}>
           <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
             <span className={s.kickerLine} />
