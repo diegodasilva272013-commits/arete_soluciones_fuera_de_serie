@@ -49,7 +49,7 @@ export function ElevenLabsWidget() {
     <button
       onClick={handleClick}
       disabled={isBusy}
-      aria-label={isActive ? 'Terminar llamada' : 'Hablar con la IA'}
+      aria-label={isActive ? 'Terminar llamada' : 'Hablar con nuestro asesor'}
       style={{
         position: 'fixed',
         bottom: 28,
@@ -155,7 +155,7 @@ export function ElevenLabsWidget() {
         {isBusy  ? 'Conectando…'    :
          isActive ? 'Terminar'       :
          isError  ? 'Reintentar'     :
-                    'Hablar con la IA'}
+                    'Hablar con nuestro asesor'}
       </span>
 
       <style>{`
