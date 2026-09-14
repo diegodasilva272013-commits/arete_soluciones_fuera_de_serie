@@ -11,7 +11,7 @@ export function WhatsAppFloat() {
       aria-label="Contactar por WhatsApp"
       style={{
         position: 'fixed',
-        bottom: 28,
+        bottom: 100,
         right: 28,
         zIndex: 200,
         width: 56,
