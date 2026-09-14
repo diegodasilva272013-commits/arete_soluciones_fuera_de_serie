@@ -1,11 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRight, Phone, Mail, MessageCircle, MapPin } from 'lucide-react';
+import { ArrowRight, Phone, Mail, MessageCircle } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
+import AnimatedGradient from '@/components/ui/animated-gradient';
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20el%20diagn%C3%B3stico%20de%20Aret%C3%A9%20Soluciones';
+const PHONE   = '5491158280808';
+const MSG     = encodeURIComponent('Hola Marcos, necesito contactarme por ');
+const WA      = `https://wa.me/${PHONE}?text=${MSG}`;
 
 type FormState = 'idle' | 'sending' | 'done' | 'error';
 
@@ -26,8 +29,9 @@ export default function ContactoPage() {
       <RevealObserver revealClass={s.revealOn} />
 
       {/* Hero */}
-      <section className={s.pageHero}>
-        <div className={s.pageHeroInner}>
+      <section className={s.pageHero} style={{ isolation: 'isolate' }}>
+        <AnimatedGradient config={{ preset: 'Prism' }} />
+        <div className={s.pageHeroInner} style={{ position: 'relative', zIndex: 1 }}>
           <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
             <span className={s.kickerLine} />
             <span className={s.kickerLabel}>Contacto</span>
@@ -73,15 +77,14 @@ export default function ContactoPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>WhatsApp</p>
-                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#25D366' }}>+54 9 11 4321-5678</p>
-                    <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Respuesta en menos de 2 horas · Lun–Vie 9 a 18 hs</p>
+                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#25D366' }}>+54 9 11 5828-0808</p>
+                    <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Escribinos · respondemos en cuanto lo vemos</p>
                   </div>
                   <ArrowRight size={16} color="rgba(37,211,102,0.6)" />
                 </a>
 
                 {/* Teléfono */}
-                <a
-                  href="tel:+541143215678"
+                <div
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -90,23 +93,21 @@ export default function ContactoPage() {
                     background: 'rgba(255,255,255,0.02)',
                     border: '1px solid rgba(242,239,233,0.08)',
                     clipPath: 'polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)',
-                    textDecoration: 'none',
                   }}
                 >
                   <div style={{ width: 46, height: 46, background: 'rgba(var(--azul-rgb),0.1)', border: '1px solid rgba(var(--azul-rgb),0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>
                     <Phone size={18} color="var(--azul)" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>Llamada directa</p>
-                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>+54 11 4321-5678</p>
-                    <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Lun–Vie de 9 a 18 hs (ARG)</p>
+                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>Llamada con asesor IA</p>
+                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>Botón "Llamar a un asesor" · esquina inferior izquierda</p>
+                    <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Disponible 24/7 · Respuesta inmediata</p>
                   </div>
-                  <ArrowRight size={16} color="rgba(242,239,233,0.22)" />
-                </a>
+                </div>
 
                 {/* Email */}
                 <a
-                  href="mailto:hola@aretesoluciones.com"
+                  href="mailto:arete@aretesoluciones.com"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -123,22 +124,11 @@ export default function ContactoPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>Email</p>
-                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>hola@aretesoluciones.com</p>
+                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>arete@aretesoluciones.com</p>
                     <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Respuesta en 24 horas hábiles</p>
                   </div>
                   <ArrowRight size={16} color="rgba(242,239,233,0.22)" />
                 </a>
-
-                {/* Ubicación */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '20px 28px', border: '1px solid rgba(242,239,233,0.04)' }}>
-                  <div style={{ width: 46, height: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <MapPin size={18} color="rgba(242,239,233,0.25)" />
-                  </div>
-                  <div>
-                    <p style={{ margin: '0 0 2px', fontWeight: 600, fontSize: 14, color: 'rgba(242,239,233,0.55)' }}>Buenos Aires, Argentina</p>
-                    <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.28)' }}>Operamos 100% remoto · Toda Latinoamérica</p>
-                  </div>
-                </div>
               </div>
             </div>
 
