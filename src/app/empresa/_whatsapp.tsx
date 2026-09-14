@@ -12,7 +12,7 @@ export function WhatsAppFloat() {
       style={{
         position: 'fixed',
         bottom: 28,
-        left: 28,
+        right: 28,
         zIndex: 200,
         width: 56,
         height: 56,
