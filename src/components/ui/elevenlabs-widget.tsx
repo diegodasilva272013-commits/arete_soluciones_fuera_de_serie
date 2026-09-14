@@ -1,174 +1,172 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'elevenlabs-convai': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        'agent-id': string;
-      };
-    }
-  }
-}
+import { useCallback, useRef, useState } from 'react';
+import { Conversation } from '@11labs/client';
 
 const AGENT_ID = 'agent_0701m2fyqzbffg3v5x1s94xckhpc';
 
+type Status = 'idle' | 'connecting' | 'active' | 'error';
+
 export function ElevenLabsWidget() {
-  const widgetRef = useRef<HTMLElement | null>(null);
-  const [active, setActive] = useState(false);
+  const convRef = useRef<Conversation | null>(null);
+  const [status, setStatus] = useState<Status>('idle');
 
-  useEffect(() => {
-    // Carga el script de ElevenLabs si no existe
-    if (!document.querySelector('script[src*="elevenlabs.io/convai-widget"]')) {
-      const script = document.createElement('script');
-      script.src = 'https://elevenlabs.io/convai-widget/index.js';
-      script.async = true;
-      script.type = 'text/javascript';
-      document.body.appendChild(script);
+  const start = useCallback(async () => {
+    if (status !== 'idle' && status !== 'error') return;
+    setStatus('connecting');
+    try {
+      const conv = await Conversation.startSession({
+        agentId: AGENT_ID,
+        onConnect: () => setStatus('active'),
+        onDisconnect: () => {
+          convRef.current = null;
+          setStatus('idle');
+        },
+        onError: () => setStatus('error'),
+      });
+      convRef.current = conv;
+    } catch {
+      setStatus('error');
     }
+  }, [status]);
 
-    // Oculta el widget original con CSS global
-    const style = document.createElement('style');
-    style.id = 'el-hide-default';
-    style.textContent = `
-      elevenlabs-convai {
-        position: fixed !important;
-        bottom: -9999px !important;
-        right: -9999px !important;
-        pointer-events: none !important;
-        opacity: 0 !important;
-      }
-    `;
-    if (!document.getElementById('el-hide-default')) {
-      document.head.appendChild(style);
-    }
+  const stop = useCallback(async () => {
+    await convRef.current?.endSession();
+    convRef.current = null;
+    setStatus('idle');
   }, []);
 
-  function handleClick() {
-    const widget = document.querySelector('elevenlabs-convai') as HTMLElement & {
-      startConversation?: () => void;
-    };
-    if (!widget) return;
+  const handleClick = () => {
+    if (status === 'active') stop();
+    else start();
+  };
 
-    if (active) {
-      // Intenta terminar la conversación
-      try {
-        const btn = widget.shadowRoot?.querySelector('button');
-        btn?.click();
-      } catch {}
-      setActive(false);
-      return;
-    }
-
-    // Activa el widget: restaura posición temporalmente para que funcione,
-    // luego lo volvemos a ocultar visualmente
-    widget.style.cssText = `
-      position: fixed !important;
-      bottom: 80px !important;
-      left: 28px !important;
-      pointer-events: auto !important;
-      opacity: 1 !important;
-      z-index: 9999 !important;
-    `;
-
-    // Hace click en el botón interno del widget
-    setTimeout(() => {
-      try {
-        const btn = widget.shadowRoot?.querySelector('button');
-        btn?.click();
-        setActive(true);
-      } catch {}
-    }, 100);
-  }
+  const isActive   = status === 'active';
+  const isBusy     = status === 'connecting';
+  const isError    = status === 'error';
 
   return (
-    <>
-      {/* Widget ElevenLabs oculto — funcional pero invisible */}
-      <elevenlabs-convai agent-id={AGENT_ID} ref={widgetRef as any} />
-
-      {/* Botón custom Areté — esquina inferior izquierda */}
-      <button
-        onClick={handleClick}
-        aria-label={active ? 'Terminar llamada' : 'Hablar con nuestra IA'}
-        style={{
-          position: 'fixed',
-          bottom: 28,
-          left: 28,
-          zIndex: 200,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          padding: '0 20px 0 16px',
-          height: 52,
-          borderRadius: 999,
-          background: active ? 'rgba(26,111,255,0.18)' : 'rgba(5,5,5,0.92)',
-          border: `1.5px solid ${active ? 'rgba(26,111,255,0.7)' : 'rgba(26,111,255,0.35)'}`,
-          color: '#F2EFE9',
-          cursor: 'pointer',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          boxShadow: active
-            ? '0 0 24px rgba(26,111,255,0.35), 0 4px 20px rgba(0,0,0,0.4)'
-            : '0 4px 20px rgba(0,0,0,0.4)',
-          transition: 'all 0.25s ease',
-          fontFamily: 'var(--f-display, Montserrat, sans-serif)',
-          fontSize: 13,
-          fontWeight: 700,
-          letterSpacing: '0.04em',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {/* Ícono mic con anillo pulsante cuando activo */}
-        <span style={{ position: 'relative', width: 28, height: 28, flexShrink: 0 }}>
-          {active && (
+    <button
+      onClick={handleClick}
+      disabled={isBusy}
+      aria-label={isActive ? 'Terminar llamada' : 'Hablar con la IA'}
+      style={{
+        position: 'fixed',
+        bottom: 28,
+        left: 28,
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '0 20px 0 14px',
+        height: 52,
+        borderRadius: 999,
+        background: isActive
+          ? 'rgba(26,111,255,0.18)'
+          : isError
+          ? 'rgba(239,68,68,0.12)'
+          : 'rgba(5,5,5,0.92)',
+        border: `1.5px solid ${
+          isActive ? 'rgba(26,111,255,0.7)' :
+          isError  ? 'rgba(239,68,68,0.5)'  :
+                     'rgba(26,111,255,0.35)'
+        }`,
+        color: '#F2EFE9',
+        cursor: isBusy ? 'wait' : 'pointer',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        boxShadow: isActive
+          ? '0 0 24px rgba(26,111,255,0.3), 0 4px 20px rgba(0,0,0,0.4)'
+          : '0 4px 20px rgba(0,0,0,0.4)',
+        transition: 'all 0.25s ease',
+        fontFamily: 'var(--f-display, Montserrat, sans-serif)',
+        fontSize: 13,
+        fontWeight: 700,
+        letterSpacing: '0.04em',
+        whiteSpace: 'nowrap',
+        outline: 'none',
+      }}
+    >
+      {/* Ícono */}
+      <span style={{ position: 'relative', width: 28, height: 28, flexShrink: 0 }}>
+        {isActive && (
+          <>
             <span style={{
-              position: 'absolute',
-              inset: -4,
-              borderRadius: '50%',
+              position: 'absolute', inset: -4, borderRadius: '50%',
               border: '1.5px solid rgba(26,111,255,0.5)',
               animation: 'elPulse 1.5s ease-out infinite',
             }} />
+            <span style={{
+              position: 'absolute', inset: -8, borderRadius: '50%',
+              border: '1px solid rgba(26,111,255,0.25)',
+              animation: 'elPulse 1.5s ease-out infinite',
+              animationDelay: '0.4s',
+            }} />
+          </>
+        )}
+        <span style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 28, height: 28, borderRadius: '50%',
+          background: isActive ? 'rgba(26,111,255,0.25)' :
+                      isError  ? 'rgba(239,68,68,0.15)'  :
+                                 'rgba(26,111,255,0.12)',
+          border: `1px solid ${isActive ? 'rgba(26,111,255,0.5)' :
+                                isError  ? 'rgba(239,68,68,0.4)'  :
+                                           'rgba(26,111,255,0.35)'}`,
+        }}>
+          {isBusy ? (
+            /* Spinner conectando */
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="rgba(26,111,255,0.8)" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M12 2a10 10 0 0 1 10 10" style={{ animation: 'spin 0.8s linear infinite' }}/>
+            </svg>
+          ) : isActive ? (
+            /* End call */
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="rgba(26,111,255,1)"
+              stroke="none">
+              <rect x="6" y="6" width="12" height="12" rx="2"/>
+            </svg>
+          ) : isError ? (
+            /* Error */
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="rgba(239,68,68,0.9)" strokeWidth="2.5" strokeLinecap="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          ) : (
+            /* Mic */
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="rgba(26,111,255,1)" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8"  y1="23" x2="16" y2="23"/>
+            </svg>
           )}
-          <span style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 28,
-            height: 28,
-            borderRadius: '50%',
-            background: active ? 'rgba(26,111,255,0.25)' : 'rgba(26,111,255,0.15)',
-            border: '1px solid rgba(26,111,255,0.4)',
-          }}>
-            {active ? (
-              /* Ícono phone-off cuando activo */
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(26,111,255,1)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10.68 13.31a16 16 0 003.41 2.6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7 2 2 0 011.72 2v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 2 2 0 01-.45-2.11 12.84 12.84 0 00.7-2.81 2 2 0 00-.45-1.67z"/>
-                <line x1="23" y1="1" x2="1" y2="23"/>
-              </svg>
-            ) : (
-              /* Ícono mic */
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(26,111,255,1)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                <line x1="12" y1="19" x2="12" y2="23"/>
-                <line x1="8" y1="23" x2="16" y2="23"/>
-              </svg>
-            )}
-          </span>
         </span>
+      </span>
 
-        <span style={{ color: active ? 'rgba(26,111,255,1)' : 'rgba(242,239,233,0.85)' }}>
-          {active ? 'Terminar llamada' : 'Hablar con la IA'}
-        </span>
-      </button>
+      {/* Label */}
+      <span style={{
+        color: isActive ? 'rgba(26,111,255,1)' :
+               isError  ? 'rgba(239,68,68,0.9)' :
+                          'rgba(242,239,233,0.85)',
+      }}>
+        {isBusy  ? 'Conectando…'    :
+         isActive ? 'Terminar'       :
+         isError  ? 'Reintentar'     :
+                    'Hablar con la IA'}
+      </span>
 
       <style>{`
         @keyframes elPulse {
-          0%   { transform: scale(1); opacity: 0.8; }
-          100% { transform: scale(2); opacity: 0; }
+          0%   { transform: scale(1);   opacity: 0.8; }
+          100% { transform: scale(2.2); opacity: 0;   }
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
       `}</style>
-    </>
+    </button>
   );
 }
