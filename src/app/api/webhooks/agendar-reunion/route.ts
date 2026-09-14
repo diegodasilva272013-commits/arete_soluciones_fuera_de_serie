@@ -61,10 +61,10 @@ export async function POST(req: NextRequest) {
 
   const { slot_id, nombre, telefono, email, empresa, motivo } = params;
 
-  if (!slot_id || !nombre || !telefono) {
+  if (!slot_id || !nombre) {
     return NextResponse.json({
       confirmado: false,
-      mensaje: 'Necesito el nombre, el teléfono y el slot elegido para confirmar el turno.',
+      mensaje: 'Necesito tu nombre y el turno elegido para confirmar la reunión.',
     }, { status: 400 });
   }
 
@@ -127,6 +127,6 @@ export async function POST(req: NextRequest) {
     confirmado: true,
     reunion_id: reunion.id,
     inicio_local: inicioLocal,
-    mensaje: `¡Perfecto, ${nombre}! Tu reunión quedó agendada para el ${inicioLocal}. Te vamos a confirmar por WhatsApp al ${telefono}.`,
+    mensaje: `¡Perfecto, ${nombre}! Tu reunión quedó agendada para el ${inicioLocal}. El equipo de Areté se va a poner en contacto con vos para confirmar los detalles.`,
   });
 }
