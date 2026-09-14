@@ -10,14 +10,11 @@
  */
 
 import { useEffect, useState, useCallback } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseBrowserClient } from '@/lib/supabase-client';
 import { Trash2, Calendar, Phone, Users, RefreshCw, Bot } from 'lucide-react';
 import { APP_TIMEZONE } from '@/constants/timezone';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = createSupabaseBrowserClient();
 
 type Tab = 'disponibilidad' | 'reuniones' | 'llamadas';
 
