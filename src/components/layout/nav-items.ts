@@ -4,7 +4,7 @@ import {
   Target, TrendingUp, BookOpen, ClipboardList, ClipboardCheck,
   UserCheck, Inbox, Megaphone, Wifi, LayoutGrid, FileSearch, Handshake,
   AlertTriangle, ListChecks, CalendarDays, Clock, List, LineChart,
-  Sparkles, UserPlus,
+  Sparkles, UserPlus, Bot,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -83,6 +83,7 @@ export const ADMIN_NAV: NavItem[] = [
   { label: 'Recursos',        href: '/resources',              icon: FolderOpen },
   { label: 'Strikes',         href: '/admin/strikes',          icon: AlertTriangle },
   { label: 'Agenda Closers',  href: '/admin/agenda',           icon: CalendarDays },
+  { label: 'Calendario IA',   href: '/admin/calendario-ia',    icon: Bot },
   { label: 'Mentorías Curso', href: '/admin/sesiones-curso',   icon: GraduationCap },
   { label: 'Reclutamiento',   href: '/admin-reclutamiento',    icon: UserPlus },
 ];

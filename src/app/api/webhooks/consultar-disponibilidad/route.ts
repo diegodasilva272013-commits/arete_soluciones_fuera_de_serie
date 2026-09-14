@@ -34,7 +34,12 @@ function formatSlotLabel(iso: string): string {
 
 export async function POST(req: NextRequest) {
   // ── Auth ─────────────────────────────────────────────────────────────
-  const secret = req.headers.get('x-webhook-secret') ?? req.headers.get('X-Webhook-Secret');
+  // Acepta:  X-Webhook-Secret: <secret>
+  //          Authorization: Bearer <secret>
+  const rawAuth = req.headers.get('authorization') ?? '';
+  const bearerSecret = rawAuth.startsWith('Bearer ') ? rawAuth.slice(7) : null;
+  const headerSecret = req.headers.get('x-webhook-secret');
+  const secret = bearerSecret ?? headerSecret;
   if (secret !== process.env.WEBHOOK_IA_SECRET) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
