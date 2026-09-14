@@ -30,7 +30,7 @@ const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s
 // Instagram / LinkedIn — todavía no hay ninguna cargada al proyecto.
 const SOCIALS: { label: string; href: string; icon: 'whatsapp' | 'mail' }[] = [
   { label: '+54 9 11 4321-5678',      href: WA,                                  icon: 'whatsapp' },
-  { label: 'hola@aretesoluciones.com', href: 'mailto:hola@aretesoluciones.com',  icon: 'mail'      },
+  { label: 'arete@aretesoluciones.com', href: 'mailto:arete@aretesoluciones.com',  icon: 'mail'      },
 ];
 
 function SocialIcon({ type }: { type: 'whatsapp' | 'mail' }) {
@@ -106,7 +106,7 @@ export function CorpFooter() {
 
       <div className={s.bottom}>
         <div className={s.bottomInner}>
-          <span>Buenos Aires, Argentina</span>
+          <span>© {new Date().getFullYear()} Areté Soluciones</span>
         </div>
       </div>
     </footer>

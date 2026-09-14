@@ -3,6 +3,7 @@ import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
 import type { SmoothSliderItem } from '@/components/ui/arc-flow-carousel';
 import { EquipoCarousel } from './_equipo-carousel';
+import { FluidParticlesBackground } from '@/components/ui/fluid-particles-background';
 
 export const metadata: Metadata = {
   title: 'Equipo — Areté Soluciones',
@@ -24,8 +25,11 @@ export default function EquipoPage() {
     <>
       <RevealObserver revealClass={s.revealOn} />
 
-      <section className={s.pageHero}>
-        <div className={s.pageHeroInner}>
+      <section className={s.pageHero} style={{ isolation: 'isolate' }}>
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+          <FluidParticlesBackground particleCount={1800} noiseIntensity={0.0025} />
+        </div>
+        <div className={s.pageHeroInner} style={{ position: 'relative', zIndex: 1 }}>
           <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
             <span className={s.kickerLine} />
             <span className={s.kickerLabel}>Equipo</span>
