@@ -175,6 +175,9 @@ export function ReclutamientoForm() {
 
       await uploadVideoTus(tusData.sessionUrl, video, setProgreso);
 
+      // Confirmar que el video se subió completo
+      await fetch(`/api/reclutamiento/${id}/confirm-video`, { method: 'POST' });
+
       setPaso('listo');
     } catch (err: any) {
       setPaso('error');

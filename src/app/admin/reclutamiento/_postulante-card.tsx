@@ -16,6 +16,7 @@ export type Postulante = {
   notas_admin: string | null;
   fotoUrl: string | null;
   videoUrl: string | null;
+  video_completado: boolean;
 };
 
 const ESTADOS = ['nuevo', 'revisando', 'entrevista', 'aceptado', 'rechazado'] as const;
@@ -72,6 +73,11 @@ export function PostulanteCard({ p }: { p: Postulante }) {
         </div>
 
         <div className="flex items-center gap-2">
+          {!p.video_completado && (
+            <span className="rounded-full border border-red-500/40 bg-red-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-red-400">
+              ⚠ Sin video
+            </span>
+          )}
           <select
             value={estado}
             disabled={saving}

@@ -47,6 +47,7 @@ export default async function ReclutamientoAdminPage() {
         notas_admin: r.notas_admin,
         fotoUrl,
         videoUrl,
+        video_completado: r.video_completado ?? false,
       };
     })
   );
