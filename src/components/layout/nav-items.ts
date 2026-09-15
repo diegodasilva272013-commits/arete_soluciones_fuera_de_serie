@@ -51,6 +51,7 @@ export const SETTER_NAV: NavItem[] = [
   { label: 'Strikes Equipo',     href: '/strikes',          icon: AlertTriangle },
   { label: 'Agenda',             href: '/agenda',           icon: CalendarDays },
   { label: 'Mi Progreso',        href: '/mi-evolucion',     icon: LineChart },
+  { label: 'Calendario IA',      href: '/setter-calendario-ia', icon: Bot },
 ];
 
 // ─── 3. Closer — solo rol closer ─────────────────────────────────────────────

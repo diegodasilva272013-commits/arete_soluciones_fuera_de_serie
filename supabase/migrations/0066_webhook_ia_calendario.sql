@@ -31,6 +31,14 @@ CREATE POLICY slots_admin ON public.slots_publicos FOR ALL
   USING  (public.is_admin(auth.uid()))
   WITH CHECK (public.is_admin(auth.uid()));
 
+-- Setters/closers: solo lectura
+DROP POLICY IF EXISTS slots_team_read ON public.slots_publicos;
+CREATE POLICY slots_team_read ON public.slots_publicos FOR SELECT
+  USING (EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role IN ('setter', 'closer', 'admin')
+  ));
+
 -- Service role (webhooks): bypasa RLS automáticamente
 
 -- ── 2. reuniones_externas ─────────────────────────────────────────────
@@ -65,6 +73,14 @@ CREATE POLICY re_admin ON public.reuniones_externas FOR ALL
   USING  (public.is_admin(auth.uid()))
   WITH CHECK (public.is_admin(auth.uid()));
 
+-- Setters/closers: solo lectura
+DROP POLICY IF EXISTS re_team_read ON public.reuniones_externas;
+CREATE POLICY re_team_read ON public.reuniones_externas FOR SELECT
+  USING (EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role IN ('setter', 'closer', 'admin')
+  ));
+
 -- ── 3. contactos_ia ──────────────────────────────────────────────────
 -- Log de cada llamada del agente de voz (independiente de si agendó o no).
 CREATE TABLE IF NOT EXISTS public.contactos_ia (
@@ -88,3 +104,11 @@ DROP POLICY IF EXISTS cia_admin ON public.contactos_ia;
 CREATE POLICY cia_admin ON public.contactos_ia FOR ALL
   USING  (public.is_admin(auth.uid()))
   WITH CHECK (public.is_admin(auth.uid()));
+
+-- Setters/closers: solo lectura
+DROP POLICY IF EXISTS cia_team_read ON public.contactos_ia;
+CREATE POLICY cia_team_read ON public.contactos_ia FOR SELECT
+  USING (EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role IN ('setter', 'closer', 'admin')
+  ));
