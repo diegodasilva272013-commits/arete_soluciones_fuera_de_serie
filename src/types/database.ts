@@ -632,6 +632,7 @@ export type Database = {
           next_follow_up_at: string | null;
           opening_message_used: string | null;
           notes: string | null;
+          tags: string[];
           is_closed: boolean;
           closed_reason: string | null;
           prospect_id: string | null;
@@ -656,6 +657,7 @@ export type Database = {
           next_follow_up_at?: string | null;
           opening_message_used?: string | null;
           notes?: string | null;
+          tags?: string[];
           is_closed?: boolean;
           closed_reason?: string | null;
           prospect_id?: string | null;

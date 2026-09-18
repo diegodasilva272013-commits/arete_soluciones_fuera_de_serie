@@ -81,7 +81,7 @@ export async function PATCH(
     if (body.phone      !== undefined) updates.phone      = body.phone;
     if (body.email      !== undefined) updates.email      = body.email      ?? null;
     if (body.country    !== undefined) updates.country    = body.country    ?? null;
-    if (body.tags       !== undefined) (updates as Record<string, unknown>).tags = body.tags;
+    if (body.tags       !== undefined) updates.tags = body.tags;
 
     if (body.next_follow_up_at !== undefined) {
       updates.next_follow_up_at = body.next_follow_up_at;
