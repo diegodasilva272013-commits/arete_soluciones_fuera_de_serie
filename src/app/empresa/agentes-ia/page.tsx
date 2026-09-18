@@ -259,6 +259,24 @@ const AGENTS = [
     accentBorder:'rgba(16,185,129,0.2)',
     label: 'Saúl',
   },
+  {
+    id:       'agent_3801m2tym6e2etat5aypjqykydty',
+    nombre:   'Providus',
+    tipo:     'Renta y Capitalización',
+    tagline:  'Inversiones · Rendimientos · Planificación financiera',
+    emoji:    '📈',
+    desc:     'Asesor financiero de voz. Explica instrumentos de renta y capitalización, orienta sobre rendimientos, responde consultas de inversión y agenda reuniones con el equipo — disponible las 24 hs.',
+    caps: [
+      'Consultas sobre instrumentos de inversión',
+      'Información de rendimientos y plazos',
+      'Orientación en planificación financiera',
+      'Agendamiento con asesores del equipo',
+    ],
+    accentColor: 'rgba(250,204,21,1)',
+    accentBg:    'rgba(250,204,21,0.06)',
+    accentBorder:'rgba(250,204,21,0.2)',
+    label: 'Providus',
+  },
 ];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
