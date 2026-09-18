@@ -223,6 +223,42 @@ const AGENTS = [
     accentBorder:'rgba(99,102,241,0.2)',
     label: 'Payma',
   },
+  {
+    id:       'agent_9801m2tg8136e28sbnjptxxq1841',
+    nombre:   'Centro Jurídico NOA',
+    tipo:     'Estudio Jurídico · Jujuy, Argentina',
+    tagline:  'Consultas legales · Turnos · Derivación al abogado',
+    emoji:    '⚖️',
+    desc:     'Asistente jurídico de voz. Responde consultas legales frecuentes, agenda turnos con abogados, informa las áreas de práctica del estudio y deriva cada caso al profesional indicado — disponible las 24 hs.',
+    caps: [
+      'Consultas legales y orientación inicial',
+      'Agendamiento de turnos con abogados',
+      'Información de áreas de práctica',
+      'Derivación inteligente por tipo de caso',
+    ],
+    accentColor: 'rgba(212,175,55,1)',
+    accentBg:    'rgba(212,175,55,0.06)',
+    accentBorder:'rgba(212,175,55,0.2)',
+    label: 'Centro Jurídico NOA',
+  },
+  {
+    id:       'agent_7301m2t40t5je97adt0egfrvb3qc',
+    nombre:   'Mejor llama a Saúl',
+    tipo:     'Estudio de Abogados · Montevideo, Uruguay',
+    tagline:  'Consulta inicial · Calificación · Agenda de entrevistas',
+    emoji:    '📋',
+    desc:     'Agente de voz para estudio de abogados. Atiende la primera consulta, califica el tipo de caso, coordina la entrevista inicial con el letrado y captura todos los datos del cliente — sin tiempos de espera.',
+    caps: [
+      'Atención de consulta inicial del caso',
+      'Calificación y clasificación por materia',
+      'Coordinación de primera entrevista',
+      'Captura y registro de datos del cliente',
+    ],
+    accentColor: 'rgba(16,185,129,1)',
+    accentBg:    'rgba(16,185,129,0.06)',
+    accentBorder:'rgba(16,185,129,0.2)',
+    label: 'Saúl',
+  },
 ];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
