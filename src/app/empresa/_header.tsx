@@ -13,6 +13,7 @@ const NAV = [
   { href: '/empresa/metodologia', label: 'Método'      },
   { href: '/empresa/nosotros',    label: 'Nosotros'    },
   { href: '/empresa/equipo',      label: 'Equipo'      },
+  { href: '/empresa/agentes-ia',  label: 'Agentes IA'  },
   { href: '/empresa/contacto',    label: 'Contacto'    },
 ];
 
