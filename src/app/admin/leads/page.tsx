@@ -281,19 +281,28 @@ function AdminLeadsPageInner() {
   }
 
   async function doAssignSelected() {
-    if (!assignSetter) { setAssignMsg('Elegí un setter primero.'); return; }
+    if (!assignSetter) { setAssignMsg('Elegí una opción primero.'); return; }
     if (!selected.size) { setAssignMsg('Seleccioná al menos un lead.'); return; }
     setAssigning(true);
     setAssignMsg('');
+
+    const isUnassign = assignSetter === '__unassign__';
     const res = await fetch('/api/admin/leads/assign', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ target_user_id: assignSetter, lead_ids: [...selected] }),
+      body: JSON.stringify({
+        target_user_id: isUnassign ? null : assignSetter,
+        lead_ids: [...selected],
+      }),
     });
     const data = await res.json();
     if (res.ok) {
-      const warn = data.pending_warning ? ` · ⚠️ ${data.pending_warning}` : '';
-      setAssignMsg(`✅ ${data.assigned} leads asignados.${warn}`);
+      if (isUnassign) {
+        setAssignMsg(`✅ ${data.unassigned} leads desasignados.`);
+      } else {
+        const warn = data.pending_warning ? ` · ⚠️ ${data.pending_warning}` : '';
+        setAssignMsg(`✅ ${data.assigned} leads asignados.${warn}`);
+      }
       setSelected(new Set());
       await load();
     } else {
@@ -807,19 +816,28 @@ function AdminLeadsPageInner() {
               onChange={e => { setAssignSetter(e.target.value); setAssignMsg(''); }}
               className="w-full rounded-lg border border-zinc-700 bg-[#111] px-3 py-2 text-sm text-brand-text focus:outline-none focus:border-blue-500/50"
             >
-              <option value="">— Elegir setter —</option>
-              {users.map(u => (
-                <option key={u.id} value={u.id}>{u.full_name ?? u.email}</option>
-              ))}
+              <option value="">— Elegir acción —</option>
+              <option value="__unassign__">↩ Sin asignar (desasignar)</option>
+              <optgroup label="Asignar a setter">
+                {users.map(u => (
+                  <option key={u.id} value={u.id}>{u.full_name ?? u.email}</option>
+                ))}
+              </optgroup>
             </select>
           </div>
           <button
             onClick={doAssignSelected}
             disabled={assigning || !assignSetter}
-            className="flex items-center gap-2 rounded-lg border border-blue-600/50 bg-blue-900/40 px-5 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-900/60 transition disabled:opacity-40"
+            className={`flex items-center gap-2 rounded-lg border px-5 py-2 text-sm font-semibold transition disabled:opacity-40 ${
+              assignSetter === '__unassign__'
+                ? 'border-orange-600/50 bg-orange-900/40 text-orange-300 hover:bg-orange-900/60'
+                : 'border-blue-600/50 bg-blue-900/40 text-blue-300 hover:bg-blue-900/60'
+            }`}
           >
             <UserPlus className="h-4 w-4" />
-            {assigning ? 'Asignando...' : 'Asignar'}
+            {assigning
+              ? (assignSetter === '__unassign__' ? 'Desasignando...' : 'Asignando...')
+              : (assignSetter === '__unassign__' ? 'Desasignar' : 'Asignar')}
           </button>
           <button
             onClick={() => { setSelected(new Set()); setAssignMsg(''); }}
