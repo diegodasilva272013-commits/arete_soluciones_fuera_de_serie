@@ -277,6 +277,24 @@ const AGENTS = [
     accentBorder:'rgba(250,204,21,0.2)',
     label: 'Providus',
   },
+  {
+    id:       'agent_7801m2wntrk7ez2v2m3nyen8q66a',
+    nombre:   'Rodrigo Reyes',
+    tipo:     'Abogado · Consultor Patrimonial',
+    tagline:  'Consultoría legal · Patrimonio · Protección de activos',
+    emoji:    '🏛️',
+    desc:     'Consultor patrimonial de voz. Asesora sobre protección de activos, planificación patrimonial y estrategias legales — responde consultas iniciales, orienta el encuadre del caso y coordina la primera reunión con el estudio.',
+    caps: [
+      'Consultoría en protección de activos',
+      'Orientación en planificación patrimonial',
+      'Estrategias legales personalizadas',
+      'Coordinación de reunión con el estudio',
+    ],
+    accentColor: 'rgba(147,112,219,1)',
+    accentBg:    'rgba(147,112,219,0.06)',
+    accentBorder:'rgba(147,112,219,0.2)',
+    label: 'Rodrigo',
+  },
 ];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
