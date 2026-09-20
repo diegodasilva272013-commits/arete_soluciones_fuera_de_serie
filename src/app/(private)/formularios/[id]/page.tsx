@@ -76,7 +76,7 @@ function ResultView({ form, onBack }: { form: FormData; onBack: () => void }) {
       {/* Alertas */}
       {a.alertas?.length > 0 && (
         <div className="rounded-xl border border-red-500/20 bg-red-900/10 p-4">
-          <p className="text-xs font-bold uppercase text-red-400 mb-2 flex items-center gap-1"><AlertTriangle className="h-3.5 w-3.5" />Alertas del Motor CAC</p>
+          <p className="text-xs font-bold uppercase text-red-400 mb-2 flex items-center gap-1"><AlertTriangle className="h-3.5 w-3.5" />Alertas del Motor IA</p>
           {a.alertas.map((al: string, i: number) => <p key={i} className="text-sm text-red-300">• {al}</p>)}
         </div>
       )}
@@ -84,7 +84,7 @@ function ResultView({ form, onBack }: { form: FormData; onBack: () => void }) {
       {/* Feedback general */}
       {a.feedback_general && (
         <div className="rounded-xl border border-brand-gold/15 bg-[rgba(212,175,55,0.04)] p-4">
-          <p className="text-xs font-bold uppercase text-brand-gold mb-2 flex items-center gap-1"><Brain className="h-3.5 w-3.5" />Diagnóstico Motor CAC</p>
+          <p className="text-xs font-bold uppercase text-brand-gold mb-2 flex items-center gap-1"><Brain className="h-3.5 w-3.5" />Diagnóstico Motor IA</p>
           <p className="text-sm text-brand-text leading-relaxed">{a.feedback_general}</p>
         </div>
       )}
@@ -263,7 +263,7 @@ export default function FormularioDetailPage() {
       ) : form.submission?.status === 'analyzing' ? (
         <div className="flex flex-col items-center py-20 text-center gap-4">
           <Loader2 className="h-10 w-10 animate-spin text-brand-gold" />
-          <p className="text-brand-text font-semibold">El Motor CAC está analizando tus respuestas...</p>
+          <p className="text-brand-text font-semibold">El Motor IA está analizando tus respuestas...</p>
           <p className="text-sm text-brand-muted">Actualizando automáticamente en segundos.</p>
         </div>
       ) : (
@@ -271,7 +271,7 @@ export default function FormularioDetailPage() {
         <div className="space-y-5">
           <div className="rounded-xl border border-amber-500/20 bg-amber-900/10 p-3">
             <p className="text-xs text-amber-300 leading-relaxed">
-              Respondé con tus propias palabras. El Motor CAC detecta copias de IA y las penaliza. Una respuesta breve y honesta vale más que una perfecta y falsa.
+              Respondé con tus propias palabras. El Motor IA detecta copias y las penaliza. Una respuesta breve y honesta vale más que una perfecta y falsa.
             </p>
           </div>
 
@@ -309,7 +309,7 @@ export default function FormularioDetailPage() {
 
           <button onClick={submit} disabled={submitting || questions.filter(q => q.is_required).some(q => !answers[q.id]?.trim() || answers[q.id].trim().length < 15)}
             className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-gold py-3.5 text-sm font-bold text-black disabled:opacity-40 transition">
-            {submitting ? <><Loader2 className="h-4 w-4 animate-spin" />Analizando con Motor CAC...</> : <><Send className="h-4 w-4" />Enviar formulario</>}
+            {submitting ? <><Loader2 className="h-4 w-4 animate-spin" />Analizando con Motor IA...</> : <><Send className="h-4 w-4" />Enviar formulario</>}
           </button>
 
           <p className="text-center text-[11px] text-brand-muted">Una vez enviado no podés editar las respuestas.</p>

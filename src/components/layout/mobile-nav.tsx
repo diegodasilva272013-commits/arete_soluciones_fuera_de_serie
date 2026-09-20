@@ -114,19 +114,19 @@ export function MobileNav({
               {isAdmin ? (
                 <>
                   <Section items={PLATFORM_NAV} pathname={pathname} onClose={() => setOpen(false)} />
-                  <Section label="Setter CAC" items={SETTER_NAV} pathname={pathname} onClose={() => setOpen(false)} />
-                  <Section label="Closer CAC" items={CLOSER_NAV} pathname={pathname} onClose={() => setOpen(false)} />
+                  <Section label="Setter" items={SETTER_NAV} pathname={pathname} onClose={() => setOpen(false)} />
+                  <Section label="Closer" items={CLOSER_NAV} pathname={pathname} onClose={() => setOpen(false)} />
                   <Section label="Admin" items={ADMIN_NAV} pathname={pathname} onClose={() => setOpen(false)} />
                 </>
               ) : isSetter ? (
                 <>
                   <Section items={PLATFORM_NAV} pathname={pathname} onClose={() => setOpen(false)} />
-                  <Section label="Setter CAC" items={SETTER_NAV} pathname={pathname} onClose={() => setOpen(false)} />
+                  <Section label="Setter" items={SETTER_NAV} pathname={pathname} onClose={() => setOpen(false)} />
                 </>
               ) : isCloser ? (
                 <>
                   <Section items={PLATFORM_NAV} pathname={pathname} onClose={() => setOpen(false)} />
-                  <Section label="Closer CAC" items={CLOSER_NAV} pathname={pathname} onClose={() => setOpen(false)} />
+                  <Section label="Closer" items={CLOSER_NAV} pathname={pathname} onClose={() => setOpen(false)} />
                 </>
               ) : (
                 <Section items={PLATFORM_NAV} pathname={pathname} onClose={() => setOpen(false)} />

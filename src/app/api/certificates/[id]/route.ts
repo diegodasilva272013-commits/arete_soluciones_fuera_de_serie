@@ -78,7 +78,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 <body>
 <div class="page">
   <div class="frame">
-    <div class="eyebrow">Camino al Closing</div>
+    <div class="eyebrow">Areté Fuera de Serie</div>
     <h1>Certificado de Finalización</h1>
     <div class="who">
       <p class="body">Se otorga el presente certificado a</p>
@@ -92,7 +92,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     <div class="footer">
       <div class="sig">
         <div class="line"></div>
-        <div>Camino al Closing</div>
+        <div>Areté Fuera de Serie</div>
       </div>
       <div style="text-align:right">
         Emitido el ${issuedDate}<br/>

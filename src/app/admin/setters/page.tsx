@@ -157,7 +157,7 @@ function SubCard({ sub }: { sub: Sub }) {
         <div className="border-t border-zinc-800 p-4 space-y-4">
           {a.feedback_general && (
             <div className="rounded-xl border border-brand-gold/15 bg-[rgba(212,175,55,0.04)] p-3">
-              <p className="text-[10px] font-bold uppercase text-brand-gold mb-1 flex items-center gap-1"><Brain className="h-3 w-3" />Diagnóstico Motor CAC</p>
+              <p className="text-[10px] font-bold uppercase text-brand-gold mb-1 flex items-center gap-1"><Brain className="h-3 w-3" />Diagnóstico Motor IA</p>
               <p className="text-xs text-brand-text leading-relaxed">{a.feedback_general}</p>
             </div>
           )}
@@ -241,7 +241,7 @@ function ConvCard({ conv, index }: { conv: Conv; index: number }) {
           )}
           {a.que_haria_operador_cac&&(
             <div className="rounded-xl border border-brand-gold/15 bg-[rgba(212,175,55,0.04)] p-3">
-              <p className="text-[10px] uppercase text-brand-gold/60 mb-1">Qué haría el operador CAC</p>
+              <p className="text-[10px] uppercase text-brand-gold/60 mb-1">Qué haría el operador Areté</p>
               <p className="text-xs text-brand-text">{a.que_haria_operador_cac}</p>
             </div>
           )}
@@ -253,7 +253,7 @@ function ConvCard({ conv, index }: { conv: Conv; index: number }) {
               ))}
               {r.evaluation?.feedback&&(
                 <div className="mt-2 pt-2 border-t border-zinc-700">
-                  <p className="text-[10px] uppercase text-brand-gold/50 mb-1">Evaluación Motor CAC</p>
+                  <p className="text-[10px] uppercase text-brand-gold/50 mb-1">Evaluación Motor IA</p>
                   <p className="text-xs text-brand-text">{r.evaluation.feedback}</p>
                 </div>
               )}
@@ -367,7 +367,7 @@ function SetterFicha({ setterId, name }: { setterId: string; name: string }) {
       {/* Análisis IA de evolución */}
       <div className="rounded-xl border border-violet-500/20 bg-violet-900/10 p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-bold text-violet-300 flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5"/>Análisis de Evolución — Motor CAC</p>
+          <p className="text-xs font-bold text-violet-300 flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5"/>Análisis de Evolución — Motor IA</p>
           {!evolution&&(
             <button onClick={generateEvolution} disabled={evoLoading||conversations.length===0}
               className="flex items-center gap-1.5 rounded-xl border border-violet-500/30 bg-violet-900/20 px-3 py-1 text-[11px] text-violet-300 hover:bg-violet-900/30 transition disabled:opacity-40 disabled:cursor-not-allowed">
@@ -413,7 +413,7 @@ function SetterFicha({ setterId, name }: { setterId: string; name: string }) {
       {/* Categorías CAC + promedio */}
       {catEntries.length>0&&(
         <>
-          <SectionTitle label={`Conocimiento CAC — ${completedSubs.length} formulario${completedSubs.length!==1?'s':''} · Promedio: ${avg_form_score??'—'}/100`} />
+          <SectionTitle label={`Conocimiento — ${completedSubs.length} formulario${completedSubs.length!==1?'s':''} · Promedio: ${avg_form_score??'—'}/100`} />
           <div className="rounded-xl border border-zinc-800 bg-[#0d0d0d] p-4 space-y-3">
             {CAT_ORDER.map(cat=>{const d=category_scores[cat];if(!d)return null;return<CatBar key={cat} label={d.label} avg={d.avg} evolution={category_evolution[cat]}/>;}) }
             {catEntries.filter(([cat])=>!CAT_ORDER.includes(cat)).map(([cat,d])=><CatBar key={cat} label={d.label} avg={d.avg} evolution={category_evolution[cat]}/>)}
@@ -715,7 +715,7 @@ function TeamDiagnosticsPanel() {
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-brand-gold"/>
           <p className="text-sm font-bold text-brand-text">Diagnóstico de Equipo</p>
-          <span className="text-[10px] text-brand-muted/50">Motor CAC · o3</span>
+          <span className="text-[10px] text-brand-muted/50">Motor IA · o3</span>
         </div>
         <div className="flex items-center gap-2">
           {history.length > 0 && (
@@ -765,7 +765,7 @@ function TeamDiagnosticsPanel() {
         <span className="text-[10px] text-brand-muted/50">{active.meta.setters} setters</span>
         <span className="text-[10px] text-brand-muted/50">{active.meta.conversations} convs</span>
         <span className="text-[10px] text-brand-muted/50">{active.meta.leads} leads</span>
-        <span className="text-[10px] text-brand-muted/50">{active.meta.docs_loaded} docs CAC</span>
+        <span className="text-[10px] text-brand-muted/50">{active.meta.docs_loaded} docs cargados</span>
       </div>
 
       {/* Diagnóstico */}

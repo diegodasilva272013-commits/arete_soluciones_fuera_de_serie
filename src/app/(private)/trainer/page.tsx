@@ -263,7 +263,7 @@ function RankingView() {
       {data.weekly_winner && data.weekly_winner.week_sessions > 0 && (
         <div className="rounded-xl border border-brand-gold/40 bg-[rgba(212,175,55,0.06)] px-5 py-4">
           <p className="text-[10px] uppercase tracking-widest text-brand-gold/60 mb-2 flex items-center gap-1.5">
-            <Trophy className="h-3 w-3" /> Sesión de aceleración CAC esta semana
+            <Trophy className="h-3 w-3" /> Sesión de aceleración esta semana
           </p>
           <p className="text-lg font-bold text-brand-gold">{data.weekly_winner.name}</p>
           <p className="text-xs text-brand-muted mt-0.5">
@@ -343,7 +343,7 @@ function RankingView() {
           <p>· Cada sesión: dificultad × 5 XP <span className="text-brand-muted/60">(ej: nivel 6 = 30 XP)</span></p>
           <p>· Pediste evaluación: +5 XP <span className="text-brand-muted/60">(entrenamiento consciente)</span></p>
           <p>· Sesión completa (+8 mensajes): +5 XP</p>
-          <p className="pt-1 text-brand-muted/60">El ranking semanal se resetea cada lunes. El ganador de la semana recibe una Sesión de Aceleración CAC.</p>
+          <p className="pt-1 text-brand-muted/60">El ranking semanal se resetea cada lunes. El ganador de la semana recibe una Sesión de Aceleración.</p>
         </div>
       </div>
     </div>
@@ -444,7 +444,7 @@ export default function TrainerPage() {
         {/* Header con tabs */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-brand-gold">CAC TRAINER</h1>
+            <h1 className="text-3xl font-black tracking-tight text-brand-gold">ARETÉ TRAINER</h1>
             <p className="text-sm text-brand-muted mt-1">Practicá como en campo real. Todo queda registrado.</p>
           </div>
           <div className="flex rounded-lg border border-[rgba(212,175,55,0.15)] bg-[#0d0d0d] p-1">

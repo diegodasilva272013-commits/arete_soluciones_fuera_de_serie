@@ -614,7 +614,7 @@ function ConversacionesTab({ teamId, meId }: { teamId: string; meId: string }) {
       {/* Análisis */}
       {selected.status === 'ready' && selected.analysis && (
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 space-y-3">
-          <p className="text-xs font-bold text-yellow-400 uppercase tracking-wider">Análisis del Motor CAC</p>
+          <p className="text-xs font-bold text-yellow-400 uppercase tracking-wider">Análisis del Motor IA</p>
           {selected.analysis.resultado_probable && <p className="text-sm text-zinc-300"><span className="text-zinc-500 text-xs">Resultado probable:</span> {selected.analysis.resultado_probable}</p>}
           {selected.analysis.donde_se_rompio && <p className="text-sm text-zinc-300"><span className="text-zinc-500 text-xs">Dónde se rompió:</span> {selected.analysis.donde_se_rompio}</p>}
           {selected.analysis.fortalezas?.length > 0 && (
@@ -629,7 +629,7 @@ function ConversacionesTab({ teamId, meId }: { teamId: string; meId: string }) {
           )}
           {selected.analysis.que_haria_operador_cac && (
             <div className="rounded-xl border border-yellow-700/30 bg-yellow-500/5 p-3">
-              <p className="text-xs text-yellow-400 font-semibold mb-1">¿Qué haría el operador CAC?</p>
+              <p className="text-xs text-yellow-400 font-semibold mb-1">¿Qué haría el operador Areté?</p>
               <p className="text-xs text-zinc-300">{selected.analysis.que_haria_operador_cac}</p>
             </div>
           )}
@@ -686,7 +686,7 @@ function ConversacionesTab({ teamId, meId }: { teamId: string; meId: string }) {
       {selected.status === 'analyzing' && (
         <div className="flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
           <Loader2 className="h-5 w-5 text-yellow-400 animate-spin shrink-0" />
-          <p className="text-sm text-zinc-300">El Motor CAC está analizando la conversación...</p>
+          <p className="text-sm text-zinc-300">El Motor IA está analizando la conversación...</p>
         </div>
       )}
     </div>
@@ -703,7 +703,7 @@ function ConversacionesTab({ teamId, meId }: { teamId: string; meId: string }) {
 
       {showNew && (
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 space-y-3">
-          <p className="text-xs text-zinc-500">Pegá la conversación completa (máx. 30.000 caracteres). El Motor CAC la analizará y podrás reflexionar para sumar XP a tu perfil individual.</p>
+          <p className="text-xs text-zinc-500">Pegá la conversación completa (máx. 30.000 caracteres). El Motor IA la analizará y podrás reflexionar para sumar XP a tu perfil individual.</p>
           <textarea value={rawText} onChange={e => setRawText(e.target.value)} rows={8}
             placeholder="[Setter]: Hola, te contacto por...\n[Lead]: Sí, hola..."
             className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2.5 text-sm text-white placeholder:text-zinc-700 focus:outline-none resize-none font-mono" />

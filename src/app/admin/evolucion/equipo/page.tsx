@@ -119,7 +119,7 @@ export default async function EvolucionEquipoDashboard() {
     <div className="min-h-screen bg-[#080808] px-4 py-6 lg:px-8">
       <div className="flex items-start justify-between gap-4">
         <PageHeader
-          eyebrow="Admin · Sistema de Evolución CAC"
+          eyebrow="Admin · Sistema de Evolución Areté"
           title="Evolución del Equipo"
           description={`${setters.length} setters · fuente: profiles`}
         />
@@ -166,7 +166,7 @@ export default async function EvolucionEquipoDashboard() {
                         {profile.full_name ?? profile.email ?? 'Sin nombre'}
                       </p>
                       <p className="text-[11px] text-brand-muted">
-                        {persona ? (persona.rol_actual ?? 'Setter') : 'Sin perfil CAC'}
+                        {persona ? (persona.rol_actual ?? 'Setter') : 'Sin perfil'}
                       </p>
                     </div>
                   </div>

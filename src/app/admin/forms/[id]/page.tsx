@@ -71,7 +71,7 @@ function SubmissionDetail({ s, questions }: { s: any; questions: Question[] }) {
       {/* Feedback general */}
       {a.feedback_general && (
         <div className="rounded-xl border border-brand-gold/15 bg-[rgba(212,175,55,0.04)] p-3">
-          <p className="text-[10px] font-bold uppercase text-brand-gold mb-1 flex items-center gap-1"><Brain className="h-3 w-3" />Diagnóstico Motor CAC</p>
+          <p className="text-[10px] font-bold uppercase text-brand-gold mb-1 flex items-center gap-1"><Brain className="h-3 w-3" />Diagnóstico Motor IA</p>
           <p className="text-xs text-brand-text leading-relaxed">{a.feedback_general}</p>
         </div>
       )}

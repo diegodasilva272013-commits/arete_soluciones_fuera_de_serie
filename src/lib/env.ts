@@ -3,10 +3,6 @@
  */
 function required(name: string, value: string | undefined): string {
   if (!value) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(`[env] Variable de entorno faltante: ${name}. Revisa tu .env.local.`);
-      return '';
-    }
     throw new Error(
       `[env] Variable de entorno faltante: ${name}. Revisa tu .env.local.`
     );
@@ -32,14 +28,5 @@ export const env = {
   },
   giphy: {
     apiKey: process.env.GIPHY_API_KEY ?? '',
-  },
-  openai: {
-    apiKey: process.env.OPENAI_API_KEY ?? '',
-  },
-  push: {
-    publicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? '',
-    privateKey: process.env.VAPID_PRIVATE_KEY ?? '',
-    subject: process.env.VAPID_SUBJECT ?? 'mailto:hello@caminoalclosing.com',
-    webhookSecret: process.env.PUSH_WEBHOOK_SECRET ?? '',
   },
 } as const;

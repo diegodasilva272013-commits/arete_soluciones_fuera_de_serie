@@ -35,7 +35,7 @@ export default function FormulariosPage() {
       <div className="mb-6">
         <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Entrenamiento</p>
         <h1 className="text-2xl font-bold text-brand-text mt-1">Formularios de refuerzo</h1>
-        <p className="text-sm text-brand-muted mt-0.5">Respondé cada formulario con honestidad. El Motor CAC analiza tu comprensión real.</p>
+        <p className="text-sm text-brand-muted mt-0.5">Respondé cada formulario con honestidad. El Motor IA analiza tu comprensión real.</p>
       </div>
 
       {!forms.length ? (

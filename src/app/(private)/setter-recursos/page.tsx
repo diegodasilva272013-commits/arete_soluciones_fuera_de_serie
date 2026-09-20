@@ -17,13 +17,13 @@ const RESOURCES: Resource[] = [
     icon: FileText,
   },
   {
-    label: 'GPT de Entrenamiento de CAC',
+    label: 'GPT de Entrenamiento Areté',
     description: 'Asistente de entrenamiento comercial para practicar y resolver dudas.',
     href: 'https://chatgpt.com/g/g-6a28ba784374819196ba814a1d9aa2f8-cac-trainer-el-sistema-de-entrenamiento-comercial',
     icon: Brain,
   },
   {
-    label: 'Reglamento interno de CAC',
+    label: 'Reglamento interno Areté',
     description: 'Normas y reglas internas del programa.',
     href: 'https://gemini.google.com/share/2d3cbb9d9f97',
     icon: ShieldCheck,

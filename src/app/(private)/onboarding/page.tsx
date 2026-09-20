@@ -147,7 +147,7 @@ export default function OnboardingPage() {
                 <span className="text-3xl">🏆</span>
               </div>
               <h1 className="text-2xl font-bold text-brand-text">
-                Bienvenido a Camino al Closing
+                Bienvenido a Areté Fuera de Serie
               </h1>
               <p className="mt-3 text-sm text-brand-muted leading-relaxed">
                 Estás entrando a la sala privada de closers de alto rendimiento.
@@ -160,7 +160,7 @@ export default function OnboardingPage() {
                 { icon: '💬', title: 'Comunidad activa', desc: 'Conectá con otros setters en entrenamiento.' },
                 { icon: '🎯', title: 'Gestión de leads', desc: 'Administrá tus leads asignados y seguí tu progreso.' },
                 { icon: '📊', title: 'Reportes diarios', desc: 'Cerrá cada jornada con métricas claras.' },
-                { icon: '🤖', title: 'Entrenamiento con IA', desc: 'Practicá prospectos reales con el CAC Trainer.' },
+                { icon: '🤖', title: 'Entrenamiento con IA', desc: 'Practicá prospectos reales con el Trainer IA.' },
               ].map((item) => (
                 <div key={item.icon} className="flex items-start gap-3 rounded-lg border border-[rgba(212,175,55,0.08)] bg-[#111] p-3">
                   <span className="text-xl">{item.icon}</span>
@@ -236,7 +236,7 @@ export default function OnboardingPage() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={5}
-                placeholder="Hola! Soy [nombre], de [ciudad/país]. Me uno a Camino al Closing porque... Mi experiencia en ventas es... Mi objetivo es..."
+                placeholder="Hola! Soy [nombre], de [ciudad/país]. Me uno a Areté porque... Mi experiencia en ventas es... Mi objetivo es..."
                 className="w-full rounded-xl border border-[rgba(212,175,55,0.15)] bg-[#111] px-4 py-3 text-sm text-brand-text placeholder:text-brand-muted/40 focus:outline-none focus:border-brand-gold/40 resize-none"
               />
             </div>

@@ -92,12 +92,12 @@ export function PWAInstallPrompt() {
         <div className="flex items-start gap-3">
           <img
             src="/icon-192.png"
-            alt="Camino al Closing"
+            alt="Areté"
             className="h-12 w-12 shrink-0 rounded-xl border border-brand-gold/30"
           />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-brand-text">
-              Instalá Camino al Closing
+              Instalá Areté
             </p>
             <p className="mt-0.5 text-[11px] leading-snug text-brand-muted">
               Acceso 1 toque · notificaciones push · funciona offline.

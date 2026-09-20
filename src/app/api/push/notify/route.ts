@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, skipped: 'already pushed' });
   }
 
-  const title = String(record.title ?? 'Camino al Closing');
+  const title = String(record.title ?? 'Areté');
   const body = record.body ? String(record.body) : undefined;
   const url = record.link ? String(record.link) : '/dashboard';
   const tag = String(record.type ?? 'system');

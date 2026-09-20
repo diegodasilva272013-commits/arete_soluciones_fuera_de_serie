@@ -146,7 +146,7 @@ function AnalysisCard({ a }: { a: Analysis }) {
       {/* Qué haría un operador CAC */}
       <div className="rounded-xl border border-brand-gold/20 bg-[rgba(212,175,55,0.04)] p-4">
         <p className="text-[10px] font-bold uppercase tracking-wider text-brand-gold mb-2 flex items-center gap-1.5">
-          <Star className="h-3.5 w-3.5" /> Qué habría hecho un operador CAC
+          <Star className="h-3.5 w-3.5" /> Qué habría hecho un operador Areté
         </p>
         <p className="text-sm text-brand-text leading-relaxed">{a.que_haria_operador_cac}</p>
       </div>
@@ -282,7 +282,7 @@ function EvaluationResult({ ev, xp }: { ev: Evaluation; xp: number }) {
       {/* Feedback */}
       <div className="rounded-xl border border-brand-gold/15 bg-[rgba(212,175,55,0.04)] p-4">
         <p className="text-[10px] font-bold uppercase tracking-wider text-brand-gold mb-2 flex items-center gap-1.5">
-          <MessageSquare className="h-3.5 w-3.5" /> Feedback del Motor CAC
+          <MessageSquare className="h-3.5 w-3.5" /> Feedback del Motor IA
         </p>
         <p className="text-sm text-brand-text leading-relaxed">{ev.feedback}</p>
       </div>
@@ -325,7 +325,7 @@ function DetailView({ id, onBack }: { id: string; onBack: () => void }) {
 
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Motor CAC · Análisis</p>
+          <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Motor IA · Análisis</p>
           <p className="text-xs text-brand-muted mt-0.5">{fmtDate(data.created_at)}</p>
         </div>
         {reflection && (
@@ -406,7 +406,7 @@ function NewConversation({ onDone }: { onDone: (id: string) => void }) {
       <div>
         <p className="text-sm font-semibold text-brand-text mb-1">Pegá la conversación completa</p>
         <p className="text-xs text-brand-muted mb-3">
-          Puede ser de WhatsApp, Instagram, email o cualquier canal. Copiá y pegá exactamente como ocurrió. El Motor CAC la analiza en segundos.
+          Puede ser de WhatsApp, Instagram, email o cualquier canal. Copiá y pegá exactamente como ocurrió. El Motor IA la analiza en segundos.
         </p>
         <textarea
           value={text}
@@ -425,7 +425,7 @@ function NewConversation({ onDone }: { onDone: (id: string) => void }) {
           <Loader2 className="h-5 w-5 animate-spin text-brand-gold shrink-0" />
           <div>
             <p className="text-sm font-semibold text-brand-text">Analizando conversación...</p>
-            <p className="text-xs text-brand-muted">El Motor CAC está evaluando las 8 dimensiones. Puede tomar hasta 20 segundos.</p>
+            <p className="text-xs text-brand-muted">El Motor IA está evaluando las 8 dimensiones. Puede tomar hasta 20 segundos.</p>
           </div>
         </div>
       )}
@@ -436,7 +436,7 @@ function NewConversation({ onDone }: { onDone: (id: string) => void }) {
         className="w-full rounded-xl bg-brand-gold py-3 font-bold text-black text-sm hover:bg-brand-gold/90 disabled:opacity-40 transition flex items-center justify-center gap-2"
       >
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-        {loading ? 'Analizando...' : 'Enviar al Motor CAC'}
+        {loading ? 'Analizando...' : 'Enviar al Motor IA'}
       </button>
 
       <div className="rounded-xl border border-zinc-800 bg-[#0d0d0d] px-4 py-3">
@@ -566,7 +566,7 @@ export default function ConversacionesPage() {
             <ArrowLeft className="h-4 w-4" /> Volver
           </button>
           <div className="mb-5">
-            <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Motor CAC</p>
+            <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Motor IA</p>
             <h2 className="text-xl font-bold text-brand-text mt-1">Nueva conversación</h2>
           </div>
           <NewConversation onDone={onNewDone} />

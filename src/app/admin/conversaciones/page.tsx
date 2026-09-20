@@ -220,7 +220,7 @@ function UserPanel({ row, onClose }: { row: UserRow; onClose: () => void }) {
                 <Brain className="h-4 w-4" /> Generar análisis de evolución
               </button>
               <p className="text-xs text-brand-muted text-center max-w-xs">
-                El Motor CAC sintetizará {row.conversations.length} conversación{row.conversations.length !== 1 ? 'es' : ''} para generar el diagnóstico de evolución.
+                El Motor IA sintetizará {row.conversations.length} conversación{row.conversations.length !== 1 ? 'es' : ''} para generar el diagnóstico de evolución.
               </p>
             </div>
           )}
@@ -228,7 +228,7 @@ function UserPanel({ row, onClose }: { row: UserRow; onClose: () => void }) {
           {loading && (
             <div className="flex flex-col items-center py-16 gap-3">
               <Loader2 className="h-6 w-6 animate-spin text-brand-gold" />
-              <p className="text-sm text-brand-muted">Motor CAC sintetizando evolución...</p>
+              <p className="text-sm text-brand-muted">Motor IA sintetizando evolución...</p>
             </div>
           )}
 

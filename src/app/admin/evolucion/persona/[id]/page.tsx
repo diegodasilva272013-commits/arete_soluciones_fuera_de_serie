@@ -200,7 +200,7 @@ export default async function PerfilPersonaPage({ params }: { params: { id: stri
     },
     {
       ok:      checkForms,
-      label:   `Conocimiento CAC ≥ ${UMBRAL_FORMULARIO_SCORE}/100`,
+      label:   `Conocimiento ≥ ${UMBRAL_FORMULARIO_SCORE}/100`,
       detalle: formProm === null ? 'Sin formularios completados' : `Promedio actual: ${formProm}/100`,
     },
     {
@@ -239,7 +239,7 @@ export default async function PerfilPersonaPage({ params }: { params: { id: stri
       {/* Encabezado */}
       <div className="flex items-start justify-between gap-4">
         <PageHeader
-          eyebrow="Admin · Evolución CAC"
+          eyebrow="Admin · Evolución Areté"
           title={(persona as any)?.nombre ?? (profile as any)?.full_name ?? 'Sin nombre'}
           description={`${(persona as any)?.rol_actual ?? 'Setter'}${(persona as any)?.fecha_ingreso ? ' · Ingresó ' + new Date((persona as any).fecha_ingreso).toLocaleDateString('es-AR') : ''}`}
         />
@@ -458,7 +458,7 @@ export default async function PerfilPersonaPage({ params }: { params: { id: stri
       {/* ── CAPACIDADES 0-10 ────────────────────────────────────────────────────── */}
       <div className="max-w-5xl">
         <p className="mb-3 flex items-center gap-2 text-xs uppercase tracking-widest text-brand-gold/50">
-          Capacidades CAC · rango 0-10
+          Capacidades · rango 0-10
         </p>
         {capWithScores.length === 0 ? (
           <p className="text-xs text-brand-muted/50">Sin capacidades cargadas.</p>
@@ -504,7 +504,7 @@ export default async function PerfilPersonaPage({ params }: { params: { id: stri
       <div className="mt-6 max-w-5xl">
         <div className="mb-3 flex items-center justify-between">
           <p className="flex items-center gap-2 text-xs uppercase tracking-widest text-brand-gold/50">
-            <ClipboardCheck className="h-3.5 w-3.5" /> Conocimiento CAC ({formSubs.length} formularios)
+            <ClipboardCheck className="h-3.5 w-3.5" /> Conocimiento ({formSubs.length} formularios)
           </p>
           {formProm !== null && (
             <span className="text-[10px] text-brand-muted/50">

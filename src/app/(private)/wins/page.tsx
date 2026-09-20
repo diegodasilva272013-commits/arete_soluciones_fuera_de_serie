@@ -236,7 +236,7 @@ export default function WinsPage() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Avatar profile={poster} size="sm" />
-                            <span className="text-[11px] text-zinc-500">{poster?.full_name ?? 'Coordinación CAC'} · {timeAgo(win.created_at)}</span>
+                            <span className="text-[11px] text-zinc-500">{poster?.full_name ?? 'Coordinación Areté'} · {timeAgo(win.created_at)}</span>
                           </div>
                           {isAdmin && (
                             <button onClick={() => deleteTeamWin(win.id)}

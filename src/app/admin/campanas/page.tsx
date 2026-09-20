@@ -93,7 +93,7 @@ export default function CampanasPage() {
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Admin · Sistema CAC</p>
+          <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Admin · Sistema Areté</p>
           <h1 className="text-2xl font-bold text-brand-text mt-1">Campañas</h1>
           <p className="text-sm text-brand-muted mt-0.5">Segmentá leads, elegí canal y controlá envíos en tiempo real.</p>
         </div>

@@ -173,7 +173,7 @@ function UserPanel({ stat, onClose }: { stat: UserStat; onClose: () => void }) {
               <div className="flex items-center justify-between px-4 py-3">
                 <div className="flex items-center gap-2">
                   <Brain className="h-4 w-4 text-brand-gold" />
-                  <p className="text-sm font-semibold text-brand-text">Análisis IA con cerebro CAC</p>
+                  <p className="text-sm font-semibold text-brand-text">Análisis IA con metodología Areté</p>
                 </div>
                 {!analysis ? (
                   <button onClick={runAnalysis} disabled={analyzing}
@@ -308,7 +308,7 @@ export default function AdminTrainerHistorial() {
       <div className="mb-6">
         <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Admin · Trainer</p>
         <h1 className="text-2xl font-bold text-brand-text mt-1">Historial de entrenamientos</h1>
-        <p className="text-sm text-brand-muted mt-0.5">Métricas por usuario · Análisis IA con cerebro CAC</p>
+        <p className="text-sm text-brand-muted mt-0.5">Métricas por usuario · Análisis IA con metodología Areté</p>
       </div>
 
       {/* Stats globales */}

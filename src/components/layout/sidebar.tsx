@@ -69,21 +69,21 @@ export function Sidebar({
           /* ── ADMIN: plataforma + setter + closer + admin ────────────────── */
           <>
             <Section items={PLATFORM_NAV} pathname={pathname} />
-            <Section label="Setter CAC" items={SETTER_NAV} pathname={pathname} />
-            <Section label="Closer CAC" items={CLOSER_NAV} pathname={pathname} />
+            <Section label="Setter" items={SETTER_NAV} pathname={pathname} />
+            <Section label="Closer" items={CLOSER_NAV} pathname={pathname} />
             <Section label="Admin" items={ADMIN_NAV} pathname={pathname} />
           </>
         ) : isSetter ? (
           /* ── SETTER: plataforma + herramientas setter (sin admin) ──────── */
           <>
             <Section items={PLATFORM_NAV} pathname={pathname} />
-            <Section label="Setter CAC" items={SETTER_NAV} pathname={pathname} />
+            <Section label="Setter" items={SETTER_NAV} pathname={pathname} />
           </>
         ) : isCloser ? (
           /* ── CLOSER: plataforma + agenda ────────────────────────────────── */
           <>
             <Section items={PLATFORM_NAV} pathname={pathname} />
-            <Section label="Closer CAC" items={CLOSER_NAV} pathname={pathname} />
+            <Section label="Closer" items={CLOSER_NAV} pathname={pathname} />
           </>
         ) : (
           /* ── ESTUDIANTE: solo plataforma ────────────────────────────────── */

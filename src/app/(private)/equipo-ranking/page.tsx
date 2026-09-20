@@ -70,7 +70,7 @@ export default async function EquipoRankingPage() {
 
       <Board title="Duplas — Últimos 7 días"    subtitle="El mejor equipo de la semana"   icon={<Flame className="h-5 w-5" />}      rows={data7}   />
       <Board title="Duplas — Últimos 30 días"   subtitle="El mejor equipo del mes"        icon={<TrendingUp className="h-5 w-5" />} rows={data30}  />
-      <Board title="Duplas — Todos los tiempos" subtitle="El equipo más constante del CAC" icon={<Crown className="h-5 w-5" />}     rows={dataAll} />
+      <Board title="Duplas — Todos los tiempos" subtitle="El equipo más constante de Areté" icon={<Crown className="h-5 w-5" />}     rows={dataAll} />
     </div>
   );
 }

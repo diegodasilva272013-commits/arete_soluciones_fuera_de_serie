@@ -243,7 +243,7 @@ export default function SetterEvolucionPage() {
         {/* ── Formularios ── */}
         {f.completed > 0 && (
           <div className="mb-8">
-            <SectionTitle icon={<ClipboardCheck className="h-3.5 w-3.5" />} label="Conocimiento CAC — Formularios" />
+            <SectionTitle icon={<ClipboardCheck className="h-3.5 w-3.5" />} label="Conocimiento — Formularios" />
             <div className="grid grid-cols-2 gap-3 mb-4">
               <KpiCard label="Completados"  value={f.completed} />
               <KpiCard label="Promedio"     value={f.avg_score !== null ? `${f.avg_score}/100` : '—'} accent />

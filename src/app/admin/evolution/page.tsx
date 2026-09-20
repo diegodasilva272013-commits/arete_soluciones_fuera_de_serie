@@ -91,7 +91,7 @@ export default function EvolutionPage() {
     <div className="min-h-screen bg-[#080808] px-4 py-6 lg:px-8 max-w-4xl mx-auto">
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Admin · Sistema CAC</p>
+          <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Admin · Sistema Areté</p>
           <h1 className="text-2xl font-bold text-brand-text mt-1">Evolution API</h1>
           <p className="text-sm text-brand-muted mt-0.5">Conectá números de WhatsApp para envíos automáticos. Cada instancia = un número.</p>
         </div>

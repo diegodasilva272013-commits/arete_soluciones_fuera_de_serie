@@ -50,7 +50,7 @@ export default function AdminProspectingPage() {
       <div className="mb-6 flex items-start justify-between">
         <div>
           <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Admin · Setters</p>
-          <h1 className="text-2xl font-bold text-brand-text mt-1">Sistema de Prospección CAC</h1>
+          <h1 className="text-2xl font-bold text-brand-text mt-1">Sistema de Prospección Areté</h1>
           <p className="text-sm text-brand-muted mt-0.5">Mensajes, respuestas, evaluaciones IA y ranking del equipo.</p>
         </div>
         <div className="flex gap-2">

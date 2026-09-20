@@ -59,7 +59,7 @@ export default function AdminFormsPage() {
         <div>
           <p className="text-[10px] uppercase tracking-widest text-brand-gold/60">Admin</p>
           <h1 className="text-2xl font-bold text-brand-text mt-1">Formularios de refuerzo</h1>
-          <p className="text-sm text-brand-muted mt-0.5">Creá formularios por clase o tema. Cada respuesta es analizada por el Motor CAC.</p>
+          <p className="text-sm text-brand-muted mt-0.5">Creá formularios por clase o tema. Cada respuesta es analizada por el Motor IA.</p>
         </div>
         <button onClick={() => setCreating(true)}
           className="flex items-center gap-2 rounded-xl bg-brand-gold px-4 py-2.5 text-sm font-bold text-black hover:bg-brand-gold/90 transition shrink-0">

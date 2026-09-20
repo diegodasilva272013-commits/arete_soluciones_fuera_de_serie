@@ -207,7 +207,7 @@ export default function StrikesPage() {
                               </div>
                               <div>
                                 <p className="text-zinc-600">Emitido por</p>
-                                <p className="text-zinc-300">{issuer?.full_name ?? 'Coordinación CAC'}</p>
+                                <p className="text-zinc-300">{issuer?.full_name ?? 'Coordinación Areté'}</p>
                               </div>
                             </div>
                             <p className="text-zinc-400 bg-zinc-900/60 rounded-xl px-3 py-2 leading-relaxed">

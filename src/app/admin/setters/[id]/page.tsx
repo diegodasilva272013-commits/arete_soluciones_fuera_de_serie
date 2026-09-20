@@ -133,7 +133,7 @@ function SubmissionCard({ sub }: { sub: Submission }) {
         <div className="border-t border-zinc-800 p-4 space-y-4">
           {a.feedback_general && (
             <div className="rounded-xl border border-brand-gold/15 bg-[rgba(212,175,55,0.04)] p-3">
-              <p className="text-[10px] font-bold uppercase text-brand-gold mb-1 flex items-center gap-1"><Brain className="h-3 w-3" />Diagnóstico Motor CAC</p>
+              <p className="text-[10px] font-bold uppercase text-brand-gold mb-1 flex items-center gap-1"><Brain className="h-3 w-3" />Diagnóstico Motor IA</p>
               <p className="text-xs text-brand-text leading-relaxed">{a.feedback_general}</p>
             </div>
           )}
@@ -232,7 +232,7 @@ function ConversationCard({ conv, index }: { conv: Conversation; index: number }
           )}
           {a.que_haria_operador_cac && (
             <div className="rounded-xl border border-brand-gold/15 bg-[rgba(212,175,55,0.04)] p-3">
-              <p className="text-[10px] uppercase text-brand-gold/60 mb-1">Qué haría el operador CAC</p>
+              <p className="text-[10px] uppercase text-brand-gold/60 mb-1">Qué haría el operador Areté</p>
               <p className="text-xs text-brand-text">{a.que_haria_operador_cac}</p>
             </div>
           )}
@@ -248,7 +248,7 @@ function ConversationCard({ conv, index }: { conv: Conversation; index: number }
               ))}
               {r.evaluation?.feedback && (
                 <div className="mt-2 border-t border-zinc-700 pt-2">
-                  <p className="text-[10px] uppercase text-brand-gold/50 mb-1">Evaluación del Motor CAC</p>
+                  <p className="text-[10px] uppercase text-brand-gold/50 mb-1">Evaluación del Motor IA</p>
                   <p className="text-xs text-brand-text">{r.evaluation.feedback}</p>
                 </div>
               )}
@@ -442,7 +442,7 @@ export default function SetterFichaPage() {
       <div className="rounded-xl border border-violet-500/20 bg-violet-900/10 p-5 space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-sm font-bold text-violet-300 flex items-center gap-1.5">
-            <Sparkles className="h-4 w-4" />Análisis de Evolución — Motor CAC
+            <Sparkles className="h-4 w-4" />Análisis de Evolución — Motor IA
           </p>
           {!evolution && (
             <button
@@ -522,7 +522,7 @@ export default function SetterFichaPage() {
       {/* ── Scores por categoría (formularios) ── */}
       {catEntries.length > 0 && (
         <div>
-          <SectionHeader label="Conocimiento CAC por categoría" count={completedSubs.length} />
+          <SectionHeader label="Conocimiento por categoría" count={completedSubs.length} />
           <div className="rounded-xl border border-zinc-800 bg-[#0d0d0d] p-5 space-y-4">
             {CAT_ORDER.map(cat => {
               const d = category_scores[cat];
