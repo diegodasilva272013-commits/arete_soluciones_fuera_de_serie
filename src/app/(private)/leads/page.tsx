@@ -217,10 +217,10 @@ export default function LeadsPage() {
     setDragOver(null);
   }
 
-  // Un lead solo se oculta del kanban si fue cerrado intencionalmente como NO_CALIFICA.
-  // Filtrar por current_status en lugar de is_closed evita que cierres accidentales
-  // (is_closed=true con otro status) hagan desaparecer leads del setter.
-  const open = leads.filter(l => l.current_status !== 'NO_CALIFICA');
+  // Todos los leads asignados al setter siempre son visibles en el kanban,
+  // incluyendo los de "No Avanza" (NO_CALIFICA, SEGUIMIENTO_FUTURO).
+  // Moverlos a esa columna es clasificar, no eliminar.
+  const open = leads;
 
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
