@@ -144,7 +144,7 @@ export default function EmpresaHome() {
             </Link>
 
             {/* Areté Fuera de Serie */}
-            <div className={s.rama}>
+            <Link className={s.rama} href="/crear-cuenta">
               <div className={s.ramaFoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0B' }}>
                 <AutoplayVideo src="/video_logo_fuera_de_serie.mp4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               </div>
@@ -176,9 +176,9 @@ export default function EmpresaHome() {
               </div>
               <span className={s.ramaGo}>
                 <span className={s.ramaGoLine} />
-                Próximamente
+                Ver la línea
               </span>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
