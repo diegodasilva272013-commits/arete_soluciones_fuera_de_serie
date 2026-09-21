@@ -6,8 +6,9 @@ import { SvgPathDrawingTextAnimation } from '@/components/ui/path-drawing-portfo
 import { AutoplayVideo } from './_autoplay-video';
 import { IconLink } from './_icon-link';
 import ParallaxGallery from '@/components/ui/3d-parallax-unfurling-gallery';
+import { waUrl, WA_MSG_GENERAL, AREAS_LABELS } from './_content';
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
+const WA = waUrl(WA_MSG_GENERAL);
 
 const FRICCIONES = [
   { n: 'Fricción', t: 'Información duplicada', d: 'El mismo dato se carga tres veces porque los sistemas no se hablan.' },
@@ -30,7 +31,8 @@ const PRIN_SISTEMAS = [
   'Si no sabemos qué problema resolvemos, no debemos desarrollar.',
   'Si una tecnología no genera impacto, no la implementamos.',
   'Si podemos simplificar antes de automatizar, simplificamos.',
-  'Si el sistema obliga a la empresa a trabajar peor para poder usarlo, diseñamos mal el sistema.',
+  // Alternativa registrada (no aplicar sin indicación de Diego): 'Si el sistema obliga a la empresa a trabajar peor para poder usarlo, lo rediseñamos.'
+  'Si el sistema obliga a la empresa a trabajar peor para poder usarlo, el sistema está mal diseñado.',
 ];
 
 const PRIN_PERSONAS = [
@@ -79,8 +81,8 @@ export default function EmpresaHome() {
         <div className={s.inner}>
           <div className={`${s.shead} ${s.reveal}`} data-reveal="">
             <div className={s.mono}>01 · El problema</div>
-            <h2>Cada parte funciona.<br /><em>El conjunto no.</em></h2>
-            <p>Ventas usa un CRM. Marketing otra plataforma. Administración un Excel. Operaciones WhatsApp. Cada herramienta anda bien por separado, y nadie tiene la visión completa.</p>
+            <h2>Cada área funciona.<br /><em>El conjunto no.</em></h2>
+            <p>Marketing usa una plataforma. Ventas un CRM. Administración un Excel. Logística y fulfillment, WhatsApp. Cada herramienta anda bien por separado, y nadie tiene la visión completa.</p>
           </div>
           <div className={`${s.frict} ${s.reveal}`} data-reveal="">
             {FRICCIONES.map(f => (
@@ -199,7 +201,7 @@ export default function EmpresaHome() {
             <div className={s.meta}>
               <div className={s.metaItem}>
                 <span className={s.metaDt}>Áreas</span>
-                <span className={s.metaDd}>Ventas · Marketing · Administración · Delivery</span>
+                <span className={s.metaDd}>{AREAS_LABELS.join(' · ')}</span>
               </div>
               <div className={s.metaItem}>
                 <span className={s.metaDt}>Inversión</span>

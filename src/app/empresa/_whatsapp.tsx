@@ -1,9 +1,9 @@
 'use client';
 
-// Número sin +, espacios ni guiones
-const PHONE = '5491158280808';
-const MSG   = encodeURIComponent('Hola Marcos, necesito contactarme por ');
-const WA_URL = `https://wa.me/${PHONE}?text=${MSG}`;
+import { usePathname } from 'next/navigation';
+import { waUrl } from './_content';
+
+const WA_URL = waUrl(encodeURIComponent('Hola, quiero contactarme con Areté Soluciones'));
 
 function openWA() {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -16,6 +16,11 @@ function openWA() {
 }
 
 export function WhatsAppFloat() {
+  const pathname = usePathname();
+  // Ocultar en /empresa/contacto: esa página ya tiene una tarjeta de WhatsApp
+  // y el FAB tapa el contenido de la tarjeta en mobile.
+  if (pathname === '/empresa/contacto') return null;
+
   return (
     <button
       onClick={openWA}

@@ -5,10 +5,9 @@ import { ArrowRight, Phone, Mail, MessageCircle } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
 import AnimatedGradient from '@/components/ui/animated-gradient';
+import { waUrl, WA_PHONE_DISPLAY } from '../_content';
 
-const PHONE   = '5491158280808';
-const MSG     = encodeURIComponent('Hola Marcos, necesito contactarme por ');
-const WA      = `https://wa.me/${PHONE}?text=${MSG}`;
+const WA = waUrl(encodeURIComponent('Hola, quiero contactarme con Areté Soluciones'));
 
 type FormState = 'idle' | 'sending' | 'done' | 'error';
 
@@ -77,7 +76,7 @@ export default function ContactoPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>WhatsApp</p>
-                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#25D366' }}>+54 9 11 5828-0808</p>
+                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#25D366' }}>{WA_PHONE_DISPLAY}</p>
                     <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Escribinos · respondemos en cuanto lo vemos</p>
                   </div>
                   <ArrowRight size={16} color="rgba(37,211,102,0.6)" />

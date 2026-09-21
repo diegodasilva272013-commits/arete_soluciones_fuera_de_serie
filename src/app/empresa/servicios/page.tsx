@@ -4,18 +4,19 @@ import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
 import { AutoplayVideo } from '../_autoplay-video';
+import { waUrl, WA_MSG_SERVICIO, AREAS_LABELS } from '../_content';
 
 export const metadata: Metadata = {
   title: 'Servicios — Areté Soluciones',
   description: 'Diagnóstico operativo e implementación de sistemas para empresas que necesitan volver a crecer sin depender de una persona.',
 };
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20el%20diagn%C3%B3stico%20operativo%20de%20Aret%C3%A9%20Soluciones';
+const WA = waUrl(WA_MSG_SERVICIO);
 
 const AREAS = [
   {
     n: '01',
-    area: 'Ventas',
+    area: AREAS_LABELS[1], // Ventas
     desc: 'Del primer contacto al cierre: cómo llegan las oportunidades, cómo se califican y cómo se convierten en clientes. Mapeamos dónde se frena el flujo y lo rediseñamos.',
     flip: false,
     items: [
@@ -28,7 +29,7 @@ const AREAS = [
   },
   {
     n: '02',
-    area: 'Marketing',
+    area: AREAS_LABELS[0], // Marketing
     desc: 'Qué hace que los clientes correctos lleguen solos. Qué se mide, qué no, y qué dice ese número. Construimos el sistema de atracción que deja de depender de la improvisación.',
     flip: true,
     items: [
@@ -41,7 +42,7 @@ const AREAS = [
   },
   {
     n: '03',
-    area: 'Administración',
+    area: AREAS_LABELS[2], // Administración
     desc: 'Facturación, cobros, reportes. Dónde se pierde información y qué tarda más de lo que debería. Diseñamos el sistema administrativo que funciona sin que nadie lo persiga.',
     flip: false,
     items: [
@@ -54,7 +55,7 @@ const AREAS = [
   },
   {
     n: '04',
-    area: 'Delivery',
+    area: AREAS_LABELS[3], // Logística y fulfillment
     desc: 'Cómo se entrega lo que se vendió. Dónde está el cuello de botella entre el sí del cliente y el resultado. Lo hacemos predecible, escalable y visible desde arriba.',
     flip: true,
     items: [

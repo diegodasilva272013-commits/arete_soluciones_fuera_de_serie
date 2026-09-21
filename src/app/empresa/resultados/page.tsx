@@ -3,13 +3,14 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
+import { waUrl, WA_MSG_METODO } from '../_content';
 
 export const metadata: Metadata = {
   title: 'Resultados',
   description: 'Casos reales, métricas concretas y lo que dicen quienes pasaron por el método Areté.',
 };
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
+const WA = waUrl(WA_MSG_METODO);
 
 const CASES = [
   {

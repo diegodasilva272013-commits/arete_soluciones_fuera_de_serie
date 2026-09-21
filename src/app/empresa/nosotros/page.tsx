@@ -4,13 +4,14 @@ import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
 import MusicHero, { type Track } from '@/components/ui/scroll-locked-video-hero';
+import { waUrl, WA_MSG_METODO } from '../_content';
 
 export const metadata: Metadata = {
   title: 'Nosotros — Areté Soluciones',
   description: 'Quiénes somos, el Principio Areté y por qué diseñamos sistemas que se adaptan a la empresa, no al revés.',
 };
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
+const WA = waUrl(WA_MSG_METODO);
 
 const PRINCIPIOS = [
   {
@@ -35,7 +36,8 @@ const PRINCIPIOS = [
   },
   {
     n: '05',
-    title: 'Si el sistema obliga a la empresa a trabajar peor para poder usarlo, diseñamos mal',
+    // Alternativa registrada (no aplicar sin indicación de Diego): 'Si el sistema obliga a la empresa a trabajar peor para poder usarlo, lo rediseñamos.'
+    title: 'Si el sistema obliga a la empresa a trabajar peor para poder usarlo, el sistema está mal diseñado',
     body: 'Un sistema que no adopta el equipo es un gasto, no una inversión. Si no funciona en la práctica real, volvemos al diseño.',
   },
 ];

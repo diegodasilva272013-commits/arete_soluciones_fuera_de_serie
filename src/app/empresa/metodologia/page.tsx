@@ -4,13 +4,14 @@ import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
 import AnimatedGradient from '@/components/ui/animated-gradient';
+import { waUrl, WA_MSG_METODO } from '../_content';
 
 export const metadata: Metadata = {
   title: 'Metodología — Areté Soluciones',
   description: 'Las seis etapas del método Areté: de la inmersión en la operación a la evolución continua del sistema.',
 };
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20Aret%C3%A9%20Soluciones';
+const WA = waUrl(WA_MSG_METODO);
 
 const ETAPAS = [
   {

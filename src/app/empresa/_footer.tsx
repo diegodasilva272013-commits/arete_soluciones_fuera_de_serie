@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import s from './_footer.module.css';
+import { AREAS_LABELS, waUrl, WA_MSG_DIAGNOSTICO, WA_PHONE_DISPLAY } from './_content';
 
 const EMPRESA = [
   { href: '/empresa',             label: 'Inicio'       },
@@ -11,25 +12,20 @@ const EMPRESA = [
   { href: '/empresa/contacto',    label: 'Contacto'     },
 ];
 
-const AREAS = [
-  { href: '/empresa/servicios', label: 'Ventas'         },
-  { href: '/empresa/servicios', label: 'Marketing'      },
-  { href: '/empresa/servicios', label: 'Administración' },
-  { href: '/empresa/servicios', label: 'Delivery'       },
-];
+const AREAS = AREAS_LABELS.map(label => ({ href: '/empresa/servicios', label }));
 
 const PLATAFORMA = [
   { href: '/acceso',       label: 'Acceso'        },
   { href: '/crear-cuenta', label: 'Crear cuenta'  },
 ];
 
-const WA = 'https://wa.me/5491143215678?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20el%20diagn%C3%B3stico%20de%20Aret%C3%A9%20Soluciones';
+const WA = waUrl(WA_MSG_DIAGNOSTICO);
 
 // Redes reales de Areté. Se agregan acá (una línea por red, mismo
 // patrón que GALLERY_IMAGES) apenas se confirmen las URLs de
 // Instagram / LinkedIn — todavía no hay ninguna cargada al proyecto.
 const SOCIALS: { label: string; href: string; icon: 'whatsapp' | 'mail' }[] = [
-  { label: '+54 9 11 4321-5678',      href: WA,                                  icon: 'whatsapp' },
+  { label: WA_PHONE_DISPLAY,            href: WA,                                  icon: 'whatsapp' },
   { label: 'arete@aretesoluciones.com', href: 'mailto:arete@aretesoluciones.com',  icon: 'mail'      },
 ];
 
