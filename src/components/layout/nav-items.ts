@@ -53,6 +53,7 @@ export const SETTER_NAV: NavItem[] = [
   { label: 'Mi Progreso',        href: '/mi-evolucion',     icon: LineChart },
   { label: 'Calendario IA',      href: '/setter-calendario-ia', icon: Bot },
   { label: 'Post-Llamada',       href: '/cierre',           icon: Phone },
+  { label: 'Mi Reporte',         href: '/mi-reporte',       icon: BarChart2 },
 ];
 
 // ─── 3. Closer — solo rol closer ─────────────────────────────────────────────
@@ -90,6 +91,7 @@ export const ADMIN_NAV: NavItem[] = [
   { label: 'Mentorías Curso', href: '/admin/sesiones-curso',   icon: GraduationCap },
   { label: 'Reclutamiento',   href: '/admin-reclutamiento',    icon: UserPlus },
   { label: 'Post-Llamada',    href: '/cierre',                 icon: Phone },
+  { label: 'Reportes Diarios',href: '/admin/reportes',         icon: BarChart2 },
 ];
 
 // ─── Legacy exports (para compatibilidad) ────────────────────────────────────
