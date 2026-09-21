@@ -12,6 +12,40 @@ import {
 } from 'lucide-react';
 import { COMMUNITY_CATEGORIES } from '@/constants/categories';
 import { createPostAction } from '../actions';
+import { createSupabaseBrowserClient } from '@/lib/supabase-client';
+
+const BUCKET = 'community-media';
+const MAX_BYTES = 50 * 1024 * 1024;
+
+async function uploadFileDirect(
+  file: File
+): Promise<{ url: string; type: string; error?: string }> {
+  if (file.size > MAX_BYTES) return { url: '', type: '', error: 'El archivo supera 50 MB.' };
+
+  const supabase = createSupabaseBrowserClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { url: '', type: '', error: 'Sesión expirada. Recargá la página.' };
+
+  const type = file.type.startsWith('image/') ? 'image'
+    : file.type.startsWith('video/') ? 'video'
+    : file.type.startsWith('audio/') ? 'audio'
+    : 'document';
+
+  const ext = (file.name.split('.').pop() ?? 'bin').toLowerCase();
+  const path = `${user.id}/posts/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+
+  const { error: upErr } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, file, {
+      contentType: file.type || 'application/octet-stream',
+      upsert: false,
+    });
+
+  if (upErr) return { url: '', type, error: `No se pudo subir el archivo: ${upErr.message}` };
+
+  const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return { url: pub.publicUrl, type };
+}
 
 type Tab = 'text' | 'image' | 'video' | 'document' | 'youtube';
 
@@ -44,6 +78,7 @@ export function PostComposer({ userName }: { userName: string }) {
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
 
@@ -120,22 +155,42 @@ export function PostComposer({ userName }: { userName: string }) {
     }
   }
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+
+    // Upload file directly from browser — avoids Server Action body size limits
+    let uploadedUrl = '';
+    let uploadedType = '';
+    if ((tab === 'image' || tab === 'video' || tab === 'document') && file) {
+      setUploading(true);
+      const result = await uploadFileDirect(file).catch(err => ({
+        url: '', type: '', error: `Error inesperado: ${err?.message ?? 'desconocido'}`,
+      }));
+      setUploading(false);
+      if (result.error) { setError(result.error); return; }
+      uploadedUrl = result.url;
+      uploadedType = result.type;
+    }
+
     const fd = new FormData();
     fd.set('content', content);
     fd.set('title', title);
     fd.set('category', category);
     if (tab === 'youtube') fd.set('youtube_url', youtubeUrl);
-    if ((tab === 'image' || tab === 'video' || tab === 'document') && file) {
-      fd.set('media', file);
+    if (uploadedUrl) {
+      fd.set('media_url', uploadedUrl);
+      fd.set('media_type', uploadedType);
     }
 
     startTransition(async () => {
-      const res = await createPostAction({}, fd);
-      if (res.error) setError(res.error);
-      else reset();
+      try {
+        const res = await createPostAction({}, fd);
+        if (res.error) setError(res.error);
+        else reset();
+      } catch (err: any) {
+        setError(`Error al publicar: ${err?.message ?? 'intentá de nuevo'}`);
+      }
     });
   }
 
@@ -311,13 +366,13 @@ export function PostComposer({ userName }: { userName: string }) {
       <div className="mt-4 flex justify-end">
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || uploading}
           className="btn-gold disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isPending ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" /> Publicando…
-            </>
+          {uploading ? (
+            <><Loader2 className="h-4 w-4 animate-spin" /> Subiendo archivo…</>
+          ) : isPending ? (
+            <><Loader2 className="h-4 w-4 animate-spin" /> Publicando…</>
           ) : (
             'Publicar'
           )}

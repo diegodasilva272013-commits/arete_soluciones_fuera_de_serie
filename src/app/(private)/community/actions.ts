@@ -95,6 +95,10 @@ export async function createPostAction(
     return { error: 'Categoría inválida.' };
   }
 
+  // File is already uploaded client-side; we only receive the resulting URL + type
+  const preUploadedUrl  = String(formData.get('media_url')  ?? '').trim() || null;
+  const preUploadedType = String(formData.get('media_type') ?? '').trim() || null;
+
   let media_url: string | null = null;
   let media_type: MediaType | null = null;
   let youtube_url: string | null = null;
@@ -104,10 +108,14 @@ export async function createPostAction(
     if (!ytId) return { error: 'Enlace de YouTube inválido.' };
     youtube_url = `https://www.youtube.com/watch?v=${ytId}`;
     media_type = 'youtube';
+  } else if (preUploadedUrl) {
+    media_url  = preUploadedUrl;
+    media_type = (preUploadedType as MediaType) ?? 'document';
   } else if (file && file.size > 0) {
+    // Fallback for legacy callers that still send the raw file
     const up = await uploadMedia(supabase, user.id, file, 'posts');
     if (up.error) return { error: up.error };
-    media_url = up.url;
+    media_url  = up.url;
     media_type = up.type;
   }
 
