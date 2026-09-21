@@ -4,7 +4,7 @@ import {
   Target, TrendingUp, BookOpen, ClipboardList, ClipboardCheck,
   UserCheck, Inbox, Megaphone, Wifi, LayoutGrid, FileSearch, Handshake,
   AlertTriangle, ListChecks, CalendarDays, Clock, List, LineChart,
-  Sparkles, UserPlus, Bot,
+  Sparkles, UserPlus, Bot, Phone,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -52,6 +52,7 @@ export const SETTER_NAV: NavItem[] = [
   { label: 'Agenda',             href: '/agenda',           icon: CalendarDays },
   { label: 'Mi Progreso',        href: '/mi-evolucion',     icon: LineChart },
   { label: 'Calendario IA',      href: '/setter-calendario-ia', icon: Bot },
+  { label: 'Post-Llamada',       href: '/cierre',           icon: Phone },
 ];
 
 // ─── 3. Closer — solo rol closer ─────────────────────────────────────────────
@@ -61,6 +62,7 @@ export const CLOSER_NAV: NavItem[] = [
   { label: 'Agenda',             href: '/agenda',                 icon: CalendarDays },
   { label: 'Mi Disponibilidad', href: '/agenda/disponibilidad',  icon: Clock },
   { label: 'Mis Reuniones',     href: '/agenda/reuniones',       icon: List },
+  { label: 'Post-Llamada',      href: '/cierre',                 icon: Phone },
 ];
 
 // ─── 4. Admin — solo rol admin (dirección del equipo) ────────────────────────
@@ -87,6 +89,7 @@ export const ADMIN_NAV: NavItem[] = [
   { label: 'Calendario IA',   href: '/admin/calendario-ia',    icon: Bot },
   { label: 'Mentorías Curso', href: '/admin/sesiones-curso',   icon: GraduationCap },
   { label: 'Reclutamiento',   href: '/admin-reclutamiento',    icon: UserPlus },
+  { label: 'Post-Llamada',    href: '/cierre',                 icon: Phone },
 ];
 
 // ─── Legacy exports (para compatibilidad) ────────────────────────────────────
