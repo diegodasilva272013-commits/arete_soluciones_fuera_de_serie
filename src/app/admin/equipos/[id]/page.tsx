@@ -105,10 +105,9 @@ export default function AdminEquipoDetailPage() {
   const memberName = (id: string | null) => members.find(m => m.id === id)?.full_name?.split(' ')[0] ?? null;
 
   const visible = useMemo(() => {
-    const active = leads.filter(l => l.current_status !== 'NO_CALIFICA');
     const q = search.trim().toLowerCase();
-    if (!q) return active;
-    return active.filter(l =>
+    if (!q) return leads;
+    return leads.filter(l =>
       `${l.first_name} ${l.last_name ?? ''}`.toLowerCase().includes(q) || (l.phone ?? '').includes(q)
     );
   }, [leads, search]);
