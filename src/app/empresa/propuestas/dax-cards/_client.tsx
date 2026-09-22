@@ -84,133 +84,63 @@ const TABS_SOLUCION = [
   {
     id: 'agente', label: '3.1 El agente',
     content: (
-      <div>
-        <p className={s.bandBody} style={{ marginBottom: 24 }}>Un asistente de voz integrado en la web de Dax. Su comportamiento está diseñado, no improvisado.</p>
-        <ul className={s.panelList} style={{ padding: 0 }}>
-          {['Escucha primero. No abre pidiendo datos personales: abre pidiendo que la persona cuente qué le pasa.',
-            'Diagnostica corto. Un máximo de tres preguntas para entender producto, plataforma y qué intentó la persona.',
-            'Una pregunta por turno. Nunca encadena preguntas ni lee listas largas.',
-            'Habla claro. Español rioplatense, tono cálido, respuestas de dos oraciones.',
-            'Dice que es una IA si se lo preguntan. No simula ser una persona.',
-            'Maneja los casos sensibles con cuidado — tono cuidadoso y prioridad alta.'
-          ].map(item => (
-            <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>
-          ))}
-        </ul>
-      </div>
+      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+        {['Diagnostica en máximo 3 preguntas.','Español rioplatense, tono cálido.','Nunca simula ser una persona.']
+          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+      </ul>
     ),
   },
   {
     id: 'resuelve', label: '3.2 Resuelve',
     content: (
-      <div>
-        <p className={s.bandBody} style={{ marginBottom: 24 }}>Con la información de Dax en su base, el agente resuelve sin intervención humana:</p>
-        <ul className={s.panelList} style={{ padding: 0 }}>
-          {['A qué plataforma corresponde cada producto (perfil personal, mascota, tienda, menú digital).',
-            'Dónde se activa una tarjeta y dónde está la sección de soporte del sitio.',
-            'Qué productos existen y qué hace cada uno.',
-            'En qué países opera Dax y dónde se compra cada producto.',
-            'Compatibilidad general de la aplicación wallet.',
-            'Estado de un ticket ya abierto, consultando el sistema en vivo.'
-          ].map(item => (
-            <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>
-          ))}
-        </ul>
-      </div>
+      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+        {['Productos, plataformas y activación.','Estado de tickets ya abiertos.','Compatibilidad y soporte básico.']
+          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+      </ul>
     ),
   },
   {
     id: 'deriva', label: '3.3 Deriva',
     content: (
-      <div>
-        <p className={s.bandBody} style={{ marginBottom: 8 }}>Todo lo que requiere verificar algo real o tomar una decisión comercial se deriva a ticket. Es una decisión de diseño, no una carencia.</p>
-        <p className={s.bandPull} style={{ marginBottom: 24 }}>Un dato inventado en soporte hace perder tiempo y plata al cliente, y desgasta la marca.</p>
-        <ul className={s.panelList} style={{ padding: 0 }}>
-          {['Tarjetas que no leen o que el celular no reconoce.',
-            'Problemas de cuenta, acceso o edición de perfil.',
-            'Reclamos de garantía, devoluciones y reembolsos.',
-            'Pedidos demorados, envíos y direcciones.',
-            'Cualquier consulta cuya respuesta no esté confirmada en su base.'
-          ].map(item => (
-            <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>
-          ))}
-        </ul>
-      </div>
+      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+        {['Tarjetas con fallas técnicas.','Reclamos, garantías y reembolsos.','Pedidos, envíos y cuentas.']
+          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+      </ul>
     ),
   },
   {
     id: 'ticket', label: '3.4 El ticket',
     content: (
-      <div>
-        <p className={s.bandBody} style={{ marginBottom: 24 }}>Cuando el agente abre un ticket, captura un registro completo y uniforme. El cliente se va con un número dictado y confirmado.</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--linea)' }}>
-          {[
-            ['Nombre y contacto', 'Poder responder'],
-            ['Canal preferido (correo / WhatsApp / tel.)', 'Avisar por donde el cliente quiere'],
-            ['País', 'Derivar al equipo correcto'],
-            ['Producto', 'Saber qué línea genera el caso'],
-            ['Tipo de problema', 'Clasificar: activación, NFC, cuenta, pedido, garantía…'],
-            ['Descripción del problema', 'El relato del cliente, sin interpretación'],
-            ['Qué intentó la persona', 'Evitar que el equipo repita pasos ya hechos'],
-            ['Número de pedido', 'Rastrear la compra'],
-            ['Urgencia', 'Priorizar la cola'],
-          ].map(([dato, para]) => (
-            <div key={dato} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--linea)' }}>
-              <div style={{ background: '#050505', padding: '10px 16px' }}>
-                <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 11, color: 'var(--hueso)' }}>{dato}</span>
-              </div>
-              <div style={{ background: 'rgba(47,123,246,0.03)', padding: '10px 16px' }}>
-                <span style={{ fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 13, fontStyle: 'italic', color: '#B4B1AB' }}>{para}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+        {['Nombre, canal y país del cliente.','Producto, tipo de problema y urgencia.','Número de pedido y qué ya intentó.']
+          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+      </ul>
     ),
   },
   {
     id: 'interfaz', label: '3.5 Interfaz',
     content: (
-      <div>
-        <p className={s.bandBody} style={{ marginBottom: 24 }}>Una interfaz simple y funcional, pensada para que el equipo de Dax trabaje rápido:</p>
-        <ul className={s.panelList} style={{ padding: 0 }}>
-          {['Cola de tickets con estado: abierto / en revisión / resuelto.',
-            'Filtros por estado, producto, tipo de problema y urgencia.',
-            'Detalle de cada caso con todos los datos capturados, la transcripción y la grabación.',
-            'Cambio de estado y carga de una nota pública: lo que el cliente va a leer como respuesta.'
-          ].map(item => (
-            <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>
-          ))}
-        </ul>
-      </div>
+      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+        {['Cola con estados: abierto / en revisión / resuelto.','Filtros por producto y tipo de problema.','Carga de respuesta pública al cliente.']
+          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+      </ul>
     ),
   },
   {
     id: 'aviso', label: '3.6 Aviso auto',
     content: (
-      <div>
-        <p className={s.bandBody} style={{ marginBottom: 16 }}>Cuando el equipo marca un ticket como resuelto, el sistema avisa automáticamente al cliente por el canal que eligió — con el número de ticket y la nota pública.</p>
-        <p className={s.bandPull}>El círculo se cierra sin que nadie tenga que acordarse de escribirle.</p>
-      </div>
+      <p className={s.bandBody} style={{ margin: 0 }}>
+        Cuando el equipo resuelve un ticket, el cliente recibe un aviso automático por el canal que eligió. El círculo se cierra solo.
+      </p>
     ),
   },
   {
     id: 'panel', label: '3.7 Panel',
     content: (
-      <div>
-        <p className={s.bandBody} style={{ marginBottom: 24 }}>Todo lo que el agente hace queda visible. Sirve para dos cosas: auditar qué dice el agente, y leer el negocio.</p>
-        <ul className={s.panelList} style={{ padding: 0 }}>
-          {['Listado de conversaciones con fecha, hora y duración.',
-            'Transcripción completa de cada conversación.',
-            'Grabación de audio de cada conversación.',
-            'Datos capturados en cada contacto.',
-            'Si derivó en ticket y en cuál.',
-            'Qué producto genera más consultas y en qué horario.'
-          ].map(item => (
-            <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>
-          ))}
-        </ul>
-      </div>
+      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+        {['Transcripción y audio de cada llamada.','Qué producto genera más soporte.','Trazabilidad completa de cada caso.']
+          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+      </ul>
     ),
   },
 ];
@@ -313,97 +243,97 @@ const SOLUCION_IMAGES = [
   '/galeria7.png',
 ];
 
-// ── ElasticSolucion — imagen arriba, texto abajo ─────────────────────────────
+// ── ElasticSolucion — desktop: elastic horizontal / mobile: acordeón ─────────
 function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
   const [activeId, setActiveId] = useState(items[0].id);
+  const [isMobile, setIsMobile] = useState(false);
 
-  return (
-    <>
-      <div className="p-elastic" style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: 560, alignItems: 'stretch' }}>
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  /* ── MOBILE: acordeón vertical ── */
+  if (isMobile) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--linea)' }}>
         {items.map((item, idx) => {
-          const isActive = activeId === item.id;
+          const isOpen = activeId === item.id;
           const img = SOLUCION_IMAGES[idx] ?? '/galeria1.png';
           return (
-            <div
-              key={item.id}
-              className="p-elastic-panel"
-              onMouseEnter={() => setActiveId(item.id)}
-              onClick={() => setActiveId(item.id)}
-              style={{
-                flex: isActive ? 5 : 1,
-                transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)',
-                cursor: 'pointer',
-                overflow: 'hidden',
-                minWidth: 0,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              {/* Imagen — sección superior */}
-              <div style={{ position: 'relative', height: 220, flexShrink: 0, overflow: 'hidden' }}>
-                <Image
-                  src={img}
-                  alt={item.label}
-                  fill
-                  sizes="(max-width: 768px) 78vw, 25vw"
-                  style={{
-                    objectFit: 'cover',
-                    transform: isActive ? 'scale(1.03)' : 'scale(1.1)',
-                    transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s',
-                    filter: isActive ? 'brightness(0.75) saturate(0.8)' : 'brightness(0.4) saturate(0.5)',
-                  }}
-                />
-                {/* Label vertical cuando está colapsado */}
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  opacity: isActive ? 0 : 1,
-                  transition: 'opacity 0.2s',
-                  pointerEvents: 'none',
-                  background: 'rgba(5,5,5,0.3)',
-                }}>
-                  <span style={{
-                    writingMode: 'vertical-rl',
-                    transform: 'rotate(180deg)',
-                    fontFamily: 'var(--f-mono), monospace',
-                    fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase',
-                    color: 'rgba(242,239,233,0.9)',
-                    whiteSpace: 'nowrap',
-                  }}>{item.label}</span>
+            <div key={item.id} style={{ background: '#050505' }}>
+              <button
+                onClick={() => setActiveId(isOpen ? '' : item.id)}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', borderLeft: `2px solid ${isOpen ? 'var(--azul)' : 'transparent'}`, transition: 'border-color 0.2s' }}
+              >
+                <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: isOpen ? 'var(--azul-luz)' : 'rgba(242,239,233,0.6)' }}>{item.label}</span>
+                <ChevronDown size={13} color={isOpen ? 'var(--azul-luz)' : 'var(--ceniza)'} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s', flexShrink: 0 }} />
+              </button>
+              <div style={{ overflow: 'hidden', maxHeight: isOpen ? 400 : 0, transition: 'max-height 0.4s cubic-bezier(0.16,0.84,0.28,1)' }}>
+                <div style={{ position: 'relative', height: 160, overflow: 'hidden' }}>
+                  <Image src={img} alt={item.label} fill sizes="100vw" style={{ objectFit: 'cover', filter: 'brightness(0.65) saturate(0.75)' }} />
                 </div>
-              </div>
-
-              {/* Texto — sección inferior */}
-              <div style={{
-                flex: 1,
-                padding: '20px 22px',
-                background: '#050505',
-                borderTop: '1px solid var(--linea)',
-                overflowY: 'auto',
-                opacity: isActive ? 1 : 0,
-                transform: isActive ? 'translateY(0)' : 'translateY(6px)',
-                transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s',
-              }}>
-                <span style={{
-                  display: 'inline-block', marginBottom: 10,
-                  padding: '2px 8px',
-                  border: '1px solid rgba(92,154,255,0.4)',
-                  background: 'rgba(47,123,246,0.12)',
-                  fontFamily: 'var(--f-mono), monospace',
-                  fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase',
-                  color: 'var(--azul-luz)',
-                }}>{item.label}</span>
-                {item.content}
+                <div style={{ padding: '16px 20px 20px' }}>
+                  {item.content}
+                </div>
               </div>
             </div>
           );
         })}
       </div>
-      {/* Hint de swipe solo en mobile */}
-      <div className="p-swipe-hint" style={{ display: 'none', textAlign: 'center', padding: '10px 0 0', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'rgba(242,239,233,0.35)', textTransform: 'uppercase' }}>
-        ← deslizá para explorar →
-      </div>
-    </>
+    );
+  }
+
+  /* ── DESKTOP: elastic horizontal ── */
+  return (
+    <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: 480, alignItems: 'stretch' }}>
+      {items.map((item, idx) => {
+        const isActive = activeId === item.id;
+        const img = SOLUCION_IMAGES[idx] ?? '/galeria1.png';
+        return (
+          <div
+            key={item.id}
+            onMouseEnter={() => setActiveId(item.id)}
+            onClick={() => setActiveId(item.id)}
+            style={{
+              flex: isActive ? 5 : 1,
+              transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)',
+              cursor: 'pointer',
+              overflow: 'hidden',
+              minWidth: 0,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* Imagen — sección superior */}
+            <div style={{ position: 'relative', height: 200, flexShrink: 0, overflow: 'hidden' }}>
+              <Image
+                src={img}
+                alt={item.label}
+                fill
+                sizes="25vw"
+                style={{
+                  objectFit: 'cover',
+                  transform: isActive ? 'scale(1.03)' : 'scale(1.1)',
+                  transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s',
+                  filter: isActive ? 'brightness(0.75) saturate(0.8)' : 'brightness(0.38) saturate(0.45)',
+                }}
+              />
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActive ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: 'none' }}>
+                <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.9)', whiteSpace: 'nowrap' }}>{item.label}</span>
+              </div>
+            </div>
+            {/* Texto — sección inferior */}
+            <div style={{ flex: 1, padding: '18px 20px', background: '#050505', borderTop: '1px solid var(--linea)', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s' }}>
+              <span style={{ display: 'inline-block', marginBottom: 10, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
+              {item.content}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -655,8 +585,8 @@ function ProposalContent() {
       </nav>
 
       {/* ── Hero (ContainerScroll) ── */}
-      <div style={{ background: '#050505', position: 'relative', overflow: 'hidden' }}>
-        <AnimatedGradient config={{ preset: 'Prism' }} />
+      <div style={{ position: 'relative', overflow: 'hidden' }}>
+        <AnimatedGradient config={{ preset: 'Prism' }} style={{ zIndex: 0 }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
           <ContainerScroll
             titleComponent={
