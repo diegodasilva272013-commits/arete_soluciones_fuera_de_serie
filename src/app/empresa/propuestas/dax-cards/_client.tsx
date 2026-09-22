@@ -559,7 +559,13 @@ function ProposalContent() {
 
   const handleAccept = () => {
     setAccepting(true);
-    start(async () => { await notifyAcceptance(); setAccepted(true); setAccepting(false); });
+    start(async () => {
+      await notifyAcceptance();
+      setAccepted(true);
+      setAccepting(false);
+      const msg = encodeURIComponent('Hola Santino, acabo de aceptar la propuesta de Dax Cards. ¿Cuándo arrancamos?');
+      window.open(`https://wa.me/5493875047561?text=${msg}`, '_blank');
+    });
   };
 
   const NAV_ITEMS = [
@@ -580,6 +586,7 @@ function ProposalContent() {
         @media (max-width: 768px) {
           .p-nav { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 12px !important; }
           .p-nav::-webkit-scrollbar { display: none; }
+          .p-nav-fade { display: block !important; }
           .p-seg-img { min-height: 320px !important; }
           .p-seg-text-inner { padding: 24px 20px !important; }
           .p-seg-grid { grid-template-columns: 1fr !important; height: auto !important; }
@@ -599,28 +606,37 @@ function ProposalContent() {
       `}</style>
 
       {/* ── Barra de secciones (bajo el CorpHeader) ── */}
-      <nav className="p-nav" style={{
-        position: 'sticky', top: 68, zIndex: 100,
-        display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'nowrap',
-        padding: '0 32px', height: 44,
-        background: 'rgba(5,5,5,0.96)',
-        borderBottom: '1px solid var(--linea)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-      }}>
-        {NAV_ITEMS.map(({ id, label }) => (
-          <button key={id} onClick={() => scrollTo(id)} style={{
-            padding: '4px 14px', background: 'none', border: 'none', cursor: 'pointer',
-            fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
-            color: activeNav === id ? 'var(--azul-luz)' : 'rgba(242,239,233,0.4)',
-            transition: 'color 0.2s',
-            borderBottom: activeNav === id ? '2px solid var(--azul)' : '2px solid transparent',
-          }}>{label}</button>
-        ))}
-        <span style={{ marginLeft: 'auto', padding: '3px 10px', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', fontFamily: 'var(--f-mono), monospace', color: 'var(--azul-luz)', border: '1px solid rgba(92,154,255,0.22)' }}>
-          Confidencial
-        </span>
-      </nav>
+      <div style={{ position: 'sticky', top: 68, zIndex: 100 }}>
+        <nav className="p-nav" style={{
+          display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'nowrap',
+          padding: '0 32px', height: 44,
+          background: 'rgba(5,5,5,0.96)',
+          borderBottom: '1px solid var(--linea)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+        }}>
+          {NAV_ITEMS.map(({ id, label }) => (
+            <button key={id} onClick={() => scrollTo(id)} style={{
+              padding: '4px 14px', background: 'none', border: 'none', cursor: 'pointer',
+              fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
+              color: activeNav === id ? 'var(--azul-luz)' : 'rgba(242,239,233,0.4)',
+              transition: 'color 0.2s', flexShrink: 0,
+              borderBottom: activeNav === id ? '2px solid var(--azul)' : '2px solid transparent',
+            }}>{label}</button>
+          ))}
+          <span style={{ marginLeft: 'auto', padding: '3px 10px', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', fontFamily: 'var(--f-mono), monospace', color: 'var(--azul-luz)', border: '1px solid rgba(92,154,255,0.22)', flexShrink: 0 }}>
+            Confidencial
+          </span>
+        </nav>
+        {/* Fade derecho — indica que hay más items a la derecha en mobile */}
+        <div className="p-nav-fade" style={{
+          display: 'none', position: 'absolute', top: 0, right: 0, width: 64, height: '100%',
+          background: 'linear-gradient(to right, transparent, rgba(5,5,5,0.96))',
+          pointerEvents: 'none',
+        }} />
+      </div>
 
       {/* ── Hero (ContainerScroll) ── */}
       <div style={{ position: 'relative', overflow: 'hidden' }}>
