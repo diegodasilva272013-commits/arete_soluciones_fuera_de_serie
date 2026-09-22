@@ -302,14 +302,25 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-// ── ElasticSolucion — horizontal elastic panels ────────────────────────────────
+const SOLUCION_IMAGES = [
+  '/galeria1.png',
+  '/galeria2.png',
+  '/galeria3.png',
+  '/galeria4.png',
+  '/galeria5.png',
+  '/galeria6.png',
+  '/galeria7.png',
+];
+
+// ── ElasticSolucion — horizontal elastic panels con imagen de fondo ────────────
 function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
   const [activeId, setActiveId] = useState(items[0].id);
 
   return (
-    <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', minHeight: 440, alignItems: 'stretch' }}>
-      {items.map(item => {
+    <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: 500, alignItems: 'stretch' }}>
+      {items.map((item, idx) => {
         const isActive = activeId === item.id;
+        const img = SOLUCION_IMAGES[idx] ?? '/galeria1.png';
         return (
           <div
             key={item.id}
@@ -317,16 +328,44 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
             onClick={() => setActiveId(item.id)}
             style={{
               flex: isActive ? 5 : 1,
-              transition: 'flex 0.65s cubic-bezier(0.25,1,0.5,1), background 0.3s, border-color 0.3s',
-              background: isActive ? 'rgba(47,123,246,0.05)' : '#050505',
-              borderLeft: `2px solid ${isActive ? 'var(--azul)' : 'transparent'}`,
+              transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)',
               cursor: 'pointer',
               overflow: 'hidden',
               position: 'relative',
               minWidth: 0,
             }}
           >
-            {/* Collapsed: vertical label */}
+            {/* Imagen de fondo */}
+            <Image
+              src={img}
+              alt={item.label}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              style={{
+                objectFit: 'cover',
+                transform: isActive ? 'scale(1.02)' : 'scale(1.12)',
+                transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s',
+                filter: isActive ? 'brightness(0.55) saturate(0.7)' : 'brightness(0.28) saturate(0.4)',
+              }}
+            />
+
+            {/* Gradient hacia abajo cuando activo */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(to top, rgba(5,5,5,0.96) 0%, rgba(5,5,5,0.6) 45%, rgba(5,5,5,0.1) 100%)',
+              opacity: isActive ? 1 : 0,
+              transition: 'opacity 0.4s',
+            }} />
+
+            {/* Overlay simple en inactivo */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'rgba(5,5,5,0.55)',
+              opacity: isActive ? 0 : 1,
+              transition: 'opacity 0.4s',
+            }} />
+
+            {/* Texto inactivo: vertical centrado */}
             <div style={{
               position: 'absolute', inset: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -339,27 +378,30 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
                 textOrientation: 'mixed',
                 transform: 'rotate(180deg)',
                 fontFamily: 'var(--f-mono), monospace',
-                fontSize: 9,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: 'rgba(242,239,233,0.28)',
+                fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase',
+                color: 'rgba(242,239,233,0.7)',
                 whiteSpace: 'nowrap',
               }}>{item.label}</span>
             </div>
 
-            {/* Expanded: content */}
+            {/* Contenido activo — fijado al pie */}
             <div style={{
-              padding: '36px 40px',
+              position: 'absolute', bottom: 0, left: 0, right: 0,
+              padding: '32px 36px',
               opacity: isActive ? 1 : 0,
-              transform: isActive ? 'translateX(0)' : 'translateX(10px)',
-              transition: 'opacity 0.35s 0.18s, transform 0.35s 0.18s',
-              minWidth: 0,
+              transform: isActive ? 'translateY(0)' : 'translateY(16px)',
+              transition: 'opacity 0.4s 0.18s, transform 0.4s 0.18s',
             }}>
-              <p style={{
+              <span style={{
+                display: 'inline-block', marginBottom: 12,
+                padding: '3px 10px',
+                border: '1px solid rgba(92,154,255,0.5)',
+                background: 'rgba(47,123,246,0.2)',
+                backdropFilter: 'blur(8px)',
                 fontFamily: 'var(--f-mono), monospace',
-                fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase',
-                color: 'var(--azul)', marginBottom: 20,
-              }}>{item.label}</p>
+                fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase',
+                color: 'var(--azul-luz)',
+              }}>{item.label}</span>
               {item.content}
             </div>
           </div>
@@ -591,7 +633,8 @@ function ProposalContent() {
       </nav>
 
       {/* ── Hero ── */}
-      <section className={s.pageHero} style={{ paddingTop: 80, paddingBottom: 100, isolation: 'isolate' }}>
+      <section className={s.pageHero} style={{ paddingTop: 80, paddingBottom: 100, isolation: 'isolate', position: 'relative' }}>
+        <Image src="/galeria9.png" alt="" fill style={{ objectFit: 'cover', filter: 'brightness(0.22) saturate(0.5)', zIndex: 0 }} />
         <AnimatedGradient config={{ preset: 'Prism' }} />
         <div className={s.pageHeroInner} style={{ position: 'relative', zIndex: 1 }}>
           <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
@@ -624,9 +667,6 @@ function ProposalContent() {
 
             {/* Botones CTA */}
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-              <button onClick={() => scrollTo('inversion')} className={s.btnPrimary}>
-                Ver inversión <ArrowRight size={13} />
-              </button>
               <DemoButton />
             </div>
           </div>
@@ -662,21 +702,27 @@ function ProposalContent() {
       </section>
 
       {/* ── 03 Seguridad ── */}
-      <section className={s.section} ref={setRef('seguridad')}>
-        <div className={s.inner}>
-          <div className={s.splitGrid}>
+      <section ref={setRef('seguridad')} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', height: 580 }}>
+        {/* Imagen izquierda */}
+        <div style={{ position: 'relative', overflow: 'hidden' }}>
+          <Image src="/galeria8.png" alt="Seguridad" fill sizes="50vw" style={{ objectFit: 'cover', filter: 'brightness(0.38) saturate(0.6)' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent 50%, #050505 100%)' }} />
+          <div style={{ position: 'absolute', inset: 0, padding: '60px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
             <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="">
               <p className={s.kickerLabel} style={{ marginBottom: 14 }}>03 — Seguridad</p>
               <h2 className={s.sectionTitle}>Diseñado para<br /><em>no filtrar nada.</em></h2>
-              <p className={s.sectionSub}>El agente no accede a cuentas ni a sistemas internos de Dax — con lo cual no abre ninguna superficie de riesgo sobre ellos.</p>
+              <p className={s.sectionSub} style={{ maxWidth: 320 }}>El agente no accede a cuentas ni a sistemas internos de Dax.</p>
             </div>
-            <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
-              {SEGURIDAD_ITEMS.map(([titulo, desc]) => (
-                <Accordion key={titulo} title={titulo}>
-                  <p style={{ margin: 0, fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 14, lineHeight: 1.75, color: '#B4B1AB', paddingLeft: 0 }}>{desc}</p>
-                </Accordion>
-              ))}
-            </div>
+          </div>
+        </div>
+        {/* Accordions derecha */}
+        <div style={{ padding: '60px 56px', background: '#050505', overflowY: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
+            {SEGURIDAD_ITEMS.map(([titulo, desc]) => (
+              <Accordion key={titulo} title={titulo}>
+                <p style={{ margin: 0, fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 14, lineHeight: 1.75, color: '#B4B1AB' }}>{desc}</p>
+              </Accordion>
+            ))}
           </div>
         </div>
       </section>
@@ -856,17 +902,19 @@ function ProposalContent() {
       </section>
 
       {/* ── Demo del agente ── */}
-      <section className={`${s.section} ${s.sectionAlt}`} style={{ textAlign: 'center' }}>
-        <div className={s.inner} style={{ maxWidth: 680 }}>
+      <section style={{ position: 'relative', height: 520, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', overflow: 'hidden' }}>
+        <Image src="/galeria10.png" alt="" fill sizes="100vw" style={{ objectFit: 'cover', filter: 'brightness(0.22) saturate(0.5)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(47,123,246,0.18) 0%, rgba(5,5,5,0.7) 70%)' }} />
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 640, padding: '0 40px' }}>
           <div className={`${s.reveal}`} data-reveal="">
-            <div style={{ width: 64, height: 64, margin: '0 auto 28px', border: '1px solid rgba(47,123,246,0.4)', background: 'rgba(47,123,246,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Mic size={22} color="var(--azul-luz)" />
+            <div style={{ width: 72, height: 72, margin: '0 auto 32px', border: '1px solid rgba(47,123,246,0.5)', background: 'rgba(47,123,246,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(12px)' }}>
+              <Mic size={26} color="var(--azul-luz)" />
             </div>
             <p className={s.kickerLabel} style={{ marginBottom: 16 }}>Demo en vivo</p>
-            <h2 style={{ margin: '0 0 20px', fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(28px,4vw,44px)', letterSpacing: '-0.04em', color: 'var(--hueso)', lineHeight: 1.1 }}>
+            <h2 style={{ margin: '0 0 20px', fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(30px,4vw,52px)', letterSpacing: '-0.04em', color: 'var(--hueso)', lineHeight: 1.08 }}>
               Hablá con el agente<br /><em style={{ fontFamily: 'var(--f-texto), Spectral, serif', fontWeight: 400, fontStyle: 'italic', color: 'var(--azul-luz)' }}>ahora mismo.</em>
             </h2>
-            <p style={{ margin: '0 0 36px', fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 16, lineHeight: 1.7, color: 'rgba(242,239,233,0.6)' }}>
+            <p style={{ margin: '0 0 40px', fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 16, lineHeight: 1.75, color: 'rgba(242,239,233,0.65)' }}>
               Este es el mismo agente que se integraría en la web de Dax. Podés escuchar cómo habla, qué preguntas hace y cómo maneja un caso de soporte real.
             </p>
             <DemoButton />
