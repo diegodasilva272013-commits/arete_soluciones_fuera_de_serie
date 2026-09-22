@@ -9,6 +9,9 @@ import {
   Loader2,
   X,
   FileText,
+  Mic,
+  Square,
+  Upload,
 } from 'lucide-react';
 import { COMMUNITY_CATEGORIES } from '@/constants/categories';
 import { createPostAction } from '../actions';
@@ -47,7 +50,7 @@ async function uploadFileDirect(
   return { url: pub.publicUrl, type };
 }
 
-type Tab = 'text' | 'image' | 'video' | 'document' | 'youtube';
+type Tab = 'text' | 'image' | 'video' | 'document' | 'youtube' | 'audio';
 
 const tabs: {
   id: Tab;
@@ -58,6 +61,7 @@ const tabs: {
   { id: 'text', label: 'Texto', icon: Type },
   { id: 'image', label: 'Foto', icon: ImageIcon, accept: 'image/*' },
   { id: 'video', label: 'Video', icon: Video, accept: 'video/*' },
+  { id: 'audio', label: 'Audio', icon: Mic, accept: 'audio/*' },
   {
     id: 'document',
     label: 'Documento',
@@ -67,6 +71,12 @@ const tabs: {
   },
   { id: 'youtube', label: 'YouTube', icon: Youtube },
 ];
+
+function fmtSecs(s: number) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${String(sec).padStart(2, '0')}`;
+}
 
 export function PostComposer({ userName }: { userName: string }) {
   const [tab, setTab] = useState<Tab>('text');
@@ -81,6 +91,62 @@ export function PostComposer({ userName }: { userName: string }) {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
+
+  // ── Audio recording state ────────────────────────────────────────────────
+  const [recording, setRecording] = useState(false);
+  const [recordingSecs, setRecordingSecs] = useState(0);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  function startRecording() {
+    if (!navigator.mediaDevices) { setError('Tu navegador no soporta grabación de audio.'); return; }
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      const mr = new MediaRecorder(stream);
+      chunksRef.current = [];
+      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        setAudioBlob(blob);
+        setAudioPreviewUrl(URL.createObjectURL(blob));
+        setRecording(false);
+        if (timerRef.current) clearInterval(timerRef.current);
+      };
+      mr.start();
+      mediaRecorderRef.current = mr;
+      setRecording(true);
+      setRecordingSecs(0);
+      timerRef.current = setInterval(() => setRecordingSecs((s) => s + 1), 1000);
+    }).catch(() => setError('No se pudo acceder al micrófono. Verificá los permisos.'));
+  }
+
+  function stopRecording() {
+    mediaRecorderRef.current?.stop();
+    if (timerRef.current) clearInterval(timerRef.current);
+  }
+
+  function discardAudio() {
+    if (audioPreviewUrl) URL.revokeObjectURL(audioPreviewUrl);
+    setAudioBlob(null);
+    setAudioPreviewUrl(null);
+    setRecordingSecs(0);
+    setFile(null);
+    if (preview) URL.revokeObjectURL(preview);
+    setPreview(null);
+  }
+
+  // cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (audioPreviewUrl) URL.revokeObjectURL(audioPreviewUrl);
+      if (preview) URL.revokeObjectURL(preview);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function wrapSelection(prefix: string, suffix: string) {
     const el = contentRef.current;
@@ -113,13 +179,6 @@ export function PostComposer({ userName }: { userName: string }) {
     });
   }
 
-  useEffect(() => {
-    return () => {
-      if (preview) URL.revokeObjectURL(preview);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   function reset() {
     setContent('');
     setTitle('');
@@ -130,41 +189,64 @@ export function PostComposer({ userName }: { userName: string }) {
     setError(null);
     setTab('text');
     if (fileRef.current) fileRef.current.value = '';
+    discardAudio();
   }
 
   function handleFile(f: File | null) {
     if (preview) URL.revokeObjectURL(preview);
     setFile(f);
     setPreview(f ? URL.createObjectURL(f) : null);
+    // if uploading audio file, clear any recorded blob
+    if (f && f.type.startsWith('audio/')) {
+      if (audioPreviewUrl) URL.revokeObjectURL(audioPreviewUrl);
+      setAudioBlob(null);
+      setAudioPreviewUrl(null);
+    }
   }
 
   function selectTab(t: Tab) {
     setError(null);
     setTab(t);
-    if (t !== 'image' && t !== 'video' && t !== 'document') handleFile(null);
+    if (t !== 'image' && t !== 'video' && t !== 'document' && t !== 'audio') handleFile(null);
     if (t !== 'youtube') setYoutubeUrl('');
+    // discard any recording when switching away from audio
+    if (t !== 'audio') discardAudio();
     if (t === 'image' || t === 'video' || t === 'document') {
-      // open native picker right away
       const acc = tabs.find((x) => x.id === t)?.accept ?? '';
       if (fileRef.current) {
         fileRef.current.value = '';
         fileRef.current.accept = acc;
-        // defer so accept change is applied
         setTimeout(() => fileRef.current?.click(), 0);
       }
     }
+    // audio tab: don't auto-open picker — show recording UI instead
   }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
 
-    // Upload file directly from browser — avoids Server Action body size limits
     let uploadedUrl = '';
     let uploadedType = '';
-    if ((tab === 'image' || tab === 'video' || tab === 'document') && file) {
+
+    if (tab === 'audio') {
+      // priority: recorded blob, then uploaded file
+      const audioFile = audioBlob
+        ? new File([audioBlob], `nota-de-voz-${Date.now()}.webm`, { type: 'audio/webm' })
+        : file;
+      if (audioFile) {
+        setUploading(true);
+        const result = await uploadFileDirect(audioFile).catch((err) => ({
+          url: '', type: '', error: `Error inesperado: ${err?.message ?? 'desconocido'}`,
+        }));
+        setUploading(false);
+        if (result.error) { setError(result.error); return; }
+        uploadedUrl = result.url;
+        uploadedType = 'audio';
+      }
+    } else if ((tab === 'image' || tab === 'video' || tab === 'document') && file) {
       setUploading(true);
-      const result = await uploadFileDirect(file).catch(err => ({
+      const result = await uploadFileDirect(file).catch((err) => ({
         url: '', type: '', error: `Error inesperado: ${err?.message ?? 'desconocido'}`,
       }));
       setUploading(false);
@@ -193,6 +275,9 @@ export function PostComposer({ userName }: { userName: string }) {
       }
     });
   }
+
+  const hasAudio = !!(audioBlob || (tab === 'audio' && file));
+  const activeAudioUrl = audioPreviewUrl ?? (tab === 'audio' && file && preview ? preview : null);
 
   return (
     <form
@@ -268,6 +353,8 @@ export function PostComposer({ userName }: { userName: string }) {
         placeholder={
           tab === 'youtube'
             ? 'Cuéntales por qué deben verlo…'
+            : tab === 'audio'
+            ? 'Descripción del audio (opcional)…'
             : 'Comparte tu experiencia, resultados o pregunta… (soporta **negrita**, *cursiva*, `código`, [link](url) y listas con -)'
         }
         className="mt-3 w-full resize-none rounded-md border border-[rgba(212,175,55,0.18)] bg-[#0a0a0a] px-3 py-2 text-sm text-brand-text placeholder:text-brand-muted/60 focus:border-brand-gold focus:outline-none"
@@ -322,6 +409,67 @@ export function PostComposer({ userName }: { userName: string }) {
           placeholder="https://www.youtube.com/watch?v=…"
           className="mt-3 w-full rounded-md border border-[rgba(212,175,55,0.18)] bg-[#0a0a0a] px-3 py-2 text-sm text-brand-text placeholder:text-brand-muted/60 focus:border-brand-gold focus:outline-none"
         />
+      )}
+
+      {/* ── Audio tab UI ── */}
+      {tab === 'audio' && (
+        <div className="mt-3 rounded-lg border border-[rgba(212,175,55,0.2)] bg-[#0a0a0a] p-4">
+          {!hasAudio ? (
+            <div className="flex flex-col items-center gap-3">
+              {/* Record button */}
+              <button
+                type="button"
+                onClick={recording ? stopRecording : startRecording}
+                className={
+                  'flex h-16 w-16 items-center justify-center rounded-full border-2 transition-all ' +
+                  (recording
+                    ? 'animate-pulse border-red-500 bg-red-500/20 text-red-400'
+                    : 'border-brand-gold bg-[#1a1408] text-brand-gold hover:bg-[#221b0a]')
+                }
+              >
+                {recording ? <Square className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+              </button>
+              <p className="text-xs text-brand-muted">
+                {recording ? (
+                  <span className="font-mono text-red-400">{fmtSecs(recordingSecs)} — grabando…</span>
+                ) : (
+                  'Grabá una nota de voz'
+                )}
+              </p>
+              {/* Alternative: upload audio file */}
+              {!recording && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (fileRef.current) {
+                      fileRef.current.value = '';
+                      fileRef.current.accept = 'audio/*';
+                      fileRef.current.click();
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs text-brand-muted hover:text-brand-gold"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  o subí un archivo de audio
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <audio src={activeAudioUrl ?? undefined} controls className="w-full" />
+              <div className="flex items-center justify-between text-xs text-brand-muted">
+                <span>{audioBlob ? `Nota de voz · ${fmtSecs(recordingSecs)}` : file?.name}</span>
+                <button
+                  type="button"
+                  onClick={discardAudio}
+                  className="inline-flex items-center gap-1 hover:text-red-400"
+                >
+                  <X className="h-3.5 w-3.5" /> Descartar
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {file && (tab === 'image' || tab === 'video' || tab === 'document') && (
