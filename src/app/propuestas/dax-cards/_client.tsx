@@ -622,7 +622,7 @@ function ProposalContent({ agentId }: { agentId: string }) {
             <p className={s.kickerLabel} style={{ marginBottom: 14 }}>07 — Próximos pasos naturales</p>
             <h2 className={s.sectionTitle}>Una vez operando,<br /><em>estas son las ampliaciones.</em></h2>
           </div>
-          <div className={`${s.reveal}`} data-reveal() style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--linea)' }}>
+          <div className={`${s.reveal}`} data-reveal="" style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--linea)' }}>
             {ROADMAP.map((item) => (
               <div key={item.n} style={{ display: 'grid', gridTemplateColumns: '48px 180px 1fr', gap: 24, padding: '24px 28px', background: '#050505', alignItems: 'start', borderLeft: '2px solid transparent', transition: 'border-color 0.2s' }}
                 onMouseEnter={e => (e.currentTarget.style.borderLeftColor = 'var(--azul)')}
