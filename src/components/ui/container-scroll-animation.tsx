@@ -28,7 +28,7 @@ export const ContainerScroll = ({
     <div
       ref={containerRef}
       style={{
-        height: isMobile ? '36rem' : '80rem',
+        height: isMobile ? '52rem' : '80rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

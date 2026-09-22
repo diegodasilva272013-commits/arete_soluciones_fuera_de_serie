@@ -706,7 +706,7 @@ function ProposalContent() {
           <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 52 }}>
             <p className={s.kickerLabel} style={{ marginBottom: 14 }}>01 — Situación que resuelve</p>
             <h2 className={s.sectionTitle}>Antes y después<br /><em>del agente.</em></h2>
-            <p className={s.sectionSub}>Tocá o pasá el cursor por cada fila para ver el contraste.</p>
+            <p className={s.sectionSub}>Pasá el cursor por cada fila para ver el contraste.</p>
           </div>
           <div className={`${s.reveal}`} data-reveal="">
             <ElasticComparacion items={COMPARACION} />
@@ -720,7 +720,7 @@ function ProposalContent() {
           <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 52 }}>
             <p className={s.kickerLabel} style={{ marginBottom: 14 }}>02 — La solución en detalle</p>
             <h2 className={s.sectionTitle}>Siete componentes,<br /><em>un sistema.</em></h2>
-            <p className={s.sectionSub}>Tocá o pasá el cursor por cada panel para explorar cada módulo.</p>
+            <p className={s.sectionSub}>Pasá el cursor por cada panel para explorar cada módulo.</p>
           </div>
           <div className={`${s.reveal}`} data-reveal="">
             <ElasticSolucion items={TABS_SOLUCION} />
@@ -920,7 +920,7 @@ function ProposalContent() {
           <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 52 }}>
             <p className={s.kickerLabel} style={{ marginBottom: 14 }}>07 — Próximos pasos naturales</p>
             <h2 className={s.sectionTitle}>Una vez operando,<br /><em>estas son las ampliaciones.</em></h2>
-            <p className={s.sectionSub}>Tocá o pasá el cursor para ver el detalle de cada ampliación.</p>
+            <p className={s.sectionSub}>Pasá el cursor para ver el detalle de cada ampliación.</p>
           </div>
           <div className={`${s.reveal}`} data-reveal="">
             <ElasticRoadmap items={ROADMAP} />
