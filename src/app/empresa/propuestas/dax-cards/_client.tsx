@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { ArrowRight, ChevronDown, Check, X, Mic } from 'lucide-react';
 import { checkPassword, notifyAcceptance } from './actions';
 import AnimatedGradient from '@/components/ui/animated-gradient';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import s from '../../corp.module.css';
 
 // ── RevealObserver ────────────────────────────────────────────────────────────
@@ -632,46 +633,63 @@ function ProposalContent() {
         </span>
       </nav>
 
-      {/* ── Hero ── */}
-      <section className={s.pageHero} style={{ paddingTop: 80, paddingBottom: 100, isolation: 'isolate', position: 'relative' }}>
-        <Image src="/galeria9.png" alt="" fill style={{ objectFit: 'cover', filter: 'brightness(0.22) saturate(0.5)', zIndex: 0 }} />
+      {/* ── Hero (ContainerScroll) ── */}
+      <div style={{ background: '#050505', position: 'relative', overflow: 'hidden' }}>
         <AnimatedGradient config={{ preset: 'Prism' }} />
-        <div className={s.pageHeroInner} style={{ position: 'relative', zIndex: 1 }}>
-          <div className={`${s.kicker} ${s.reveal}`} data-reveal="">
-            <span className={s.kickerLine} />
-            <span className={s.kickerLabel}>Dax Cards — daxcards.com · Septiembre 2026</span>
-          </div>
-          <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Soporte por voz,<br /><em>24 horas al día.</em>
-          </h1>
-          <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-            Dax vende tarjetas NFC y perfiles digitales. Cada venta abre la puerta a una consulta posterior. Esta propuesta cubre un agente de IA que atiende por voz, resuelve en el momento lo que puede, y convierte todo lo demás en un ticket estructurado.
-          </p>
-
-          {/* Métricas + CTAs */}
-          <div className={`${s.reveal} ${s.revealDelay3}`} data-reveal="" style={{ marginTop: 40 }}>
-            {/* Métricas */}
-            <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', marginBottom: 24, flexWrap: 'wrap' }}>
-              {[
-                { val: 'USD 1.500', label: 'Desarrollo', sub: '50% al inicio · 50% al entregar' },
-                { val: 'USD 150', label: 'Por mes', sub: 'Operación y mantenimiento' },
-                { val: '1–2 sem.', label: 'Entrega', sub: 'Desde la confirmación' },
-              ].map(({ val, label, sub }) => (
-                <div key={label} style={{ padding: '20px 32px', background: 'rgba(5,5,5,0.88)', backdropFilter: 'blur(8px)', flex: '1 1 160px' }}>
-                  <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(20px,2.5vw,28px)', letterSpacing: '-0.05em', color: 'var(--hueso)' }}>{val}</div>
-                  <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--azul-luz)', margin: '5px 0 3px' }}>{label}</div>
-                  <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, color: 'var(--ceniza)' }}>{sub}</div>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <ContainerScroll
+            titleComponent={
+              <div style={{ padding: '0 16px' }}>
+                <div className={s.kicker} style={{ marginBottom: 20, justifyContent: 'center' }}>
+                  <span className={s.kickerLine} />
+                  <span className={s.kickerLabel}>Dax Cards — daxcards.com · Septiembre 2026</span>
                 </div>
-              ))}
+                <h1 className={s.heroTitle} style={{ marginBottom: 20 }}>
+                  Soporte por voz,<br /><em>24 horas al día.</em>
+                </h1>
+                <p className={s.heroSub} style={{ maxWidth: 600, margin: '0 auto 36px' }}>
+                  Dax vende tarjetas NFC y perfiles digitales. Cada venta abre la puerta a una consulta posterior. Esta propuesta cubre un agente de IA que atiende por voz, resuelve en el momento lo que puede, y convierte todo lo demás en un ticket estructurado.
+                </p>
+                {/* Métricas */}
+                <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', marginBottom: 28, flexWrap: 'wrap', maxWidth: 640, margin: '0 auto 28px' }}>
+                  {[
+                    { val: 'USD 1.500', label: 'Desarrollo', sub: '50% al inicio · 50% al entregar' },
+                    { val: 'USD 150', label: 'Por mes', sub: 'Operación y mantenimiento' },
+                    { val: '1–2 sem.', label: 'Entrega', sub: 'Desde la confirmación' },
+                  ].map(({ val, label, sub }) => (
+                    <div key={label} style={{ padding: '20px 28px', background: 'rgba(5,5,5,0.92)', backdropFilter: 'blur(8px)', flex: '1 1 140px' }}>
+                      <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(18px,2vw,26px)', letterSpacing: '-0.05em', color: 'var(--hueso)' }}>{val}</div>
+                      <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--azul-luz)', margin: '5px 0 3px' }}>{label}</div>
+                      <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, color: 'var(--ceniza)' }}>{sub}</div>
+                    </div>
+                  ))}
+                </div>
+                {/* Demo button */}
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <DemoButton />
+                </div>
+              </div>
+            }
+          >
+            {/* Card: galeria9 como preview del sistema */}
+            <div style={{ position: 'relative', height: '100%', width: '100%' }}>
+              <Image
+                src="/galeria9.png"
+                alt="Vista previa del agente"
+                fill
+                sizes="100vw"
+                priority
+                style={{ objectFit: 'cover', filter: 'brightness(0.5) saturate(0.65)' }}
+              />
+              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 80%, rgba(47,123,246,0.2) 0%, rgba(5,5,5,0.55) 70%)' }} />
+              <div style={{ position: 'absolute', bottom: 20, left: 24, right: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(92,154,255,0.65)', border: '1px solid rgba(92,154,255,0.2)', padding: '3px 10px', backdropFilter: 'blur(8px)' }}>Areté Fuera de Serie</span>
+                <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'rgba(242,239,233,0.3)' }}>aretesoluciones.space</span>
+              </div>
             </div>
-
-            {/* Botones CTA */}
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-              <DemoButton />
-            </div>
-          </div>
+          </ContainerScroll>
         </div>
-      </section>
+      </div>
 
       {/* ── 01 Situación ── */}
       <section className={s.section} ref={setRef('situacion')}>
