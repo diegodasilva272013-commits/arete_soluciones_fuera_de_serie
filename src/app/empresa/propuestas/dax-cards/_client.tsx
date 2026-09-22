@@ -318,7 +318,7 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
               {/* Texto — separado, debajo de la imagen */}
               <div style={{
                 overflow: 'hidden',
-                maxHeight: isActive ? 320 : 0,
+                maxHeight: isActive ? 520 : 0,
                 transition: 'max-height 0.5s cubic-bezier(0.25,1,0.5,1)',
               }}>
                 <div style={{ padding: '14px 18px 20px', borderTop: '1px solid var(--linea)' }}>

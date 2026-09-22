@@ -37,8 +37,8 @@ export const ContainerScroll = ({
       }}
     >
       <div style={{
-        paddingTop: isMobile ? '24px' : '160px',
-        paddingBottom: isMobile ? '24px' : '160px',
+        paddingTop: isMobile ? '16px' : '160px',
+        paddingBottom: isMobile ? '0px' : '160px',
         width: '100%',
         position: 'relative',
         perspective: '1000px',
