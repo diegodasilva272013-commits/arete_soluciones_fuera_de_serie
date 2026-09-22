@@ -313,103 +313,97 @@ const SOLUCION_IMAGES = [
   '/galeria7.png',
 ];
 
-// ── ElasticSolucion — horizontal elastic panels con imagen de fondo ────────────
+// ── ElasticSolucion — imagen arriba, texto abajo ─────────────────────────────
 function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
   const [activeId, setActiveId] = useState(items[0].id);
 
   return (
-    <div className="p-elastic" style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: 500, alignItems: 'stretch' }}>
-      {items.map((item, idx) => {
-        const isActive = activeId === item.id;
-        const img = SOLUCION_IMAGES[idx] ?? '/galeria1.png';
-        return (
-          <div
-            key={item.id}
-            className="p-elastic-panel"
-            onMouseEnter={() => setActiveId(item.id)}
-            onClick={() => setActiveId(item.id)}
-            style={{
-              flex: isActive ? 5 : 1,
-              transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)',
-              cursor: 'pointer',
-              overflow: 'hidden',
-              position: 'relative',
-              minWidth: 0,
-            }}
-          >
-            {/* Imagen de fondo */}
-            <Image
-              src={img}
-              alt={item.label}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
+    <>
+      <div className="p-elastic" style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: 560, alignItems: 'stretch' }}>
+        {items.map((item, idx) => {
+          const isActive = activeId === item.id;
+          const img = SOLUCION_IMAGES[idx] ?? '/galeria1.png';
+          return (
+            <div
+              key={item.id}
+              className="p-elastic-panel"
+              onMouseEnter={() => setActiveId(item.id)}
+              onClick={() => setActiveId(item.id)}
               style={{
-                objectFit: 'cover',
-                transform: isActive ? 'scale(1.02)' : 'scale(1.12)',
-                transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s',
-                filter: isActive ? 'brightness(0.55) saturate(0.7)' : 'brightness(0.28) saturate(0.4)',
+                flex: isActive ? 5 : 1,
+                transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)',
+                cursor: 'pointer',
+                overflow: 'hidden',
+                minWidth: 0,
+                display: 'flex',
+                flexDirection: 'column',
               }}
-            />
+            >
+              {/* Imagen — sección superior */}
+              <div style={{ position: 'relative', height: 220, flexShrink: 0, overflow: 'hidden' }}>
+                <Image
+                  src={img}
+                  alt={item.label}
+                  fill
+                  sizes="(max-width: 768px) 78vw, 25vw"
+                  style={{
+                    objectFit: 'cover',
+                    transform: isActive ? 'scale(1.03)' : 'scale(1.1)',
+                    transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s',
+                    filter: isActive ? 'brightness(0.75) saturate(0.8)' : 'brightness(0.4) saturate(0.5)',
+                  }}
+                />
+                {/* Label vertical cuando está colapsado */}
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  opacity: isActive ? 0 : 1,
+                  transition: 'opacity 0.2s',
+                  pointerEvents: 'none',
+                  background: 'rgba(5,5,5,0.3)',
+                }}>
+                  <span style={{
+                    writingMode: 'vertical-rl',
+                    transform: 'rotate(180deg)',
+                    fontFamily: 'var(--f-mono), monospace',
+                    fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase',
+                    color: 'rgba(242,239,233,0.9)',
+                    whiteSpace: 'nowrap',
+                  }}>{item.label}</span>
+                </div>
+              </div>
 
-            {/* Gradient hacia abajo cuando activo */}
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'linear-gradient(to top, rgba(5,5,5,0.96) 0%, rgba(5,5,5,0.6) 45%, rgba(5,5,5,0.1) 100%)',
-              opacity: isActive ? 1 : 0,
-              transition: 'opacity 0.4s',
-            }} />
-
-            {/* Overlay simple en inactivo */}
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'rgba(5,5,5,0.55)',
-              opacity: isActive ? 0 : 1,
-              transition: 'opacity 0.4s',
-            }} />
-
-            {/* Texto inactivo: vertical centrado */}
-            <div style={{
-              position: 'absolute', inset: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              opacity: isActive ? 0 : 1,
-              transition: 'opacity 0.2s',
-              pointerEvents: 'none',
-            }}>
-              <span style={{
-                writingMode: 'vertical-rl',
-                textOrientation: 'mixed',
-                transform: 'rotate(180deg)',
-                fontFamily: 'var(--f-mono), monospace',
-                fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase',
-                color: 'rgba(242,239,233,0.7)',
-                whiteSpace: 'nowrap',
-              }}>{item.label}</span>
+              {/* Texto — sección inferior */}
+              <div style={{
+                flex: 1,
+                padding: '20px 22px',
+                background: '#050505',
+                borderTop: '1px solid var(--linea)',
+                overflowY: 'auto',
+                opacity: isActive ? 1 : 0,
+                transform: isActive ? 'translateY(0)' : 'translateY(6px)',
+                transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s',
+              }}>
+                <span style={{
+                  display: 'inline-block', marginBottom: 10,
+                  padding: '2px 8px',
+                  border: '1px solid rgba(92,154,255,0.4)',
+                  background: 'rgba(47,123,246,0.12)',
+                  fontFamily: 'var(--f-mono), monospace',
+                  fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase',
+                  color: 'var(--azul-luz)',
+                }}>{item.label}</span>
+                {item.content}
+              </div>
             </div>
-
-            {/* Contenido activo — fijado al pie */}
-            <div style={{
-              position: 'absolute', bottom: 0, left: 0, right: 0,
-              padding: '32px 36px',
-              opacity: isActive ? 1 : 0,
-              transform: isActive ? 'translateY(0)' : 'translateY(16px)',
-              transition: 'opacity 0.4s 0.18s, transform 0.4s 0.18s',
-            }}>
-              <span style={{
-                display: 'inline-block', marginBottom: 12,
-                padding: '3px 10px',
-                border: '1px solid rgba(92,154,255,0.5)',
-                background: 'rgba(47,123,246,0.2)',
-                backdropFilter: 'blur(8px)',
-                fontFamily: 'var(--f-mono), monospace',
-                fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase',
-                color: 'var(--azul-luz)',
-              }}>{item.label}</span>
-              {item.content}
-            </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+      {/* Hint de swipe solo en mobile */}
+      <div className="p-swipe-hint" style={{ display: 'none', textAlign: 'center', padding: '10px 0 0', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'rgba(242,239,233,0.35)', textTransform: 'uppercase' }}>
+        ← deslizá para explorar →
+      </div>
+    </>
   );
 }
 
@@ -615,8 +609,11 @@ function ProposalContent() {
         @media (max-width: 768px) {
           .p-nav { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 12px !important; }
           .p-nav::-webkit-scrollbar { display: none; }
-          .p-elastic { overflow-x: auto !important; -webkit-overflow-scrolling: touch; height: 420px !important; }
+          .p-elastic { overflow-x: auto !important; -webkit-overflow-scrolling: touch; height: auto !important; }
           .p-elastic-panel { min-width: 78vw !important; flex: 0 0 78vw !important; }
+          .p-swipe-hint { display: block !important; }
+          .p-seg-img { min-height: 320px !important; }
+          .p-seg-text-inner { padding: 24px 20px !important; }
           .p-seg-grid { grid-template-columns: 1fr !important; height: auto !important; }
           .p-seg-img { min-height: 260px !important; position: relative !important; }
           .p-seg-right { padding: 32px 20px !important; }
@@ -749,10 +746,10 @@ function ProposalContent() {
         <div className="p-seg-img" style={{ position: 'relative', overflow: 'hidden' }}>
           <Image src="/galeria8.png" alt="Seguridad" fill sizes="50vw" style={{ objectFit: 'cover', filter: 'brightness(0.38) saturate(0.6)' }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent 50%, #050505 100%)' }} />
-          <div style={{ position: 'absolute', inset: 0, padding: '60px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+          <div className="p-seg-text-inner" style={{ position: 'absolute', inset: 0, padding: '60px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
             <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="">
               <p className={s.kickerLabel} style={{ marginBottom: 14 }}>03 — Seguridad</p>
-              <h2 className={s.sectionTitle}>Diseñado para<br /><em>no filtrar nada.</em></h2>
+              <h2 className={s.sectionTitle}>Construido para<br /><em>no exponer nada.</em></h2>
               <p className={s.sectionSub} style={{ maxWidth: 320 }}>El agente no accede a cuentas ni a sistemas internos de Dax.</p>
             </div>
           </div>
