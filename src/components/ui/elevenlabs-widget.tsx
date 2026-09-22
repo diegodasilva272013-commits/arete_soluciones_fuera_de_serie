@@ -3,21 +3,22 @@
 import { useCallback, useRef, useState } from 'react';
 import { Conversation } from '@11labs/client';
 
-const AGENT_ID = 'agent_0701m2fyqzbffg3v5x1s94xckhpc';
+const DEFAULT_AGENT_ID = 'agent_0701m2fyqzbffg3v5x1s94xckhpc';
 
 type Status = 'idle' | 'connecting' | 'active' | 'error';
 
-export function ElevenLabsWidget() {
+export function ElevenLabsWidget({ agentId }: { agentId?: string } = {}) {
   const convRef = useRef<Conversation | null>(null);
   const [status, setStatus] = useState<Status>('idle');
+  const resolvedId = agentId || DEFAULT_AGENT_ID;
 
   const start = useCallback(async () => {
     if (status !== 'idle' && status !== 'error') return;
     setStatus('connecting');
     try {
       const conv = await Conversation.startSession({
-        agentId: AGENT_ID,
-        onConnect: () => setStatus('active'),
+        agentId: resolvedId,
+        onConnect:    () => setStatus('active'),
         onDisconnect: () => {
           convRef.current = null;
           setStatus('idle');
@@ -28,7 +29,7 @@ export function ElevenLabsWidget() {
     } catch {
       setStatus('error');
     }
-  }, [status]);
+  }, [status, resolvedId]);
 
   const stop = useCallback(async () => {
     await convRef.current?.endSession();
