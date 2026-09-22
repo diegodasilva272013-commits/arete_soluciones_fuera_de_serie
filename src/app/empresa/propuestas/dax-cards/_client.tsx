@@ -84,63 +84,85 @@ const TABS_SOLUCION = [
   {
     id: 'agente', label: '3.1 El agente',
     content: (
-      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
-        {['Diagnostica en máximo 3 preguntas.','Español rioplatense, tono cálido.','Nunca simula ser una persona.']
-          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
-      </ul>
+      <>
+        <p className={s.bandBody} style={{ margin: '0 0 10px', fontSize: 13 }}>Atiende desde el primer mensaje, identifica el problema y decide si lo resuelve o lo deriva.</p>
+        <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+          {['Diagnostica en máximo 3 preguntas.','Habla español rioplatense, tono directo y cálido.','Nunca simula ser humano: si le preguntan, lo aclara.','No inventa: si no sabe, dice que lo deriva.']
+            .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+        </ul>
+      </>
     ),
   },
   {
     id: 'resuelve', label: '3.2 Resuelve',
     content: (
-      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
-        {['Productos, plataformas y activación.','Estado de tickets ya abiertos.','Compatibilidad y soporte básico.']
-          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
-      </ul>
+      <>
+        <p className={s.bandBody} style={{ margin: '0 0 10px', fontSize: 13 }}>Todo lo que el cliente puede resolver sin intervención del equipo de Dax.</p>
+        <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+          {['Dudas sobre productos, plataformas y activación de tarjetas.','Consulta de estado de tickets ya abiertos.','Preguntas de compatibilidad y soporte de uso básico.','Información de cobertura, disponibilidad y planes.']
+            .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+        </ul>
+      </>
     ),
   },
   {
     id: 'deriva', label: '3.3 Deriva',
     content: (
-      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
-        {['Tarjetas con fallas técnicas.','Reclamos, garantías y reembolsos.','Pedidos, envíos y cuentas.']
-          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
-      </ul>
+      <>
+        <p className={s.bandBody} style={{ margin: '0 0 10px', fontSize: 13 }}>Lo que no puede resolver solo lo convierte en un ticket estructurado antes de pasar al equipo.</p>
+        <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+          {['Tarjetas con fallas técnicas o defectos de fabricación.','Reclamos formales, garantías y solicitudes de reembolso.','Problemas con pedidos, envíos o datos de cuenta.','Cualquier situación que requiera criterio humano.']
+            .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+        </ul>
+      </>
     ),
   },
   {
     id: 'ticket', label: '3.4 El ticket',
     content: (
-      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
-        {['Nombre, canal y país del cliente.','Producto, tipo de problema y urgencia.','Número de pedido y qué ya intentó.']
-          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
-      </ul>
+      <>
+        <p className={s.bandBody} style={{ margin: '0 0 10px', fontSize: 13 }}>Antes de derivar, el agente arma un registro completo para que el equipo no tenga que preguntar de nuevo.</p>
+        <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+          {['Nombre, canal de contacto y país del cliente.','Producto involucrado, tipo de problema y nivel de urgencia.','Número de pedido y lo que el cliente ya intentó.','Resumen de la conversación en lenguaje claro.']
+            .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+        </ul>
+      </>
     ),
   },
   {
     id: 'interfaz', label: '3.5 Interfaz',
     content: (
-      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
-        {['Cola con estados: abierto / en revisión / resuelto.','Filtros por producto y tipo de problema.','Carga de respuesta pública al cliente.']
-          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
-      </ul>
+      <>
+        <p className={s.bandBody} style={{ margin: '0 0 10px', fontSize: 13 }}>El equipo de Dax gestiona los tickets desde una interfaz simple, sin necesidad de herramientas externas.</p>
+        <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+          {['Cola de tickets con estados: abierto / en revisión / resuelto.','Filtros por producto, tipo de problema y urgencia.','Visualización de transcripción y audio de cada caso.','Carga de respuesta pública al cliente desde la misma interfaz.']
+            .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+        </ul>
+      </>
     ),
   },
   {
     id: 'aviso', label: '3.6 Aviso auto',
     content: (
-      <p className={s.bandBody} style={{ margin: 0 }}>
-        Cuando el equipo resuelve un ticket, el cliente recibe un aviso automático por el canal que eligió. El círculo se cierra solo.
-      </p>
+      <>
+        <p className={s.bandBody} style={{ margin: '0 0 10px', fontSize: 13 }}>Cuando el equipo marca un ticket como resuelto, el cliente recibe un aviso automático por el canal que usó para contactarse.</p>
+        <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+          {['Sin pasos manuales ni recordatorios internos.','El cliente sabe que su caso fue atendido, sin tener que preguntar.','El canal de aviso sigue el canal de origen: web, WhatsApp o email.']
+            .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+        </ul>
+      </>
     ),
   },
   {
     id: 'panel', label: '3.7 Panel',
     content: (
-      <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
-        {['Transcripción y audio de cada llamada.','Qué producto genera más soporte.','Trazabilidad completa de cada caso.']
-          .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
-      </ul>
+      <>
+        <p className={s.bandBody} style={{ margin: '0 0 10px', fontSize: 13 }}>Una vista de todo lo que pasó: quién llamó, por qué y cómo se resolvió.</p>
+        <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+          {['Transcripción y audio de cada conversación.','Distribución de casos por producto y tipo de problema.','Trazabilidad completa: desde el primer contacto hasta el cierre.','Métricas de volumen y tiempos de resolución.']
+            .map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+        </ul>
+      </>
     ),
   },
 ];
