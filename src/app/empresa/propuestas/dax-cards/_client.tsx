@@ -278,32 +278,25 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
   }, []);
 
   if (isMobile) {
-    /* ── MOBILE: paneles elásticos verticales — label arriba, imagen, texto ── */
+    /* ── MOBILE: imagen elástica + texto debajo separado ── */
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--linea)' }}>
         {items.map((item, idx) => {
           const isActive = activeId === item.id;
           const img = SOLUCION_IMAGES[idx] ?? '/galeria1.png';
           return (
-            <div
-              key={item.id}
-              onClick={() => setActiveId(item.id)}
-              style={{
-                overflow: 'hidden',
-                cursor: 'pointer',
-                maxHeight: isActive ? 360 : 42,
-                transition: 'max-height 0.65s cubic-bezier(0.25,1,0.5,1)',
-                background: '#050505',
-                borderLeft: `2px solid ${isActive ? 'var(--azul)' : 'transparent'}`,
-              }}
-            >
-              {/* Barra label — siempre visible */}
-              <div style={{ height: 42, display: 'flex', alignItems: 'center', paddingLeft: 18, paddingRight: 14, justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: isActive ? 'var(--azul-luz)' : 'rgba(242,239,233,0.6)', transition: 'color 0.2s', whiteSpace: 'nowrap' }}>{item.label}</span>
-                <ChevronDown size={11} color={isActive ? 'var(--azul-luz)' : 'var(--ceniza)'} style={{ transform: isActive ? 'rotate(180deg)' : 'none', transition: 'transform 0.4s', flexShrink: 0 }} />
-              </div>
-              {/* Imagen — debajo del label */}
-              <div style={{ position: 'relative', height: 160, overflow: 'hidden' }}>
+            <div key={item.id} style={{ background: '#050505' }}>
+              {/* Imagen elástica — 48px colapsada → 180px activa */}
+              <div
+                onClick={() => setActiveId(item.id)}
+                style={{
+                  position: 'relative',
+                  height: isActive ? 180 : 48,
+                  transition: 'height 0.6s cubic-bezier(0.25,1,0.5,1)',
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                }}
+              >
                 <Image
                   src={img}
                   alt={item.label}
@@ -311,16 +304,27 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
                   sizes="100vw"
                   style={{
                     objectFit: 'cover',
-                    filter: 'brightness(0.65) saturate(0.75)',
-                    transform: isActive ? 'scale(1.02)' : 'scale(1.06)',
-                    transition: 'transform 1s cubic-bezier(0.25,1,0.5,1)',
+                    transform: isActive ? 'scale(1.02)' : 'scale(1.1)',
+                    transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s',
+                    filter: isActive ? 'brightness(0.65) saturate(0.8)' : 'brightness(0.32) saturate(0.4)',
                   }}
                 />
+                {/* Label siempre visible sobre la imagen */}
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 18, paddingRight: 14, background: isActive ? 'none' : 'rgba(5,5,5,0.2)' }}>
+                  <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: isActive ? 'rgba(242,239,233,0.9)' : 'rgba(242,239,233,0.75)', whiteSpace: 'nowrap' }}>{item.label}</span>
+                  <ChevronDown size={11} color="rgba(242,239,233,0.6)" style={{ transform: isActive ? 'rotate(180deg)' : 'none', transition: 'transform 0.4s', flexShrink: 0 }} />
+                </div>
               </div>
-              {/* Texto — debajo de la imagen */}
-              <div style={{ padding: '14px 18px 18px', borderTop: '1px solid var(--linea)' }}>
-                <span style={{ display: 'inline-block', marginBottom: 8, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
-                {item.content}
+              {/* Texto — separado, debajo de la imagen */}
+              <div style={{
+                overflow: 'hidden',
+                maxHeight: isActive ? 320 : 0,
+                transition: 'max-height 0.5s cubic-bezier(0.25,1,0.5,1)',
+              }}>
+                <div style={{ padding: '14px 18px 20px', borderTop: '1px solid var(--linea)' }}>
+                  <span style={{ display: 'inline-block', marginBottom: 8, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
+                  {item.content}
+                </div>
               </div>
             </div>
           );
