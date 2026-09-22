@@ -243,7 +243,7 @@ const SOLUCION_IMAGES = [
   '/galeria7.png',
 ];
 
-// ── ElasticSolucion — desktop: elastic horizontal / mobile: acordeón ─────────
+// ── ElasticSolucion — desktop: elastic horizontal / mobile: elastic vertical ──
 function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
   const [activeId, setActiveId] = useState(items[0].id);
   const [isMobile, setIsMobile] = useState(false);
@@ -255,29 +255,46 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  /* ── MOBILE: acordeón vertical ── */
   if (isMobile) {
+    /* ── MOBILE: mismo efecto elástico pero en columna con altura fija ── */
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--linea)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--linea)', height: 520 }}>
         {items.map((item, idx) => {
-          const isOpen = activeId === item.id;
+          const isActive = activeId === item.id;
           const img = SOLUCION_IMAGES[idx] ?? '/galeria1.png';
           return (
-            <div key={item.id} style={{ background: '#050505' }}>
-              <button
-                onClick={() => setActiveId(isOpen ? '' : item.id)}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', borderLeft: `2px solid ${isOpen ? 'var(--azul)' : 'transparent'}`, transition: 'border-color 0.2s' }}
-              >
-                <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: isOpen ? 'var(--azul-luz)' : 'rgba(242,239,233,0.6)' }}>{item.label}</span>
-                <ChevronDown size={13} color={isOpen ? 'var(--azul-luz)' : 'var(--ceniza)'} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s', flexShrink: 0 }} />
-              </button>
-              <div style={{ overflow: 'hidden', maxHeight: isOpen ? 400 : 0, transition: 'max-height 0.4s cubic-bezier(0.16,0.84,0.28,1)' }}>
-                <div style={{ position: 'relative', height: 160, overflow: 'hidden' }}>
-                  <Image src={img} alt={item.label} fill sizes="100vw" style={{ objectFit: 'cover', filter: 'brightness(0.65) saturate(0.75)' }} />
-                </div>
-                <div style={{ padding: '16px 20px 20px' }}>
-                  {item.content}
-                </div>
+            <div
+              key={item.id}
+              onClick={() => setActiveId(item.id)}
+              style={{
+                flex: isActive ? 5 : 1,
+                transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)',
+                cursor: 'pointer',
+                overflow: 'hidden',
+                minHeight: 0,
+                position: 'relative',
+              }}
+            >
+              <Image
+                src={img}
+                alt={item.label}
+                fill
+                sizes="100vw"
+                style={{
+                  objectFit: 'cover',
+                  transform: isActive ? 'scale(1.03)' : 'scale(1.08)',
+                  transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s',
+                  filter: isActive ? 'brightness(0.55) saturate(0.8)' : 'brightness(0.28) saturate(0.4)',
+                }}
+              />
+              {/* Label horizontal cuando colapsado */}
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', paddingLeft: 18, opacity: isActive ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: 'none' }}>
+                <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.85)', whiteSpace: 'nowrap' }}>{item.label}</span>
+              </div>
+              {/* Contenido cuando activo (overlay sobre imagen) */}
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '14px 18px', background: 'linear-gradient(to top, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.2) 60%, transparent 100%)', opacity: isActive ? 1 : 0, transition: 'opacity 0.35s 0.15s', pointerEvents: 'none' }}>
+                <span style={{ display: 'inline-block', marginBottom: 8, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)', alignSelf: 'flex-start' }}>{item.label}</span>
+                {item.content}
               </div>
             </div>
           );
@@ -307,7 +324,6 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
               flexDirection: 'column',
             }}
           >
-            {/* Imagen — sección superior */}
             <div style={{ position: 'relative', height: 200, flexShrink: 0, overflow: 'hidden' }}>
               <Image
                 src={img}
@@ -325,7 +341,6 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
                 <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.9)', whiteSpace: 'nowrap' }}>{item.label}</span>
               </div>
             </div>
-            {/* Texto — sección inferior */}
             <div style={{ flex: 1, padding: '18px 20px', background: '#050505', borderTop: '1px solid var(--linea)', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s' }}>
               <span style={{ display: 'inline-block', marginBottom: 10, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
               {item.content}
@@ -539,9 +554,6 @@ function ProposalContent() {
         @media (max-width: 768px) {
           .p-nav { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 12px !important; }
           .p-nav::-webkit-scrollbar { display: none; }
-          .p-elastic { overflow-x: auto !important; -webkit-overflow-scrolling: touch; height: auto !important; }
-          .p-elastic-panel { min-width: 78vw !important; flex: 0 0 78vw !important; }
-          .p-swipe-hint { display: block !important; }
           .p-seg-img { min-height: 320px !important; }
           .p-seg-text-inner { padding: 24px 20px !important; }
           .p-seg-grid { grid-template-columns: 1fr !important; height: auto !important; }
