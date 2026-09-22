@@ -278,9 +278,9 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
   }, []);
 
   if (isMobile) {
-    /* ── MOBILE: mismo efecto elástico pero en columna con altura fija ── */
+    /* ── MOBILE: paneles elásticos verticales — label arriba, imagen, texto ── */
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--linea)', height: 520 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--linea)' }}>
         {items.map((item, idx) => {
           const isActive = activeId === item.id;
           const img = SOLUCION_IMAGES[idx] ?? '/galeria1.png';
@@ -289,33 +289,37 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
               key={item.id}
               onClick={() => setActiveId(item.id)}
               style={{
-                flex: isActive ? 5 : 1,
-                transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)',
-                cursor: 'pointer',
                 overflow: 'hidden',
-                minHeight: 0,
-                position: 'relative',
+                cursor: 'pointer',
+                maxHeight: isActive ? 360 : 42,
+                transition: 'max-height 0.65s cubic-bezier(0.25,1,0.5,1)',
+                background: '#050505',
+                borderLeft: `2px solid ${isActive ? 'var(--azul)' : 'transparent'}`,
               }}
             >
-              <Image
-                src={img}
-                alt={item.label}
-                fill
-                sizes="100vw"
-                style={{
-                  objectFit: 'cover',
-                  transform: isActive ? 'scale(1.03)' : 'scale(1.08)',
-                  transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s',
-                  filter: isActive ? 'brightness(0.55) saturate(0.8)' : 'brightness(0.28) saturate(0.4)',
-                }}
-              />
-              {/* Label horizontal cuando colapsado */}
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', paddingLeft: 18, opacity: isActive ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: 'none' }}>
-                <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.85)', whiteSpace: 'nowrap' }}>{item.label}</span>
+              {/* Barra label — siempre visible */}
+              <div style={{ height: 42, display: 'flex', alignItems: 'center', paddingLeft: 18, paddingRight: 14, justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: isActive ? 'var(--azul-luz)' : 'rgba(242,239,233,0.6)', transition: 'color 0.2s', whiteSpace: 'nowrap' }}>{item.label}</span>
+                <ChevronDown size={11} color={isActive ? 'var(--azul-luz)' : 'var(--ceniza)'} style={{ transform: isActive ? 'rotate(180deg)' : 'none', transition: 'transform 0.4s', flexShrink: 0 }} />
               </div>
-              {/* Contenido cuando activo (overlay sobre imagen) */}
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '14px 18px', background: 'linear-gradient(to top, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.2) 60%, transparent 100%)', opacity: isActive ? 1 : 0, transition: 'opacity 0.35s 0.15s', pointerEvents: 'none' }}>
-                <span style={{ display: 'inline-block', marginBottom: 8, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)', alignSelf: 'flex-start' }}>{item.label}</span>
+              {/* Imagen — debajo del label */}
+              <div style={{ position: 'relative', height: 160, overflow: 'hidden' }}>
+                <Image
+                  src={img}
+                  alt={item.label}
+                  fill
+                  sizes="100vw"
+                  style={{
+                    objectFit: 'cover',
+                    filter: 'brightness(0.65) saturate(0.75)',
+                    transform: isActive ? 'scale(1.02)' : 'scale(1.06)',
+                    transition: 'transform 1s cubic-bezier(0.25,1,0.5,1)',
+                  }}
+                />
+              </div>
+              {/* Texto — debajo de la imagen */}
+              <div style={{ padding: '14px 18px 18px', borderTop: '1px solid var(--linea)' }}>
+                <span style={{ display: 'inline-block', marginBottom: 8, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
                 {item.content}
               </div>
             </div>
