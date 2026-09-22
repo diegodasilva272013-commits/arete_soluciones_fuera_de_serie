@@ -318,13 +318,14 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
   const [activeId, setActiveId] = useState(items[0].id);
 
   return (
-    <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: 500, alignItems: 'stretch' }}>
+    <div className="p-elastic" style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: 500, alignItems: 'stretch' }}>
       {items.map((item, idx) => {
         const isActive = activeId === item.id;
         const img = SOLUCION_IMAGES[idx] ?? '/galeria1.png';
         return (
           <div
             key={item.id}
+            className="p-elastic-panel"
             onMouseEnter={() => setActiveId(item.id)}
             onClick={() => setActiveId(item.id)}
             style={{
@@ -419,7 +420,7 @@ function ElasticComparacion({ items }: { items: typeof COMPARACION }) {
   return (
     <div>
       {/* Column headers */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--linea)', marginBottom: 1 }}>
+      <div className="p-cmp-head" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--linea)', marginBottom: 1 }}>
         <div style={{ padding: '12px 28px', background: '#050505', borderBottom: '2px solid rgba(239,68,68,0.3)' }}>
           <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(239,68,68,0.55)', display: 'flex', alignItems: 'center', gap: 8 }}>
             <X size={9} /> Sin el agente
@@ -441,7 +442,7 @@ function ElasticComparacion({ items }: { items: typeof COMPARACION }) {
               key={i}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
-              style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--linea)', cursor: 'default' }}
+              className="p-cmp-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--linea)', cursor: 'default' }}
             >
               <div style={{
                 padding: isHov ? '28px 28px' : '20px 28px',
@@ -609,10 +610,33 @@ function ProposalContent() {
     <>
       <RevealObserver />
 
+      {/* ── Mobile responsive styles ── */}
+      <style>{`
+        @media (max-width: 768px) {
+          .p-nav { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 12px !important; }
+          .p-nav::-webkit-scrollbar { display: none; }
+          .p-elastic { overflow-x: auto !important; -webkit-overflow-scrolling: touch; height: 420px !important; }
+          .p-elastic-panel { min-width: 78vw !important; flex: 0 0 78vw !important; }
+          .p-seg-grid { grid-template-columns: 1fr !important; height: auto !important; }
+          .p-seg-img { min-height: 260px !important; position: relative !important; }
+          .p-seg-right { padding: 32px 20px !important; }
+          .p-grid2 { grid-template-columns: 1fr !important; height: auto !important; }
+          .p-pad { padding: 28px 20px !important; }
+          .p-inv-pad { padding: 36px 20px !important; }
+          .p-grid4 { grid-template-columns: 1fr 1fr !important; }
+          .p-cmp-row { grid-template-columns: 1fr !important; }
+          .p-cmp-row > div:first-child { border-bottom: 1px solid var(--linea); }
+          .p-cmp-head { grid-template-columns: 1fr !important; }
+          .p-nec-pad { padding: 16px 14px !important; }
+          .p-limits { padding: 24px 16px !important; }
+          .p-hero-metrics { max-width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
+        }
+      `}</style>
+
       {/* ── Barra de secciones (bajo el CorpHeader) ── */}
-      <nav style={{
+      <nav className="p-nav" style={{
         position: 'sticky', top: 68, zIndex: 100,
-        display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap',
+        display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'nowrap',
         padding: '0 32px', height: 44,
         background: 'rgba(5,5,5,0.96)',
         borderBottom: '1px solid var(--linea)',
@@ -651,7 +675,7 @@ function ProposalContent() {
                   Dax vende tarjetas NFC y perfiles digitales. Cada venta abre la puerta a una consulta posterior. Esta propuesta cubre un agente de IA que atiende por voz, resuelve en el momento lo que puede, y convierte todo lo demás en un ticket estructurado.
                 </p>
                 {/* Métricas */}
-                <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', marginBottom: 28, flexWrap: 'wrap', maxWidth: 640, margin: '0 auto 28px' }}>
+                <div className="p-hero-metrics" style={{ display: 'flex', gap: 1, background: 'var(--linea)', marginBottom: 28, flexWrap: 'wrap', maxWidth: 640, margin: '0 auto 28px' }}>
                   {[
                     { val: 'USD 1.500', label: 'Desarrollo', sub: '50% al inicio · 50% al entregar' },
                     { val: 'USD 150', label: 'Por mes', sub: 'Operación y mantenimiento' },
@@ -720,9 +744,9 @@ function ProposalContent() {
       </section>
 
       {/* ── 03 Seguridad ── */}
-      <section ref={setRef('seguridad')} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', height: 580 }}>
+      <section ref={setRef('seguridad')} className="p-seg-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', height: 580 }}>
         {/* Imagen izquierda */}
-        <div style={{ position: 'relative', overflow: 'hidden' }}>
+        <div className="p-seg-img" style={{ position: 'relative', overflow: 'hidden' }}>
           <Image src="/galeria8.png" alt="Seguridad" fill sizes="50vw" style={{ objectFit: 'cover', filter: 'brightness(0.38) saturate(0.6)' }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent 50%, #050505 100%)' }} />
           <div style={{ position: 'absolute', inset: 0, padding: '60px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
@@ -734,7 +758,7 @@ function ProposalContent() {
           </div>
         </div>
         {/* Accordions derecha */}
-        <div style={{ padding: '60px 56px', background: '#050505', overflowY: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div className="p-seg-right" style={{ padding: '60px 56px', background: '#050505', overflowY: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
             {SEGURIDAD_ITEMS.map(([titulo, desc]) => (
               <Accordion key={titulo} title={titulo}>
@@ -753,9 +777,9 @@ function ProposalContent() {
             <h2 className={s.sectionTitle}>Qué incluye<br /><em>esta etapa.</em></h2>
           </div>
 
-          <div className={`${s.reveal}`} data-reveal="" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--linea)', marginBottom: 32 }}>
+          <div className={`${s.reveal} p-grid2`} data-reveal="" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--linea)', marginBottom: 32 }}>
             {/* Incluido */}
-            <div style={{ padding: '40px', background: 'rgba(47,123,246,0.04)', borderTop: '2px solid var(--azul)' }}>
+            <div className="p-pad" style={{ padding: '40px', background: 'rgba(47,123,246,0.04)', borderTop: '2px solid var(--azul)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
                 <span style={{ width: 8, height: 8, background: 'var(--azul)', borderRadius: 1 }} />
                 <p style={{ margin: 0, fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>Incluido</p>
@@ -771,7 +795,7 @@ function ProposalContent() {
             </div>
 
             {/* Fuera de etapa */}
-            <div style={{ padding: '40px', background: '#050505', borderTop: '2px solid var(--linea)' }}>
+            <div className="p-pad" style={{ padding: '40px', background: '#050505', borderTop: '2px solid var(--linea)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
                 <span style={{ width: 8, height: 8, background: 'var(--ceniza)', borderRadius: 1 }} />
                 <p style={{ margin: 0, fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--ceniza)' }}>Fuera de esta etapa</p>
@@ -789,7 +813,7 @@ function ProposalContent() {
           </div>
 
           {/* Qué no hace — límites */}
-          <div className={`${s.reveal}`} data-reveal="" style={{ padding: '36px 40px', border: '1px solid var(--linea)', background: 'rgba(239,68,68,0.02)', borderTop: '2px solid rgba(239,68,68,0.2)' }}>
+          <div className={`${s.reveal} p-limits`} data-reveal="" style={{ padding: '36px 40px', border: '1px solid var(--linea)', background: 'rgba(239,68,68,0.02)', borderTop: '2px solid rgba(239,68,68,0.2)' }}>
             <p style={{ margin: '0 0 20px', fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'rgba(239,68,68,0.5)' }}>El agente no hace esto — declarado por diseño</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px,1fr))', gap: 12 }}>
               {LIMITES.map(item => (
@@ -811,9 +835,9 @@ function ProposalContent() {
             <h2 className={s.sectionTitle}>Precio claro,<br /><em>sin sorpresas.</em></h2>
           </div>
 
-          <div className={`${s.reveal}`} data-reveal="" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--linea)' }}>
+          <div className={`${s.reveal} p-grid2`} data-reveal="" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--linea)' }}>
             {/* Desarrollo */}
-            <div style={{ padding: '52px 48px', background: '#050505', borderTop: '2px solid var(--linea)' }}>
+            <div className="p-inv-pad" style={{ padding: '52px 48px', background: '#050505', borderTop: '2px solid var(--linea)' }}>
               <p style={{ margin: '0 0 8px', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--ceniza)' }}>Pago único</p>
               <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(44px,6vw,72px)', letterSpacing: '-0.05em', color: 'var(--hueso)', lineHeight: 1, marginBottom: 8 }}>1.500</div>
               <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 14, letterSpacing: '0.08em', color: 'var(--ceniza)', marginBottom: 32 }}>USD · Desarrollo e implementación</div>
@@ -831,7 +855,7 @@ function ProposalContent() {
             </div>
 
             {/* Mensual */}
-            <div style={{ padding: '52px 48px', background: 'rgba(47,123,246,0.05)', borderTop: '2px solid var(--azul)', position: 'relative' }}>
+            <div className="p-inv-pad" style={{ padding: '52px 48px', background: 'rgba(47,123,246,0.05)', borderTop: '2px solid var(--azul)', position: 'relative' }}>
               <p style={{ margin: '0 0 8px', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--azul)' }}>Mensual desde producción</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
                 <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(44px,6vw,72px)', letterSpacing: '-0.05em', color: 'var(--hueso)', lineHeight: 1 }}>150</div>
@@ -863,7 +887,7 @@ function ProposalContent() {
           </div>
 
           {/* Timeline horizontal */}
-          <div className={`${s.reveal}`} data-reveal="" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: 'var(--linea)', position: 'relative', marginBottom: 56 }}>
+          <div className={`${s.reveal} p-grid4`} data-reveal="" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: 'var(--linea)', position: 'relative', marginBottom: 56 }}>
             {ETAPAS_IMPL.map((e, i) => (
               <div key={e.n} style={{ background: '#050505', padding: '36px 28px', position: 'relative' }}>
                 {/* Connector line */}
@@ -895,7 +919,7 @@ function ProposalContent() {
                 <div style={{ padding: '22px 16px', borderRight: '1px solid var(--linea)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 11, color: 'var(--azul)', letterSpacing: '0.16em' }}>{item.n}</span>
                 </div>
-                <div style={{ padding: '22px 32px' }}>
+                <div className="p-nec-pad" style={{ padding: '22px 32px' }}>
                   <p style={{ margin: '0 0 4px', fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 700, fontSize: 14, color: 'var(--hueso)' }}>{item.t}</p>
                   <p style={{ margin: 0, fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 13, lineHeight: 1.7, color: 'var(--ceniza)' }}>{item.d}</p>
                 </div>

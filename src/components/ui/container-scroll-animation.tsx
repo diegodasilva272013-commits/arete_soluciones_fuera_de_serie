@@ -28,17 +28,17 @@ export const ContainerScroll = ({
     <div
       ref={containerRef}
       style={{
-        height: isMobile ? '60rem' : '80rem',
+        height: isMobile ? '52rem' : '80rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-        padding: isMobile ? '8px' : '80px',
+        padding: isMobile ? '8px 4px' : '80px',
       }}
     >
       <div style={{
-        paddingTop: isMobile ? '40px' : '160px',
-        paddingBottom: isMobile ? '40px' : '160px',
+        paddingTop: isMobile ? '24px' : '160px',
+        paddingBottom: isMobile ? '24px' : '160px',
         width: '100%',
         position: 'relative',
         perspective: '1000px',
@@ -58,7 +58,7 @@ export const ContainerScroll = ({
             marginTop: '-48px',
             marginLeft: 'auto',
             marginRight: 'auto',
-            height: isMobile ? '22rem' : '36rem',
+            height: isMobile ? '18rem' : '36rem',
             width: '100%',
             border: '2px solid rgba(47,123,246,0.35)',
             padding: isMobile ? '6px' : '8px',
