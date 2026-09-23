@@ -8,6 +8,7 @@ import { STATUS_LABELS, type LeadStatus } from '@/constants/leads';
 import { cn } from '@/lib/utils';
 import { useLeadsRealtime } from '@/hooks/useLeadsRealtime';
 import { AgendarWizard } from '@/components/agenda/agendar-wizard';
+import { createSupabaseBrowserClient } from '@/lib/supabase-client';
 
 type Lead = {
   id: string;
@@ -174,11 +175,37 @@ export default function LeadsPage() {
   // Drag state
   const [dragging, setDragging]   = useState<Lead | null>(null);
   const [dragOver, setDragOver]   = useState<MacroId | null>(null);
+  const [userId, setUserId]       = useState<string | null>(null);
 
-  // Realtime — actualiza cards cuando el admin o un setter cambia un lead
+  useEffect(() => {
+    createSupabaseBrowserClient().auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id ?? null);
+    });
+  }, []);
+
+  // Realtime — mantiene el kanban sincronizado sin necesidad de refresh manual
   useLeadsRealtime({
     onUpdate: (updated) => {
-      setLeads(prev => prev.map(l => l.id === updated.id ? { ...l, ...updated } : l));
+      setLeads(prev => {
+        const inList = prev.some(l => l.id === updated.id);
+        if (!inList) return prev;
+        // Si el lead fue reasignado a otro setter, sacarlo de esta lista
+        if (updated.assigned_to_user_id && updated.assigned_to_user_id !== userId) {
+          return prev.filter(l => l.id !== updated.id);
+        }
+        return prev.map(l => l.id === updated.id ? { ...l, ...updated } : l);
+      });
+    },
+    onInsert: (inserted) => {
+      if (inserted.assigned_to_user_id === userId) {
+        setLeads(prev => {
+          if (prev.some(l => l.id === inserted.id)) return prev;
+          return [inserted as Lead, ...prev];
+        });
+      }
+    },
+    onDelete: (id) => {
+      setLeads(prev => prev.filter(l => l.id !== id));
     },
   });
 
