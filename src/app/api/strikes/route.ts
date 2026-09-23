@@ -16,7 +16,7 @@ export async function GET() {
       .select('id, setter_id, issued_by, reason, category, severity, created_at')
       .order('created_at', { ascending: false }),
     admin.from('profiles')
-      .select('id, full_name, email, role, avatar_url')
+      .select('id, full_name, email, role, avatar_url, bloqueado')
       .in('role', ['setter', 'admin']),
   ]);
 

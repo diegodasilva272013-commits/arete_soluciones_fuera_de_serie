@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { AlertTriangle, Plus, Trash2, RefreshCw, X, Filter } from 'lucide-react';
+import { AlertTriangle, Plus, Trash2, RefreshCw, X, Filter, ShieldOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type Strike = {
@@ -14,7 +14,7 @@ type Strike = {
   created_at: string;
 };
 
-type Profile = { id: string; full_name: string | null; email: string; role: string; avatar_url?: string | null };
+type Profile = { id: string; full_name: string | null; email: string; role: string; avatar_url?: string | null; bloqueado?: boolean | null };
 
 const CATEGORIES: { key: string; label: string }[] = [
   { key: 'puntualidad',  label: 'Puntualidad' },
@@ -42,6 +42,7 @@ export default function AdminStrikesPage() {
   const [form, setForm] = useState({ setter_id: '', reason: '', category: 'otro', severity: '1' });
   const [saving, setSaving]  = useState(false);
   const [formErr, setFormErr] = useState('');
+  const [unblocking, setUnblocking] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -84,6 +85,23 @@ export default function AdminStrikesPage() {
       setShowForm(false);
       setForm({ setter_id: '', reason: '', category: 'otro', severity: '1' });
     } else setFormErr(json.error ?? 'Error');
+  }
+
+  async function unblockSetter(id: string, name: string) {
+    if (!confirm(`¿Desbloquear a ${name}? El setter podrá acceder nuevamente a la plataforma.`)) return;
+    setUnblocking(id);
+    const res = await fetch('/api/admin/users/unblock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    setUnblocking(null);
+    if (res.ok) {
+      setProfiles(prev => prev.map(p => p.id === id ? { ...p, bloqueado: false } : p));
+    } else {
+      const json = await res.json().catch(() => ({}));
+      alert(json.error ?? 'Error al desbloquear');
+    }
   }
 
   async function del(id: string) {
@@ -129,22 +147,42 @@ export default function AdminStrikesPage() {
           .map(p => {
             const n = bySetterTotal[p.id] ?? 0;
             return (
-              <button key={p.id} onClick={() => setFilterSetter(filterSetter === p.id ? '' : p.id)}
-                className={cn('flex items-center gap-3 rounded-2xl border p-3 text-left transition',
-                  filterSetter === p.id ? 'border-yellow-600/50 bg-yellow-950/20' : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700')}>
-                <div className="h-9 w-9 shrink-0 rounded-full overflow-hidden border border-zinc-700 bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400">
-                  {p.avatar_url
-                    // eslint-disable-next-line @next/next/no-img-element
-                    ? <img src={p.avatar_url} alt="" className="h-full w-full object-cover" />
-                    : (p.full_name?.charAt(0) ?? '?').toUpperCase()}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-white truncate">{p.full_name ?? p.email}</p>
-                  <p className={cn('text-[11px] font-bold', n === 0 ? 'text-zinc-600' : n >= 3 ? 'text-red-400' : 'text-yellow-400')}>
-                    {n} {n === 1 ? 'strike' : 'strikes'}
-                  </p>
-                </div>
-              </button>
+              <div key={p.id}
+                className={cn('flex flex-col gap-2 rounded-2xl border p-3 transition',
+                  p.bloqueado ? 'border-red-800/50 bg-red-950/10' :
+                  filterSetter === p.id ? 'border-yellow-600/50 bg-yellow-950/20' : 'border-zinc-800 bg-zinc-900/40')}>
+                <button onClick={() => setFilterSetter(filterSetter === p.id ? '' : p.id)}
+                  className="flex items-center gap-3 text-left w-full">
+                  <div className="h-9 w-9 shrink-0 rounded-full overflow-hidden border border-zinc-700 bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400">
+                    {p.avatar_url
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={p.avatar_url} alt="" className="h-full w-full object-cover" />
+                      : (p.full_name?.charAt(0) ?? '?').toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-white truncate">{p.full_name ?? p.email}</p>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className={cn('text-[11px] font-bold', n === 0 ? 'text-zinc-600' : n >= 3 ? 'text-red-400' : 'text-yellow-400')}>
+                        {n} {n === 1 ? 'strike' : 'strikes'}
+                      </p>
+                      {p.bloqueado && (
+                        <span className="text-[10px] font-semibold rounded-full px-1.5 py-0.5 bg-red-500/15 text-red-400 border border-red-600/40">
+                          Bloqueado
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+                {p.bloqueado && (
+                  <button
+                    onClick={() => unblockSetter(p.id, p.full_name ?? p.email)}
+                    disabled={unblocking === p.id}
+                    className="flex items-center justify-center gap-1.5 w-full rounded-xl border border-green-700/40 bg-green-950/20 px-2 py-1.5 text-[11px] font-semibold text-green-400 hover:bg-green-950/40 transition disabled:opacity-50">
+                    <ShieldOff className="h-3 w-3" />
+                    {unblocking === p.id ? 'Desbloqueando...' : 'Desbloquear'}
+                  </button>
+                )}
+              </div>
             );
           })}
       </div>
