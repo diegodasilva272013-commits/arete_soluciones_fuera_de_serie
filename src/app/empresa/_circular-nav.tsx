@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
-import { X, Home, Boxes, Compass, Users, UsersRound, MessageCircle, LogIn, Bot } from 'lucide-react';
+import { X, Home, Boxes, Compass, Users, UsersRound, MessageCircle, LogIn, Bot, Star } from 'lucide-react';
 
 interface NavItem {
   name: string;
@@ -12,14 +12,15 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { name: 'Inicio',      icon: Home,        href: '/empresa' },
-  { name: 'Soluciones',  icon: Boxes,       href: '/empresa/servicios' },
-  { name: 'Método',      icon: Compass,     href: '/empresa/metodologia' },
-  { name: 'Nosotros',    icon: Users,       href: '/empresa/nosotros' },
-  { name: 'Equipo',      icon: UsersRound,  href: '/empresa/equipo' },
-  { name: 'Agentes IA',  icon: Bot,         href: '/empresa/agentes-ia' },
-  { name: 'Contacto',    icon: MessageCircle, href: '/empresa/contacto' },
-  { name: 'Acceso',      icon: LogIn,       href: '/acceso' },
+  { name: 'Inicio',         icon: Home,          href: '/empresa' },
+  { name: 'Soluciones',     icon: Boxes,         href: '/empresa/servicios' },
+  { name: 'Método',         icon: Compass,       href: '/empresa/metodologia' },
+  { name: 'Nosotros',       icon: Users,         href: '/empresa/nosotros' },
+  { name: 'Equipo',         icon: UsersRound,    href: '/empresa/equipo' },
+  { name: 'Agentes IA',     icon: Bot,           href: '/empresa/agentes-ia' },
+  { name: 'Fuera de Serie', icon: Star,          href: '/fuera-de-serie' },
+  { name: 'Contacto',       icon: MessageCircle, href: '/empresa/contacto' },
+  { name: 'Acceso',         icon: LogIn,         href: '/acceso' },
 ];
 
 /**

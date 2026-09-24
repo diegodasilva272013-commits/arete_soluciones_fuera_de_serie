@@ -69,7 +69,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${inter.variable} dark`}>
+    <html lang="es-AR" className={`${inter.variable} dark`}>
       <body className="min-h-screen bg-brand-black text-brand-text antialiased">
         <SplashLoader />
         {children}

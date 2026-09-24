@@ -8,6 +8,7 @@ import { CrearCuentaForm } from './_crear-cuenta-form';
 export const metadata: Metadata = {
   title: 'Crear cuenta',
   description: `Unite a la sala privada de ${brand.name}.`,
+  robots: { index: false, follow: false },
 };
 
 export default function CrearCuentaPage() {

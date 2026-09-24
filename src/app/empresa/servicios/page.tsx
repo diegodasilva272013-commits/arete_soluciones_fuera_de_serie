@@ -5,10 +5,12 @@ import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
 import { AutoplayVideo } from '../_autoplay-video';
 import { waUrl, WA_MSG_SERVICIO, AREAS_LABELS } from '../_content';
+import { SEO } from '../_seo';
 
 export const metadata: Metadata = {
-  title: 'Servicios — Areté Soluciones',
-  description: 'Diagnóstico operativo e implementación de sistemas para empresas que necesitan volver a crecer sin depender de una persona.',
+  title: { absolute: SEO.servicios.title },
+  description: SEO.servicios.description,
+  alternates: { canonical: SEO.servicios.canonical },
 };
 
 const WA = waUrl(WA_MSG_SERVICIO);
@@ -16,6 +18,7 @@ const WA = waUrl(WA_MSG_SERVICIO);
 const AREAS = [
   {
     n: '01',
+    anchor: 'ventas',
     area: AREAS_LABELS[1], // Ventas
     desc: 'Del primer contacto al cierre: cómo llegan las oportunidades, cómo se califican y cómo se convierten en clientes. Mapeamos dónde se frena el flujo y lo rediseñamos.',
     flip: false,
@@ -29,6 +32,7 @@ const AREAS = [
   },
   {
     n: '02',
+    anchor: 'marketing',
     area: AREAS_LABELS[0], // Marketing
     desc: 'Qué hace que los clientes correctos lleguen solos. Qué se mide, qué no, y qué dice ese número. Construimos el sistema de atracción que deja de depender de la improvisación.',
     flip: true,
@@ -42,6 +46,7 @@ const AREAS = [
   },
   {
     n: '03',
+    anchor: 'administracion',
     area: AREAS_LABELS[2], // Administración
     desc: 'Facturación, cobros, reportes. Dónde se pierde información y qué tarda más de lo que debería. Diseñamos el sistema administrativo que funciona sin que nadie lo persiga.',
     flip: false,
@@ -55,7 +60,8 @@ const AREAS = [
   },
   {
     n: '04',
-    area: AREAS_LABELS[3], // Logística y fulfillment
+    anchor: 'entrega-y-operaciones',
+    area: AREAS_LABELS[3], // Entrega y operaciones
     desc: 'Cómo se entrega lo que se vendió. Dónde está el cuello de botella entre el sí del cliente y el resultado. Lo hacemos predecible, escalable y visible desde arriba.',
     flip: true,
     items: [
@@ -185,7 +191,7 @@ export default function ServiciosPage() {
 
       {/* ── LAS 4 ÁREAS EN DETALLE ── */}
       {AREAS.map((a) => (
-        <div key={a.area} className={s.band}>
+        <div key={a.area} id={a.anchor} className={s.band}>
           <div className={`${s.bandGrid} ${a.flip ? s.bandGridFlip : ''}`}>
             <div className={`${s.reveal}`} data-reveal="">
               <p className={s.bandNum}>{a.n} — Área</p>

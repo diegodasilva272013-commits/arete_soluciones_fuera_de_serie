@@ -1,5 +1,13 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import s from './corp.module.css';
+import { SEO } from './_seo';
+
+export const metadata: Metadata = {
+  title: { absolute: SEO.home.title },
+  description: SEO.home.description,
+  alternates: { canonical: SEO.home.canonical },
+};
 import { RevealObserver } from './_reveal';
 import ScrollExpandMedia from '@/components/ui/scroll-expansion-hero';
 import { SvgPathDrawingTextAnimation } from '@/components/ui/path-drawing-portfolio-hero';
@@ -144,7 +152,7 @@ export default function EmpresaHome() {
             </Link>
 
             {/* Areté Fuera de Serie */}
-            <Link className={s.rama} href="/crear-cuenta">
+            <Link className={s.rama} href="/fuera-de-serie">
               <div className={s.ramaFoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0B' }}>
                 <AutoplayVideo src="/video_logo_fuera_de_serie.mp4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               </div>

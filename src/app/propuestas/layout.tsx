@@ -1,4 +1,9 @@
+import type { Metadata } from 'next';
 import { Montserrat, Spectral, JetBrains_Mono } from 'next/font/google';
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 const montserrat = Montserrat({
   subsets: ['latin'],

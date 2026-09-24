@@ -9,12 +9,13 @@ import s from './_header.module.css';
 import { CircularNav } from './_circular-nav';
 
 const NAV = [
-  { href: '/empresa/servicios',   label: 'Soluciones'  },
-  { href: '/empresa/metodologia', label: 'Método'      },
-  { href: '/empresa/nosotros',    label: 'Nosotros'    },
-  { href: '/empresa/equipo',      label: 'Equipo'      },
-  { href: '/empresa/agentes-ia',  label: 'Agentes IA'  },
-  { href: '/empresa/contacto',    label: 'Contacto'    },
+  { href: '/empresa/servicios',   label: 'Soluciones'     },
+  { href: '/empresa/metodologia', label: 'Método'         },
+  { href: '/empresa/nosotros',    label: 'Nosotros'       },
+  { href: '/empresa/equipo',      label: 'Equipo'         },
+  { href: '/empresa/agentes-ia',  label: 'Agentes IA'     },
+  { href: '/fuera-de-serie',      label: 'Fuera de Serie' },
+  { href: '/empresa/contacto',    label: 'Contacto'       },
 ];
 
 export function CorpHeader() {

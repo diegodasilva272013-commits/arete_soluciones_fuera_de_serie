@@ -11,19 +11,34 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 // Fotos reales del proyecto. El componente reparte por columna con
 // i % 4 — con estas 5 la columna 4 ya tiene contenido (antes vacia).
-const GALLERY_IMAGES = ["/1.png", "/2.png", "/3.png", "/galeria1.png", "/galeria2.png", "/galeria3.png", "/galeria4.png", "/galeria5.png", "/galeria6.png", "/galeria7.png", "/galeria8.png", "/galeria9.png", "/galeria10.png"];
+const GALLERY_IMAGES: { src: string; alt: string }[] = [
+  { src: '/1.png',          alt: 'Reunión de diagnóstico operativo con el equipo directivo de una empresa' },
+  { src: '/2.png',          alt: 'Tablero de un sistema de gestión a medida desarrollado por Areté Soluciones' },
+  { src: '/3.png',          alt: 'Equipo comercial entrenando una conversación en la plataforma de Fuera de Serie' },
+  { src: '/galeria1.png',   alt: 'Mapa de procesos de una empresa antes de la implementación de sistemas' },
+  { src: '/galeria2.png',   alt: 'Panel de control de leads y pipeline comercial en la plataforma Areté' },
+  { src: '/galeria3.png',   alt: 'Equipo de Areté Soluciones en sesión de auditoría operativa' },
+  { src: '/galeria4.png',   alt: 'Prototipo de sistema de entrega y operaciones diseñado a medida' },
+  { src: '/galeria5.png',   alt: 'Reunión de seguimiento post-implementación con cliente de Areté' },
+  { src: '/galeria6.png',   alt: 'Vista del simulador de conversaciones de la plataforma Fuera de Serie' },
+  { src: '/galeria7.png',   alt: 'Dashboard de indicadores de gestión para dirección de empresa' },
+  { src: '/galeria8.png',   alt: 'Sesión de capacitación del equipo comercial con Areté Fuera de Serie' },
+  { src: '/galeria9.png',   alt: 'Implementación de sistema CRM a medida para empresa mid-market' },
+  { src: '/galeria10.png',  alt: 'Proceso de automatización de tareas repetitivas en operación empresarial' },
+];
 
 interface ImageCardProps {
   src: string;
+  alt: string;
   onLoad?: () => void;
 }
 
-const ImageCard = ({ src, onLoad }: ImageCardProps) => {
+const ImageCard = ({ src, alt, onLoad }: ImageCardProps) => {
   return (
     <div className="w-full h-[200px] sm:h-[300px] md:h-[400px] flex-shrink-0 bg-[#111] transition-transform duration-300 hover:scale-[1.02] cursor-pointer relative will-change-transform backface-hidden preserve-3d">
       <img
         src={src}
-        alt="Areté Fuera de Serie"
+        alt={alt}
         loading="lazy"
         onLoad={onLoad}
         className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-300"
@@ -58,7 +73,7 @@ export default function Component() {
       col2: [...col2Base, ...col2Base],
       col3: [...col3Base, ...col3Base],
       col4: [...col4Base, ...col4Base],
-    };
+    } as const;
   }, []);
 
   // Scroll de la PAGINA normal (no un contenedor propio anidado): el
@@ -141,26 +156,26 @@ export default function Component() {
                 className="flex gap-4 md:gap-6 justify-center items-center w-[120vw] h-[150vh] origin-center opacity-100 will-change-transform backface-hidden"
               >
                 <motion.div style={{ y: yCol1 }} className="flex flex-col gap-4 md:gap-6 w-[22vw] min-w-[200px] pointer-events-auto">
-                  {colMedia.col1.map((src, index) => (
-                    <ImageCard key={`col1-${index}`} src={src} onLoad={handleItemLoad} />
+                  {colMedia.col1.map((item, index) => (
+                    <ImageCard key={`col1-${index}`} src={item.src} alt={item.alt} onLoad={handleItemLoad} />
                   ))}
                 </motion.div>
 
                 <motion.div style={{ y: yCol2 }} className="flex flex-col gap-4 md:gap-6 w-[22vw] min-w-[200px] pointer-events-auto">
-                  {colMedia.col2.map((src, index) => (
-                    <ImageCard key={`col2-${index}`} src={src} onLoad={handleItemLoad} />
+                  {colMedia.col2.map((item, index) => (
+                    <ImageCard key={`col2-${index}`} src={item.src} alt={item.alt} onLoad={handleItemLoad} />
                   ))}
                 </motion.div>
 
                 <motion.div style={{ y: yCol3 }} className="flex flex-col gap-4 md:gap-6 w-[22vw] min-w-[200px] pointer-events-auto">
-                  {colMedia.col3.map((src, index) => (
-                    <ImageCard key={`col3-${index}`} src={src} onLoad={handleItemLoad} />
+                  {colMedia.col3.map((item, index) => (
+                    <ImageCard key={`col3-${index}`} src={item.src} alt={item.alt} onLoad={handleItemLoad} />
                   ))}
                 </motion.div>
 
                 <motion.div style={{ y: yCol4 }} className="flex flex-col gap-4 md:gap-6 w-[22vw] min-w-[200px] pointer-events-auto">
-                  {colMedia.col4.map((src, index) => (
-                    <ImageCard key={`col4-${index}`} src={src} onLoad={handleItemLoad} />
+                  {colMedia.col4.map((item, index) => (
+                    <ImageCard key={`col4-${index}`} src={item.src} alt={item.alt} onLoad={handleItemLoad} />
                   ))}
                 </motion.div>
               </motion.div>

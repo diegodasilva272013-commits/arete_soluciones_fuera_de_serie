@@ -12,7 +12,19 @@ const EMPRESA = [
   { href: '/empresa/contacto',    label: 'Contacto'     },
 ];
 
-const AREAS = AREAS_LABELS.map(label => ({ href: '/empresa/servicios', label }));
+const AREAS = [
+  { href: '/empresa/servicios#marketing',              label: AREAS_LABELS[0] },
+  { href: '/empresa/servicios#ventas',                 label: AREAS_LABELS[1] },
+  { href: '/empresa/servicios#administracion',         label: AREAS_LABELS[2] },
+  { href: '/empresa/servicios#entrega-y-operaciones',  label: AREAS_LABELS[3] },
+];
+
+const FUERA_DE_SERIE = [
+  { href: '/fuera-de-serie',                                    label: 'Inicio' },
+  { href: '/fuera-de-serie/capacitacion-equipos-de-venta',      label: 'Capacitación de equipos' },
+  { href: '/fuera-de-serie/programa-venta-consultiva',          label: 'Programa venta consultiva' },
+  { href: '/fuera-de-serie/incorporar-equipo-comercial',        label: 'Incorporar comerciales' },
+];
 
 const PLATAFORMA = [
   { href: '/acceso',       label: 'Acceso'        },
@@ -72,6 +84,15 @@ export function CorpFooter() {
           <ul className={s.colList}>
             {AREAS.map(({ href, label }) => (
               <li key={label}><Link href={href} className={s.colLink}>{label}</Link></li>
+            ))}
+          </ul>
+        </div>
+
+        <div className={s.col}>
+          <h4 className={s.colTitle}>Fuera de Serie</h4>
+          <ul className={s.colList}>
+            {FUERA_DE_SERIE.map(({ href, label }) => (
+              <li key={href}><Link href={href} className={s.colLink}>{label}</Link></li>
             ))}
           </ul>
         </div>

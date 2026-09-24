@@ -8,6 +8,7 @@ import { AccesoForm } from './_acceso-form';
 export const metadata: Metadata = {
   title: 'Acceso',
   description: `Ingresá a tu cuenta de ${brand.name}.`,
+  robots: { index: false, follow: false },
 };
 
 export default function AccesoPage() {

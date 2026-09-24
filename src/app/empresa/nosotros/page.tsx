@@ -6,9 +6,12 @@ import { RevealObserver } from '../_reveal';
 import MusicHero, { type Track } from '@/components/ui/scroll-locked-video-hero';
 import { waUrl, WA_MSG_METODO } from '../_content';
 
+import { SEO } from '../_seo';
+
 export const metadata: Metadata = {
-  title: 'Nosotros — Areté Soluciones',
-  description: 'Quiénes somos, el Principio Areté y por qué diseñamos sistemas que se adaptan a la empresa, no al revés.',
+  title: { absolute: SEO.nosotros.title },
+  description: SEO.nosotros.description,
+  alternates: { canonical: SEO.nosotros.canonical },
 };
 
 const WA = waUrl(WA_MSG_METODO);
