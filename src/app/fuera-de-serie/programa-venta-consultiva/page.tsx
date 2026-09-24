@@ -7,9 +7,19 @@ import { waUrl, WA_MSG_GENERAL } from '@/app/empresa/_content';
 import { SEO_FDS } from '@/app/empresa/_seo';
 
 export const metadata: Metadata = {
-  title: { absolute: SEO_FDS.ventaConsultiva.title },
+  title: SEO_FDS.ventaConsultiva.title,
   description: SEO_FDS.ventaConsultiva.description,
   alternates: { canonical: SEO_FDS.ventaConsultiva.canonical },
+  openGraph: {
+    title: SEO_FDS.ventaConsultiva.title,
+    description: SEO_FDS.ventaConsultiva.description,
+    url: SEO_FDS.ventaConsultiva.canonical,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO_FDS.ventaConsultiva.title,
+    description: SEO_FDS.ventaConsultiva.description,
+  },
 };
 
 const WA = waUrl(WA_MSG_GENERAL);

@@ -7,9 +7,19 @@ import { waUrl, WA_MSG_SERVICIO } from '../../_content';
 import { SEO } from '../../_seo';
 
 export const metadata: Metadata = {
-  title: { absolute: SEO.automatizacion.title },
+  title: SEO.automatizacion.title,
   description: SEO.automatizacion.description,
   alternates: { canonical: SEO.automatizacion.canonical },
+  openGraph: {
+    title: SEO.automatizacion.title,
+    description: SEO.automatizacion.description,
+    url: SEO.automatizacion.canonical,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO.automatizacion.title,
+    description: SEO.automatizacion.description,
+  },
 };
 
 const WA = waUrl(WA_MSG_SERVICIO);

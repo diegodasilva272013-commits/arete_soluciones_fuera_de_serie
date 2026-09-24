@@ -7,10 +7,20 @@ import { waUrl, WA_MSG_GENERAL } from '@/app/empresa/_content';
 import { SEO_FDS } from '@/app/empresa/_seo';
 
 export const metadata: Metadata = {
-  title: { absolute: SEO_FDS.incorporarEquipo.title },
+  title: SEO_FDS.incorporarEquipo.title,
   description: SEO_FDS.incorporarEquipo.description,
   alternates: { canonical: SEO_FDS.incorporarEquipo.canonical },
   robots: { index: false, follow: true },
+  openGraph: {
+    title: SEO_FDS.incorporarEquipo.title,
+    description: SEO_FDS.incorporarEquipo.description,
+    url: SEO_FDS.incorporarEquipo.canonical,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO_FDS.incorporarEquipo.title,
+    description: SEO_FDS.incorporarEquipo.description,
+  },
 };
 
 const WA = waUrl(WA_MSG_GENERAL);

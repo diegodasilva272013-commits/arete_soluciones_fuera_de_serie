@@ -7,9 +7,19 @@ import { waUrl, WA_MSG_SERVICIO } from '../../_content';
 import { SEO } from '../../_seo';
 
 export const metadata: Metadata = {
-  title: { absolute: SEO.diagnosticoOperativo.title },
+  title: SEO.diagnosticoOperativo.title,
   description: SEO.diagnosticoOperativo.description,
   alternates: { canonical: SEO.diagnosticoOperativo.canonical },
+  openGraph: {
+    title: SEO.diagnosticoOperativo.title,
+    description: SEO.diagnosticoOperativo.description,
+    url: SEO.diagnosticoOperativo.canonical,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO.diagnosticoOperativo.title,
+    description: SEO.diagnosticoOperativo.description,
+  },
 };
 
 const WA = waUrl(WA_MSG_SERVICIO);

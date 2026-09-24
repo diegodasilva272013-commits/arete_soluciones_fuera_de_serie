@@ -4,7 +4,6 @@ import { CorpHeader } from '@/app/empresa/_header';
 import { CorpFooter } from '@/app/empresa/_footer';
 import { WhatsAppFloat } from '@/app/empresa/_whatsapp';
 import { ElevenLabsWidget } from '@/components/ui/elevenlabs-widget';
-import { SEO_FDS, SITE_URL } from '@/app/empresa/_seo';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -27,17 +26,10 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aretesoluciones.space'),
-  title: {
-    default: SEO_FDS.hub.title,
-    template: '%s — Areté Fuera de Serie',
-  },
-  description: SEO_FDS.hub.description,
   openGraph: {
     type: 'website',
     siteName: 'Areté Fuera de Serie',
     locale: 'es_AR',
-    url: `${SITE_URL}/fuera-de-serie`,
   },
 };
 

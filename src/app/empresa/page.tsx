@@ -7,6 +7,16 @@ export const metadata: Metadata = {
   title: { absolute: SEO.home.title },
   description: SEO.home.description,
   alternates: { canonical: SEO.home.canonical },
+  openGraph: {
+    title: SEO.home.title,
+    description: SEO.home.description,
+    url: SEO.home.canonical,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO.home.title,
+    description: SEO.home.description,
+  },
 };
 import { RevealObserver } from './_reveal';
 import ScrollExpandMedia from '@/components/ui/scroll-expansion-hero';

@@ -10,6 +10,16 @@ export const metadata: Metadata = {
   title: { absolute: SEO_FDS.hub.title },
   description: SEO_FDS.hub.description,
   alternates: { canonical: SEO_FDS.hub.canonical },
+  openGraph: {
+    title: SEO_FDS.hub.title,
+    description: SEO_FDS.hub.description,
+    url: SEO_FDS.hub.canonical,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO_FDS.hub.title,
+    description: SEO_FDS.hub.description,
+  },
 };
 
 const WA = waUrl(WA_MSG_GENERAL);

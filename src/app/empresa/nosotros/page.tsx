@@ -9,9 +9,19 @@ import { waUrl, WA_MSG_METODO } from '../_content';
 import { SEO } from '../_seo';
 
 export const metadata: Metadata = {
-  title: { absolute: SEO.nosotros.title },
+  title: SEO.nosotros.title,
   description: SEO.nosotros.description,
   alternates: { canonical: SEO.nosotros.canonical },
+  openGraph: {
+    title: SEO.nosotros.title,
+    description: SEO.nosotros.description,
+    url: SEO.nosotros.canonical,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO.nosotros.title,
+    description: SEO.nosotros.description,
+  },
 };
 
 const WA = waUrl(WA_MSG_METODO);

@@ -7,9 +7,19 @@ import { waUrl, WA_MSG_SERVICIO } from '../../_content';
 import { SEO } from '../../_seo';
 
 export const metadata: Metadata = {
-  title: { absolute: SEO.softwareAMedida.title },
+  title: SEO.softwareAMedida.title,
   description: SEO.softwareAMedida.description,
   alternates: { canonical: SEO.softwareAMedida.canonical },
+  openGraph: {
+    title: SEO.softwareAMedida.title,
+    description: SEO.softwareAMedida.description,
+    url: SEO.softwareAMedida.canonical,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO.softwareAMedida.title,
+    description: SEO.softwareAMedida.description,
+  },
 };
 
 const WA = waUrl(WA_MSG_SERVICIO);

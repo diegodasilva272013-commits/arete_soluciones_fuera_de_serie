@@ -8,9 +8,19 @@ import { waUrl, WA_MSG_SERVICIO, AREAS_LABELS } from '../_content';
 import { SEO } from '../_seo';
 
 export const metadata: Metadata = {
-  title: { absolute: SEO.servicios.title },
+  title: SEO.servicios.title,
   description: SEO.servicios.description,
   alternates: { canonical: SEO.servicios.canonical },
+  openGraph: {
+    title: SEO.servicios.title,
+    description: SEO.servicios.description,
+    url: SEO.servicios.canonical,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO.servicios.title,
+    description: SEO.servicios.description,
+  },
 };
 
 const WA = waUrl(WA_MSG_SERVICIO);

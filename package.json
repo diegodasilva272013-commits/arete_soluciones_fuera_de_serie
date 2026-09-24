@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npx tsx scripts/check-seo.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -49,6 +50,7 @@
     "postcss": "^8.5.15",
     "tailwindcss": "^3.4.19",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.23.15",
     "typescript": "5.9.3"
   }
 }

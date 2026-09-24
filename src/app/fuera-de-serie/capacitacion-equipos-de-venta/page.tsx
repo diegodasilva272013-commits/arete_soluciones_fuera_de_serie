@@ -7,9 +7,19 @@ import { waUrl, WA_MSG_GENERAL } from '@/app/empresa/_content';
 import { SEO_FDS } from '@/app/empresa/_seo';
 
 export const metadata: Metadata = {
-  title: { absolute: SEO_FDS.capacitacionEquipos.title },
+  title: SEO_FDS.capacitacionEquipos.title,
   description: SEO_FDS.capacitacionEquipos.description,
   alternates: { canonical: SEO_FDS.capacitacionEquipos.canonical },
+  openGraph: {
+    title: SEO_FDS.capacitacionEquipos.title,
+    description: SEO_FDS.capacitacionEquipos.description,
+    url: SEO_FDS.capacitacionEquipos.canonical,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO_FDS.capacitacionEquipos.title,
+    description: SEO_FDS.capacitacionEquipos.description,
+  },
 };
 
 const WA = waUrl(WA_MSG_GENERAL);

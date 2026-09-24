@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { brand } from '@/constants/branding';
 import { PWARegister } from '@/components/pwa-register';
 import { SplashLoader } from '@/components/splash-loader';
+import { SITE_URL } from '@/app/empresa/_seo';
 import './globals.css';
 
 const inter = Inter({
@@ -12,10 +13,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://arete-soluciones-plataforma.vercel.app'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: brand.full,
-    template: `%s — ${brand.name}`,
+    template: `%s | ${brand.name}`,
   },
   description: 'Comunidad privada de alto rendimiento para vendedores que solucionan problemas.',
   applicationName: brand.name,
@@ -28,14 +29,14 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    url: 'https://arete-soluciones-plataforma.vercel.app',
+    url: SITE_URL,
     siteName: brand.name,
     title: brand.full,
     description: brand.description,
     locale: 'es_AR',
     images: [
       {
-        url: 'https://arete-soluciones-plataforma.vercel.app/opengraph-image',
+        url: `${SITE_URL}/opengraph-image`,
         width: 1200,
         height: 630,
         alt: 'Areté Soluciones — Fuera de Serie',
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: brand.full,
     description: brand.description,
-    images: ['https://arete-soluciones-plataforma.vercel.app/opengraph-image'],
+    images: [`${SITE_URL}/opengraph-image`],
   },
   appleWebApp: {
     capable: true,
@@ -63,6 +64,21 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
+const ORG_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Areté Soluciones',
+  url: SITE_URL,
+  logo: `${SITE_URL}/LOGO_ARETE.png`,
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+54-9-11-5828-0808',
+    contactType: 'customer service',
+    areaServed: 'AR',
+    availableLanguage: 'Spanish',
+  },
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -71,6 +87,10 @@ export default function RootLayout({
   return (
     <html lang="es-AR" className={`${inter.variable} dark`}>
       <body className="min-h-screen bg-brand-black text-brand-text antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_SCHEMA) }}
+        />
         <SplashLoader />
         {children}
         <PWARegister />
