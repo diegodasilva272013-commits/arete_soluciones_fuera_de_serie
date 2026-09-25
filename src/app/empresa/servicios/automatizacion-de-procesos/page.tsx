@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import s from '../../corp.module.css';
 import { RevealObserver } from '../../_reveal';
 import { waUrl, WA_MSG_SERVICIO } from '../../_content';
-import { SEO } from '../../_seo';
+import { SEO, SITE_URL } from '../../_seo';
 
 export const metadata: Metadata = {
   title: SEO.automatizacion.title,
@@ -39,9 +39,66 @@ const EJEMPLOS = [
   'Asignación automática de tareas por reglas de negocio del proceso real',
 ];
 
+const FAQ = [
+  {
+    q: '¿Cómo sé si un proceso de mi empresa está listo para automatizarse?',
+    a: 'Tres señales: el proceso está claro y documentado, se repite con volumen suficiente para justificar la inversión, y tiene un costo real medible en tiempo o errores. El diagnóstico evalúa esto antes de automatizar nada.',
+  },
+  {
+    q: '¿Automatizar un proceso desordenado lo mejora?',
+    a: 'No. Automatizar un proceso mal diseñado solo produce los mismos errores más rápido y a mayor escala. Por eso primero simplificamos y recién después automatizamos.',
+  },
+  {
+    q: '¿Qué herramientas usan para automatizar?',
+    a: 'La herramienta se elige según el caso: integraciones entre sistemas existentes, scripts a medida o plataformas de automatización, lo que tenga más sentido para el proceso específico. No vendemos una herramienta fija de antemano.',
+  },
+  {
+    q: '¿La automatización reemplaza personas del equipo?',
+    a: 'El objetivo es sacar a las personas de tareas repetitivas y de bajo valor, no reemplazar su criterio. La automatización libera tiempo para el trabajo que sí requiere una decisión humana.',
+  },
+  {
+    q: '¿Cuánto tiempo lleva ver resultados de una automatización?',
+    a: 'Depende de la complejidad del proceso y de cuántos sistemas hay que integrar. Automatizaciones puntuales pueden implementarse en días; integraciones entre varios sistemas llevan más tiempo de diseño y prueba.',
+  },
+];
+
+const SERVICE_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Automatización de Procesos',
+  description: SEO.automatizacion.description,
+  provider: { '@type': 'Organization', name: 'Areté Soluciones', url: SITE_URL },
+  areaServed: 'AR',
+  serviceType: 'Automatización de procesos empresariales',
+  url: SEO.automatizacion.canonical,
+};
+
+const BREADCRUMB_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE_URL}/empresa` },
+    { '@type': 'ListItem', position: 2, name: 'Servicios', item: SEO.servicios.canonical },
+    { '@type': 'ListItem', position: 3, name: 'Automatización de Procesos', item: SEO.automatizacion.canonical },
+  ],
+};
+
+const FAQ_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ.map(f => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
 export default function AutomatizacionDeProcesosPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(SERVICE_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }} />
       <RevealObserver revealClass={s.revealOn} />
 
       <section className={s.pageHero}>
@@ -123,6 +180,41 @@ export default function AutomatizacionDeProcesosPage() {
                 </ul>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className={s.section}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Preguntas frecuentes</p>
+            <h2 className={s.sectionTitle}>Antes de empezar</h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1, maxWidth: 780 }}>
+            {FAQ.map(f => (
+              <div
+                key={f.q}
+                className={`${s.reveal}`}
+                data-reveal=""
+                style={{ padding: '28px 0', borderTop: '1px solid rgba(242,239,233,0.07)' }}
+              >
+                <h3 style={{ margin: '0 0 10px', fontWeight: 700, fontSize: 16, color: '#f2efe9' }}>{f.q}</h3>
+                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.75, color: 'rgba(242,239,233,0.55)' }}>{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── RELACIONADO ── */}
+      <section className={`${s.section} ${s.sectionAlt}`}>
+        <div className={s.inner}>
+          <p className={s.kickerLabel} style={{ marginBottom: 20 }}>Servicios relacionados</p>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+            <Link href="/empresa/servicios/diagnostico-operativo" className={s.btnGhost}>Diagnóstico Operativo</Link>
+            <Link href="/empresa/servicios/software-a-medida" className={s.btnGhost}>Software a Medida</Link>
+            <Link href="/empresa/servicios/crm-erp-a-medida" className={s.btnGhost}>CRM y ERP a Medida</Link>
           </div>
         </div>
       </section>

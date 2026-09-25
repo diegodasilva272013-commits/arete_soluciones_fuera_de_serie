@@ -8,9 +8,11 @@ import { useEffect, useState, type CSSProperties } from 'react';
 export function AutoplayVideo({
   src,
   style,
+  poster,
 }: {
   src: string;
   style?: CSSProperties;
+  poster?: string;
 }) {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
@@ -29,6 +31,8 @@ export function AutoplayVideo({
       loop={!prefersReducedMotion}
       playsInline
       controls={prefersReducedMotion}
+      preload="metadata"
+      poster={poster}
       style={style}
     >
       <source src={src} type="video/mp4" />

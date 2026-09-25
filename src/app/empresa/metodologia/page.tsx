@@ -5,10 +5,31 @@ import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
 import AnimatedGradient from '@/components/ui/animated-gradient';
 import { waUrl, WA_MSG_METODO } from '../_content';
+import { SEO, SITE_URL } from '../_seo';
 
 export const metadata: Metadata = {
-  title: 'Metodología — Areté Soluciones',
-  description: 'Las seis etapas del método Areté: de la inmersión en la operación a la evolución continua del sistema.',
+  title: SEO.metodologia.title,
+  description: SEO.metodologia.description,
+  alternates: { canonical: SEO.metodologia.canonical },
+  openGraph: {
+    title: SEO.metodologia.title,
+    description: SEO.metodologia.description,
+    url: SEO.metodologia.canonical,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO.metodologia.title,
+    description: SEO.metodologia.description,
+  },
+};
+
+const BREADCRUMB_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE_URL}/empresa` },
+    { '@type': 'ListItem', position: 2, name: 'Metodología', item: SEO.metodologia.canonical },
+  ],
 };
 
 const WA = waUrl(WA_MSG_METODO);
@@ -79,6 +100,10 @@ const ETAPAS = [
 export default function MetodologiaPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_SCHEMA) }}
+      />
       <RevealObserver revealClass={s.revealOn} />
 
       <section className={s.pageHero} style={{ isolation: 'isolate' }}>
@@ -89,10 +114,10 @@ export default function MetodologiaPage() {
             <span className={s.kickerLabel}>Metodología</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Seis etapas.<br /><em>El orden no se altera.</em>
+            Nuestro método de diagnóstico<br /><em>e implementación.</em>
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-            Empezamos entendiendo. Terminamos midiendo. Lo que hay en el medio es diseño antes que tecnología.
+            Nuestro método de diagnóstico e implementación tiene seis etapas y el orden no se altera. Empezamos entendiendo. Terminamos midiendo. Lo que hay en el medio es diseño antes que tecnología.
           </p>
           <div className={`${s.reveal} ${s.revealDelay3}`} data-reveal="" style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>

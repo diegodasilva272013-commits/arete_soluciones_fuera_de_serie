@@ -264,7 +264,7 @@ const ScrollExpandMedia = ({
                         muted
                         loop={!prefersReducedMotion}
                         playsInline
-                        preload='auto'
+                        preload='metadata'
                         className='w-full h-full object-cover rounded-xl'
                         controls={prefersReducedMotion}
                         disablePictureInPicture

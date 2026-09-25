@@ -332,11 +332,11 @@ export default function AgentesIAPage() {
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal=""
             style={{ maxWidth: 720 }}>
-            Nuestros agentes<br />de voz en acción
+            Agentes de voz con IA<br />para empresas, en acción
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal=""
             style={{ maxWidth: 560 }}>
-            Probá en tiempo real los sistemas que implementamos. Cada agente responde, gestiona y registra — sin guiones, sin esperas, sin intervención humana.
+            Implementamos agentes de voz con inteligencia artificial que atienden, cualifican y agendan para tu empresa las 24 horas. Probá en tiempo real los sistemas que implementamos — sin guiones, sin esperas, sin intervención humana.
           </p>
         </div>
       </section>

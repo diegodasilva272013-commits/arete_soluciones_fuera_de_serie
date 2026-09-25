@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import s from '@/app/empresa/corp.module.css';
 import { RevealObserver } from '@/app/empresa/_reveal';
 import { waUrl, WA_MSG_GENERAL } from '@/app/empresa/_content';
-import { SEO_FDS } from '@/app/empresa/_seo';
+import { SEO_FDS, SITE_URL } from '@/app/empresa/_seo';
 
 export const metadata: Metadata = {
   title: SEO_FDS.ventaConsultiva.title,
@@ -64,9 +64,68 @@ const SEMANAS = [
   { n: '05–06', t: 'Decisión y cierre', d: 'Cómo acompañar una decisión sin presionar. Cómo decir que no cuando la situación lo requiere.' },
 ];
 
+const FAQ = [
+  {
+    q: '¿Qué diferencia hay entre el plan Formación y el plan Inmersión?',
+    a: 'Formación es grupal, con hasta 4 personas por grupo y mentoría semanal. Inmersión es individual, con mentoría diaria de lunes a viernes y feedback el mismo día de cada conversación.',
+  },
+  {
+    q: '¿Necesito tener experiencia previa vendiendo para hacer el programa?',
+    a: 'Sí. El programa está pensado para quienes ya venden y quieren mejorar su conversación, no para una introducción desde cero a la venta.',
+  },
+  {
+    q: '¿Sobre qué conversaciones se trabaja durante las 6 semanas?',
+    a: 'Sobre tus propias llamadas reales, no sobre casos hipotéticos. Cada semana se analiza lo que realmente pasó en tus conversaciones y se corrige sobre eso.',
+  },
+  {
+    q: '¿Qué pasa después de las 6 semanas?',
+    a: 'El programa tiene un cierre definido en 6 semanas. Según el resultado y la necesidad, se puede evaluar continuidad, pero el objetivo es que el criterio quede instalado, no generar dependencia del programa.',
+  },
+  {
+    q: '¿El programa es presencial o remoto?',
+    a: 'Se define según el plan y la ubicación de la persona. La mentoría y el análisis de conversaciones funcionan de forma remota a través de la plataforma Fuera de Serie.',
+  },
+];
+
+const COURSE_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'Programa de Venta Consultiva',
+  description: SEO_FDS.ventaConsultiva.description,
+  provider: { '@type': 'Organization', name: 'Areté Fuera de Serie', url: SITE_URL },
+  url: SEO_FDS.ventaConsultiva.canonical,
+  hasCourseInstance: [
+    { '@type': 'CourseInstance', courseMode: 'blended', name: 'Formación (grupos de 4)' },
+    { '@type': 'CourseInstance', courseMode: 'blended', name: 'Inmersión (1 a 1 diario)' },
+  ],
+};
+
+const BREADCRUMB_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE_URL}/empresa` },
+    { '@type': 'ListItem', position: 2, name: 'Fuera de Serie', item: SEO_FDS.hub.canonical },
+    { '@type': 'ListItem', position: 3, name: 'Programa de Venta Consultiva', item: SEO_FDS.ventaConsultiva.canonical },
+  ],
+};
+
+const FAQ_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ.map(f => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
 export default function ProgramaVentaConsultivaPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(COURSE_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }} />
       <RevealObserver revealClass={s.revealOn} />
 
       <section className={s.pageHero}>
@@ -162,6 +221,40 @@ export default function ProgramaVentaConsultivaPage() {
                 </a>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className={s.section}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Preguntas frecuentes</p>
+            <h2 className={s.sectionTitle}>Antes de empezar</h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1, maxWidth: 780 }}>
+            {FAQ.map(f => (
+              <div
+                key={f.q}
+                className={`${s.reveal}`}
+                data-reveal=""
+                style={{ padding: '28px 0', borderTop: '1px solid rgba(242,239,233,0.07)' }}
+              >
+                <h3 style={{ margin: '0 0 10px', fontWeight: 700, fontSize: 16, color: '#f2efe9' }}>{f.q}</h3>
+                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.75, color: 'rgba(242,239,233,0.55)' }}>{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── RELACIONADO ── */}
+      <section className={`${s.section} ${s.sectionAlt}`}>
+        <div className={s.inner}>
+          <p className={s.kickerLabel} style={{ marginBottom: 20 }}>Otras líneas de Fuera de Serie</p>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+            <Link href="/fuera-de-serie/capacitacion-equipos-de-venta" className={s.btnGhost}>Capacitación de Equipos</Link>
+            <Link href="/fuera-de-serie/incorporar-equipo-comercial" className={s.btnGhost}>Incorporar Equipo Comercial</Link>
           </div>
         </div>
       </section>

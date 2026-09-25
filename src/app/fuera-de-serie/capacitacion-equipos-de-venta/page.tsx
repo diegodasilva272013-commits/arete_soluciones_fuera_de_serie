@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import s from '@/app/empresa/corp.module.css';
 import { RevealObserver } from '@/app/empresa/_reveal';
 import { waUrl, WA_MSG_GENERAL } from '@/app/empresa/_content';
-import { SEO_FDS } from '@/app/empresa/_seo';
+import { SEO_FDS, SITE_URL } from '@/app/empresa/_seo';
 
 export const metadata: Metadata = {
   title: SEO_FDS.capacitacionEquipos.title,
@@ -38,9 +38,66 @@ const PARA_QUIEN = [
   'Empresas con rotación alta que necesitan un sistema de entrenamiento reproducible',
 ];
 
+const FAQ = [
+  {
+    q: '¿Cuánto dura la capacitación de un equipo de venta?',
+    a: 'Depende del tamaño del equipo y de lo que muestre el diagnóstico inicial. Se define un alcance concreto después de escuchar conversaciones reales del equipo, no un programa cerrado de antemano.',
+  },
+  {
+    q: '¿Trabajan con guiones o scripts de venta?',
+    a: 'No. Entrenamos sobre las conversaciones reales que el equipo ya está teniendo. Un guion memorizado se rompe apenas la conversación se sale del libreto; el criterio para diagnosticar una situación no.',
+  },
+  {
+    q: '¿Cómo miden el progreso de cada vendedor?',
+    a: 'Con seguimiento individual: cada corrección queda registrada como evidencia. El progreso se mide sobre la conversación real de esa persona, no con una evaluación genérica igual para todo el equipo.',
+  },
+  {
+    q: '¿Sirve si el equipo ya tiene experiencia vendiendo?',
+    a: 'Sí. De hecho, es habitual que equipos con experiencia tengan patrones de error muy arraigados que nunca se corrigieron. El diagnóstico los detecta antes de diseñar el programa.',
+  },
+  {
+    q: '¿Qué pasa si el equipo tiene alta rotación?',
+    a: 'La capacitación se diseña como un sistema reproducible, no como un evento único. Eso permite incorporar personas nuevas al criterio de venta del equipo sin reiniciar el proceso desde cero cada vez.',
+  },
+];
+
+const SERVICE_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Capacitación de Equipos de Venta',
+  description: SEO_FDS.capacitacionEquipos.description,
+  provider: { '@type': 'Organization', name: 'Areté Fuera de Serie', url: SITE_URL },
+  areaServed: 'AR',
+  serviceType: 'Capacitación comercial',
+  url: SEO_FDS.capacitacionEquipos.canonical,
+};
+
+const BREADCRUMB_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE_URL}/empresa` },
+    { '@type': 'ListItem', position: 2, name: 'Fuera de Serie', item: SEO_FDS.hub.canonical },
+    { '@type': 'ListItem', position: 3, name: 'Capacitación de Equipos de Venta', item: SEO_FDS.capacitacionEquipos.canonical },
+  ],
+};
+
+const FAQ_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ.map(f => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
 export default function CapacitacionEquiposPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(SERVICE_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }} />
       <RevealObserver revealClass={s.revealOn} />
 
       <section className={s.pageHero}>
@@ -122,6 +179,40 @@ export default function CapacitacionEquiposPage() {
                 </ul>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className={s.section}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Preguntas frecuentes</p>
+            <h2 className={s.sectionTitle}>Antes de empezar</h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1, maxWidth: 780 }}>
+            {FAQ.map(f => (
+              <div
+                key={f.q}
+                className={`${s.reveal}`}
+                data-reveal=""
+                style={{ padding: '28px 0', borderTop: '1px solid rgba(242,239,233,0.07)' }}
+              >
+                <h3 style={{ margin: '0 0 10px', fontWeight: 700, fontSize: 16, color: '#f2efe9' }}>{f.q}</h3>
+                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.75, color: 'rgba(242,239,233,0.55)' }}>{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── RELACIONADO ── */}
+      <section className={`${s.section} ${s.sectionAlt}`}>
+        <div className={s.inner}>
+          <p className={s.kickerLabel} style={{ marginBottom: 20 }}>Otras líneas de Fuera de Serie</p>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+            <Link href="/fuera-de-serie/programa-venta-consultiva" className={s.btnGhost}>Programa de Venta Consultiva</Link>
+            <Link href="/fuera-de-serie/incorporar-equipo-comercial" className={s.btnGhost}>Incorporar Equipo Comercial</Link>
           </div>
         </div>
       </section>

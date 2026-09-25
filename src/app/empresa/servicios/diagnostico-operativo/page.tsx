@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import s from '../../corp.module.css';
 import { RevealObserver } from '../../_reveal';
 import { waUrl, WA_MSG_SERVICIO } from '../../_content';
-import { SEO } from '../../_seo';
+import { SEO, SITE_URL } from '../../_seo';
 
 export const metadata: Metadata = {
   title: SEO.diagnosticoOperativo.title,
@@ -39,9 +39,70 @@ const PROCESO = [
   { n: '04', t: 'Plan priorizado', d: 'Ordenamos las intervenciones por impacto vs. esfuerzo. Entregamos el plan que se lleva adelante en la etapa de implementación.' },
 ];
 
+const FAQ = [
+  {
+    q: '¿Cuánto dura un diagnóstico operativo?',
+    a: 'Entre 2 y 3 semanas, según la cantidad de áreas que se relevan. Cada área agrega entrevistas y análisis, pero el proceso completo no suele extenderse más de un mes.',
+  },
+  {
+    q: '¿El diagnóstico incluye la implementación?',
+    a: 'No. El diagnóstico es la primera etapa y termina en un plan de acción priorizado. La implementación es un servicio aparte que se cotiza según el alcance definido en ese plan.',
+  },
+  {
+    q: '¿Qué pasa si el diagnóstico no encuentra nada para mejorar?',
+    a: 'Te lo decimos directamente. No vendemos diagnósticos para justificar una implementación después: si la operación funciona bien, preferimos decir que no hay nada que intervenir.',
+  },
+  {
+    q: '¿Puedo pedir el diagnóstico de una sola área?',
+    a: 'Sí. Se puede hacer por área — ventas, marketing, administración, o entrega y operaciones — o para las cuatro juntas. Siempre recomendamos empezar por donde hay más fricción evidente.',
+  },
+  {
+    q: '¿Quiénes participan del diagnóstico?',
+    a: 'Entrevistamos a quien dirige y a quien ejecuta cada proceso. Las dos miradas importan: la dirección conoce el objetivo, el equipo conoce cómo se trabaja en la práctica todos los días.',
+  },
+  {
+    q: '¿Sirve si ya tengo un CRM o ERP implementado?',
+    a: 'Sí. Muchas veces el problema no es la falta de herramientas sino que las que ya existen no reflejan cómo trabaja realmente la empresa. El diagnóstico también identifica ese desajuste.',
+  },
+];
+
+const SERVICE_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Diagnóstico Operativo',
+  description: SEO.diagnosticoOperativo.description,
+  provider: { '@type': 'Organization', name: 'Areté Soluciones', url: SITE_URL },
+  areaServed: 'AR',
+  serviceType: 'Consultoría de procesos',
+  url: SEO.diagnosticoOperativo.canonical,
+};
+
+const BREADCRUMB_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE_URL}/empresa` },
+    { '@type': 'ListItem', position: 2, name: 'Servicios', item: SEO.servicios.canonical },
+    { '@type': 'ListItem', position: 3, name: 'Diagnóstico Operativo', item: SEO.diagnosticoOperativo.canonical },
+  ],
+};
+
+const FAQ_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ.map(f => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
 export default function DiagnosticoOperativoPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(SERVICE_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }} />
       <RevealObserver revealClass={s.revealOn} />
 
       <section className={s.pageHero}>
@@ -172,6 +233,41 @@ export default function DiagnosticoOperativoPage() {
             <p style={{ marginTop: 24, fontSize: 13, lineHeight: 1.7, color: 'rgba(242,239,233,0.35)' }}>
               El diagnóstico puede cubrir una sola área o las cuatro. Siempre empieza por donde hay más fricción. Si no encontramos nada que valga la pena intervenir, te lo decimos antes de ir a implementación.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className={s.section}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Preguntas frecuentes</p>
+            <h2 className={s.sectionTitle}>Antes de empezar</h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1, maxWidth: 780 }}>
+            {FAQ.map(f => (
+              <div
+                key={f.q}
+                className={`${s.reveal}`}
+                data-reveal=""
+                style={{ padding: '28px 0', borderTop: '1px solid rgba(242,239,233,0.07)' }}
+              >
+                <h3 style={{ margin: '0 0 10px', fontWeight: 700, fontSize: 16, color: '#f2efe9' }}>{f.q}</h3>
+                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.75, color: 'rgba(242,239,233,0.55)' }}>{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── RELACIONADO ── */}
+      <section className={`${s.section} ${s.sectionAlt}`}>
+        <div className={s.inner}>
+          <p className={s.kickerLabel} style={{ marginBottom: 20 }}>Servicios relacionados</p>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+            <Link href="/empresa/servicios/software-a-medida" className={s.btnGhost}>Software a Medida</Link>
+            <Link href="/empresa/servicios/crm-erp-a-medida" className={s.btnGhost}>CRM y ERP a Medida</Link>
+            <Link href="/empresa/servicios/automatizacion-de-procesos" className={s.btnGhost}>Automatización de Procesos</Link>
           </div>
         </div>
       </section>

@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import s from '../../corp.module.css';
 import { RevealObserver } from '../../_reveal';
 import { waUrl, WA_MSG_SERVICIO } from '../../_content';
-import { SEO } from '../../_seo';
+import { SEO, SITE_URL } from '../../_seo';
 
 export const metadata: Metadata = {
   title: SEO.crmErpAMedida.title,
@@ -40,9 +40,66 @@ const MODULOS_ERP = [
   'Roles y permisos por área o función',
 ];
 
+const FAQ = [
+  {
+    q: '¿Cuál es la diferencia entre un CRM y un ERP a medida?',
+    a: 'El CRM cubre el proceso comercial: pipeline, seguimiento de oportunidades y métricas de ventas. El ERP cubre la operación: facturación, cobros, stock y reportes. Muchas empresas necesitan ambos conectados en un solo sistema.',
+  },
+  {
+    q: '¿Puedo migrar los datos de mi CRM o ERP actual?',
+    a: 'Sí. La migración de datos históricos forma parte del alcance que se define en el diagnóstico previo, según el volumen y la calidad de la información existente.',
+  },
+  {
+    q: '¿Qué pasa si mi empresa crece y necesito agregar módulos después?',
+    a: 'El sistema se diseña para poder ampliarse. Podés sumar módulos nuevos — otro canal de ventas, otra línea de negocio — sin tener que rehacer lo que ya funciona.',
+  },
+  {
+    q: '¿Necesito reemplazar todos mis sistemas actuales de una vez?',
+    a: 'No necesariamente. Muchas veces conviene integrar el CRM o ERP a medida con herramientas que ya funcionan bien, y reemplazar solo las que generan fricción real.',
+  },
+  {
+    q: '¿Cuánto cuesta un CRM o ERP a medida?',
+    a: 'Depende del alcance definido en el diagnóstico: cuántos módulos, cuántos usuarios y qué nivel de integración con otros sistemas. Por eso nunca cotizamos sin el diagnóstico previo.',
+  },
+];
+
+const SERVICE_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'CRM y ERP a Medida',
+  description: SEO.crmErpAMedida.description,
+  provider: { '@type': 'Organization', name: 'Areté Soluciones', url: SITE_URL },
+  areaServed: 'AR',
+  serviceType: 'Desarrollo de CRM y ERP a medida',
+  url: SEO.crmErpAMedida.canonical,
+};
+
+const BREADCRUMB_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE_URL}/empresa` },
+    { '@type': 'ListItem', position: 2, name: 'Servicios', item: SEO.servicios.canonical },
+    { '@type': 'ListItem', position: 3, name: 'CRM y ERP a Medida', item: SEO.crmErpAMedida.canonical },
+  ],
+};
+
+const FAQ_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ.map(f => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
 export default function CrmErpAMedidaPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(SERVICE_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }} />
       <RevealObserver revealClass={s.revealOn} />
 
       <section className={s.pageHero}>
@@ -130,6 +187,41 @@ export default function CrmErpAMedidaPage() {
                 </ul>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className={s.section}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Preguntas frecuentes</p>
+            <h2 className={s.sectionTitle}>Antes de empezar</h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1, maxWidth: 780 }}>
+            {FAQ.map(f => (
+              <div
+                key={f.q}
+                className={`${s.reveal}`}
+                data-reveal=""
+                style={{ padding: '28px 0', borderTop: '1px solid rgba(242,239,233,0.07)' }}
+              >
+                <h3 style={{ margin: '0 0 10px', fontWeight: 700, fontSize: 16, color: '#f2efe9' }}>{f.q}</h3>
+                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.75, color: 'rgba(242,239,233,0.55)' }}>{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── RELACIONADO ── */}
+      <section className={`${s.section} ${s.sectionAlt}`}>
+        <div className={s.inner}>
+          <p className={s.kickerLabel} style={{ marginBottom: 20 }}>Servicios relacionados</p>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+            <Link href="/empresa/servicios/diagnostico-operativo" className={s.btnGhost}>Diagnóstico Operativo</Link>
+            <Link href="/empresa/servicios/software-a-medida" className={s.btnGhost}>Software a Medida</Link>
+            <Link href="/empresa/servicios/automatizacion-de-procesos" className={s.btnGhost}>Automatización de Procesos</Link>
           </div>
         </div>
       </section>

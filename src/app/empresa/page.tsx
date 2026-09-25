@@ -78,10 +78,10 @@ export default function EmpresaHome() {
       >
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <h1 className={s.homeH1} style={{ margin: '0 auto 24px', textAlign: 'center' }}>
-            La fricción no está en las herramientas.<br /><em>Está entre ellas.</em>
+            Sistemas a medida<br /><em>y formación comercial, para empresas.</em>
           </h1>
           <p style={{ fontFamily: 'var(--f-texto), Spectral, Georgia, serif', fontWeight: 300, fontSize: 20, lineHeight: 1.65, color: '#C9C6C0' }}>
-            Una empresa puede tener veinte sistemas y un equipo completo, y seguir funcionando mal. Entramos, entendemos cómo trabaja de verdad, y recién después construimos.
+            <strong style={{ fontWeight: 600, color: '#F2EFE9' }}>La fricción no está en las herramientas: está entre ellas.</strong> Diseñamos sistemas a medida y formamos equipos comerciales para que una empresa deje de perder tiempo y plata en los cruces entre áreas.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
             <IconLink href="/empresa/servicios" className={s.btn}>
@@ -213,7 +213,7 @@ export default function EmpresaHome() {
           </div>
           <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
             <div className={s.bandNum}>Areté Soluciones</div>
-            <h3 className={s.bandTitle}>Primero entender.<br /><em>Después construir.</em></h3>
+            <h2 className={s.bandTitle}>Primero entender.<br /><em>Después construir.</em></h2>
             <p className={s.bandBody}>Entramos en la empresa y hablamos con quien dirige, pero también con quien ejecuta. El CEO dice que el proceso funciona perfecto; la secretaria dice que hace lo mismo siete veces por día. Las dos miradas importan.</p>
             <p className={s.bandBody}>Del relevamiento sale un mapa de la operación con lo que cada proceso está costando, y el orden en que conviene intervenirlo. Recién ahí se decide qué construir.</p>
             <div className={s.meta}>
@@ -235,7 +235,7 @@ export default function EmpresaHome() {
         <div className={s.inner}>
           <div className={`${s.shead} ${s.reveal}`} data-reveal="">
             <div className={s.bandNum}>Areté Fuera de Serie</div>
-            <h3 className={s.bandTitle}>No entrenamos respuestas.<br /><em>Entrenamos pensamiento.</em></h3>
+            <h2 className={s.bandTitle}>No entrenamos respuestas.<br /><em>Entrenamos pensamiento.</em></h2>
             <p className={s.bandBody}>Los guiones cambian. Los mercados cambian. Las herramientas cambian. Una persona capaz de observar una situación, comprenderla y decidir qué corresponde hacer siempre va a tener valor.</p>
             <p className={s.bandBody}>Por eso no creamos personajes comerciales ni copias. Desarrollamos capacidades sobre la identidad que cada uno ya tiene.</p>
             <div className={s.meta}>
@@ -265,7 +265,7 @@ export default function EmpresaHome() {
           </div>
           <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
             <div className={s.bandNum}>La prueba</div>
-            <h3 className={s.bandTitle}>La plataforma que usamos<br /><em>la construimos nosotros.</em></h3>
+            <h2 className={s.bandTitle}>La plataforma que usamos<br /><em>la construimos nosotros.</em></h2>
             <p className={s.bandBody}>El sistema de entrenamiento de Fuera de Serie es, literalmente, un sistema empresarial a medida hecho por Areté Soluciones. Simulador de campo, matriz de evaluación, historial de evidencia por persona y detección de patrones.</p>
             <p className={s.bandBody}>No hay mejor demostración de lo que hacemos que mostrar lo que construimos para nosotros mismos.</p>
             <div className={s.meta}>

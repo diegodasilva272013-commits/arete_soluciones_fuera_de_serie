@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import s from '../../corp.module.css';
 import { RevealObserver } from '../../_reveal';
 import { waUrl, WA_MSG_SERVICIO } from '../../_content';
-import { SEO } from '../../_seo';
+import { SEO, SITE_URL } from '../../_seo';
 
 export const metadata: Metadata = {
   title: SEO.softwareAMedida.title,
@@ -40,9 +40,66 @@ const TIPOS = [
   'Integraciones entre sistemas que no se comunican',
 ];
 
+const FAQ = [
+  {
+    q: '¿En cuánto tiempo se desarrolla un software a medida?',
+    a: 'Depende del alcance definido en el diagnóstico. Un módulo acotado puede estar listo en unas semanas; un sistema que cubre varias áreas lleva más tiempo, pero se implementa en etapas para que el equipo empiece a usar partes del sistema antes de que esté completo.',
+  },
+  {
+    q: '¿Qué diferencia hay con comprar un software ya armado?',
+    a: 'Un software ya armado te obliga a adaptar tu proceso a su lógica. El software a medida hace lo contrario: se construye sobre cómo trabaja tu empresa. La contrapartida es que no es instantáneo — requiere el diseño previo del diagnóstico.',
+  },
+  {
+    q: '¿El código queda en propiedad de mi empresa?',
+    a: 'Sí. El sistema es tuyo. Podés ampliarlo, ajustarlo con tu propio equipo técnico o pedirnos que sigamos evolucionándolo — la decisión es tuya, no queda atado a nuestra empresa.',
+  },
+  {
+    q: '¿Puedo pedir solo un módulo o tiene que ser todo el sistema?',
+    a: 'Se puede empezar por un módulo específico — por ejemplo, el seguimiento comercial o el tablero de indicadores — y sumar otros después. El diagnóstico define qué conviene priorizar primero.',
+  },
+  {
+    q: '¿Qué pasa si mi empresa ya tiene un CRM o ERP?',
+    a: 'Podemos integrarlo, complementarlo con módulos a medida donde la herramienta actual no cubre, o reemplazarlo si el diagnóstico muestra que no se ajusta a cómo trabaja realmente el equipo.',
+  },
+];
+
+const SERVICE_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Software a Medida',
+  description: SEO.softwareAMedida.description,
+  provider: { '@type': 'Organization', name: 'Areté Soluciones', url: SITE_URL },
+  areaServed: 'AR',
+  serviceType: 'Desarrollo de software a medida',
+  url: SEO.softwareAMedida.canonical,
+};
+
+const BREADCRUMB_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE_URL}/empresa` },
+    { '@type': 'ListItem', position: 2, name: 'Servicios', item: SEO.servicios.canonical },
+    { '@type': 'ListItem', position: 3, name: 'Software a Medida', item: SEO.softwareAMedida.canonical },
+  ],
+};
+
+const FAQ_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ.map(f => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
 export default function SoftwareAMedidaPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(SERVICE_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }} />
       <RevealObserver revealClass={s.revealOn} />
 
       <section className={s.pageHero}>
@@ -146,6 +203,41 @@ export default function SoftwareAMedidaPage() {
             <p style={{ marginTop: 24, fontSize: 13, lineHeight: 1.7, color: 'rgba(242,239,233,0.35)' }}>
               El precio se define después del diagnóstico. Nunca cotizamos software sin entender qué problema resuelve.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className={s.section}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Preguntas frecuentes</p>
+            <h2 className={s.sectionTitle}>Antes de empezar</h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1, maxWidth: 780 }}>
+            {FAQ.map(f => (
+              <div
+                key={f.q}
+                className={`${s.reveal}`}
+                data-reveal=""
+                style={{ padding: '28px 0', borderTop: '1px solid rgba(242,239,233,0.07)' }}
+              >
+                <h3 style={{ margin: '0 0 10px', fontWeight: 700, fontSize: 16, color: '#f2efe9' }}>{f.q}</h3>
+                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.75, color: 'rgba(242,239,233,0.55)' }}>{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── RELACIONADO ── */}
+      <section className={`${s.section} ${s.sectionAlt}`}>
+        <div className={s.inner}>
+          <p className={s.kickerLabel} style={{ marginBottom: 20 }}>Servicios relacionados</p>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+            <Link href="/empresa/servicios/diagnostico-operativo" className={s.btnGhost}>Diagnóstico Operativo</Link>
+            <Link href="/empresa/servicios/crm-erp-a-medida" className={s.btnGhost}>CRM y ERP a Medida</Link>
+            <Link href="/empresa/servicios/automatizacion-de-procesos" className={s.btnGhost}>Automatización de Procesos</Link>
           </div>
         </div>
       </section>

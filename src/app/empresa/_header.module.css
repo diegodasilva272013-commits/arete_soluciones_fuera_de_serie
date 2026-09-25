@@ -61,6 +61,67 @@
   background: var(--azul);
 }
 
+/* Dropdown "Soluciones" */
+.navItem {
+  position: relative;
+}
+
+.navItemTrigger {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 18px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 240px;
+  background: rgba(8,8,8,0.98);
+  border: 1px solid rgba(242,239,233,0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  box-shadow: 0 24px 48px -12px rgba(0,0,0,0.6);
+  z-index: 110;
+}
+
+.dropdownLink {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(242,239,233,0.65);
+  text-decoration: none;
+  padding: 11px 14px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dropdownLink:hover {
+  background: rgba(26,111,255,0.1);
+  color: rgba(242,239,233,1);
+}
+
+.dropdownLinkAll {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+  text-decoration: none;
+  padding: 11px 14px 8px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(242,239,233,0.08);
+}
+
+.dropdownLinkAll:hover { color: #fff; }
+
 /* CTA — "Acceso" */
 .cta {
   flex-shrink: 0;

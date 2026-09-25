@@ -6,7 +6,16 @@ import { RevealObserver } from '../_reveal';
 import MusicHero, { type Track } from '@/components/ui/scroll-locked-video-hero';
 import { waUrl, WA_MSG_METODO } from '../_content';
 
-import { SEO } from '../_seo';
+import { SEO, SITE_URL } from '../_seo';
+
+const BREADCRUMB_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE_URL}/empresa` },
+    { '@type': 'ListItem', position: 2, name: 'Nosotros', item: SEO.nosotros.canonical },
+  ],
+};
 
 export const metadata: Metadata = {
   title: SEO.nosotros.title,
@@ -114,6 +123,10 @@ const NOSOTROS_TRACKS: Track[] = [
 export default function NosotrosPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_SCHEMA) }}
+      />
       <RevealObserver revealClass={s.revealOn} />
 
       <MusicHero
@@ -124,6 +137,19 @@ export default function NosotrosPage() {
         initialIndex={0}
         signature={false}
       />
+
+      {/* ── INTRO / H1 ── */}
+      <section className={s.section}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="">
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Nosotros</p>
+            <h1 className={s.sectionTitle}>{SEO.nosotros.h1}</h1>
+            <p className={s.sectionSub}>
+              Somos una consultora de procesos y sistemas a medida. Diseñamos cómo debería funcionar una empresa antes de elegir cualquier herramienta — el mismo criterio que aplicamos en Areté Soluciones y en Areté Fuera de Serie.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* ── EL NOMBRE ── */}
       <section className={s.section}>

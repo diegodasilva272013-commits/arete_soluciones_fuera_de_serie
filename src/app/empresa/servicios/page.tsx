@@ -100,10 +100,10 @@ export default function ServiciosPage() {
             <span className={s.kickerLabel}>Servicios</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Cuatro áreas.<br /><em>Un solo sistema.</em>
+            Consultoría de procesos<br /><em>y sistemas a medida, para empresas.</em>
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
-            Trabajamos sobre las áreas que generan fricción operativa. No vendemos tecnología: diseñamos cómo debería funcionar la empresa y elegimos la herramienta como consecuencia.
+            Hacemos consultoría de procesos y desarrollamos sistemas a medida para las cuatro áreas que generan fricción operativa. No vendemos tecnología: diseñamos cómo debería funcionar la empresa y elegimos la herramienta como consecuencia.
           </p>
           <div className={`${s.reveal} ${s.revealDelay3}`} data-reveal="" style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
