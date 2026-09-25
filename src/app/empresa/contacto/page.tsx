@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArrowRight, Phone, Mail, MessageCircle } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
@@ -12,15 +13,20 @@ const WA = waUrl(encodeURIComponent('Hola, quiero contactarme con Areté Solucio
 type FormState = 'idle' | 'sending' | 'done' | 'error';
 
 export default function ContactoPage() {
+  const router = useRouter();
   const [form, setForm] = useState({ nombre: '', empresa: '', email: '', mensaje: '' });
   const [state, setState] = useState<FormState>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setState('sending');
-    // TODO: reemplazar con endpoint real
-    await new Promise(r => setTimeout(r, 1200));
-    setState('done');
+    try {
+      // TODO: reemplazar con endpoint real
+      await new Promise(r => setTimeout(r, 1200));
+      router.push('/empresa/gracias');
+    } catch {
+      setState('error');
+    }
   };
 
   return (
@@ -183,6 +189,11 @@ export default function ContactoPage() {
                         className={`${s.formInput} ${s.formTextarea}`}
                       />
                     </div>
+                    {state === 'error' && (
+                      <p style={{ margin: 0, fontSize: 13, color: 'rgba(239,68,68,0.85)' }}>
+                        No pudimos enviar tu mensaje. Probá de nuevo o escribinos por WhatsApp.
+                      </p>
+                    )}
                     <button
                       type="submit"
                       disabled={state === 'sending'}
