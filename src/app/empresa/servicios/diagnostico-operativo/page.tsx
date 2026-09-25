@@ -41,10 +41,6 @@ const PROCESO = [
 
 const FAQ = [
   {
-    q: '¿Cuánto dura un diagnóstico operativo?',
-    a: 'Entre 2 y 3 semanas, según la cantidad de áreas que se relevan. Cada área agrega entrevistas y análisis, pero el proceso completo no suele extenderse más de un mes.',
-  },
-  {
     q: '¿El diagnóstico incluye la implementación?',
     a: 'No. El diagnóstico es la primera etapa y termina en un plan de acción priorizado. La implementación es un servicio aparte que se cotiza según el alcance definido en ese plan.',
   },
@@ -112,7 +108,7 @@ export default function DiagnosticoOperativoPage() {
             <span className={s.kickerLabel}>Etapa 01 · Diagnóstico</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            {SEO.diagnosticoOperativo.h1.split(' para')[0]}.<br />
+            {SEO.diagnosticoOperativo.h1.split(' para')[0]}<br />
             <em>para empresas.</em>
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
@@ -156,7 +152,7 @@ export default function DiagnosticoOperativoPage() {
         <div className={s.inner}>
           <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 56 }}>
             <p className={s.kickerLabel} style={{ marginBottom: 14 }}>Cómo funciona</p>
-            <h2 className={s.sectionTitle}>Cuatro etapas en 2–3 semanas</h2>
+            <h2 className={s.sectionTitle}>Cuatro etapas</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {PROCESO.map(p => (
@@ -224,10 +220,6 @@ export default function DiagnosticoOperativoPage() {
               <div className={s.metaItem}>
                 <dt className={s.metaDt}>Las cuatro áreas</dt>
                 <dd className={s.metaDd}><em>USD 4.000</em></dd>
-              </div>
-              <div className={s.metaItem}>
-                <dt className={s.metaDt}>Duración</dt>
-                <dd className={s.metaDd}>2–3 semanas</dd>
               </div>
             </dl>
             <p style={{ marginTop: 24, fontSize: 13, lineHeight: 1.7, color: 'rgba(242,239,233,0.35)' }}>

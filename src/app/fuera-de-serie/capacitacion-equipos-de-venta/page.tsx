@@ -221,7 +221,7 @@ export default function CapacitacionEquiposPage() {
         <div className={s.inner}>
           <div className={s.reveal} data-reveal="">
             <h2 className={s.ctaTitle}>¿Tiene sentido para<br /><em>tu equipo?</em></h2>
-            <p className={s.ctaSub}>Una conversación de 20 minutos para entender qué nivel tiene el equipo y qué se puede mejorar.</p>
+            <p className={s.ctaSub}>Una conversación para entender qué nivel tiene el equipo y qué se puede mejorar.</p>
             <div className={s.ctaRow}>
               <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
                 Hablar con el equipo <ArrowRight size={15} />

@@ -38,8 +38,8 @@ const LINEAS = [
     href: '/fuera-de-serie/programa-venta-consultiva',
     kicker: 'Para quienes ya venden',
     title: 'Programa de venta consultiva',
-    body: '6 semanas de entrenamiento intensivo sobre tus propias conversaciones, con mentoría semanal y feedback individual.',
-    items: ['Planes Formación e Inmersión', 'Sobre tus propias llamadas', 'Mentoría 1 a 1 semanal', 'Evaluación por criterio, no por técnica'],
+    body: '6 semanas de entrenamiento intensivo sobre tus propias conversaciones, con mentoría y feedback individual.',
+    items: ['Planes Formación e Inmersión', 'Sobre tus propias llamadas', 'Mentoría 1 a 1', 'Evaluación por criterio, no por técnica'],
   },
   {
     n: '03',
@@ -70,7 +70,7 @@ export default function FueraDeSeriePage() {
             <span className={s.kickerLabel}>Areté Fuera de Serie · Línea 02</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            {SEO_FDS.hub.h1.split(' para')[0]}.<br />
+            {SEO_FDS.hub.h1.split(' para')[0]}<br />
             <em>para equipos de alto rendimiento.</em>
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
@@ -170,7 +170,7 @@ export default function FueraDeSeriePage() {
         <div className={s.inner}>
           <div className={s.reveal} data-reveal="">
             <h2 className={s.ctaTitle}>¿Cuál de las tres líneas<br /><em>aplica a tu situación?</em></h2>
-            <p className={s.ctaSub}>Una conversación de 20 minutos para entender qué tiene más sentido.</p>
+            <p className={s.ctaSub}>Una conversación para entender qué tiene más sentido.</p>
             <div className={s.ctaRow}>
               <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
                 Hablar con el equipo <ArrowRight size={15} />

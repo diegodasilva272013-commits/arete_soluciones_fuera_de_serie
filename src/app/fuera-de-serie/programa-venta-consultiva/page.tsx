@@ -32,7 +32,7 @@ const PLANES = [
     items: [
       '6 semanas de programa',
       'Grupos de máximo 4 personas',
-      'Mentoría grupal semanal',
+      'Mentoría grupal',
       'Análisis de tus conversaciones reales',
       'Feedback escrito por sesión',
       'Acceso a la plataforma Fuera de Serie',
@@ -67,7 +67,7 @@ const SEMANAS = [
 const FAQ = [
   {
     q: '¿Qué diferencia hay entre el plan Formación y el plan Inmersión?',
-    a: 'Formación es grupal, con hasta 4 personas por grupo y mentoría semanal. Inmersión es individual, con mentoría diaria de lunes a viernes y feedback el mismo día de cada conversación.',
+    a: 'Formación es grupal, con hasta 4 personas por grupo. Inmersión es individual, con mentoría diaria de lunes a viernes y feedback el mismo día de cada conversación.',
   },
   {
     q: '¿Necesito tener experiencia previa vendiendo para hacer el programa?',
@@ -80,10 +80,6 @@ const FAQ = [
   {
     q: '¿Qué pasa después de las 6 semanas?',
     a: 'El programa tiene un cierre definido en 6 semanas. Según el resultado y la necesidad, se puede evaluar continuidad, pero el objetivo es que el criterio quede instalado, no generar dependencia del programa.',
-  },
-  {
-    q: '¿El programa es presencial o remoto?',
-    a: 'Se define según el plan y la ubicación de la persona. La mentoría y el análisis de conversaciones funcionan de forma remota a través de la plataforma Fuera de Serie.',
   },
 ];
 
@@ -135,7 +131,7 @@ export default function ProgramaVentaConsultivaPage() {
             <span className={s.kickerLabel}>Fuera de Serie · Para quienes ya venden</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            Programa de venta consultiva.<br /><em>6 semanas.</em>
+            Programa de venta consultiva<br /><em>6 semanas.</em>
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
             Para quienes ya venden y quieren mejorar su conversación. 6 semanas de entrenamiento sobre tus propias llamadas reales, con mentoría individual y feedback específico.
@@ -263,7 +259,7 @@ export default function ProgramaVentaConsultivaPage() {
         <div className={s.inner}>
           <div className={s.reveal} data-reveal="">
             <h2 className={s.ctaTitle}>¿Formación o Inmersión?<br /><em>Hablemos y lo definimos.</em></h2>
-            <p className={s.ctaSub}>20 minutos para entender cuál de los dos planes tiene más sentido para tu situación.</p>
+            <p className={s.ctaSub}>Conversemos para entender cuál de los dos planes tiene más sentido para tu situación.</p>
             <div className={s.ctaRow}>
               <a href={WA} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>
                 Consultar <ArrowRight size={15} />

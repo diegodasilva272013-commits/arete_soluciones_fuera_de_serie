@@ -79,7 +79,7 @@ export default function IncorporarEquipoComercialPage() {
             <span className={s.kickerLabel}>Fuera de Serie · Búsqueda y selección</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            {SEO_FDS.incorporarEquipo.h1.split(' a tu')[0]}.<br />
+            {SEO_FDS.incorporarEquipo.h1.split(' a tu')[0]}<br />
             <em>a tu equipo.</em>
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="">
