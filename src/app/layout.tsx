@@ -21,12 +21,8 @@ export const metadata: Metadata = {
   description: 'Comunidad privada de alto rendimiento para vendedores que solucionan problemas.',
   applicationName: brand.name,
   manifest: '/manifest.json',
-  icons: {
-    icon: [
-      { url: '/Aretea_fuera _de_serie_logo.png', sizes: '512x512', type: 'image/png' },
-    ],
-    apple: [{ url: '/Aretea_fuera _de_serie_logo.png', sizes: '180x180', type: 'image/png' }],
-  },
+  // Favicon/apple-icon: NO se hardcodea acá — Next.js los genera automáticamente
+  // a partir de app/icon.png, app/apple-icon.png y app/favicon.ico.
   openGraph: {
     type: 'website',
     url: SITE_URL,
