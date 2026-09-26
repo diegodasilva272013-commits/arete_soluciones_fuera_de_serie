@@ -265,6 +265,26 @@ const SOLUCION_IMAGES = [
   '/galeria7.png',
 ];
 
+// Panel mobile que mide su propio contenido en vez de adivinar un maxHeight
+// fijo — antes cortaba el texto de las pestañas más largas porque el
+// contenido real superaba el valor fijo usado para animar la expansión.
+function MobilePanelContent({ isActive, children }: { isActive: boolean; children: React.ReactNode }) {
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(2000);
+
+  useEffect(() => {
+    if (innerRef.current) setHeight(innerRef.current.scrollHeight);
+  }, [isActive, children]);
+
+  return (
+    <div style={{ overflow: 'hidden', maxHeight: isActive ? height : 0, transition: 'max-height 0.5s cubic-bezier(0.25,1,0.5,1)' }}>
+      <div ref={innerRef} style={{ padding: '14px 18px 20px', borderTop: '1px solid var(--linea)' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 // ── ElasticSolucion — desktop: elastic horizontal / mobile: elastic vertical ──
 function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
   const [activeId, setActiveId] = useState(items[0].id);
@@ -316,16 +336,10 @@ function ElasticSolucion({ items }: { items: typeof TABS_SOLUCION }) {
                 </div>
               </div>
               {/* Texto — separado, debajo de la imagen */}
-              <div style={{
-                overflow: 'hidden',
-                maxHeight: isActive ? 520 : 0,
-                transition: 'max-height 0.5s cubic-bezier(0.25,1,0.5,1)',
-              }}>
-                <div style={{ padding: '14px 18px 20px', borderTop: '1px solid var(--linea)' }}>
-                  <span style={{ display: 'inline-block', marginBottom: 8, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
-                  {item.content}
-                </div>
-              </div>
+              <MobilePanelContent isActive={isActive}>
+                <span style={{ display: 'inline-block', marginBottom: 8, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
+                {item.content}
+              </MobilePanelContent>
             </div>
           );
         })}

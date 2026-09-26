@@ -7,6 +7,7 @@ import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, 
 import { checkPassword, notifyAcceptance } from './actions';
 import AnimatedGradient from '@/components/ui/animated-gradient';
 import { VolumetricStudio } from '@/components/ui/volumetric-studio';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import s from '../../corp.module.css';
 
 // ── RevealObserver ────────────────────────────────────────────────────────────
@@ -311,6 +312,27 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
 }
 
 // ── ElasticSolucion — desktop: elastic horizontal / mobile: elastic vertical ──
+// Panel mobile que mide su propio contenido en vez de adivinar un maxHeight
+// fijo — antes cortaba el texto de las pestañas más largas (ej. "Envíos"
+// con la nota técnica de Instagram) porque el contenido real superaba el
+// valor fijo que se usaba para animar la expansión.
+function MobilePanelContent({ isActive, children }: { isActive: boolean; children: React.ReactNode }) {
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(2000);
+
+  useEffect(() => {
+    if (innerRef.current) setHeight(innerRef.current.scrollHeight);
+  }, [isActive, children]);
+
+  return (
+    <div style={{ overflow: 'hidden', maxHeight: isActive ? height : 0, transition: 'max-height 0.5s cubic-bezier(0.25,1,0.5,1)' }}>
+      <div ref={innerRef} style={{ padding: '14px 18px 20px', borderTop: '1px solid var(--linea)' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 function ElasticSolucion({ items }: { items: { id: string; label: string; content: React.ReactNode }[] }) {
   const [activeId, setActiveId] = useState(items[0].id);
   const [isMobile, setIsMobile] = useState(false);
@@ -337,12 +359,10 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
                   <ChevronDown size={11} color="rgba(242,239,233,0.6)" style={{ transform: isActive ? 'rotate(180deg)' : 'none', transition: 'transform 0.4s', flexShrink: 0 }} />
                 </div>
               </div>
-              <div style={{ overflow: 'hidden', maxHeight: isActive ? 620 : 0, transition: 'max-height 0.5s cubic-bezier(0.25,1,0.5,1)' }}>
-                <div style={{ padding: '14px 18px 20px', borderTop: '1px solid var(--linea)' }}>
-                  <span style={{ display: 'inline-block', marginBottom: 8, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
-                  {item.content}
-                </div>
-              </div>
+              <MobilePanelContent isActive={isActive}>
+                <span style={{ display: 'inline-block', marginBottom: 8, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
+                {item.content}
+              </MobilePanelContent>
             </div>
           );
         })}
@@ -421,7 +441,7 @@ function VideoConSonido() {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: 920, aspectRatio: '16 / 9', borderRadius: 24, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 40px 90px -20px rgba(0,0,0,0.75)', pointerEvents: 'auto' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', pointerEvents: 'auto' }}>
       <video
         ref={videoRef}
         autoPlay
@@ -667,38 +687,43 @@ function ProposalContent() {
         <div className="p-nav-fade" style={{ display: 'none', position: 'absolute', top: 0, right: 0, width: 64, height: '100%', background: 'linear-gradient(to right, transparent, rgba(5,5,5,0.96))', pointerEvents: 'none' }} />
       </div>
 
-      {/* ── Hero (VolumetricStudio + video) ── */}
-      <VolumetricStudio className="min-h-0">
-        <div style={{ padding: '260px 16px 72px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div className={s.kicker} style={{ marginBottom: 20, justifyContent: 'center' }}>
-            <span className={s.kickerLine} />
-            <span className={s.kickerLabel}>Providus S.A. de Capitalización y Renta · Córdoba · Septiembre 2026</span>
-          </div>
-          <h1 className={s.heroTitle} style={{ marginBottom: 20, textAlign: 'center' }}>
-            Del voucher de papel<br /><em>al dato en tiempo real.</em>
-          </h1>
-          <p className={s.heroSub} style={{ maxWidth: 640, margin: '0 auto 36px', textAlign: 'center' }}>
-            Una sola plataforma donde el interesado se registra en el evento, llega a la oficina en el momento, se asigna solo a un vendedor y todo lo que pasa después queda medido. Con la seguridad que exige una empresa que administra el ahorro de terceros.
-          </p>
-          <div className="p-hero-metrics" style={{ display: 'flex', gap: 1, background: 'var(--linea)', marginBottom: 28, flexWrap: 'wrap', maxWidth: 640, margin: '0 auto 28px' }}>
-            {[
-              { val: 'USD 22.000', label: 'Inversión total', sub: 'En dos módulos' },
-              { val: '2 módulos',   label: 'Entrega',         sub: '50% al inicio · 50% al entregar' },
-              { val: '1 mes',       label: 'Por módulo',      sub: 'Desde las definiciones' },
-            ].map(({ val, label, sub }) => (
-              <div key={label} style={{ padding: '20px 28px', background: 'rgba(5,5,5,0.92)', backdropFilter: 'blur(8px)', flex: '1 1 140px' }}>
-                <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(18px,2vw,24px)', letterSpacing: '-0.05em', color: 'var(--hueso)' }}>{val}</div>
-                <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--azul-luz)', margin: '5px 0 3px' }}>{label}</div>
-                <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, color: 'var(--ceniza)' }}>{sub}</div>
+      {/* ── Hero (VolumetricStudio + ContainerScroll + video) ── */}
+      <VolumetricStudio>
+        <div style={{ pointerEvents: 'auto' }}>
+          <ContainerScroll
+            titleComponent={
+              <div style={{ padding: '0 16px' }}>
+                <div className={s.kicker} style={{ marginBottom: 20, justifyContent: 'center' }}>
+                  <span className={s.kickerLine} />
+                  <span className={s.kickerLabel}>Providus S.A. de Capitalización y Renta · Córdoba · Septiembre 2026</span>
+                </div>
+                <h1 className={s.heroTitle} style={{ marginBottom: 20 }}>
+                  Del voucher de papel<br /><em>al dato en tiempo real.</em>
+                </h1>
+                <p className={s.heroSub} style={{ maxWidth: 640, margin: '0 auto 36px' }}>
+                  Una sola plataforma donde el interesado se registra en el evento, llega a la oficina en el momento, se asigna solo a un vendedor y todo lo que pasa después queda medido. Con la seguridad que exige una empresa que administra el ahorro de terceros.
+                </p>
+                <div className="p-hero-metrics" style={{ display: 'flex', gap: 1, background: 'var(--linea)', marginBottom: 28, flexWrap: 'wrap', maxWidth: 640, margin: '0 auto 28px' }}>
+                  {[
+                    { val: 'USD 22.000', label: 'Inversión total', sub: 'En dos módulos' },
+                    { val: '2 módulos',   label: 'Entrega',         sub: '50% al inicio · 50% al entregar' },
+                    { val: '1 mes',       label: 'Por módulo',      sub: 'Desde las definiciones' },
+                  ].map(({ val, label, sub }) => (
+                    <div key={label} style={{ padding: '20px 28px', background: 'rgba(5,5,5,0.92)', backdropFilter: 'blur(8px)', flex: '1 1 140px' }}>
+                      <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(18px,2vw,24px)', letterSpacing: '-0.05em', color: 'var(--hueso)' }}>{val}</div>
+                      <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--azul-luz)', margin: '5px 0 3px' }}>{label}</div>
+                      <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, color: 'var(--ceniza)' }}>{sub}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <DemoButton />
+                </div>
               </div>
-            ))}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 48, pointerEvents: 'auto' }}>
-            <DemoButton />
-          </div>
-
-          {/* Video de Providus, iluminado por el efecto del estudio */}
-          <VideoConSonido />
+            }
+          >
+            <VideoConSonido />
+          </ContainerScroll>
         </div>
       </VolumetricStudio>
 
