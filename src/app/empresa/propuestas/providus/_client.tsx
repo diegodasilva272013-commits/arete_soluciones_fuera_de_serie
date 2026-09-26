@@ -36,7 +36,9 @@ const LOCAL_CSS = `
 .pvSplitTight{display:grid;grid-template-columns:1fr 1fr;gap:2px}
 .pvHoverRow{border-left:2px solid transparent;transition:border-color .2s,background .2s}
 .pvHoverRow:hover{border-left-color:#2F7BF6;background:rgba(47,123,246,.03)}
+.pv-hero-clear{padding-top:60px}
 @media (max-width: 768px) {
+  .pv-hero-clear { padding-top: 340px !important; }
   .p-nav { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 12px !important; }
   .p-nav::-webkit-scrollbar { display: none; }
   .p-nav-fade { display: block !important; }
@@ -692,7 +694,7 @@ function ProposalContent() {
         <div style={{ pointerEvents: 'auto' }}>
           <ContainerScroll
             titleComponent={
-              <div style={{ padding: '0 16px' }}>
+              <div className="pv-hero-clear" style={{ paddingLeft: 16, paddingRight: 16 }}>
                 <div className={s.kicker} style={{ marginBottom: 20, justifyContent: 'center' }}>
                   <span className={s.kickerLine} />
                   <span className={s.kickerLabel}>Providus S.A. de Capitalización y Renta · Córdoba · Septiembre 2026</span>
