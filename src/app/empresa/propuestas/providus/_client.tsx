@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio } from 'lucide-react';
 import { checkPassword, notifyAcceptance } from './actions';
 import AnimatedGradient from '@/components/ui/animated-gradient';
-import { ContainerScroll } from '@/components/ui/container-scroll-animation';
+import { VolumetricStudio } from '@/components/ui/volumetric-studio';
 import s from '../../corp.module.css';
 
 // ── RevealObserver ────────────────────────────────────────────────────────────
@@ -615,53 +615,57 @@ function ProposalContent() {
         <div className="p-nav-fade" style={{ display: 'none', position: 'absolute', top: 0, right: 0, width: 64, height: '100%', background: 'linear-gradient(to right, transparent, rgba(5,5,5,0.96))', pointerEvents: 'none' }} />
       </div>
 
-      {/* ── Hero (ContainerScroll) ── */}
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
-        <AnimatedGradient config={{ preset: 'Prism' }} style={{ zIndex: 0 }} />
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <ContainerScroll
-            titleComponent={
-              <div style={{ padding: '0 16px' }}>
-                <div className={s.kicker} style={{ marginBottom: 20, justifyContent: 'center' }}>
-                  <span className={s.kickerLine} />
-                  <span className={s.kickerLabel}>Providus S.A. de Capitalización y Renta · Córdoba · Septiembre 2026</span>
-                </div>
-                <h1 className={s.heroTitle} style={{ marginBottom: 20 }}>
-                  Del voucher de papel<br /><em>al dato en tiempo real.</em>
-                </h1>
-                <p className={s.heroSub} style={{ maxWidth: 640, margin: '0 auto 36px' }}>
-                  Una sola plataforma donde el interesado se registra en el evento, llega a la oficina en el momento, se asigna solo a un vendedor y todo lo que pasa después queda medido. Con la seguridad que exige una empresa que administra el ahorro de terceros.
-                </p>
-                <div className="p-hero-metrics" style={{ display: 'flex', gap: 1, background: 'var(--linea)', marginBottom: 28, flexWrap: 'wrap', maxWidth: 640, margin: '0 auto 28px' }}>
-                  {[
-                    { val: 'USD 22.000', label: 'Inversión total', sub: 'En dos módulos' },
-                    { val: '2 módulos',   label: 'Entrega',         sub: '50% al inicio · 50% al entregar' },
-                    { val: '1 mes',       label: 'Por módulo',      sub: 'Desde las definiciones' },
-                  ].map(({ val, label, sub }) => (
-                    <div key={label} style={{ padding: '20px 28px', background: 'rgba(5,5,5,0.92)', backdropFilter: 'blur(8px)', flex: '1 1 140px' }}>
-                      <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(18px,2vw,24px)', letterSpacing: '-0.05em', color: 'var(--hueso)' }}>{val}</div>
-                      <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--azul-luz)', margin: '5px 0 3px' }}>{label}</div>
-                      <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, color: 'var(--ceniza)' }}>{sub}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <DemoButton />
-                </div>
+      {/* ── Hero (VolumetricStudio + video) ── */}
+      <VolumetricStudio className="min-h-0">
+        <div style={{ padding: '96px 16px 72px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div className={s.kicker} style={{ marginBottom: 20, justifyContent: 'center' }}>
+            <span className={s.kickerLine} />
+            <span className={s.kickerLabel}>Providus S.A. de Capitalización y Renta · Córdoba · Septiembre 2026</span>
+          </div>
+          <h1 className={s.heroTitle} style={{ marginBottom: 20, textAlign: 'center' }}>
+            Del voucher de papel<br /><em>al dato en tiempo real.</em>
+          </h1>
+          <p className={s.heroSub} style={{ maxWidth: 640, margin: '0 auto 36px', textAlign: 'center' }}>
+            Una sola plataforma donde el interesado se registra en el evento, llega a la oficina en el momento, se asigna solo a un vendedor y todo lo que pasa después queda medido. Con la seguridad que exige una empresa que administra el ahorro de terceros.
+          </p>
+          <div className="p-hero-metrics" style={{ display: 'flex', gap: 1, background: 'var(--linea)', marginBottom: 28, flexWrap: 'wrap', maxWidth: 640, margin: '0 auto 28px' }}>
+            {[
+              { val: 'USD 22.000', label: 'Inversión total', sub: 'En dos módulos' },
+              { val: '2 módulos',   label: 'Entrega',         sub: '50% al inicio · 50% al entregar' },
+              { val: '1 mes',       label: 'Por módulo',      sub: 'Desde las definiciones' },
+            ].map(({ val, label, sub }) => (
+              <div key={label} style={{ padding: '20px 28px', background: 'rgba(5,5,5,0.92)', backdropFilter: 'blur(8px)', flex: '1 1 140px' }}>
+                <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(18px,2vw,24px)', letterSpacing: '-0.05em', color: 'var(--hueso)' }}>{val}</div>
+                <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--azul-luz)', margin: '5px 0 3px' }}>{label}</div>
+                <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, color: 'var(--ceniza)' }}>{sub}</div>
               </div>
-            }
-          >
-            <div style={{ position: 'relative', height: '100%', width: '100%' }}>
-              <Image src="/galeria3.png" alt="Vista previa del sistema" fill sizes="100vw" priority style={{ objectFit: 'cover', filter: 'brightness(0.5) saturate(0.65)' }} />
-              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 80%, rgba(47,123,246,0.2) 0%, rgba(5,5,5,0.55) 70%)' }} />
-              <div style={{ position: 'absolute', bottom: 20, left: 24, right: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(92,154,255,0.65)', border: '1px solid rgba(92,154,255,0.2)', padding: '3px 10px', backdropFilter: 'blur(8px)' }}>Areté Soluciones</span>
-                <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'rgba(242,239,233,0.3)' }}>aretesoluciones.space</span>
-              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 48, pointerEvents: 'auto' }}>
+            <DemoButton />
+          </div>
+
+          {/* Video de Providus, iluminado por el efecto del estudio */}
+          <div style={{ position: 'relative', width: '100%', maxWidth: 920, aspectRatio: '16 / 9', borderRadius: 24, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 40px 90px -20px rgba(0,0,0,0.75)' }}>
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster="/video_provirus-poster.jpg"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            >
+              <source src="/video_provirus.mp4" type="video/mp4" />
+            </video>
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,5,0.55) 0%, transparent 30%)' }} />
+            <div style={{ position: 'absolute', bottom: 16, left: 20, right: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(92,154,255,0.65)', border: '1px solid rgba(92,154,255,0.2)', padding: '3px 10px', backdropFilter: 'blur(8px)' }}>Areté Soluciones</span>
+              <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'rgba(242,239,233,0.3)' }}>aretesoluciones.space</span>
             </div>
-          </ContainerScroll>
+          </div>
         </div>
-      </div>
+      </VolumetricStudio>
 
       {/* ── 01 Situación ── */}
       <section className={s.section} ref={setRef('situacion')}>
