@@ -37,8 +37,10 @@ const LOCAL_CSS = `
 .pvHoverRow{border-left:2px solid transparent;transition:border-color .2s,background .2s}
 .pvHoverRow:hover{border-left-color:#2F7BF6;background:rgba(47,123,246,.03)}
 .pv-hero-spacer{height:120px}
+.pv-hero-spacer-bottom{height:90px}
 @media (max-width: 768px) {
   .pv-hero-spacer { height: 340px; }
+  .pv-hero-spacer-bottom { height: 60px; }
   .p-nav { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 12px !important; }
   .p-nav::-webkit-scrollbar { display: none; }
   .p-nav-fade { display: block !important; }
@@ -443,7 +445,7 @@ function VideoConSonido() {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', pointerEvents: 'auto' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', borderRadius: 18, pointerEvents: 'auto' }}>
       <video
         ref={videoRef}
         autoPlay
@@ -452,7 +454,7 @@ function VideoConSonido() {
         playsInline
         preload="metadata"
         poster="/video_provirus-poster.jpg"
-        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: 18 }}
       >
         <source src="/video_provirus.mp4" type="video/mp4" />
       </video>
@@ -732,6 +734,12 @@ function ProposalContent() {
           >
             <VideoConSonido />
           </ContainerScroll>
+          {/* Espaciador de abajo: el giro 3D (rotateX) de la card empuja su
+              borde inferior visualmente más allá de la caja reservada por
+              flujo normal — sin este margen, el overflow:hidden del section
+              de VolumetricStudio recorta el borde/esquina redondeada de
+              abajo en línea recta. */}
+          <div className="pv-hero-spacer-bottom" aria-hidden="true" />
         </div>
       </VolumetricStudio>
 
