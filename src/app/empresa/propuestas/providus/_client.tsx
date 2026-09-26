@@ -36,9 +36,9 @@ const LOCAL_CSS = `
 .pvSplitTight{display:grid;grid-template-columns:1fr 1fr;gap:2px}
 .pvHoverRow{border-left:2px solid transparent;transition:border-color .2s,background .2s}
 .pvHoverRow:hover{border-left-color:#2F7BF6;background:rgba(47,123,246,.03)}
-.pv-hero-clear{padding-top:60px}
+.pv-hero-spacer{height:40px}
 @media (max-width: 768px) {
-  .pv-hero-clear { padding-top: 340px !important; }
+  .pv-hero-spacer { height: 220px; }
   .p-nav { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 12px !important; }
   .p-nav::-webkit-scrollbar { display: none; }
   .p-nav-fade { display: block !important; }
@@ -692,9 +692,15 @@ function ProposalContent() {
       {/* ── Hero (VolumetricStudio + ContainerScroll + video) ── */}
       <VolumetricStudio>
         <div style={{ pointerEvents: 'auto' }}>
+          {/* Espaciador: deja la zona de los focos (arriba del todo, dentro
+              de este mismo section) vacía, para que el título/card de
+              ContainerScroll no la toquen. No usar padding-top adentro del
+              título: ContainerScroll centra su contenido con flexbox y ese
+              padding se "absorbe" hacia arriba en vez de empujar hacia abajo. */}
+          <div className="pv-hero-spacer" aria-hidden="true" />
           <ContainerScroll
             titleComponent={
-              <div className="pv-hero-clear" style={{ paddingLeft: 16, paddingRight: 16 }}>
+              <div style={{ paddingLeft: 16, paddingRight: 16 }}>
                 <div className={s.kicker} style={{ marginBottom: 20, justifyContent: 'center' }}>
                   <span className={s.kickerLine} />
                   <span className={s.kickerLabel}>Providus S.A. de Capitalización y Renta · Córdoba · Septiembre 2026</span>
