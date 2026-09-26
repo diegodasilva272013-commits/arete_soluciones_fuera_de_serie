@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio } from 'lucide-react';
+import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX } from 'lucide-react';
 import { checkPassword, notifyAcceptance } from './actions';
 import AnimatedGradient from '@/components/ui/animated-gradient';
 import { VolumetricStudio } from '@/components/ui/volumetric-studio';
@@ -408,6 +408,58 @@ function ElasticComparacion({ items }: { items: typeof COMPARACION }) {
   );
 }
 
+// ── VideoConSonido — autoplay muteado + botón para activar audio ─────────────
+function VideoConSonido() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [muted, setMuted] = useState(true);
+
+  const toggleSonido = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    setMuted(v.muted);
+  };
+
+  return (
+    <div style={{ position: 'relative', width: '100%', maxWidth: 920, aspectRatio: '16 / 9', borderRadius: 24, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 40px 90px -20px rgba(0,0,0,0.75)', pointerEvents: 'auto' }}>
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        poster="/video_provirus-poster.jpg"
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+      >
+        <source src="/video_provirus.mp4" type="video/mp4" />
+      </video>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,5,0.55) 0%, transparent 30%)' }} />
+      <div style={{ position: 'absolute', bottom: 16, left: 20, right: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(92,154,255,0.65)', border: '1px solid rgba(92,154,255,0.2)', padding: '3px 10px', backdropFilter: 'blur(8px)' }}>Areté Soluciones</span>
+        <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'rgba(242,239,233,0.3)' }}>aretesoluciones.space</span>
+      </div>
+      <button
+        onClick={toggleSonido}
+        aria-label={muted ? 'Activar sonido' : 'Silenciar'}
+        style={{
+          position: 'absolute', top: 16, right: 16,
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '9px 16px', borderRadius: 999,
+          background: muted ? 'rgba(47,123,246,0.9)' : 'rgba(5,5,5,0.75)',
+          border: `1px solid ${muted ? 'rgba(47,123,246,1)' : 'rgba(255,255,255,0.2)'}`,
+          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(8px)',
+          fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase',
+          transition: 'all 0.2s',
+        }}
+      >
+        {muted ? <Volume2 size={13} /> : <VolumeX size={13} />}
+        {muted ? 'Activar sonido' : 'Silenciar'}
+      </button>
+    </div>
+  );
+}
+
 // ── DemoButton — dispara el ElevenLabsWidget global del layout de empresa ─────
 function DemoButton() {
   const [hov, setHov] = useState(false);
@@ -617,7 +669,7 @@ function ProposalContent() {
 
       {/* ── Hero (VolumetricStudio + video) ── */}
       <VolumetricStudio className="min-h-0">
-        <div style={{ padding: '96px 16px 72px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ padding: '260px 16px 72px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div className={s.kicker} style={{ marginBottom: 20, justifyContent: 'center' }}>
             <span className={s.kickerLine} />
             <span className={s.kickerLabel}>Providus S.A. de Capitalización y Renta · Córdoba · Septiembre 2026</span>
@@ -646,24 +698,7 @@ function ProposalContent() {
           </div>
 
           {/* Video de Providus, iluminado por el efecto del estudio */}
-          <div style={{ position: 'relative', width: '100%', maxWidth: 920, aspectRatio: '16 / 9', borderRadius: 24, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 40px 90px -20px rgba(0,0,0,0.75)' }}>
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              poster="/video_provirus-poster.jpg"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            >
-              <source src="/video_provirus.mp4" type="video/mp4" />
-            </video>
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,5,0.55) 0%, transparent 30%)' }} />
-            <div style={{ position: 'absolute', bottom: 16, left: 20, right: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(92,154,255,0.65)', border: '1px solid rgba(92,154,255,0.2)', padding: '3px 10px', backdropFilter: 'blur(8px)' }}>Areté Soluciones</span>
-              <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'rgba(242,239,233,0.3)' }}>aretesoluciones.space</span>
-            </div>
-          </div>
+          <VideoConSonido />
         </div>
       </VolumetricStudio>
 
