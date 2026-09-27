@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useLayoutEffect, useRef, useCallbac
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Conversation } from '@11labs/client';
-import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX, BellRing, Maximize, Minimize } from 'lucide-react';
+import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX, BellRing, Maximize, Minimize, Wallet } from 'lucide-react';
 import { checkPassword, notifyAcceptance } from './actions';
 import AnimatedGradient from '@/components/ui/animated-gradient';
 import dynamic from 'next/dynamic';
@@ -49,7 +49,9 @@ const LOCAL_CSS = `
 .pvPulse{animation:pvPulse 2.4s ease-in-out infinite}
 .pvHoverRow{border-left:2px solid transparent;transition:border-color .2s,background .2s}
 .pvHoverRow:hover{border-left-color:#2F7BF6;background:rgba(47,123,246,.03)}
-@media (max-width:1100px){ .p-grid5 { grid-template-columns: 1fr 1fr !important; } }
+@media (max-width:1100px){ .p-grid5 { grid-template-columns: 1fr !important; } }
+.pvGrid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:transparent}
+.pvGrid3 > *{box-shadow:0 0 0 1px rgba(242,239,233,.12)}
 .pv-hero-spacer{height:120px}
 .pv-hero-spacer-bottom{height:140px}
 @media (max-width: 768px) {
@@ -62,7 +64,8 @@ const LOCAL_CSS = `
   .pvSplitTight { grid-template-columns: 1fr !important; gap: 1px !important; }
   .p-pad { padding: 28px 20px !important; }
   .p-inv-pad { padding: 36px 20px !important; }
-  .p-grid5 { grid-template-columns: 1fr 1fr !important; }
+  .p-grid5 { grid-template-columns: 1fr !important; }
+  .pvGrid3 { grid-template-columns: 1fr !important; }
   .p-cmp-row { grid-template-columns: 1fr !important; }
   .p-cmp-row > div:first-child { border-bottom: 1px solid var(--linea); }
   .p-cmp-head { grid-template-columns: 1fr !important; }
@@ -134,6 +137,7 @@ const CARAS = [
   { icon: Radio,    t: 'App móvil',    q: 'Promotoras en los eventos',  d: 'Carga sin señal, foto, consentimiento y envío automático.' },
   { icon: Database, t: 'Panel web',    q: 'Administración y ventas',    d: 'Cada rol ve exclusivamente su alcance.' },
   { icon: Zap,      t: 'Agente de IA', q: 'Los interesados, 24 horas',  d: 'Atiende, califica, propone y cierra.' },
+  { icon: Wallet,   t: 'App del cliente', q: 'Los clientes con plan vigente', d: 'Su plan, el club de comercios adheridos y su ahorro acumulado.' },
   { icon: BellRing, t: 'Dirección',    q: 'Los dueños, sin entrar a nada', d: 'Indicadores del negocio y alertas que los buscan a ustedes.' },
 ];
 
@@ -255,11 +259,14 @@ const INCLUIDO = [
   'Espacio del vendedor con bandeja, estados, notas y WhatsApp desde el número oficial.',
   'Performance comercial: reloj de respuesta, reasignación, motivos de pérdida e indicadores.',
   'Agente de IA por voz, WhatsApp y web, con catálogo de planes, propuesta y cobros.',
+  'Club de beneficios: app del cliente con su plan, comercios adheridos, código de uso y monedero de ahorro.',
+  'Validación para los comercios sin instalación, y administración completa del club desde el panel.',
   'Pruebas de seguridad, despliegue, capacitación y documentación.',
   '90 días de garantía y acompañamiento desde la puesta en producción.',
 ];
 
 const NO_INCLUIDO = [
+  'Emisión de comprobantes y cobro a los comercios adheridos: el club opera y la liquidación queda calculada; facturar desde la plataforma se agrega después.',
   'Dispositivos: las tablets y celulares los aporta Providus.',
   'Integración con el sistema con el que Providus administra hoy los planes.',
   'Migración de datos históricos de vouchers o planillas.',
@@ -322,11 +329,33 @@ const ALERTAS: string[] = [
   'Un evento cargó la mitad de registros que el promedio de los últimos tres.',
 ];
 
+const CLUB_CLIENTE: [string, string][] = [
+  ['Su plan',            'Cuál contrató, desde cuándo y en qué estado está.'],
+  ['Los comercios',      'Catálogo de adheridos, con buscador por rubro y ordenado por cercanía.'],
+  ['El código',          'Se genera en el momento para presentar en el mostrador. Vencimiento corto y un solo uso.'],
+  ['El monedero',        'Cuánto ahorró este mes, cuánto desde que es cliente, y el detalle de cada uso.'],
+];
+
+const CLUB_COMERCIO: string[] = [
+  'No instala nada: entra desde un enlace propio, en cualquier teléfono o computadora del local.',
+  'Valida el código que le muestra el cliente y registra la operación. Tarda lo mismo que cobrar.',
+  'Si el código está vencido, ya usado o el plan no está vigente, no pasa.',
+  'Queda registrado el monto bruto, la fecha, la sucursal y quién validó.',
+  'Ve su propio historial y el total del período. Nada de los demás comercios.',
+];
+
+const CLUB_PANEL: string[] = [
+  'Alta de comercios con datos fiscales, rubro y sucursales.',
+  'Reglas de beneficio: porcentaje o monto fijo, tope por operación y por mes, vigencia, días y horarios, exclusiones.',
+  'Altas, bajas y suspensiones sin tocar nada del resto del sistema.',
+  'Reportes: uso por comercio, ahorro entregado, ranking de comercios y de clientes más activos.',
+  'Base de la liquidación mensual ya calculada por período.',
+];
+
 const EVOLUCION = [
-  { n: '01', t: 'Club de beneficios', d: 'La misma app con otro modo: el cliente con plan vigente ve su plan, los comercios adheridos y un monedero con el ahorro acumulado.' },
-  { n: '02', t: 'Facturación a comercios', d: 'Emisión y cobranza desde la plataforma. Los datos que esa etapa necesita ya se guardan desde el primer día.' },
-  { n: '03', t: 'Integración con el sistema de planes', d: 'Para que el estado del cliente y la imputación de beneficios a la cuota funcionen en tiempo real.' },
-  { n: '04', t: 'Nuevas agencias y franquicias', d: 'Se suman creando usuarios y permisos. La plataforma nace preparada para crecer sin rehacerse.' },
+  { n: '01', t: 'Facturación a los comercios adheridos', d: 'El club entra en esta propuesta y queda operando, con la liquidación de cada período ya calculada. Lo que se agrega después es emitir el comprobante y cobrarle al comercio desde la plataforma.' },
+  { n: '02', t: 'Integración con el sistema de planes', d: 'Para que el estado del cliente y la imputación de beneficios a la cuota funcionen en tiempo real.' },
+  { n: '03', t: 'Nuevas agencias y franquicias', d: 'Se suman creando usuarios y permisos. La plataforma nace preparada para crecer sin rehacerse.' },
 ];
 
 // ── Accordion ─────────────────────────────────────────────────────────────────
@@ -941,6 +970,7 @@ function ProposalContent() {
     { id: 'plataforma', label: 'Plataforma' },
     { id: 'modulo1',    label: 'Módulo 1' },
     { id: 'modulo2',    label: 'Módulo 2' },
+    { id: 'club',       label: 'Club' },
     { id: 'seguridad',  label: 'Seguridad' },
     { id: 'direccion',  label: 'Dirección' },
     { id: 'inversion',  label: 'Inversión' },
@@ -1046,9 +1076,9 @@ function ProposalContent() {
           <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
             <p className={s.kickerLabel} style={{ marginBottom: 14 }}>02 — La decisión de arquitectura</p>
             <h2 className={s.sectionTitle}>Una plataforma,<br /><em>no herramientas sueltas.</em></h2>
-            <p className={s.sectionSub}>Tres caras de acceso sobre un mismo núcleo. La persona que se registra en el evento, la que habla con el agente y la que atiende el vendedor son el mismo registro.</p>
+            <p className={s.sectionSub}>Cinco caras de acceso sobre un mismo núcleo. La persona que se registra en el evento, la que habla con el agente, la que atiende el vendedor, el cliente con plan vigente y la dirección son el mismo registro.</p>
           </div>
-          <div className={`${s.reveal} p-grid5`} data-reveal="" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--linea)', marginBottom: 1 }}>
+          <div className={`${s.reveal} p-grid5`} data-reveal="" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 1, background: 'var(--linea)', marginBottom: 1 }}>
             {CARAS.map(({ icon: Icon, t, q, d }) => (
               <div key={t} style={{ background: '#050505', padding: '32px 28px' }}>
                 <Icon size={18} color="var(--azul)" style={{ marginBottom: 16 }} />
@@ -1110,6 +1140,73 @@ function ProposalContent() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 04b Club de beneficios ── */}
+      <section className={s.section} ref={setRef('club')}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14, color: 'var(--azul)' }}>04b — Club de beneficios · incluido en el Módulo 2</p>
+            <h2 className={s.sectionTitle}>La mejor idea<br /><em>de la reunión.</em></h2>
+            <p className={s.sectionSub}>Esta parte no la propuso Areté: la trajo Providus. Nos pareció tan buena que entra construida completa en esta propuesta, y no en el listado de lo que se puede hacer después.</p>
+          </div>
+
+          {/* Bloque destacado: el argumento */}
+          <div className={s.reveal} data-reveal="" style={{
+            padding: '44px 40px', marginBottom: 2,
+            border: '1px solid rgba(47,123,246,0.32)', background: 'rgba(47,123,246,0.05)',
+            clipPath: 'polygon(20px 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%,0 20px)',
+          }}>
+            <div className="pvGrid2">
+              <div>
+                <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 18 }}>Por qué cambia el negocio</p>
+                <p className={s.bandBody} style={{ marginBottom: 14 }}>
+                  Un plan de capitalización se paga durante años y, entre cuota y cuota, la empresa desaparece de la vida del cliente. El único contacto es el cobro. Cuando el único contacto es el cobro, la baja es cuestión de tiempo.
+                </p>
+                <p className={s.bandBody} style={{ margin: 0 }}>
+                  El club invierte eso: convierte el plan en algo que el cliente <strong>usa</strong> todos los meses y que le devuelve plata visible. El mismo dinero que hoy se gasta en captar de nuevo al que se fue, ahí retiene al que ya está.
+                </p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <p className={s.bandPull} style={{ margin: 0 }}>
+                  Es también un argumento de venta que ningún competidor que venda solamente el plan puede igualar.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Las tres caras del club */}
+          <div className={`${s.reveal} pvGrid3`} data-reveal="" style={{ marginBottom: 40 }}>
+            <div style={{ background: '#050505', padding: '32px 28px' }}>
+              <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 20 }}>Lo que ve el cliente</p>
+              {CLUB_CLIENTE.map(([t, d]) => (
+                <div key={t} style={{ marginBottom: 18 }}>
+                  <p style={{ margin: '0 0 4px', fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 700, fontSize: 14, color: 'var(--hueso)' }}>{t}</p>
+                  <p style={{ margin: 0, fontFamily: 'var(--f-texto), Spectral, serif', fontWeight: 300, fontSize: 13.5, lineHeight: 1.6, color: '#B4B1AB' }}>{d}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: '#050505', padding: '32px 28px' }}>
+              <p className={s.bandNum} style={{ marginBottom: 20 }}>Lo que hace el comercio</p>
+              <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+                {CLUB_COMERCIO.map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+              </ul>
+            </div>
+            <div style={{ background: '#050505', padding: '32px 28px' }}>
+              <p className={s.bandNum} style={{ marginBottom: 20 }}>Lo que administra Providus</p>
+              <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
+                {CLUB_PANEL.map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
+              </ul>
+            </div>
+          </div>
+
+          <div className={s.reveal} data-reveal="" style={{ padding: '26px 28px', border: '1px solid var(--linea)' }}>
+            <p className={s.bandNum} style={{ marginBottom: 8 }}>Lo que queda preparado y no se cobra ahora</p>
+            <p style={{ margin: 0, fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 14, lineHeight: 1.7, color: '#B4B1AB' }}>
+              Cómo se le cobra al comercio adherido lo define Providus. Por decisión de diseño, todo lo que esa etapa va a necesitar se guarda desde el primer día: monto bruto de cada operación, datos fiscales del comercio, estados de saldo, períodos e importes con su moneda y fecha de cálculo. El día que quieran emitir y cobrar desde la plataforma, es un agregado sobre datos que ya están.
+            </p>
           </div>
         </div>
       </section>
@@ -1196,7 +1293,7 @@ function ProposalContent() {
           <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
             <p className={s.kickerLabel} style={{ marginBottom: 14 }}>07 — Inversión</p>
             <h2 className={s.sectionTitle}>Dos módulos,<br /><em>sin sorpresas.</em></h2>
-            <p className={s.sectionSub}>Cada módulo se entrega funcionando y aporta valor por sí mismo. Providus paga el segundo con el primero ya operando.</p>
+            <p className={s.sectionSub}>Cada módulo se entrega funcionando y aporta valor por sí mismo. Providus paga el segundo con el primero ya operando. El club de beneficios entra en el Módulo 2 sin modificar el precio.</p>
           </div>
 
           <div className="pvSplitTight">
@@ -1211,11 +1308,11 @@ function ProposalContent() {
               </ul>
             </div>
             <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="" style={{ padding: '48px 40px', border: '1px solid rgba(47,123,246,0.3)', background: 'rgba(47,123,246,0.04)' }}>
-              <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 24 }}>Módulo 2 · Agente de inteligencia artificial</p>
+              <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 24 }}>Módulo 2 · Agente de IA y club de beneficios</p>
               <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(38px,5vw,54px)', letterSpacing: '-0.05em', color: 'var(--hueso)', marginBottom: 4 }}>USD 7.000</div>
               <p style={{ margin: '0 0 32px', fontFamily: 'var(--f-mono), monospace', fontSize: 11, letterSpacing: '0.12em', color: 'var(--ceniza)' }}>1 mes · 50% al iniciar · 50% contra entrega</p>
               <ul className={s.panelList} style={{ padding: 0 }}>
-                {['Agente por voz, WhatsApp y web, 24/7.', 'Catálogo de planes editable desde el panel.', 'Simulador y propuesta comercial automática.', 'Links de pago y conciliación.', 'Derivación al vendedor con la conversación cargada.'].map(item => (
+                {['Agente por voz, WhatsApp y web, 24/7.', 'Catálogo de planes editable desde el panel.', 'Simulador y propuesta comercial automática.', 'Links de pago y conciliación.', 'Derivación al vendedor con la conversación cargada.', 'Club de beneficios: app del cliente, monedero y comercios adheridos.', 'Validación en el comercio y administración del club desde el panel.'].map(item => (
                   <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>
                 ))}
               </ul>
