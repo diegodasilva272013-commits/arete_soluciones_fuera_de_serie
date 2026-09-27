@@ -466,7 +466,7 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
           const isActive = activeId === item.id;
           const img = M1_IMAGES[idx] ?? '/galeria1.png';
           return (
-            <div key={item.id} onMouseEnter={() => setActiveId(item.id)} onClick={() => setActiveId(item.id)} style={{ flex: isActive ? 5 : 1, transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)', cursor: 'pointer', overflow: 'hidden', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+            <div key={item.id} onMouseEnter={() => setActiveId(item.id)} onClick={() => setActiveId(item.id)} style={{ flex: isActive ? 5 : 1, transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)', cursor: 'pointer', overflow: 'hidden', minWidth: 0, display: 'flex', flexDirection: 'column', background: '#050505' }}>
               {/* Foto — bloque propio, arriba, siempre 40% del panel */}
               <div style={{ position: 'relative', height: imgHeight, flexShrink: 0, overflow: 'hidden' }}>
                 <Image src={img} alt={item.label} fill sizes="20vw" style={{ objectFit: 'cover', transform: isActive ? 'scale(1.03)' : 'scale(1.1)', transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s', filter: isActive ? 'brightness(0.75) saturate(0.8)' : 'brightness(0.38) saturate(0.45)' }} />
