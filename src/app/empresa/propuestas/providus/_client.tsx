@@ -606,7 +606,7 @@ function VideoConSonido() {
 // el mismo lugar que el video del hero. 20s con audio propio: se trata como
 // un video con intencion de verse, no un loop de fondo (mismo patron de
 // sonido que VideoConSonido, pero sin loop). ──────────────────────────────
-function ProvidusLogoVideo() {
+function ProvidusLogoVideo({ rounded = true }: { rounded?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
 
@@ -618,7 +618,7 @@ function ProvidusLogoVideo() {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: 18, border: '1px solid var(--linea)' }}>
+    <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: rounded ? 18 : 0, border: rounded ? '1px solid var(--linea)' : 'none' }}>
       <video
         ref={videoRef}
         autoPlay
@@ -783,42 +783,43 @@ function ProvidusAgentCard() {
   const a = PROVIDUS_AGENT;
   return (
     <div style={{
-      maxWidth: 560, margin: '0 auto',
+      maxWidth: 620, margin: '0 auto',
       border: `1px solid ${a.accentBorder}`, background: a.accentBg,
-      borderRadius: 20, padding: '36px 32px 40px',
-      display: 'flex', flexDirection: 'column', gap: 24, backdropFilter: 'blur(6px)',
+      borderRadius: 20, overflow: 'hidden',
+      display: 'flex', flexDirection: 'column', backdropFilter: 'blur(6px)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-        <span style={{ fontSize: 36, lineHeight: 1, background: 'rgba(242,239,233,0.06)', border: `1px solid ${a.accentBorder}`, borderRadius: 14, width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          {a.emoji}
-        </span>
+      {/* El video de la oficina real de Providus reemplaza el ícono/emoji
+          genérico: es la identidad visual de la card, no un adorno aparte. */}
+      <ProvidusLogoVideo rounded={false} />
+
+      <div style={{ padding: '32px 32px 40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
         <div>
           <p style={{ fontSize: 11, fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.2em', textTransform: 'uppercase', color: a.accentColor, marginBottom: 4 }}>{a.tipo}</p>
           <h3 style={{ fontSize: 26, fontWeight: 800, fontFamily: 'var(--f-display), Montserrat, sans-serif', color: 'var(--hueso)', margin: 0, lineHeight: 1.1 }}>{a.label}</h3>
           <p style={{ fontSize: 12, color: 'rgba(242,239,233,0.4)', fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.1em', marginTop: 5 }}>{a.tagline}</p>
         </div>
+
+        <p style={{ fontSize: 15, lineHeight: 1.7, color: 'rgba(242,239,233,0.6)', fontFamily: 'var(--f-texto), Spectral, serif', margin: 0 }}>{a.desc}</p>
+
+        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {a.caps.map(cap => (
+            <li key={cap} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'rgba(242,239,233,0.65)', fontFamily: 'var(--f-texto), Spectral, serif' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: a.accentColor }} />
+              {cap}
+            </li>
+          ))}
+        </ul>
+
+        <div style={{ height: 1, background: `linear-gradient(90deg, ${a.accentBorder}, transparent)` }} />
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <AgentWidget agentId={a.id} label={a.label} />
+        </div>
+
+        <p style={{ fontSize: 11, color: 'rgba(242,239,233,0.25)', fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.08em', textAlign: 'center', margin: 0 }}>
+          Requiere micrófono · Mismo agente que atiende en producción, no es una demo grabada.
+        </p>
       </div>
-
-      <p style={{ fontSize: 15, lineHeight: 1.7, color: 'rgba(242,239,233,0.6)', fontFamily: 'var(--f-texto), Spectral, serif', margin: 0 }}>{a.desc}</p>
-
-      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {a.caps.map(cap => (
-          <li key={cap} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'rgba(242,239,233,0.65)', fontFamily: 'var(--f-texto), Spectral, serif' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: a.accentColor }} />
-            {cap}
-          </li>
-        ))}
-      </ul>
-
-      <div style={{ height: 1, background: `linear-gradient(90deg, ${a.accentBorder}, transparent)` }} />
-
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <AgentWidget agentId={a.id} label={a.label} />
-      </div>
-
-      <p style={{ fontSize: 11, color: 'rgba(242,239,233,0.25)', fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.08em', textAlign: 'center', margin: 0 }}>
-        Requiere micrófono · Mismo agente que atiende en producción, no es una demo grabada.
-      </p>
     </div>
   );
 }
@@ -969,32 +970,6 @@ function ProposalContent() {
         </div>
       </VolumetricStudio>
 
-      {/* ── Su marca, en su oficina ── */}
-      <section className={s.section} style={{ paddingTop: 64, paddingBottom: 40 }}>
-        <div className={s.inner}>
-          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 32, textAlign: 'center' }}>
-            <p className={s.kickerLabel} style={{ marginBottom: 14, justifyContent: 'center' }}>Providus S.A. · Córdoba</p>
-            <h2 className={s.sectionTitle}>Esta propuesta<br /><em>es para ustedes.</em></h2>
-            <p className={s.sectionSub} style={{ margin: '0 auto' }}>Grabado en las oficinas de Providus.</p>
-          </div>
-          <div className={s.reveal} data-reveal="" style={{ maxWidth: 760, margin: '0 auto' }}>
-            <ProvidusLogoVideo />
-          </div>
-        </div>
-      </section>
-
-      {/* ── Probar el agente en vivo ── */}
-      <section className={`${s.section} ${s.sectionAlt}`} style={{ paddingTop: 64, paddingBottom: 64 }}>
-        <div className={s.inner}>
-          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 40, textAlign: 'center' }}>
-            <p className={s.kickerLabel} style={{ marginBottom: 14, justifyContent: 'center' }}>Antes de seguir leyendo</p>
-            <h2 className={s.sectionTitle}>Pruébenlo ustedes<br /><em>ahora mismo.</em></h2>
-            <p className={s.sectionSub} style={{ margin: '0 auto' }}>Es el mismo agente descripto en el Módulo 2, con la voz y el guion de Providus. Un clic y le hablan directamente.</p>
-          </div>
-          <div className={s.reveal} data-reveal=""><ProvidusAgentCard /></div>
-        </div>
-      </section>
-
       {/* ── 01 Situación ── */}
       <section className={s.section} ref={setRef('situacion')}>
         <div className={s.inner}>
@@ -1078,6 +1053,18 @@ function ProposalContent() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── Probar el agente en vivo (justo despues de presentarlo en Módulo 2) ── */}
+      <section className={`${s.section} ${s.sectionAlt}`} style={{ paddingTop: 8, paddingBottom: 64 }}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 40, textAlign: 'center' }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14, justifyContent: 'center' }}>Antes de seguir leyendo</p>
+            <h2 className={s.sectionTitle}>Pruébenlo ustedes<br /><em>ahora mismo.</em></h2>
+            <p className={s.sectionSub} style={{ margin: '0 auto' }}>Es el mismo agente de arriba, con la voz y el guion de Providus, grabado en sus propias oficinas. Un clic y le hablan directamente.</p>
+          </div>
+          <div className={s.reveal} data-reveal=""><ProvidusAgentCard /></div>
         </div>
       </section>
 
