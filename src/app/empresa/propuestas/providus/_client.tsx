@@ -386,12 +386,24 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
     return measureRefSetters.current[id];
   };
   const imgHeight = Math.round(rowHeight * IMG_RATIO);
+  // La fuente monoespaciada de las etiquetas/notas todavia puede estar
+  // cargando en los primeros segundos de vida de la pagina. Si se mide
+  // JUSTO en ese momento, el texto se envuelve distinto al que va a tener
+  // una vez que la fuente final swapea adentro -> medicion un poco corta
+  // (visto en pruebas reales: overflow de 100-300px SOLO en la primera
+  // pestaña tocada apenas carga la pagina, nunca en las siguientes).
+  const [fontsReady, setFontsReady] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768);
     check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === 'undefined' || !('fonts' in document)) { setFontsReady(true); return; }
+    document.fonts.ready.then(() => setFontsReady(true)).catch(() => setFontsReady(true));
   }, []);
 
   useLayoutEffect(() => {
@@ -407,7 +419,7 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
     measure();
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
-  }, [activeId, isMobile]);
+  }, [activeId, isMobile, fontsReady]);
 
   if (isMobile) {
     return (
