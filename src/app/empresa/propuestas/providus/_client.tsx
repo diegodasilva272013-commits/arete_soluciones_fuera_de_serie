@@ -467,15 +467,17 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
           const img = M1_IMAGES[idx] ?? '/galeria1.png';
           return (
             <div key={item.id} onMouseEnter={() => setActiveId(item.id)} onClick={() => setActiveId(item.id)} style={{ flex: isActive ? 5 : 1, transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)', cursor: 'pointer', overflow: 'hidden', minWidth: 0, display: 'flex', flexDirection: 'column', background: '#050505' }}>
-              {/* Foto — bloque propio, arriba, siempre 40% del panel */}
-              <div style={{ position: 'relative', height: imgHeight, flexShrink: 0, overflow: 'hidden' }}>
+              {/* Foto — colapsada: ocupa TODA la columna. Activa: solo la
+                  franja de arriba (40%), el texto va debajo. */}
+              <div style={{ position: 'relative', height: isActive ? imgHeight : '100%', flexShrink: 0, overflow: 'hidden', transition: 'height 0.5s cubic-bezier(0.25,1,0.5,1)' }}>
                 <Image src={img} alt={item.label} fill sizes="20vw" style={{ objectFit: 'cover', transform: isActive ? 'scale(1.03)' : 'scale(1.1)', transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s', filter: isActive ? 'brightness(0.75) saturate(0.8)' : 'brightness(0.38) saturate(0.45)' }} />
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActive ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: 'none' }}>
                   <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.9)', whiteSpace: 'nowrap' }}>{item.label}</span>
                 </div>
               </div>
-              {/* Texto — bloque propio, debajo, alto medido a su contenido */}
-              <div style={{ flex: 1, padding: '18px 20px', background: '#050505', borderTop: '1px solid var(--linea)', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s', overflow: 'hidden' }}>
+              {/* Texto — solo existe visualmente cuando esta activa; colapsada
+                  no ocupa espacio (la foto de arriba lo cubre todo). */}
+              <div style={{ flex: isActive ? 1 : 0, minHeight: 0, padding: isActive ? '18px 20px' : '0px 20px', background: '#050505', borderTop: isActive ? '1px solid var(--linea)' : 'none', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s, flex 0.5s cubic-bezier(0.25,1,0.5,1), padding 0.5s', overflow: 'hidden' }}>
                 <span style={{ display: 'inline-block', marginBottom: 10, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
                 {item.content}
               </div>
