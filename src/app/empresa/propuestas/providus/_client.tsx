@@ -354,6 +354,15 @@ function MobilePanelContent({ isActive, children }: { isActive: boolean; childre
 function ElasticSolucion({ items }: { items: { id: string; label: string; content: React.ReactNode }[] }) {
   const [activeId, setActiveId] = useState(items[0].id);
   const [isMobile, setIsMobile] = useState(false);
+  // Foto arriba (tamaño real, no una tira chica) + texto abajo, en bloques
+  // separados — sin superponer texto sobre la foto. El alto del bloque de
+  // texto se MIDE (no es un numero fijo adivinado): el contenido varia
+  // mucho entre pestañas ("Vendedor" corto, "App de campo" largo) y un
+  // numero fijo o deja un hueco vacio enorme en las cortas, o corta texto
+  // en las largas.
+  const IMG_HEIGHT = 280;
+  const [rowHeight, setRowHeight] = useState(IMG_HEIGHT + 350);
+  const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768);
@@ -361,6 +370,23 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
+    const measure = () => {
+      const el = contentRefs.current[activeId];
+      if (!el) return;
+      const top = el.getBoundingClientRect().top;
+      const last = el.lastElementChild;
+      const lastBottom = last ? last.getBoundingClientRect().bottom : el.getBoundingClientRect().bottom;
+      const paddingBottom = parseFloat(getComputedStyle(el).paddingBottom) || 0;
+      const contentHeight = (lastBottom - top) + paddingBottom;
+      setRowHeight(Math.round(IMG_HEIGHT + 1 + contentHeight));
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [activeId, isMobile]);
 
   if (isMobile) {
     return (
@@ -370,7 +396,7 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
           const img = M1_IMAGES[idx] ?? '/galeria1.png';
           return (
             <div key={item.id} style={{ background: '#050505' }}>
-              <div onClick={() => setActiveId(item.id)} style={{ position: 'relative', height: isActive ? 180 : 48, transition: 'height 0.6s cubic-bezier(0.25,1,0.5,1)', overflow: 'hidden', cursor: 'pointer' }}>
+              <div onClick={() => setActiveId(item.id)} style={{ position: 'relative', height: isActive ? 260 : 48, transition: 'height 0.6s cubic-bezier(0.25,1,0.5,1)', overflow: 'hidden', cursor: 'pointer' }}>
                 <Image src={img} alt={item.label} fill sizes="100vw" style={{ objectFit: 'cover', transform: isActive ? 'scale(1.02)' : 'scale(1.1)', transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s', filter: isActive ? 'brightness(0.65) saturate(0.8)' : 'brightness(0.32) saturate(0.4)' }} />
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 18, paddingRight: 14, background: isActive ? 'none' : 'rgba(5,5,5,0.2)' }}>
                   <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: isActive ? 'rgba(242,239,233,0.9)' : 'rgba(242,239,233,0.75)', whiteSpace: 'nowrap' }}>{item.label}</span>
@@ -389,22 +415,21 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
   }
 
   return (
-    <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: 620, alignItems: 'stretch' }}>
+    <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: rowHeight, alignItems: 'stretch', transition: 'height 0.4s cubic-bezier(0.25,1,0.5,1)' }}>
       {items.map((item, idx) => {
         const isActive = activeId === item.id;
         const img = M1_IMAGES[idx] ?? '/galeria1.png';
         return (
-          <div key={item.id} onMouseEnter={() => setActiveId(item.id)} onClick={() => setActiveId(item.id)} style={{ position: 'relative', flex: isActive ? 5 : 1, transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)', cursor: 'pointer', overflow: 'hidden', minWidth: 0 }}>
-            {/* La foto ocupa todo el alto de la columna, activa o no */}
-            <Image src={img} alt={item.label} fill sizes={isActive ? '55vw' : '10vw'} style={{ objectFit: 'cover', transform: isActive ? 'scale(1.03)' : 'scale(1.1)', transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s', filter: isActive ? 'brightness(0.55) saturate(0.85)' : 'brightness(0.35) saturate(0.45)' }} />
-            {/* Velo oscuro para que el texto se lea sobre la foto */}
-            <div style={{ position: 'absolute', inset: 0, background: isActive ? 'linear-gradient(to top, rgba(5,5,5,0.96) 0%, rgba(5,5,5,0.8) 36%, rgba(5,5,5,0.1) 66%, transparent 100%)' : 'rgba(5,5,5,0.22)', transition: 'background 0.4s' }} />
-            {/* Etiqueta vertical — solo columnas colapsadas */}
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActive ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: 'none' }}>
-              <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.9)', whiteSpace: 'nowrap' }}>{item.label}</span>
+          <div key={item.id} onMouseEnter={() => setActiveId(item.id)} onClick={() => setActiveId(item.id)} style={{ flex: isActive ? 5 : 1, transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)', cursor: 'pointer', overflow: 'hidden', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+            {/* Foto — bloque propio, tamaño real, arriba */}
+            <div style={{ position: 'relative', height: IMG_HEIGHT, flexShrink: 0, overflow: 'hidden' }}>
+              <Image src={img} alt={item.label} fill sizes="20vw" style={{ objectFit: 'cover', transform: isActive ? 'scale(1.03)' : 'scale(1.1)', transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s', filter: isActive ? 'brightness(0.75) saturate(0.8)' : 'brightness(0.38) saturate(0.45)' }} />
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActive ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: 'none' }}>
+                <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.9)', whiteSpace: 'nowrap' }}>{item.label}</span>
+              </div>
             </div>
-            {/* Texto — pegado abajo, sobre la foto */}
-            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '90%', overflowY: 'auto', padding: '22px 24px 26px', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(10px)', transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s', pointerEvents: isActive ? 'auto' : 'none' }}>
+            {/* Texto — bloque propio, debajo, alto medido a su contenido */}
+            <div ref={(el) => { contentRefs.current[item.id] = el; }} style={{ flex: 1, padding: '18px 20px', background: '#050505', borderTop: '1px solid var(--linea)', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s', overflow: 'hidden' }}>
               <span style={{ display: 'inline-block', marginBottom: 10, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
               {item.content}
             </div>
