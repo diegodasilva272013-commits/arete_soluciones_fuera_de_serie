@@ -974,7 +974,8 @@ function ProposalContent() {
         <div className={s.inner}>
           <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 32, textAlign: 'center' }}>
             <p className={s.kickerLabel} style={{ marginBottom: 14, justifyContent: 'center' }}>Providus S.A. · Córdoba</p>
-            <h2 className={s.sectionTitle}>Esto no es una plantilla.<br /><em>Es su oficina.</em></h2>
+            <h2 className={s.sectionTitle}>Esta propuesta<br /><em>es para ustedes.</em></h2>
+            <p className={s.sectionSub} style={{ margin: '0 auto' }}>Grabado en las oficinas de Providus.</p>
           </div>
           <div className={s.reveal} data-reveal="" style={{ maxWidth: 760, margin: '0 auto' }}>
             <ProvidusLogoVideo />
