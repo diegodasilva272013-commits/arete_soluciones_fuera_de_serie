@@ -364,7 +364,16 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
   // vacio en las cortas o corta texto en las largas.
   const IMG_RATIO = 0.4;
   const [rowHeight, setRowHeight] = useState(700);
-  const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  // Refs de una fila GEMELA, oculta y SIN transiciones (ver mas abajo) que
+  // se usa solo para medir. Medir la fila visible fallaba porque esta
+  // animandose (flex 0.7s de ancho, height 0.4s de alto): cualquier
+  // medicion mientras esa animacion todavia se mueve agarra un numero de
+  // a mitad de camino, dispara un alto nuevo, eso dispara OTRA animacion,
+  // que se vuelve a medir a mitad de camino de esa... y el numero se
+  // dispara solo (llegue a ver filas de 4000px+ asi). La fila gemela no
+  // tiene transiciones: el ancho de su columna activa cambia INSTANTANEO
+  // en el mismo render, asi que medirla es inmediato y no se retroalimenta.
+  const measureRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const imgHeight = Math.round(rowHeight * IMG_RATIO);
 
   useEffect(() => {
@@ -377,30 +386,16 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
   useEffect(() => {
     if (isMobile) return;
     const measure = () => {
-      const el = contentRefs.current[activeId];
+      const el = measureRefs.current[activeId];
       if (!el) return;
-      const top = el.getBoundingClientRect().top;
-      const last = el.lastElementChild;
-      const lastBottom = last ? last.getBoundingClientRect().bottom : el.getBoundingClientRect().bottom;
-      const paddingBottom = parseFloat(getComputedStyle(el).paddingBottom) || 0;
-      const contentHeight = (lastBottom - top) + paddingBottom;
+      const contentHeight = el.getBoundingClientRect().height;
       // El texto ocupa (1 - IMG_RATIO) del total -> despejamos el total.
       const total = (contentHeight + 1) / (1 - IMG_RATIO);
       setRowHeight(Math.round(total));
     };
-    // La columna activa tarda 0.7s en ensancharse (flex 0.7s). Medir mas
-    // de una vez mientras esa transicion todavia se esta moviendo genera
-    // un feedback: una medicion a mitad de camino dispara un alto nuevo,
-    // que dispara otra transicion de alto, que se vuelve a medir a mitad
-    // de camino de ESA transicion -> el numero se dispara en vez de
-    // asentarse (llegue a ver filas de 4000px+). Una sola medicion,
-    // recien cuando la transicion de ancho termino, evita el feedback.
-    const t = setTimeout(measure, 750);
+    measure();
     window.addEventListener('resize', measure);
-    return () => {
-      clearTimeout(t);
-      window.removeEventListener('resize', measure);
-    };
+    return () => window.removeEventListener('resize', measure);
   }, [activeId, isMobile]);
 
   if (isMobile) {
@@ -430,27 +425,41 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
   }
 
   return (
-    <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: rowHeight, alignItems: 'stretch', transition: 'height 0.4s cubic-bezier(0.25,1,0.5,1)' }}>
-      {items.map((item, idx) => {
-        const isActive = activeId === item.id;
-        const img = M1_IMAGES[idx] ?? '/galeria1.png';
-        return (
-          <div key={item.id} onMouseEnter={() => setActiveId(item.id)} onClick={() => setActiveId(item.id)} style={{ flex: isActive ? 5 : 1, transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)', cursor: 'pointer', overflow: 'hidden', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-            {/* Foto — bloque propio, arriba, siempre 40% del panel */}
-            <div style={{ position: 'relative', height: imgHeight, flexShrink: 0, overflow: 'hidden' }}>
-              <Image src={img} alt={item.label} fill sizes="20vw" style={{ objectFit: 'cover', transform: isActive ? 'scale(1.03)' : 'scale(1.1)', transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s', filter: isActive ? 'brightness(0.75) saturate(0.8)' : 'brightness(0.38) saturate(0.45)' }} />
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActive ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: 'none' }}>
-                <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.9)', whiteSpace: 'nowrap' }}>{item.label}</span>
-              </div>
-            </div>
-            {/* Texto — bloque propio, debajo, alto medido a su contenido */}
-            <div ref={(el) => { contentRefs.current[item.id] = el; }} style={{ flex: 1, padding: '18px 20px', background: '#050505', borderTop: '1px solid var(--linea)', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s', overflow: 'hidden' }}>
-              <span style={{ display: 'inline-block', marginBottom: 10, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
+    <div style={{ position: 'relative' }}>
+      {/* Fila gemela oculta, SIN transiciones — solo para medir (ver arriba). */}
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, visibility: 'hidden', pointerEvents: 'none', zIndex: -1, display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+        {items.map((item) => (
+          <div key={item.id} style={{ flex: activeId === item.id ? 5 : 1, minWidth: 0 }}>
+            <div ref={(el) => { measureRefs.current[item.id] = el; }} style={{ padding: '18px 20px' }}>
+              <span style={{ display: 'inline-block', marginBottom: 10, padding: '2px 8px', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase' }}>{item.label}</span>
               {item.content}
             </div>
           </div>
-        );
-      })}
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: rowHeight, alignItems: 'stretch', transition: 'height 0.4s cubic-bezier(0.25,1,0.5,1)' }}>
+        {items.map((item, idx) => {
+          const isActive = activeId === item.id;
+          const img = M1_IMAGES[idx] ?? '/galeria1.png';
+          return (
+            <div key={item.id} onMouseEnter={() => setActiveId(item.id)} onClick={() => setActiveId(item.id)} style={{ flex: isActive ? 5 : 1, transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)', cursor: 'pointer', overflow: 'hidden', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+              {/* Foto — bloque propio, arriba, siempre 40% del panel */}
+              <div style={{ position: 'relative', height: imgHeight, flexShrink: 0, overflow: 'hidden' }}>
+                <Image src={img} alt={item.label} fill sizes="20vw" style={{ objectFit: 'cover', transform: isActive ? 'scale(1.03)' : 'scale(1.1)', transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s', filter: isActive ? 'brightness(0.75) saturate(0.8)' : 'brightness(0.38) saturate(0.45)' }} />
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActive ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: 'none' }}>
+                  <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.9)', whiteSpace: 'nowrap' }}>{item.label}</span>
+                </div>
+              </div>
+              {/* Texto — bloque propio, debajo, alto medido a su contenido */}
+              <div style={{ flex: 1, padding: '18px 20px', background: '#050505', borderTop: '1px solid var(--linea)', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s', overflow: 'hidden' }}>
+                <span style={{ display: 'inline-block', marginBottom: 10, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
+                {item.content}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
