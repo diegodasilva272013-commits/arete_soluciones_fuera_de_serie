@@ -6,7 +6,21 @@ import Image from 'next/image';
 import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX } from 'lucide-react';
 import { checkPassword, notifyAcceptance } from './actions';
 import AnimatedGradient from '@/components/ui/animated-gradient';
-import { VolumetricStudio } from '@/components/ui/volumetric-studio';
+import dynamic from 'next/dynamic';
+
+// El <Canvas> de @react-three/fiber (WebGL) no se comporta igual en el
+// servidor que en el cliente. Renderizarlo vía SSR normal generaba un
+// mismatch de hidratación (React error #418/423/425 en producción) que
+// podía dejar rota la hidratación de TODO el árbol de la página —
+// incluido el chequeo de "isMobile" de ContainerScroll/ElasticSolucion,
+// que entonces nunca se corregía y quedaba mostrando el layout de
+// escritorio en pantallas angostas (PC con ventana chica o celular).
+// ssr:false evita que el servidor mande ningún markup del Canvas: el
+// cliente lo monta de cero, sin nada que "hidratar" en discordancia.
+const VolumetricStudio = dynamic(
+  () => import('@/components/ui/volumetric-studio').then(m => m.VolumetricStudio),
+  { ssr: false }
+);
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import s from '../../corp.module.css';
 
