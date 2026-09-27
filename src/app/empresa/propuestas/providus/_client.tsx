@@ -1438,7 +1438,7 @@ function ProposalContent() {
           <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
             <p className={s.kickerLabel} style={{ marginBottom: 14 }}>07 — Inversión</p>
             <h2 className={s.sectionTitle}>Dos módulos,<br /><em>sin sorpresas.</em></h2>
-            <p className={s.sectionSub}>Cada módulo se entrega funcionando y aporta valor por sí mismo. Providus paga el segundo con el primero ya operando. El club de beneficios entra en el Módulo 2 sin modificar el precio.</p>
+            <p className={s.sectionSub}>Cada módulo se entrega funcionando y aporta valor por sí mismo. Providus paga el segundo con el primero ya operando. El club de beneficios entra en el Módulo 1 sin modificar el precio.</p>
           </div>
 
           <div className="pvSplitTight">
@@ -1447,17 +1447,17 @@ function ProposalContent() {
               <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(38px,5vw,54px)', letterSpacing: '-0.05em', color: 'var(--hueso)', marginBottom: 4 }}>USD 15.000</div>
               <p style={{ margin: '0 0 32px', fontFamily: 'var(--f-mono), monospace', fontSize: 11, letterSpacing: '0.12em', color: 'var(--ceniza)' }}>1 mes · 50% al confirmar · 50% contra entrega</p>
               <ul className={s.panelList} style={{ padding: 0 }}>
-                {['Núcleo, permisos y auditoría.', 'App de campo con foto, consentimiento y sin señal.', 'Envíos automáticos por correo e Instagram.', 'Panel de operaciones y asignación automática.', 'Espacio del vendedor con WhatsApp oficial.', 'Métricas de performance comercial.'].map(item => (
+                {['Núcleo, permisos y auditoría.', 'App de campo con foto, consentimiento y sin señal.', 'Envíos automáticos por correo e Instagram.', 'Panel de operaciones y asignación automática.', 'Espacio del vendedor con WhatsApp oficial.', 'Métricas de performance comercial.', 'Club de beneficios: app del cliente, monedero y comercios adheridos.', 'Validación en el comercio y administración del club desde el panel.'].map(item => (
                   <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>
                 ))}
               </ul>
             </div>
             <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="" style={{ padding: '48px 40px', border: '1px solid rgba(47,123,246,0.3)', background: 'rgba(47,123,246,0.04)' }}>
-              <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 24 }}>Módulo 2 · Agente de IA y club de beneficios</p>
+              <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 24 }}>Módulo 2 · Agente de inteligencia artificial</p>
               <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(38px,5vw,54px)', letterSpacing: '-0.05em', color: 'var(--hueso)', marginBottom: 4 }}>USD 7.000</div>
               <p style={{ margin: '0 0 32px', fontFamily: 'var(--f-mono), monospace', fontSize: 11, letterSpacing: '0.12em', color: 'var(--ceniza)' }}>1 mes · 50% al iniciar · 50% contra entrega</p>
               <ul className={s.panelList} style={{ padding: 0 }}>
-                {['Agente por voz, WhatsApp y web, 24/7.', 'Catálogo de planes editable desde el panel.', 'Simulador y propuesta comercial automática.', 'Links de pago y conciliación.', 'Derivación al vendedor con la conversación cargada.', 'Club de beneficios: app del cliente, monedero y comercios adheridos.', 'Validación en el comercio y administración del club desde el panel.'].map(item => (
+                {['Agente por voz, WhatsApp y web, 24/7.', 'Catálogo de planes editable desde el panel.', 'Simulador y propuesta comercial automática.', 'Links de pago y conciliación.', 'Derivación al vendedor con la conversación cargada.'].map(item => (
                   <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>
                 ))}
               </ul>
