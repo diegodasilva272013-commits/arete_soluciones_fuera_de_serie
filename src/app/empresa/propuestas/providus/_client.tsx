@@ -618,7 +618,7 @@ function ProvidusLogoVideo({ rounded = true }: { rounded?: boolean }) {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: rounded ? 18 : 0, border: rounded ? '1px solid var(--linea)' : 'none' }}>
+    <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: rounded ? 18 : 0, border: rounded ? '1px solid var(--linea)' : 'none', background: '#050505' }}>
       <video
         ref={videoRef}
         autoPlay
@@ -626,7 +626,7 @@ function ProvidusLogoVideo({ rounded = true }: { rounded?: boolean }) {
         playsInline
         preload="metadata"
         poster="/providus_logo-poster.jpg"
-        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
       >
         <source src="/providus_logo.mp4" type="video/mp4" />
       </video>
