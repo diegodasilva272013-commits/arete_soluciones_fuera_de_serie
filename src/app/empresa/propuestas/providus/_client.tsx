@@ -354,15 +354,18 @@ function MobilePanelContent({ isActive, children }: { isActive: boolean; childre
 function ElasticSolucion({ items }: { items: { id: string; label: string; content: React.ReactNode }[] }) {
   const [activeId, setActiveId] = useState(items[0].id);
   const [isMobile, setIsMobile] = useState(false);
-  // Foto arriba (tamaño real, no una tira chica) + texto abajo, en bloques
-  // separados — sin superponer texto sobre la foto. El alto del bloque de
-  // texto se MIDE (no es un numero fijo adivinado): el contenido varia
-  // mucho entre pestañas ("Vendedor" corto, "App de campo" largo) y un
-  // numero fijo o deja un hueco vacio enorme en las cortas, o corta texto
-  // en las largas.
-  const IMG_HEIGHT = 280;
-  const [rowHeight, setRowHeight] = useState(IMG_HEIGHT + 350);
+  // Foto arriba (proporcion fija, como Dax Cards) + texto abajo, en bloques
+  // separados — sin superponer texto sobre la foto. La foto NO es un
+  // numero de pixeles fijo: es un PORCENTAJE fijo del panel (40%, igual
+  // espiritu que el 200/480 de Dax) para que nunca se vea chica/aplastada
+  // en las pestañas con texto largo. El alto total se MIDE del contenido
+  // real de la pestaña activa: el contenido varia mucho entre pestañas
+  // ("Vendedor" corto, "App de campo" largo) y un numero fijo deja hueco
+  // vacio en las cortas o corta texto en las largas.
+  const IMG_RATIO = 0.4;
+  const [rowHeight, setRowHeight] = useState(700);
   const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const imgHeight = Math.round(rowHeight * IMG_RATIO);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768);
@@ -381,11 +384,25 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
       const lastBottom = last ? last.getBoundingClientRect().bottom : el.getBoundingClientRect().bottom;
       const paddingBottom = parseFloat(getComputedStyle(el).paddingBottom) || 0;
       const contentHeight = (lastBottom - top) + paddingBottom;
-      setRowHeight(Math.round(IMG_HEIGHT + 1 + contentHeight));
+      // El texto ocupa (1 - IMG_RATIO) del total -> despejamos el total.
+      const total = (contentHeight + 1) / (1 - IMG_RATIO);
+      setRowHeight(Math.round(total));
     };
+    // La columna activa tarda 0.7s en ensancharse (flex 0.7s). Si medimos
+    // apenas se hace click, el texto todavia esta envuelto al ancho VIEJO
+    // (angosto) y da una altura inflada -> hueco vacio enorme cuando
+    // termina de ensancharse y el mismo texto entra en menos lineas.
+    // Se remide varias veces durante la transicion para que la caja
+    // termine ajustada al ancho final, no al de a mitad de camino.
     measure();
+    const t1 = setTimeout(measure, 200);
+    const t2 = setTimeout(measure, 450);
+    const t3 = setTimeout(measure, 750);
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+    return () => {
+      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
+      window.removeEventListener('resize', measure);
+    };
   }, [activeId, isMobile]);
 
   if (isMobile) {
@@ -421,8 +438,8 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
         const img = M1_IMAGES[idx] ?? '/galeria1.png';
         return (
           <div key={item.id} onMouseEnter={() => setActiveId(item.id)} onClick={() => setActiveId(item.id)} style={{ flex: isActive ? 5 : 1, transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)', cursor: 'pointer', overflow: 'hidden', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-            {/* Foto — bloque propio, tamaño real, arriba */}
-            <div style={{ position: 'relative', height: IMG_HEIGHT, flexShrink: 0, overflow: 'hidden' }}>
+            {/* Foto — bloque propio, arriba, siempre 40% del panel */}
+            <div style={{ position: 'relative', height: imgHeight, flexShrink: 0, overflow: 'hidden' }}>
               <Image src={img} alt={item.label} fill sizes="20vw" style={{ objectFit: 'cover', transform: isActive ? 'scale(1.03)' : 'scale(1.1)', transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s', filter: isActive ? 'brightness(0.75) saturate(0.8)' : 'brightness(0.38) saturate(0.45)' }} />
               <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActive ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: 'none' }}>
                 <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.9)', whiteSpace: 'nowrap' }}>{item.label}</span>
