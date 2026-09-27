@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useLayoutEffect, useRef, useCallbac
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Conversation } from '@11labs/client';
-import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX, BellRing } from 'lucide-react';
+import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX, BellRing, Maximize, Minimize } from 'lucide-react';
 import { checkPassword, notifyAcceptance } from './actions';
 import AnimatedGradient from '@/components/ui/animated-gradient';
 import dynamic from 'next/dynamic';
@@ -553,7 +553,9 @@ function ElasticComparacion({ items }: { items: typeof COMPARACION }) {
 // ── VideoConSonido — autoplay muteado + botón para activar audio ─────────────
 function VideoConSonido() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [muted, setMuted] = useState(true);
+  const [isFull, setIsFull] = useState(false);
 
   const toggleSonido = () => {
     const v = videoRef.current;
@@ -562,8 +564,21 @@ function VideoConSonido() {
     setMuted(v.muted);
   };
 
+  useEffect(() => {
+    const onChange = () => setIsFull(document.fullscreenElement === containerRef.current);
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) document.exitFullscreen();
+    else el.requestFullscreen();
+  };
+
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', borderRadius: 18, pointerEvents: 'auto', background: '#050505' }}>
+    <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', borderRadius: 18, pointerEvents: 'auto', background: '#050505' }}>
       <video
         ref={videoRef}
         autoPlay
@@ -598,6 +613,20 @@ function VideoConSonido() {
         {muted ? <Volume2 size={13} /> : <VolumeX size={13} />}
         {muted ? 'Activar sonido' : 'Silenciar'}
       </button>
+      <button
+        onClick={toggleFullscreen}
+        aria-label={isFull ? 'Salir de pantalla completa' : 'Ver en pantalla completa'}
+        style={{
+          position: 'absolute', top: 16, left: 16,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 34, height: 34, borderRadius: 999,
+          background: 'rgba(5,5,5,0.6)', border: '1px solid rgba(255,255,255,0.2)',
+          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(8px)',
+          transition: 'all 0.2s',
+        }}
+      >
+        {isFull ? <Minimize size={14} /> : <Maximize size={14} />}
+      </button>
     </div>
   );
 }
@@ -608,7 +637,9 @@ function VideoConSonido() {
 // sonido que VideoConSonido, pero sin loop). ──────────────────────────────
 function ProvidusLogoVideo({ rounded = true }: { rounded?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [muted, setMuted] = useState(true);
+  const [isFull, setIsFull] = useState(false);
 
   const toggleSonido = () => {
     const v = videoRef.current;
@@ -617,8 +648,21 @@ function ProvidusLogoVideo({ rounded = true }: { rounded?: boolean }) {
     setMuted(v.muted);
   };
 
+  useEffect(() => {
+    const onChange = () => setIsFull(document.fullscreenElement === containerRef.current);
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) document.exitFullscreen();
+    else el.requestFullscreen();
+  };
+
   return (
-    <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: rounded ? 18 : 0, border: rounded ? '1px solid var(--linea)' : 'none', background: '#050505' }}>
+    <div ref={containerRef} style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: rounded ? 18 : 0, border: rounded ? '1px solid var(--linea)' : 'none', background: '#050505' }}>
       <video
         ref={videoRef}
         autoPlay
@@ -647,6 +691,20 @@ function ProvidusLogoVideo({ rounded = true }: { rounded?: boolean }) {
       >
         {muted ? <Volume2 size={13} /> : <VolumeX size={13} />}
         {muted ? 'Activar sonido' : 'Silenciar'}
+      </button>
+      <button
+        onClick={toggleFullscreen}
+        aria-label={isFull ? 'Salir de pantalla completa' : 'Ver en pantalla completa'}
+        style={{
+          position: 'absolute', top: 16, left: 16,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 34, height: 34, borderRadius: 999,
+          background: 'rgba(5,5,5,0.6)', border: '1px solid rgba(255,255,255,0.2)',
+          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(8px)',
+          transition: 'all 0.2s',
+        }}
+      >
+        {isFull ? <Minimize size={14} /> : <Maximize size={14} />}
       </button>
     </div>
   );
