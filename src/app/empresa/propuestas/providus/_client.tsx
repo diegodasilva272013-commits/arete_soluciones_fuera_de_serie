@@ -389,7 +389,7 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
   }
 
   return (
-    <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: 750, alignItems: 'stretch' }}>
+    <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: 900, alignItems: 'stretch' }}>
       {items.map((item, idx) => {
         const isActive = activeId === item.id;
         const img = M1_IMAGES[idx] ?? '/galeria1.png';
