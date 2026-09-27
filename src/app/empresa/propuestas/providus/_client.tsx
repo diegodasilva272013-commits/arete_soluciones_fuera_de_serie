@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useLayoutEffect, useRef, useCallbac
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Conversation } from '@11labs/client';
-import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX, BellRing, Maximize, Minimize, Wallet } from 'lucide-react';
+import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX, BellRing, Maximize, Minimize, Wallet, Store, SlidersHorizontal } from 'lucide-react';
 import { checkPassword, notifyAcceptance } from './actions';
 import AnimatedGradient from '@/components/ui/animated-gradient';
 import dynamic from 'next/dynamic';
@@ -72,6 +72,11 @@ const LOCAL_CSS = `
   .p-nec-pad { padding: 16px 14px !important; }
   .p-hero-metrics { max-width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
 }
+.pvBleed{margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);padding-left:max(24px,calc(50vw - 640px));padding-right:max(24px,calc(50vw - 640px))}
+.pvClub{display:grid;grid-template-columns:1fr minmax(320px,370px);gap:60px;align-items:center}
+@keyframes pvClubIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.pvClubScreen{animation:pvClubIn .34s cubic-bezier(.16,.84,.28,1)}
+@media (max-width:900px){.pvClub{grid-template-columns:1fr;gap:34px}.pvBleed{padding-left:20px;padding-right:20px}}
 `;
 
 // ── Password gate ─────────────────────────────────────────────────────────────
@@ -137,7 +142,7 @@ const CARAS = [
   { icon: Radio,    t: 'App móvil',    q: 'Promotoras en los eventos',  d: 'Carga sin señal, foto, consentimiento y envío automático.' },
   { icon: Database, t: 'Panel web',    q: 'Administración y ventas',    d: 'Cada rol ve exclusivamente su alcance.' },
   { icon: Zap,      t: 'Agente de IA', q: 'Los interesados, 24 horas',  d: 'Atiende, califica, propone y cierra.' },
-  { icon: Wallet,   t: 'App del cliente', q: 'Los clientes con plan vigente', d: 'Su plan, el club de comercios adheridos y su ahorro acumulado.' },
+  { icon: Wallet,   t: 'App del cliente', q: 'Clientes y comercios adheridos', d: 'La misma app, en modo cliente o en modo comercio según quién entra.' },
   { icon: BellRing, t: 'Dirección',    q: 'Los dueños, sin entrar a nada', d: 'Indicadores del negocio y alertas que los buscan a ustedes.' },
 ];
 
@@ -259,8 +264,8 @@ const INCLUIDO = [
   'Espacio del vendedor con bandeja, estados, notas y WhatsApp desde el número oficial.',
   'Performance comercial: reloj de respuesta, reasignación, motivos de pérdida e indicadores.',
   'Agente de IA por voz, WhatsApp y web, con catálogo de planes, propuesta y cobros.',
-  'Club de beneficios: app del cliente con su plan, comercios adheridos, código de uso y monedero de ahorro.',
-  'Validación para los comercios sin instalación, y administración completa del club desde el panel.',
+  'Club de beneficios: modo cliente con su plan, comercios adheridos, código de uso y monedero de ahorro.',
+  'Modo comercio dentro de la misma app para validar los códigos, y administración completa del club desde el panel.',
   'Pruebas de seguridad, despliegue, capacitación y documentación.',
   '90 días de garantía y acompañamiento desde la puesta en producción.',
 ];
@@ -329,19 +334,19 @@ const ALERTAS: string[] = [
   'Un evento cargó la mitad de registros que el promedio de los últimos tres.',
 ];
 
-const CLUB_CLIENTE: [string, string][] = [
-  ['Su plan',            'Cuál contrató, desde cuándo y en qué estado está.'],
-  ['Los comercios',      'Catálogo de adheridos, con buscador por rubro y ordenado por cercanía.'],
-  ['El código',          'Se genera en el momento para presentar en el mostrador. Vencimiento corto y un solo uso.'],
-  ['El monedero',        'Cuánto ahorró este mes, cuánto desde que es cliente, y el detalle de cada uso.'],
-];
+const CLUB_MODOS = [
+  { id: 'cliente',  icon: Wallet,            label: 'Cliente' },
+  { id: 'comercio', icon: Store,             label: 'Comercio' },
+  { id: 'panel',    icon: SlidersHorizontal, label: 'Providus' },
+] as const;
 
-const CLUB_COMERCIO: string[] = [
-  'No instala nada: entra desde un enlace propio, en cualquier teléfono o computadora del local.',
-  'Valida el código que le muestra el cliente y registra la operación. Tarda lo mismo que cobrar.',
-  'Si el código está vencido, ya usado o el plan no está vigente, no pasa.',
-  'Queda registrado el monto bruto, la fecha, la sucursal y quién validó.',
-  'Ve su propio historial y el total del período. Nada de los demás comercios.',
+type ClubModo = (typeof CLUB_MODOS)[number]['id'];
+
+const CLUB_COMERCIOS: { n: string; r: string; d: string }[] = [
+  { n: 'Farmacia Belgrano',  r: 'Salud',       d: '15%' },
+  { n: 'Supermercado Sur',   r: 'Almacén',     d: '10%' },
+  { n: 'Estación Norte',     r: 'Combustible', d: '8%'  },
+  { n: 'Óptica Central',     r: 'Salud',       d: '20%' },
 ];
 
 const CLUB_PANEL: string[] = [
@@ -934,6 +939,190 @@ function ElasticRoadmap({ items }: { items: typeof EVOLUCION }) {
   );
 }
 
+// ── Club de beneficios ────────────────────────────────────────────────────────
+function ClubMonedero() {
+  const [v, setV] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    const io = new IntersectionObserver((entries) => {
+      if (!entries[0]?.isIntersecting) return;
+      io.disconnect();
+      const t0 = performance.now(), dur = 1500, fin = 48750;
+      const tick = (t: number) => {
+        const p = Math.min(1, (t - t0) / dur);
+        setV(Math.round(fin * (1 - Math.pow(1 - p, 3))));
+        if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }, { threshold: 0.4 });
+    io.observe(el);
+    return () => { io.disconnect(); cancelAnimationFrame(raf); };
+  }, []);
+
+  return (
+    <div ref={ref} style={{ padding: '18px 18px 20px', background: 'rgba(47,123,246,0.10)', border: '1px solid rgba(47,123,246,0.3)' }}>
+      <p style={{ margin: '0 0 6px', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'var(--azul-luz)' }}>AHORRO ACUMULADO</p>
+      <p style={{ margin: 0, fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 30, letterSpacing: '-0.04em', color: 'var(--hueso)', lineHeight: 1 }}>
+        $ {v.toLocaleString('es-AR')}
+      </p>
+      <p style={{ margin: '8px 0 0', fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>desde que es cliente · 23 usos</p>
+    </div>
+  );
+}
+
+function ClubPantallaCliente() {
+  return (
+    <div className="pvClubScreen">
+      <div style={{ padding: '16px 18px', border: '1px solid var(--linea)', marginBottom: 12 }}>
+        <p style={{ margin: '0 0 4px', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'var(--ceniza)' }}>SU PLAN</p>
+        <p style={{ margin: 0, fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>Plan Capitalización 60</p>
+        <p style={{ margin: '3px 0 0', fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 12, color: 'rgba(242,239,233,0.5)' }}>Vigente · cuota 14 de 60</p>
+      </div>
+
+      <ClubMonedero />
+
+      <p style={{ margin: '16px 0 8px', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'var(--ceniza)' }}>COMERCIOS ADHERIDOS</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--linea)' }}>
+        {CLUB_COMERCIOS.map((c) => (
+          <div key={c.n} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10, padding: '11px 14px', background: '#050505' }}>
+            <span>
+              <span style={{ display: 'block', fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 600, fontSize: 12.5, color: 'var(--hueso)' }}>{c.n}</span>
+              <span style={{ fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 11, color: 'rgba(242,239,233,0.42)' }}>{c.r}</span>
+            </span>
+            <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 12, color: 'var(--azul-luz)', whiteSpace: 'nowrap' }}>{c.d}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ClubPantallaComercio() {
+  const [estado, setEstado] = useState<'espera' | 'ok'>('espera');
+
+  useEffect(() => {
+    if (estado !== 'ok') return;
+    const t = setTimeout(() => setEstado('espera'), 2600);
+    return () => clearTimeout(t);
+  }, [estado]);
+
+  return (
+    <div className="pvClubScreen">
+      <p style={{ margin: '0 0 10px', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'var(--ceniza)' }}>VALIDAR CÓDIGO DEL CLIENTE</p>
+
+      <div style={{ padding: '30px 18px', textAlign: 'center', border: `1px solid ${estado === 'ok' ? 'rgba(34,197,94,0.45)' : 'var(--linea)'}`, background: estado === 'ok' ? 'rgba(34,197,94,0.06)' : 'transparent', transition: 'all .3s', marginBottom: 12 }}>
+        {estado === 'ok' ? (
+          <>
+            <Check size={26} color="#22c55e" />
+            <p style={{ margin: '10px 0 0', fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 700, fontSize: 14, color: '#22c55e' }}>Operación registrada</p>
+          </>
+        ) : (
+          <>
+            <p style={{ margin: 0, fontFamily: 'var(--f-mono), monospace', fontSize: 26, letterSpacing: '0.24em', color: 'var(--hueso)' }}>4K7Q</p>
+            <p style={{ margin: '8px 0 0', fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 12, color: 'rgba(242,239,233,0.5)' }}>vence en 02:41</p>
+          </>
+        )}
+      </div>
+
+      <button
+        onClick={() => setEstado('ok')}
+        disabled={estado === 'ok'}
+        style={{
+          width: '100%', padding: '14px 0', cursor: estado === 'ok' ? 'default' : 'pointer',
+          background: estado === 'ok' ? 'transparent' : 'rgba(47,123,246,0.12)',
+          border: `1px solid ${estado === 'ok' ? 'var(--linea)' : 'rgba(47,123,246,0.5)'}`,
+          color: estado === 'ok' ? 'var(--ceniza)' : 'var(--azul-luz)',
+          fontFamily: 'var(--f-mono), monospace', fontSize: 10.5, letterSpacing: '0.2em', textTransform: 'uppercase', transition: 'all .25s',
+        }}
+      >
+        {estado === 'ok' ? 'Listo' : 'Validar'}
+      </button>
+
+      <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--linea)' }}>
+        <p style={{ margin: '0 0 8px', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'var(--ceniza)' }}>ESTE PERÍODO</p>
+        {([['Operaciones', '142'], ['Beneficio entregado', '$ 96.300']] as [string, string][]).map(([k, val]) => (
+          <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0' }}>
+            <span style={{ fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 12.5, color: 'rgba(242,239,233,0.55)' }}>{k}</span>
+            <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 12, color: 'var(--hueso)' }}>{val}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ClubPantallaPanel() {
+  return (
+    <div className="pvClubScreen">
+      <p style={{ margin: '0 0 12px', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.2em', color: 'var(--ceniza)' }}>ADMINISTRACIÓN DEL CLUB</p>
+      <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+        {CLUB_PANEL.map((item) => (
+          <li key={item} style={{ position: 'relative', padding: '0 0 13px 16px', marginBottom: 13, borderBottom: '1px solid var(--linea)', fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 12.5, lineHeight: 1.55, color: 'rgba(242,239,233,0.68)' }}>
+            <span aria-hidden="true" style={{ position: 'absolute', left: 0, top: 7, width: 5, height: 5, background: 'var(--azul)' }} />
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ClubShowcase() {
+  const [modo, setModo] = useState<ClubModo>('cliente');
+
+  return (
+    <div className="pvClub">
+      <div>
+        <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 18 }}>Por qué cambia el negocio</p>
+        <p className={s.bandBody} style={{ marginBottom: 14 }}>
+          Un plan de capitalización se paga durante años y, entre cuota y cuota, la empresa desaparece de la vida del cliente. El único contacto es el cobro. Cuando el único contacto es el cobro, la baja es cuestión de tiempo.
+        </p>
+        <p className={s.bandBody} style={{ marginBottom: 14 }}>
+          El club invierte eso: convierte el plan en algo que el cliente <strong>usa</strong> todos los meses y que le devuelve plata visible. El mismo dinero que hoy se gasta en recuperar al que se fue, ahí retiene al que ya está. Y arma un argumento de venta que ningún competidor que venda solamente el plan puede igualar.
+        </p>
+        <p className={s.bandPull} style={{ marginTop: 26 }}>
+          Un cliente que abre la app todos los meses no se da de baja.
+        </p>
+      </div>
+
+      <div>
+        <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', marginBottom: 16 }}>
+          {CLUB_MODOS.map(({ id, icon: Icon, label }) => {
+            const on = modo === id;
+            return (
+              <button key={id} onClick={() => setModo(id)} style={{
+                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                padding: '12px 4px', cursor: 'pointer',
+                background: on ? 'rgba(47,123,246,0.12)' : '#050505',
+                border: 'none', borderTop: `2px solid ${on ? 'var(--azul)' : 'transparent'}`,
+                color: on ? 'var(--azul-luz)' : 'rgba(242,239,233,0.45)',
+                fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase',
+                transition: 'all .25s',
+              }}>
+                <Icon size={13} />{label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ border: '1px solid var(--linea)', background: '#050505', padding: '22px 20px', minHeight: 440 }}>
+          {modo === 'cliente'  && <ClubPantallaCliente key="c" />}
+          {modo === 'comercio' && <ClubPantallaComercio key="m" />}
+          {modo === 'panel'    && <ClubPantallaPanel key="p" />}
+        </div>
+
+        <p style={{ margin: '12px 0 0', fontFamily: 'var(--f-texto), Spectral, serif', fontStyle: 'italic', fontSize: 12, lineHeight: 1.6, color: 'var(--ceniza)' }}>
+          Pantallas ilustrativas. El diseño definitivo se acuerda en la etapa de definiciones.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ── ProposalContent ───────────────────────────────────────────────────────────
 function ProposalContent() {
   const [activeTab, setActiveTab] = useState('nucleo');
@@ -970,7 +1159,6 @@ function ProposalContent() {
     { id: 'plataforma', label: 'Plataforma' },
     { id: 'modulo1',    label: 'Módulo 1' },
     { id: 'modulo2',    label: 'Módulo 2' },
-    { id: 'club',       label: 'Club' },
     { id: 'seguridad',  label: 'Seguridad' },
     { id: 'direccion',  label: 'Dirección' },
     { id: 'inversion',  label: 'Inversión' },
@@ -1141,72 +1329,29 @@ function ProposalContent() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ── 04b Club de beneficios ── */}
-      <section className={s.section} ref={setRef('club')}>
-        <div className={s.inner}>
-          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
-            <p className={s.kickerLabel} style={{ marginBottom: 14, color: 'var(--azul)' }}>04b — Club de beneficios · incluido en el Módulo 2</p>
-            <h2 className={s.sectionTitle}>La mejor idea<br /><em>de la reunión.</em></h2>
-            <p className={s.sectionSub}>Esta parte no la propuso Areté: la trajo Providus. Nos pareció tan buena que entra construida completa en esta propuesta, y no en el listado de lo que se puede hacer después.</p>
-          </div>
-
-          {/* Bloque destacado: el argumento */}
-          <div className={s.reveal} data-reveal="" style={{
-            padding: '44px 40px', marginBottom: 2,
-            border: '1px solid rgba(47,123,246,0.32)', background: 'rgba(47,123,246,0.05)',
-            clipPath: 'polygon(20px 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%,0 20px)',
+          {/* ── El club de beneficios, dentro del Módulo 2 ── */}
+          <div className={`${s.reveal} pvBleed`} data-reveal="" style={{
+            marginTop: 72, padding: '72px max(24px, calc(50vw - 640px))',
+            background: 'linear-gradient(180deg, rgba(47,123,246,0.09) 0%, rgba(5,5,5,0) 70%)',
+            borderTop: '2px solid var(--azul)',
           }}>
-            <div className="pvGrid2">
-              <div>
-                <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 18 }}>Por qué cambia el negocio</p>
-                <p className={s.bandBody} style={{ marginBottom: 14 }}>
-                  Un plan de capitalización se paga durante años y, entre cuota y cuota, la empresa desaparece de la vida del cliente. El único contacto es el cobro. Cuando el único contacto es el cobro, la baja es cuestión de tiempo.
-                </p>
-                <p className={s.bandBody} style={{ margin: 0 }}>
-                  El club invierte eso: convierte el plan en algo que el cliente <strong>usa</strong> todos los meses y que le devuelve plata visible. El mismo dinero que hoy se gasta en captar de nuevo al que se fue, ahí retiene al que ya está.
-                </p>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <p className={s.bandPull} style={{ margin: 0 }}>
-                  Es también un argumento de venta que ningún competidor que venda solamente el plan puede igualar.
-                </p>
-              </div>
+            <div style={{ marginBottom: 52 }}>
+              <p className={s.kickerLabel} style={{ marginBottom: 16, color: 'var(--azul)' }}>Incluido en este módulo · una idea de Providus</p>
+              <h2 className={s.sectionTitle} style={{ marginBottom: 20 }}>El club de<br /><em>beneficios.</em></h2>
+              <p className={s.sectionSub} style={{ maxWidth: 720, margin: 0 }}>
+                Esta parte no la propuso Areté: la trajeron ustedes a la reunión. Nos pareció la mejor idea del día, y por eso no quedó en el listado de lo que se puede hacer más adelante: entra construida completa, adentro de este módulo, sin modificar el precio.
+              </p>
             </div>
-          </div>
 
-          {/* Las tres caras del club */}
-          <div className={`${s.reveal} pvGrid3`} data-reveal="" style={{ marginBottom: 40 }}>
-            <div style={{ background: '#050505', padding: '32px 28px' }}>
-              <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 20 }}>Lo que ve el cliente</p>
-              {CLUB_CLIENTE.map(([t, d]) => (
-                <div key={t} style={{ marginBottom: 18 }}>
-                  <p style={{ margin: '0 0 4px', fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 700, fontSize: 14, color: 'var(--hueso)' }}>{t}</p>
-                  <p style={{ margin: 0, fontFamily: 'var(--f-texto), Spectral, serif', fontWeight: 300, fontSize: 13.5, lineHeight: 1.6, color: '#B4B1AB' }}>{d}</p>
-                </div>
-              ))}
-            </div>
-            <div style={{ background: '#050505', padding: '32px 28px' }}>
-              <p className={s.bandNum} style={{ marginBottom: 20 }}>Lo que hace el comercio</p>
-              <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
-                {CLUB_COMERCIO.map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
-              </ul>
-            </div>
-            <div style={{ background: '#050505', padding: '32px 28px' }}>
-              <p className={s.bandNum} style={{ marginBottom: 20 }}>Lo que administra Providus</p>
-              <ul className={s.panelList} style={{ padding: 0, margin: 0 }}>
-                {CLUB_PANEL.map(item => <li key={item} className={s.panelItem}><span className={s.panelDot} aria-hidden="true" />{item}</li>)}
-              </ul>
-            </div>
-          </div>
+            <ClubShowcase />
 
-          <div className={s.reveal} data-reveal="" style={{ padding: '26px 28px', border: '1px solid var(--linea)' }}>
-            <p className={s.bandNum} style={{ marginBottom: 8 }}>Lo que queda preparado y no se cobra ahora</p>
-            <p style={{ margin: 0, fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 14, lineHeight: 1.7, color: '#B4B1AB' }}>
-              Cómo se le cobra al comercio adherido lo define Providus. Por decisión de diseño, todo lo que esa etapa va a necesitar se guarda desde el primer día: monto bruto de cada operación, datos fiscales del comercio, estados de saldo, períodos e importes con su moneda y fecha de cálculo. El día que quieran emitir y cobrar desde la plataforma, es un agregado sobre datos que ya están.
-            </p>
+            <div style={{ marginTop: 52, padding: '26px 28px', border: '1px solid var(--linea)', background: '#050505' }}>
+              <p className={s.bandNum} style={{ marginBottom: 8 }}>Lo que queda preparado y no se cobra ahora</p>
+              <p style={{ margin: 0, fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 14, lineHeight: 1.7, color: '#B4B1AB' }}>
+                Cómo se le cobra al comercio adherido lo define Providus. Por decisión de diseño, todo lo que esa etapa va a necesitar se guarda desde el primer día: monto bruto de cada operación, datos fiscales del comercio, estados de saldo, períodos e importes con su moneda y fecha de cálculo. El día que quieran emitir y cobrar desde la plataforma, es un agregado sobre datos que ya están.
+              </p>
+            </div>
           </div>
         </div>
       </section>
