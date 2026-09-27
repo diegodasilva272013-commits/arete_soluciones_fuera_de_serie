@@ -563,7 +563,7 @@ function VideoConSonido() {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', borderRadius: 18, pointerEvents: 'auto' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', borderRadius: 18, pointerEvents: 'auto', background: '#050505' }}>
       <video
         ref={videoRef}
         autoPlay
@@ -572,7 +572,7 @@ function VideoConSonido() {
         playsInline
         preload="metadata"
         poster="/video_provirus-poster.jpg"
-        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: 18 }}
+        style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: 18 }}
       >
         <source src="/video_provirus.mp4" type="video/mp4" />
       </video>
