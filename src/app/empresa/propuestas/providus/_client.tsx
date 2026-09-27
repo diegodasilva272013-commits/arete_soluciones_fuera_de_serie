@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useTransition, useEffect, useLayoutEffect, useRef } from 'react';
+import { useState, useTransition, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { Conversation } from '@11labs/client';
 import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX, BellRing } from 'lucide-react';
 import { checkPassword, notifyAcceptance } from './actions';
 import AnimatedGradient from '@/components/ui/animated-gradient';
@@ -601,37 +602,224 @@ function VideoConSonido() {
   );
 }
 
-// ── DemoButton — dispara el ElevenLabsWidget global del layout de empresa ─────
-function DemoButton() {
-  const [hov, setHov] = useState(false);
-  const [active, setActive] = useState(false);
+// ── ProvidusLogoVideo — el logo real de Providus en su oficina, filmado en
+// el mismo lugar que el video del hero. 20s con audio propio: se trata como
+// un video con intencion de verse, no un loop de fondo (mismo patron de
+// sonido que VideoConSonido, pero sin loop). ──────────────────────────────
+function ProvidusLogoVideo() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [muted, setMuted] = useState(true);
 
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const btn = document.querySelector<HTMLButtonElement>('button[aria-label="Colgar"]');
-      setActive(!!btn);
-    });
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
-    return () => observer.disconnect();
-  }, []);
-
-  const handleClick = () => {
-    const btn = document.querySelector<HTMLButtonElement>('button[aria-label="Llamar a un asesor"], button[aria-label="Colgar"]');
-    btn?.click();
+  const toggleSonido = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    setMuted(v.muted);
   };
 
   return (
-    <button onClick={handleClick} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
-      display: 'inline-flex', alignItems: 'center', gap: 10, padding: '15px 32px',
-      background: active ? 'rgba(239,68,68,0.08)' : hov ? 'rgba(47,123,246,0.1)' : 'transparent',
-      border: `1.5px solid ${active ? 'rgba(239,68,68,0.5)' : hov ? 'var(--azul)' : 'rgba(92,154,255,0.3)'}`,
-      color: active ? 'rgba(239,68,68,0.9)' : hov ? 'var(--azul-luz)' : 'rgba(92,154,255,0.65)',
-      fontFamily: 'var(--f-mono), monospace', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase',
-      cursor: 'pointer', transition: 'all 0.25s',
+    <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: 18, border: '1px solid var(--linea)' }}>
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        preload="metadata"
+        poster="/providus_logo-poster.jpg"
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+      >
+        <source src="/providus_logo.mp4" type="video/mp4" />
+      </video>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,5,0.4) 0%, transparent 30%)', pointerEvents: 'none' }} />
+      <button
+        onClick={toggleSonido}
+        aria-label={muted ? 'Activar sonido' : 'Silenciar'}
+        style={{
+          position: 'absolute', bottom: 16, right: 16,
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '9px 16px', borderRadius: 999,
+          background: muted ? 'rgba(47,123,246,0.9)' : 'rgba(5,5,5,0.75)',
+          border: `1px solid ${muted ? 'rgba(47,123,246,1)' : 'rgba(255,255,255,0.2)'}`,
+          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(8px)',
+          fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase',
+          transition: 'all 0.2s',
+        }}
+      >
+        {muted ? <Volume2 size={13} /> : <VolumeX size={13} />}
+        {muted ? 'Activar sonido' : 'Silenciar'}
+      </button>
+    </div>
+  );
+}
+
+// ── AgentWidget — botón de llamada real por WebRTC (@11labs/client), igual
+// al que ya funciona en /empresa/agentes-ia. El botón anterior ("Probar el
+// agente") era un texto chico y transparente que solo funcionaba si
+// encontraba el widget flotante global en el DOM — casi invisible y frágil.
+// Este widget es autocontenido: conecta la llamada él mismo. ──────────────
+type CallStatus = 'idle' | 'connecting' | 'active' | 'error';
+
+function AgentWidget({ agentId, label }: { agentId: string; label: string }) {
+  const convRef = useRef<Conversation | null>(null);
+  const [status, setStatus] = useState<CallStatus>('idle');
+
+  const start = useCallback(async () => {
+    if (status !== 'idle' && status !== 'error') return;
+    setStatus('connecting');
+    try {
+      const conv = await Conversation.startSession({
+        agentId,
+        onConnect:    () => setStatus('active'),
+        onDisconnect: () => { convRef.current = null; setStatus('idle'); },
+        onError:      () => setStatus('error'),
+      });
+      convRef.current = conv;
+    } catch {
+      setStatus('error');
+    }
+  }, [agentId, status]);
+
+  const stop = useCallback(async () => {
+    await convRef.current?.endSession();
+    convRef.current = null;
+    setStatus('idle');
+  }, []);
+
+  const isActive = status === 'active';
+  const isBusy   = status === 'connecting';
+  const isError  = status === 'error';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+      {isActive && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, height: 36, padding: '0 8px' }}>
+          {[0.6, 1, 0.8, 1.2, 0.7, 1, 0.9].map((h, i) => (
+            <span key={i} style={{ display: 'block', width: 3, height: `${h * 24}px`, borderRadius: 3, background: 'rgba(47,123,246,0.8)', animation: 'agWave 0.9s ease-in-out infinite alternate', animationDelay: `${i * 0.09}s` }} />
+          ))}
+        </div>
+      )}
+
+      <button
+        onClick={isActive ? stop : start}
+        disabled={isBusy}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '0 28px', height: 58, borderRadius: 999,
+          background: isActive ? 'rgba(239,68,68,0.12)' : isError ? 'rgba(239,68,68,0.10)' : 'rgba(47,123,246,0.10)',
+          border: `1.5px solid ${isActive ? 'rgba(239,68,68,0.6)' : isError ? 'rgba(239,68,68,0.45)' : 'rgba(47,123,246,0.4)'}`,
+          color: 'var(--hueso)',
+          cursor: isBusy ? 'wait' : 'pointer',
+          transition: 'all 0.25s ease',
+          fontFamily: 'var(--f-display), Montserrat, sans-serif',
+          fontSize: 14, fontWeight: 700, letterSpacing: '0.05em',
+          whiteSpace: 'nowrap', outline: 'none', position: 'relative',
+        }}
+      >
+        {isActive && (
+          <>
+            <span style={{ position: 'absolute', inset: -5, borderRadius: 999, border: '1px solid rgba(239,68,68,0.35)', animation: 'agPulse 1.8s ease-out infinite' }} />
+            <span style={{ position: 'absolute', inset: -10, borderRadius: 999, border: '1px solid rgba(239,68,68,0.15)', animation: 'agPulse 1.8s ease-out infinite', animationDelay: '0.5s' }} />
+          </>
+        )}
+        <span style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+          background: isActive ? 'rgba(239,68,68,0.18)' : isError ? 'rgba(239,68,68,0.12)' : 'rgba(47,123,246,0.15)',
+          border: `1px solid ${isActive ? 'rgba(239,68,68,0.5)' : isError ? 'rgba(239,68,68,0.35)' : 'rgba(47,123,246,0.4)'}`,
+        }}>
+          {isBusy ? (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(47,123,246,0.8)" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M12 2a10 10 0 0 1 10 10" style={{ animation: 'agSpin 0.8s linear infinite' }} />
+            </svg>
+          ) : isActive ? (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(239,68,68,0.9)" stroke="none"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
+          ) : (
+            <Mic size={14} color="rgba(47,123,246,1)" strokeWidth={2.5} />
+          )}
+        </span>
+        <span style={{ color: isActive ? 'rgba(239,68,68,0.9)' : isError ? 'rgba(239,68,68,0.8)' : 'var(--hueso)' }}>
+          {isBusy ? 'Conectando...' : isActive ? `Colgar a ${label}` : isError ? 'Reintentar' : `Llamar a ${label}`}
+        </span>
+      </button>
+
+      {isActive && (
+        <p style={{ fontSize: 12, color: 'rgba(242,239,233,0.35)', fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>
+          En llamada · hablá con el agente
+        </p>
+      )}
+
+      <style>{`
+        @keyframes agPulse { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.6); opacity: 0; } }
+        @keyframes agWave { from { transform: scaleY(0.4); } to { transform: scaleY(1.2); } }
+        @keyframes agSpin { to { transform: rotate(360deg); } }
+      `}</style>
+    </div>
+  );
+}
+
+// Mismos datos del agente Providus que ya está en vivo en /empresa/agentes-ia
+// — no se inventa nada, es el mismo agent_id real, con la misma descripción.
+const PROVIDUS_AGENT = {
+  id:           'agent_3801m2tym6e2etat5aypjqykydty',
+  tipo:         'Renta y Capitalización',
+  tagline:      'Inversiones · Rendimientos · Planificación financiera',
+  emoji:        '📈',
+  desc:         'Asesor financiero de voz. Explica instrumentos de renta y capitalización, orienta sobre rendimientos, responde consultas de inversión y agenda reuniones con el equipo — disponible las 24 hs.',
+  caps: [
+    'Consultas sobre instrumentos de inversión',
+    'Información de rendimientos y plazos',
+    'Orientación en planificación financiera',
+    'Agendamiento con asesores del equipo',
+  ],
+  accentColor:  'rgba(250,204,21,1)',
+  accentBg:     'rgba(250,204,21,0.06)',
+  accentBorder: 'rgba(250,204,21,0.2)',
+  label:        'Providus',
+};
+
+// ── ProvidusAgentCard — la misma card de /empresa/agentes-ia, con los datos
+// reales del agente de Providus, para que se pueda probar en vivo ────────────
+function ProvidusAgentCard() {
+  const a = PROVIDUS_AGENT;
+  return (
+    <div style={{
+      maxWidth: 560, margin: '0 auto',
+      border: `1px solid ${a.accentBorder}`, background: a.accentBg,
+      borderRadius: 20, padding: '36px 32px 40px',
+      display: 'flex', flexDirection: 'column', gap: 24, backdropFilter: 'blur(6px)',
     }}>
-      <Mic size={13} />
-      {active ? 'Colgar' : 'Probar el agente'}
-    </button>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+        <span style={{ fontSize: 36, lineHeight: 1, background: 'rgba(242,239,233,0.06)', border: `1px solid ${a.accentBorder}`, borderRadius: 14, width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          {a.emoji}
+        </span>
+        <div>
+          <p style={{ fontSize: 11, fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.2em', textTransform: 'uppercase', color: a.accentColor, marginBottom: 4 }}>{a.tipo}</p>
+          <h3 style={{ fontSize: 26, fontWeight: 800, fontFamily: 'var(--f-display), Montserrat, sans-serif', color: 'var(--hueso)', margin: 0, lineHeight: 1.1 }}>{a.label}</h3>
+          <p style={{ fontSize: 12, color: 'rgba(242,239,233,0.4)', fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.1em', marginTop: 5 }}>{a.tagline}</p>
+        </div>
+      </div>
+
+      <p style={{ fontSize: 15, lineHeight: 1.7, color: 'rgba(242,239,233,0.6)', fontFamily: 'var(--f-texto), Spectral, serif', margin: 0 }}>{a.desc}</p>
+
+      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {a.caps.map(cap => (
+          <li key={cap} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'rgba(242,239,233,0.65)', fontFamily: 'var(--f-texto), Spectral, serif' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: a.accentColor }} />
+            {cap}
+          </li>
+        ))}
+      </ul>
+
+      <div style={{ height: 1, background: `linear-gradient(90deg, ${a.accentBorder}, transparent)` }} />
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <AgentWidget agentId={a.id} label={a.label} />
+      </div>
+
+      <p style={{ fontSize: 11, color: 'rgba(242,239,233,0.25)', fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.08em', textAlign: 'center', margin: 0 }}>
+        Requiere micrófono · Mismo agente que atiende en producción, no es una demo grabada.
+      </p>
+    </div>
   );
 }
 
@@ -767,9 +955,6 @@ function ProposalContent() {
                     </div>
                   ))}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <DemoButton />
-                </div>
               </div>
             }
           >
@@ -783,6 +968,31 @@ function ProposalContent() {
           <div className="pv-hero-spacer-bottom" aria-hidden="true" />
         </div>
       </VolumetricStudio>
+
+      {/* ── Su marca, en su oficina ── */}
+      <section className={s.section} style={{ paddingTop: 64, paddingBottom: 40 }}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 32, textAlign: 'center' }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14, justifyContent: 'center' }}>Providus S.A. · Córdoba</p>
+            <h2 className={s.sectionTitle}>Esto no es una plantilla.<br /><em>Es su oficina.</em></h2>
+          </div>
+          <div className={s.reveal} data-reveal="" style={{ maxWidth: 760, margin: '0 auto' }}>
+            <ProvidusLogoVideo />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Probar el agente en vivo ── */}
+      <section className={`${s.section} ${s.sectionAlt}`} style={{ paddingTop: 64, paddingBottom: 64 }}>
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 40, textAlign: 'center' }}>
+            <p className={s.kickerLabel} style={{ marginBottom: 14, justifyContent: 'center' }}>Antes de seguir leyendo</p>
+            <h2 className={s.sectionTitle}>Pruébenlo ustedes<br /><em>ahora mismo.</em></h2>
+            <p className={s.sectionSub} style={{ margin: '0 auto' }}>Es el mismo agente descripto en el Módulo 2, con la voz y el guion de Providus. Un clic y le hablan directamente.</p>
+          </div>
+          <div className={s.reveal} data-reveal=""><ProvidusAgentCard /></div>
+        </div>
+      </section>
 
       {/* ── 01 Situación ── */}
       <section className={s.section} ref={setRef('situacion')}>

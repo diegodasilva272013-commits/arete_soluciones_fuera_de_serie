@@ -38,7 +38,7 @@ const WA = waUrl(WA_MSG_DIAGNOSTICO);
 // Instagram / LinkedIn — todavía no hay ninguna cargada al proyecto.
 const SOCIALS: { label: string; href: string; icon: 'whatsapp' | 'mail' }[] = [
   { label: WA_PHONE_DISPLAY,            href: WA,                                  icon: 'whatsapp' },
-  { label: 'arete@aretesoluciones.com', href: 'mailto:arete@aretesoluciones.com',  icon: 'mail'      },
+  { label: 'arete@aretesoluciones.space', href: 'mailto:arete@aretesoluciones.space', icon: 'mail'      },
 ];
 
 function SocialIcon({ type }: { type: 'whatsapp' | 'mail' }) {

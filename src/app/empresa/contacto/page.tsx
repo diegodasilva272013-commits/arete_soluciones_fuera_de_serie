@@ -112,7 +112,7 @@ export default function ContactoPage() {
 
                 {/* Email */}
                 <a
-                  href="mailto:arete@aretesoluciones.com"
+                  href="mailto:arete@aretesoluciones.space"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -129,7 +129,7 @@ export default function ContactoPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>Email</p>
-                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>arete@aretesoluciones.com</p>
+                    <p style={{ margin: '0 0 4px', fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'rgba(242,239,233,0.55)' }}>arete@aretesoluciones.space</p>
                     <p style={{ margin: 0, fontSize: 12, color: 'rgba(242,239,233,0.38)' }}>Respuesta en 24 horas hábiles</p>
                   </div>
                   <ArrowRight size={16} color="rgba(242,239,233,0.22)" />
