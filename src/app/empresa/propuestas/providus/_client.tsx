@@ -354,14 +354,6 @@ function MobilePanelContent({ isActive, children }: { isActive: boolean; childre
 function ElasticSolucion({ items }: { items: { id: string; label: string; content: React.ReactNode }[] }) {
   const [activeId, setActiveId] = useState(items[0].id);
   const [isMobile, setIsMobile] = useState(false);
-  // Alto del panel de escritorio: se MIDE el contenido real de la pestaña
-  // activa (no un numero fijo adivinado). Un solo numero para las 6 no
-  // funciona porque el contenido varia mucho de una a otra: "Vendedor" es
-  // corto y "App de campo" es largo. Fijo en el largo -> hueco vacio enorme
-  // en las cortas. Fijo en el corto -> texto cortado en las largas.
-  const [rowHeight, setRowHeight] = useState(600);
-  const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const IMG_HEIGHT = 160;
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768);
@@ -369,23 +361,6 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
-
-  useEffect(() => {
-    if (isMobile) return;
-    const measure = () => {
-      const el = contentRefs.current[activeId];
-      if (!el) return;
-      const top = el.getBoundingClientRect().top;
-      const last = el.lastElementChild;
-      const lastBottom = last ? last.getBoundingClientRect().bottom : el.getBoundingClientRect().bottom;
-      const paddingBottom = parseFloat(getComputedStyle(el).paddingBottom) || 0;
-      const contentHeight = (lastBottom - top) + paddingBottom;
-      setRowHeight(Math.round(Math.max(IMG_HEIGHT + 1 + contentHeight, 420)));
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [activeId, isMobile]);
 
   if (isMobile) {
     return (
@@ -414,19 +389,22 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
   }
 
   return (
-    <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: rowHeight, alignItems: 'stretch', transition: 'height 0.4s cubic-bezier(0.25,1,0.5,1)' }}>
+    <div style={{ display: 'flex', gap: 1, background: 'var(--linea)', height: 620, alignItems: 'stretch' }}>
       {items.map((item, idx) => {
         const isActive = activeId === item.id;
         const img = M1_IMAGES[idx] ?? '/galeria1.png';
         return (
-          <div key={item.id} onMouseEnter={() => setActiveId(item.id)} onClick={() => setActiveId(item.id)} style={{ flex: isActive ? 5 : 1, transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)', cursor: 'pointer', overflow: 'hidden', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ position: 'relative', height: IMG_HEIGHT, flexShrink: 0, overflow: 'hidden' }}>
-              <Image src={img} alt={item.label} fill sizes="20vw" style={{ objectFit: 'cover', transform: isActive ? 'scale(1.03)' : 'scale(1.1)', transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s', filter: isActive ? 'brightness(0.75) saturate(0.8)' : 'brightness(0.38) saturate(0.45)' }} />
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActive ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: 'none' }}>
-                <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.9)', whiteSpace: 'nowrap' }}>{item.label}</span>
-              </div>
+          <div key={item.id} onMouseEnter={() => setActiveId(item.id)} onClick={() => setActiveId(item.id)} style={{ position: 'relative', flex: isActive ? 5 : 1, transition: 'flex 0.7s cubic-bezier(0.25,1,0.5,1)', cursor: 'pointer', overflow: 'hidden', minWidth: 0 }}>
+            {/* La foto ocupa todo el alto de la columna, activa o no */}
+            <Image src={img} alt={item.label} fill sizes={isActive ? '55vw' : '10vw'} style={{ objectFit: 'cover', transform: isActive ? 'scale(1.03)' : 'scale(1.1)', transition: 'transform 1s cubic-bezier(0.25,1,0.5,1), filter 0.5s', filter: isActive ? 'brightness(0.55) saturate(0.85)' : 'brightness(0.35) saturate(0.45)' }} />
+            {/* Velo oscuro para que el texto se lea sobre la foto */}
+            <div style={{ position: 'absolute', inset: 0, background: isActive ? 'linear-gradient(to top, rgba(5,5,5,0.96) 0%, rgba(5,5,5,0.8) 36%, rgba(5,5,5,0.1) 66%, transparent 100%)' : 'rgba(5,5,5,0.22)', transition: 'background 0.4s' }} />
+            {/* Etiqueta vertical — solo columnas colapsadas */}
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActive ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: 'none' }}>
+              <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(242,239,233,0.9)', whiteSpace: 'nowrap' }}>{item.label}</span>
             </div>
-            <div ref={(el) => { contentRefs.current[item.id] = el; }} style={{ flex: 1, padding: '18px 20px', background: '#050505', borderTop: '1px solid var(--linea)', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s', overflow: 'hidden' }}>
+            {/* Texto — pegado abajo, sobre la foto */}
+            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '90%', overflowY: 'auto', padding: '22px 24px 26px', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(10px)', transition: 'opacity 0.35s 0.12s, transform 0.35s 0.12s', pointerEvents: isActive ? 'auto' : 'none' }}>
               <span style={{ display: 'inline-block', marginBottom: 10, padding: '2px 8px', border: '1px solid rgba(92,154,255,0.4)', background: 'rgba(47,123,246,0.12)', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{item.label}</span>
               {item.content}
             </div>
