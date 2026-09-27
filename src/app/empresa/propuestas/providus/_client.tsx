@@ -388,19 +388,17 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
       const total = (contentHeight + 1) / (1 - IMG_RATIO);
       setRowHeight(Math.round(total));
     };
-    // La columna activa tarda 0.7s en ensancharse (flex 0.7s). Si medimos
-    // apenas se hace click, el texto todavia esta envuelto al ancho VIEJO
-    // (angosto) y da una altura inflada -> hueco vacio enorme cuando
-    // termina de ensancharse y el mismo texto entra en menos lineas.
-    // Se remide varias veces durante la transicion para que la caja
-    // termine ajustada al ancho final, no al de a mitad de camino.
-    measure();
-    const t1 = setTimeout(measure, 200);
-    const t2 = setTimeout(measure, 450);
-    const t3 = setTimeout(measure, 750);
+    // La columna activa tarda 0.7s en ensancharse (flex 0.7s). Medir mas
+    // de una vez mientras esa transicion todavia se esta moviendo genera
+    // un feedback: una medicion a mitad de camino dispara un alto nuevo,
+    // que dispara otra transicion de alto, que se vuelve a medir a mitad
+    // de camino de ESA transicion -> el numero se dispara en vez de
+    // asentarse (llegue a ver filas de 4000px+). Una sola medicion,
+    // recien cuando la transicion de ancho termino, evita el feedback.
+    const t = setTimeout(measure, 750);
     window.addEventListener('resize', measure);
     return () => {
-      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
+      clearTimeout(t);
       window.removeEventListener('resize', measure);
     };
   }, [activeId, isMobile]);
