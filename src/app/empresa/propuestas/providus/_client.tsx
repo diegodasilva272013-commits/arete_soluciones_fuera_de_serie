@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useTransition, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
+import { useState, useTransition, useEffect, useLayoutEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX } from 'lucide-react';
+import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX, BellRing } from 'lucide-react';
 import { checkPassword, notifyAcceptance } from './actions';
 import AnimatedGradient from '@/components/ui/animated-gradient';
 import dynamic from 'next/dynamic';
@@ -39,17 +39,16 @@ function RevealObserver() {
   return null;
 }
 
-// ── Estilos locales (calculadora + responsive) ────────────────────────────────
+// ── Estilos locales (responsive) ────────────────────────────────────────────
 const LOCAL_CSS = `
 @keyframes propShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-.pvRange{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:rgba(242,239,233,.16);outline:none;margin:14px 0 0}
-.pvRange::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;background:#2F7BF6;cursor:pointer;border:none;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%)}
-.pvRange::-moz-range-thumb{width:16px;height:16px;background:#2F7BF6;cursor:pointer;border:none;border-radius:0}
-.pvCalcGrid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
 .pvGrid2{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
 .pvSplitTight{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+@keyframes pvPulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.9;transform:scale(1.25)}}
+.pvPulse{animation:pvPulse 2.4s ease-in-out infinite}
 .pvHoverRow{border-left:2px solid transparent;transition:border-color .2s,background .2s}
 .pvHoverRow:hover{border-left-color:#2F7BF6;background:rgba(47,123,246,.03)}
+@media (max-width:1100px){ .p-grid5 { grid-template-columns: 1fr 1fr !important; } }
 .pv-hero-spacer{height:120px}
 .pv-hero-spacer-bottom{height:140px}
 @media (max-width: 768px) {
@@ -58,7 +57,7 @@ const LOCAL_CSS = `
   .p-nav { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 12px !important; }
   .p-nav::-webkit-scrollbar { display: none; }
   .p-nav-fade { display: block !important; }
-  .p-grid2, .pvGrid2, .pvCalcGrid { grid-template-columns: 1fr !important; height: auto !important; gap: 20px !important; }
+  .p-grid2, .pvGrid2 { grid-template-columns: 1fr !important; height: auto !important; gap: 20px !important; }
   .pvSplitTight { grid-template-columns: 1fr !important; gap: 1px !important; }
   .p-pad { padding: 28px 20px !important; }
   .p-inv-pad { padding: 36px 20px !important; }
@@ -131,9 +130,10 @@ const COMPARACION: { antes: string; despues: string }[] = [
 ];
 
 const CARAS = [
-  { icon: Radio,    t: 'App móvil',    q: 'Promotoras en los eventos',          d: 'Carga sin señal, foto, consentimiento y envío automático.' },
-  { icon: Database, t: 'Panel web',    q: 'Dirección, administración y ventas', d: 'Cada rol ve exclusivamente su alcance.' },
-  { icon: Zap,      t: 'Agente de IA', q: 'Los interesados, 24 horas',          d: 'Atiende, califica, propone y cierra.' },
+  { icon: Radio,    t: 'App móvil',    q: 'Promotoras en los eventos',  d: 'Carga sin señal, foto, consentimiento y envío automático.' },
+  { icon: Database, t: 'Panel web',    q: 'Administración y ventas',    d: 'Cada rol ve exclusivamente su alcance.' },
+  { icon: Zap,      t: 'Agente de IA', q: 'Los interesados, 24 horas',  d: 'Atiende, califica, propone y cierra.' },
+  { icon: BellRing, t: 'Dirección',    q: 'Los dueños, sin entrar a nada', d: 'Indicadores del negocio y alertas que los buscan a ustedes.' },
 ];
 
 const TABS_M1 = [
@@ -267,6 +267,13 @@ const NO_INCLUIDO = [
   'Servicio mensual de monitoreo, más allá de los 90 días de garantía.',
 ];
 
+const SIN_CARGO: { t: string; d: string }[] = [
+  { t: 'Informe de cierre de evento', d: 'Al terminar cada evento, la dirección recibe por correo el resumen automático: registros obtenidos, rendimiento por promotora y cuántos contactos ya fueron trabajados. Sin pedirlo.' },
+  { t: 'Ranking en vivo de promotoras', d: 'Durante el evento, en pantalla. Cambia el comportamiento del equipo en el momento, no en la reunión de la semana siguiente.' },
+  { t: 'Modo kiosco en los dispositivos', d: 'La tablet queda bloqueada en la aplicación: no se puede salir a redes sociales ni a ninguna otra app durante el evento.' },
+  { t: 'Vista de dirección y alertas automáticas', d: 'Los indicadores del negocio en una sola pantalla pensada para la conducción, y avisos automáticos cuando algo se sale de lo normal.' },
+];
+
 const COSTOS_APARTE: [string, string][] = [
   ['Apple Developer', 'USD 99 por año'],
   ['Google Play', 'USD 25, pago único'],
@@ -293,6 +300,25 @@ const NECESITAMOS = [
   { n: '06', t: 'Dispositivos', d: 'Tablets o celulares para las promotoras.' },
   { n: '07', t: 'Un responsable del proyecto', d: 'Una persona de Providus que coordine, valide y destrabe.' },
   { n: '08', t: 'Un evento real', d: 'Para el piloto, antes de la puesta en marcha completa.' },
+];
+
+const KPIS_DIRECCION: { k: string; v: string; d: string }[] = [
+  { k: 'Captación del mes',        v: 'Registros',   d: 'Cuántos interesados entraron, contra el mes anterior.' },
+  { k: 'Velocidad de respuesta',   v: 'Minutos',     d: 'Cuánto tarda el equipo en hacer el primer contacto.' },
+  { k: 'Contactos sin trabajar',   v: 'Pendientes',  d: 'Cuántos siguen sin que nadie los llame, y desde cuándo.' },
+  { k: 'Conversión a suscripción', v: 'Porcentaje',  d: 'Del total captado, cuántos terminaron firmando.' },
+  { k: 'Rendimiento por evento',   v: 'Ranking',     d: 'Qué eventos rinden y cuáles no justifican volver.' },
+  { k: 'Rendimiento por agencia',  v: 'Ranking',     d: 'Qué agencias y vendedores están arriba y cuáles abajo.' },
+  { k: 'Motivos de pérdida',       v: 'Ranking',     d: 'Por qué se caen las ventas: precio, no contesta, no califica.' },
+  { k: 'Agente contra humano',     v: 'Comparación', d: 'Qué convierte mejor y en qué horarios conviene cada uno.' },
+];
+
+const ALERTAS: string[] = [
+  'Hay 14 contactos del evento del sábado sin trabajar hace 3 días.',
+  'La agencia Córdoba Norte bajó 40% respecto del mes pasado.',
+  'Un vendedor tiene 20 contactos asignados y contactó 3.',
+  'El tiempo de primer llamado pasó de 20 minutos a 4 horas esta semana.',
+  'Un evento cargó la mitad de registros que el promedio de los últimos tres.',
 ];
 
 const EVOLUCION = [
@@ -632,82 +658,6 @@ function ElasticRoadmap({ items }: { items: typeof EVOLUCION }) {
   );
 }
 
-// ── Slider + Calculadora de retorno ────────────────────────────────────────────
-function Slider({ label, value, setValue, min, max, step, format }: {
-  label: string; value: number; setValue: (n: number) => void;
-  min: number; max: number; step: number; format: (n: number) => string;
-}) {
-  return (
-    <div style={{ marginBottom: 26 }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
-        <label style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--ceniza)' }}>{label}</label>
-        <span style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 800, fontSize: 17, color: 'var(--hueso)', letterSpacing: '-0.02em' }}>{format(value)}</span>
-      </div>
-      <input className="pvRange" type="range" min={min} max={max} step={step} value={value} onChange={e => setValue(Number(e.target.value))} aria-label={label} />
-    </div>
-  );
-}
-
-function Calculadora() {
-  const [eventos, setEventos]     = useState(6);
-  const [registros, setRegistros] = useState(60);
-  const [perdido, setPerdido]     = useState(20);
-  const [cierre, setCierre]       = useState(6);
-  const [valor, setValor]         = useState(600);
-
-  const r = useMemo(() => {
-    const recuperados = eventos * registros * (perdido / 100);
-    const ventas      = recuperados * (cierre / 100);
-    const mensual     = ventas * valor;
-    const meses       = mensual > 0 ? 22000 / mensual : Infinity;
-    return { recuperados, ventas, mensual, meses };
-  }, [eventos, registros, perdido, cierre, valor]);
-
-  const n0 = (x: number) => Math.round(x).toLocaleString('es-AR');
-  const n1 = (x: number) => x.toFixed(1).replace('.', ',');
-
-  return (
-    <div className="pvCalcGrid">
-      <div>
-        <Slider label="Eventos por mes"              value={eventos}   setValue={setEventos}   min={1}   max={30}   step={1}  format={n => `${n}`} />
-        <Slider label="Registros por evento"          value={registros} setValue={setRegistros} min={10}  max={300}  step={5}  format={n => `${n}`} />
-        <Slider label="Que hoy se enfrían o pierden"  value={perdido}   setValue={setPerdido}    min={0}   max={60}   step={1}  format={n => `${n}%`} />
-        <Slider label="Cierre sobre los recuperados"  value={cierre}    setValue={setCierre}     min={1}   max={30}   step={1}  format={n => `${n}%`} />
-        <Slider label="Valor de una suscripción"      value={valor}     setValue={setValor}      min={100} max={5000} step={50} format={n => `USD ${n.toLocaleString('es-AR')}`} />
-        <p style={{ margin: '8px 0 0', fontFamily: 'var(--f-texto), Spectral, serif', fontStyle: 'italic', fontSize: 13, lineHeight: 1.6, color: 'var(--ceniza)' }}>
-          Los números los pone Providus. Areté no estima ninguno de estos valores: esta calculadora solo hace la cuenta con los datos que ustedes conocen.
-        </p>
-      </div>
-      <div style={{ border: '1px solid rgba(47,123,246,0.25)', background: 'rgba(47,123,246,0.04)', padding: '36px 34px', clipPath: 'polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px)' }}>
-        <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 24 }}>Resultado con esos números</p>
-        {[
-          ['Contactos recuperados por mes', n0(r.recuperados)],
-          ['Suscripciones adicionales por mes', n1(r.ventas)],
-        ].map(([k, v]) => (
-          <div key={k} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 16, padding: '14px 0', borderBottom: '1px solid var(--linea)' }}>
-            <span style={{ fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 14, color: 'rgba(242,239,233,0.6)' }}>{k}</span>
-            <span style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 800, fontSize: 20, color: 'var(--hueso)', letterSpacing: '-0.03em' }}>{v}</span>
-          </div>
-        ))}
-        <div style={{ margin: '28px 0 0' }}>
-          <p style={{ margin: 0, fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>Ingreso adicional por mes</p>
-          <div style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 900, fontSize: 'clamp(32px,4.6vw,48px)', letterSpacing: '-0.05em', color: 'var(--hueso)', lineHeight: 1.05, marginTop: 4 }}>USD {n0(r.mensual)}</div>
-        </div>
-        <div style={{ marginTop: 26, padding: '18px 20px', background: 'rgba(47,123,246,0.07)', border: '1px solid rgba(47,123,246,0.18)' }}>
-          <p style={{ margin: 0, fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 14, lineHeight: 1.65, color: 'rgba(242,239,233,0.78)' }}>
-            {Number.isFinite(r.meses) && r.meses > 0 ? (
-              <>La inversión de <b style={{ color: 'var(--hueso)' }}>USD 22.000</b> queda cubierta en{' '}<b style={{ color: 'var(--azul-luz)' }}>{r.meses < 1 ? 'menos de un mes' : `${n1(r.meses)} meses`}</b>.</>
-            ) : (<>Movés los valores de arriba y la cuenta se actualiza sola.</>)}
-          </p>
-        </div>
-        <p style={{ margin: '20px 0 0', fontFamily: 'var(--f-texto), Spectral, serif', fontStyle: 'italic', fontSize: 13, lineHeight: 1.6, color: 'var(--ceniza)' }}>
-          Y esto cuenta solo lo que hoy se pierde entre el evento y el primer llamado. No cuenta las horas de carga manual que se eliminan, ni las ventas que agrega el agente atendiendo fuera de horario.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 // ── ProposalContent ───────────────────────────────────────────────────────────
 function ProposalContent() {
   const [activeTab, setActiveTab] = useState('nucleo');
@@ -745,7 +695,7 @@ function ProposalContent() {
     { id: 'modulo1',    label: 'Módulo 1' },
     { id: 'modulo2',    label: 'Módulo 2' },
     { id: 'seguridad',  label: 'Seguridad' },
-    { id: 'retorno',    label: 'Retorno' },
+    { id: 'direccion',  label: 'Dirección' },
     { id: 'inversion',  label: 'Inversión' },
     { id: 'proceso',    label: 'Proceso' },
   ];
@@ -769,7 +719,7 @@ function ProposalContent() {
   return (
     <>
       <RevealObserver />
-      <style>{LOCAL_CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: LOCAL_CSS }} />
 
       {/* ── Barra de secciones (bajo el CorpHeader) ── */}
       <div style={{ position: 'sticky', top: 68, zIndex: 100 }}>
@@ -854,7 +804,7 @@ function ProposalContent() {
             <h2 className={s.sectionTitle}>Una plataforma,<br /><em>no herramientas sueltas.</em></h2>
             <p className={s.sectionSub}>Tres caras de acceso sobre un mismo núcleo. La persona que se registra en el evento, la que habla con el agente y la que atiende el vendedor son el mismo registro.</p>
           </div>
-          <div className={`${s.reveal} p-grid5`} data-reveal="" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 1, background: 'var(--linea)', marginBottom: 1 }}>
+          <div className={`${s.reveal} p-grid5`} data-reveal="" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--linea)', marginBottom: 1 }}>
             {CARAS.map(({ icon: Icon, t, q, d }) => (
               <div key={t} style={{ background: '#050505', padding: '32px 28px' }}>
                 <Icon size={18} color="var(--azul)" style={{ marginBottom: 16 }} />
@@ -939,15 +889,48 @@ function ProposalContent() {
         </div>
       </section>
 
-      {/* ── 06 Retorno ── */}
-      <section className={`${s.section} ${s.sectionAlt}`} ref={setRef('retorno')}>
+      {/* ── 06 Vista de dirección ── */}
+      <section className={`${s.section} ${s.sectionAlt}`} ref={setRef('direccion')}>
         <div className={s.inner}>
           <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48 }}>
-            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>06 — Retorno de la inversión</p>
-            <h2 className={s.sectionTitle}>Hagan la cuenta<br /><em>con sus números.</em></h2>
-            <p className={s.sectionSub}>Mové los valores y la cuenta se actualiza sola. Nadie tiene que creernos: la aritmética la hacen ustedes.</p>
+            <p className={s.kickerLabel} style={{ marginBottom: 14 }}>06 — Vista de dirección · incluida sin cargo</p>
+            <h2 className={s.sectionTitle}>El sistema no espera<br /><em>a que lo miren.</em></h2>
+            <p className={s.sectionSub}>Un director no entra a un tablero todos los días. Por eso los indicadores están en una sola pantalla, y lo que importa sale a buscarlo.</p>
           </div>
-          <div className={s.reveal} data-reveal=""><Calculadora /></div>
+
+          <div className={`${s.reveal} p-grid5`} data-reveal="" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--linea)', marginBottom: 40 }}>
+            {KPIS_DIRECCION.map(({ k, v, d }) => (
+              <div key={k} className="p-pad" style={{ background: '#050505', padding: '26px 24px' }}>
+                <p style={{ margin: '0 0 8px', fontFamily: 'var(--f-mono), monospace', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--azul-luz)' }}>{v}</p>
+                <h3 style={{ margin: '0 0 8px', fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--hueso)', letterSpacing: '-0.02em' }}>{k}</h3>
+                <p style={{ margin: 0, fontFamily: 'var(--f-texto), Spectral, serif', fontWeight: 300, fontSize: 13.5, lineHeight: 1.6, color: '#B4B1AB' }}>{d}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className={`${s.reveal} pvGrid2`} data-reveal="">
+            <div>
+              <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 12 }}>Alertas que los buscan a ustedes</p>
+              <p className={s.bandBody} style={{ marginBottom: 18 }}>
+                El sistema avisa por correo cuando algo se sale de lo normal. No hay que acordarse de revisar: si hay plata quedando en el camino, llega el aviso.
+              </p>
+              <p className={s.bandPull}>
+                Un tablero se mira cuando uno se acuerda. Un aviso que dice que se están perdiendo catorce contactos, se lee.
+              </p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--linea)' }}>
+              {ALERTAS.map(a => (
+                <div key={a} className="pvHoverRow p-nec-pad" style={{ display: 'flex', alignItems: 'flex-start', gap: 14, background: '#050505', padding: '16px 20px' }}>
+                  <span className="pvPulse" style={{ flexShrink: 0, marginTop: 6, width: 6, height: 6, background: 'var(--azul)', clipPath: 'polygon(50% 0%,100% 50%,50% 100%,0% 50%)' }} />
+                  <span style={{ fontFamily: 'var(--f-texto), Spectral, serif', fontStyle: 'italic', fontSize: 14, lineHeight: 1.6, color: 'rgba(242,239,233,0.72)' }}>{a}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className={s.reveal} data-reveal="" style={{ margin: '28px 0 0', fontFamily: 'var(--f-texto), Spectral, serif', fontStyle: 'italic', fontSize: 14, color: 'var(--ceniza)' }}>
+            Las reglas de cada alerta las define Providus: qué se considera demasiado tiempo, qué caída merece un aviso y a quién le llega.
+          </p>
         </div>
       </section>
 
@@ -1005,6 +988,22 @@ function ProposalContent() {
                 ))}
               </div>
             </div>
+          </div>
+
+          <div className={s.reveal} data-reveal="" style={{ marginTop: 40, padding: '36px 40px', border: '1.5px solid rgba(47,123,246,0.35)', clipPath: 'polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px)' }}>
+            <p className={s.bandNum} style={{ color: 'var(--azul)', marginBottom: 8 }}>Incluido sin cargo — no estaba en el pedido</p>
+            <p className={s.sectionSub} style={{ marginBottom: 26, maxWidth: 680 }}>
+              Lo incorporamos porque, conociendo cómo va a operar el sistema, son las cuatro cosas que más se usan y que más se extrañarían si faltaran.
+            </p>
+            {SIN_CARGO.map(({ t, d }) => (
+              <div key={t} className="pvHoverRow" style={{ padding: '18px 0 18px 18px', borderBottom: '1px solid var(--linea)' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 4 }}>
+                  <span style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--hueso)' }}>{t}</span>
+                  <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.2em', color: 'var(--azul)', whiteSpace: 'nowrap' }}>SIN CARGO</span>
+                </div>
+                <p style={{ margin: 0, fontFamily: 'var(--f-texto), Spectral, serif', fontSize: 14, lineHeight: 1.65, color: '#B4B1AB' }}>{d}</p>
+              </div>
+            ))}
           </div>
 
           <div className={s.reveal} data-reveal="" style={{ marginTop: 40 }}>
