@@ -263,9 +263,9 @@ const INCLUIDO = [
   'Panel de operaciones con tiempo real, deduplicación y asignación automática.',
   'Espacio del vendedor con bandeja, estados, notas y WhatsApp desde el número oficial.',
   'Performance comercial: reloj de respuesta, reasignación, motivos de pérdida e indicadores.',
-  'Agente de IA por voz, WhatsApp y web, con catálogo de planes, propuesta y cobros.',
   'Club de beneficios: modo cliente con su plan, comercios adheridos, código de uso y monedero de ahorro.',
   'Modo comercio dentro de la misma app para validar los códigos, y administración completa del club desde el panel.',
+  'Agente de IA por voz, WhatsApp y web, con catálogo de planes, propuesta y cobros.',
   'Pruebas de seguridad, despliegue, capacitación y documentación.',
   '90 días de garantía y acompañamiento desde la puesta en producción.',
 ];
