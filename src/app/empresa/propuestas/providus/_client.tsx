@@ -692,7 +692,7 @@ function ProposalContent() {
       </div>
 
       {/* ── Hero (VolumetricStudio + ContainerScroll + video) ── */}
-      <VolumetricStudio>
+      <VolumetricStudio className="overflow-visible">
         <div style={{ pointerEvents: 'auto' }}>
           {/* Espaciador: deja la zona de los focos (arriba del todo, dentro
               de este mismo section) vacía, para que el título/card de
