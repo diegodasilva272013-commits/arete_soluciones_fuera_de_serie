@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useEffect, useRef, useMemo } from 'react';
+import { useState, useTransition, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX } from 'lucide-react';
@@ -374,6 +374,17 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
   // tiene transiciones: el ancho de su columna activa cambia INSTANTANEO
   // en el mismo render, asi que medirla es inmediato y no se retroalimenta.
   const measureRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  // Callback de ref ESTABLE por id (no una arrow function nueva en cada
+  // render) para que React no desmonte/remonte el ref en cada render de
+  // ida y vuelta — asi no hay ninguna ventana donde measureRefs.current
+  // pueda leerse a mitad de una reasignacion.
+  const measureRefSetters = useRef<Record<string, (el: HTMLDivElement | null) => void>>({});
+  const getMeasureRef = (id: string) => {
+    if (!measureRefSetters.current[id]) {
+      measureRefSetters.current[id] = (el: HTMLDivElement | null) => { measureRefs.current[id] = el; };
+    }
+    return measureRefSetters.current[id];
+  };
   const imgHeight = Math.round(rowHeight * IMG_RATIO);
 
   useEffect(() => {
@@ -383,7 +394,7 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isMobile) return;
     const measure = () => {
       const el = measureRefs.current[activeId];
@@ -430,7 +441,7 @@ function ElasticSolucion({ items }: { items: { id: string; label: string; conten
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, visibility: 'hidden', pointerEvents: 'none', zIndex: -1, display: 'flex', alignItems: 'flex-start', gap: 1 }}>
         {items.map((item) => (
           <div key={item.id} style={{ flex: activeId === item.id ? 5 : 1, minWidth: 0 }}>
-            <div ref={(el) => { measureRefs.current[item.id] = el; }} style={{ padding: '18px 20px' }}>
+            <div ref={getMeasureRef(item.id)} style={{ padding: '18px 20px' }}>
               <span style={{ display: 'inline-block', marginBottom: 10, padding: '2px 8px', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase' }}>{item.label}</span>
               {item.content}
             </div>
