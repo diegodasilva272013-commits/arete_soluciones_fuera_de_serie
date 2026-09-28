@@ -41,20 +41,38 @@ const targetPoints = [
 export const cameraCurve = new THREE.CatmullRomCurve3(positionPoints, false, 'catmullrom', 0.5);
 export const targetCurve = new THREE.CatmullRomCurve3(targetPoints, false, 'catmullrom', 0.5);
 
-// Easing suave sobre el progreso ya scrubbeado por ScrollTrigger — evita que
-// los tramos entre puntos de control se sientan mecánicos.
+// Progreso de scroll al que corresponde cada waypoint de arriba (mismo orden).
+// Usamos esto en vez de getPointAt (parametrizado por longitud de arco) porque
+// los tramos tienen distancias muy distintas entre sí (el tramo de llegada mide
+// ~10 unidades, los tramos dentro de la casa ~2-3): con longitud de arco, un
+// progress de 0.60 terminaba cayendo cerca del patio en vez de la cocina.
+const WAYPOINT_PROGRESS = [0.00, 0.08, 0.15, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.88, 0.94, 1.00];
+
 function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+// Convierte progress -> parámetro u de la curva (getPoint, NO getPointAt),
+// interpolando por tramos para que cada waypoint caiga exactamente en el
+// progress indicado en WAYPOINT_PROGRESS, con ease-in-out dentro de cada tramo.
+function progressToU(progress: number) {
+  const p = THREE.MathUtils.clamp(progress, 0, 1);
+  const segments = WAYPOINT_PROGRESS.length - 1;
+  let i = 0;
+  while (i < segments - 1 && p > WAYPOINT_PROGRESS[i + 1]) i++;
+  const segStart = WAYPOINT_PROGRESS[i];
+  const segEnd = WAYPOINT_PROGRESS[i + 1];
+  const localT = segEnd > segStart ? (p - segStart) / (segEnd - segStart) : 0;
+  return (i + easeInOutCubic(localT)) / segments;
 }
 
 const tmpPos = new THREE.Vector3();
 const tmpTarget = new THREE.Vector3();
 
 export function evaluatePath(progress: number, outPos: THREE.Vector3, outTarget: THREE.Vector3) {
-  const t = THREE.MathUtils.clamp(progress, 0, 1);
-  const eased = easeInOutCubic(t);
-  cameraCurve.getPointAt(eased, tmpPos);
-  targetCurve.getPointAt(eased, tmpTarget);
+  const u = progressToU(progress);
+  cameraCurve.getPoint(u, tmpPos);
+  targetCurve.getPoint(u, tmpTarget);
   outPos.copy(tmpPos);
   outTarget.copy(tmpTarget);
 }
