@@ -17,11 +17,19 @@ export async function POST(req: NextRequest) {
     const { setter_id } = await req.json();
     if (!setter_id) return NextResponse.json({ error: 'setter_id requerido' }, { status: 400 });
 
+    // Misma definición de "sin asignar" que el resto del panel (migración
+    // 0056): sin assigned_to_user_id Y sin estar ya en team_leads. Antes
+    // este endpoint solo miraba assigned_to_user_id IS NULL, así que podía
+    // reasignar leads que en realidad ya estaban repartidos a una dupla.
+    const { data: rows } = await (admin as any).rpc('leads_sin_asignar', { p_limit: 0 });
+    const ids = ((rows ?? []) as { id: string }[]).map(r => r.id);
+    if (ids.length === 0) return NextResponse.json({ updated: 0 });
+
     const nowIso = new Date().toISOString();
     const { data, error } = await admin
       .from('leads')
       .update({ assigned_to_user_id: setter_id, assigned_at: nowIso })
-      .is('assigned_to_user_id', null)
+      .in('id', ids)
       .select('id');
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

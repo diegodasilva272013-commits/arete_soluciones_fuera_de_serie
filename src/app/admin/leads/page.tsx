@@ -98,6 +98,18 @@ function AdminLeadsPageInner() {
   const [totalLeads, setTotalLeads] = useState(0);
   const [setterNoContactado, setSetterNoContactado]   = useState<number | null>(null);
   const [loadingSetterCount, setLoadingSetterCount]   = useState(false);
+  // Total real de "sin asignar" (server-side, misma función que el resto de
+  // la app) — antes se calculaba filtrando solo los leads de la pagina
+  // cargada (200), asi que con mas de 200 leads el numero mostrado era falso.
+  const [unassignedTotal, setUnassignedTotal] = useState<number | null>(null);
+
+  async function loadUnassignedTotal() {
+    try {
+      const res  = await fetch('/api/admin/leads/sin-asignar');
+      const data = await res.json();
+      if (res.ok) setUnassignedTotal(data.count ?? 0);
+    } catch { /**/ }
+  }
 
   // Realtime — refleja en tiempo real los cambios de setters
   useLeadsRealtime({
@@ -184,7 +196,7 @@ function AdminLeadsPageInner() {
     } catch { /**/ }
   }
 
-  useEffect(() => { load(1); loadUsers(); loadDupCount(); }, []);
+  useEffect(() => { load(1); loadUsers(); loadDupCount(); loadUnassignedTotal(); }, []);
   useEffect(() => { load(1); setSelected(new Set()); setAssignMsg(''); }, [filterStatus, filterUser]);
 
   // Cuando se selecciona un setter: contar sus leads NO_CONTACTADO del total (no solo la página)
@@ -273,6 +285,7 @@ function AdminLeadsPageInner() {
       setImportResult(`✅ ${totalImported} leads importados${skipMsg}. Lote: ${batchId}`);
       setCsvRows([]);
       await load();
+      await loadUnassignedTotal();
     } catch (err: any) {
       setImportResult(`❌ Error de red: ${err?.message ?? 'timeout'}`);
     } finally {
@@ -305,6 +318,7 @@ function AdminLeadsPageInner() {
       }
       setSelected(new Set());
       await load();
+      await loadUnassignedTotal();
     } else {
       setAssignMsg(`❌ ${data.error}`);
     }
@@ -338,7 +352,6 @@ function AdminLeadsPageInner() {
     return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' });
   }
 
-  const unassigned    = leads.filter((l) => !l.assignee).length;
   const noContactados = leads.filter((l) => l.current_status === 'NO_CONTACTADO').length;
   const dupCount      = dupServerCount ?? 0;
 
@@ -346,7 +359,7 @@ function AdminLeadsPageInner() {
   const headerDesc = [
     `${(totalLeads > 0 ? totalLeads : leads.length).toLocaleString('es-AR')} leads`,
     noContactados > 0 ? `🔴 ${noContactados} sin contactar` : null,
-    unassigned > 0    ? `${unassigned} sin asignar`         : null,
+    (unassignedTotal ?? 0) > 0 ? `${unassignedTotal} sin asignar` : null,
     dupCount > 0      ? `⚠️ ${dupCount} duplicados`         : null,
   ].filter(Boolean).join(' · ');
 
@@ -667,7 +680,9 @@ function AdminLeadsPageInner() {
                     <td className="px-4 py-3 text-xs text-brand-muted text-center">{lead.follow_up_count}</td>
                     <td className="px-4 py-3 text-xs text-brand-muted">
                       {lead.assignee?.full_name ?? lead.assignee?.email ?? (
-                        <span className="text-orange-400/70 italic">Sin asignar</span>
+                        <span className="inline-flex items-center rounded-full border border-orange-700/40 bg-orange-900/20 px-2 py-0.5 text-[10px] font-medium text-orange-300 whitespace-nowrap">
+                          Sin asignar
+                        </span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-xs text-brand-muted">{fmtDate(lead.assigned_at)}</td>

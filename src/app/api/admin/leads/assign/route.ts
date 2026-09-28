@@ -29,15 +29,20 @@ export async function POST(req: NextRequest) {
 
     let ids = lead_ids ?? [];
 
-    // Si no se pasaron IDs pero sí quantity, tomar leads sin asignar
+    // Si no se pasaron IDs pero sí quantity, tomar leads sin asignar — misma
+    // definición que el resto del panel (migración 0056): sin
+    // assigned_to_user_id Y sin estar ya en team_leads. Antes solo miraba
+    // assigned_to_user_id IS NULL, podía tomar leads ya repartidos a una
+    // dupla y asignarlos por encima a otro setter.
     if (!ids.length && quantity && target_user_id) {
-      const { data: unassigned } = await admin
-        .from('leads')
-        .select('id')
-        .is('assigned_to_user_id', null)
-        .order('created_at', { ascending: true })
-        .limit(quantity);
-      ids = (unassigned ?? []).map((l) => l.id);
+      // La función devuelve por created_at DESC (más nuevos primero); acá se
+      // quiere lo contrario, el orden original: los más viejos primero,
+      // así que se trae todo y se reordena antes de cortar por cantidad.
+      const { data: rows } = await (admin as any).rpc('leads_sin_asignar', { p_limit: 0 });
+      ids = ((rows ?? []) as { id: string; created_at: string }[])
+        .sort((a, b) => a.created_at.localeCompare(b.created_at))
+        .slice(0, quantity)
+        .map((l) => l.id);
     }
 
     if (!ids.length) {

@@ -13,10 +13,10 @@ export function ReasignarSinSetter() {
   const [result, setResult] = useState('');
 
   useEffect(() => {
-    // Contar leads sin asignar
-    fetch('/api/admin/leads?user_id=unassigned')
+    // Contar leads sin asignar (mismo conteo real que usa el resto del panel)
+    fetch('/api/admin/leads/sin-asignar')
       .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setUnassignedCount(data.length); })
+      .then((data) => { if (typeof data.count === 'number') setUnassignedCount(data.count); })
       .catch(() => {});
 
     // Obtener TODOS los setters (incluye los que tienen 0 leads)

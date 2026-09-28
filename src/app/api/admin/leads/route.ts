@@ -38,7 +38,17 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false })
       .range(from, to);
 
-    if (userId === 'unassigned') query = query.is('assigned_to_user_id', null);
+    if (userId === 'unassigned') {
+      // "Sin asignar" tiene que ser LA MISMA definición en todos lados: sin
+      // assigned_to_user_id Y sin estar ya repartido a una dupla (team_leads).
+      // Antes esto solo miraba assigned_to_user_id IS NULL, distinto de la
+      // función leads_sin_asignar() (migración 0056) que ya usa el resto de
+      // la app — dos criterios distintos para "lo mismo" daban números que
+      // no coincidían entre pantallas.
+      const { data: rows } = await (admin as any).rpc('leads_sin_asignar', { p_limit: 0 });
+      const ids = (rows ?? []).map((r: any) => r.id);
+      query = query.in('id', ids.length > 0 ? ids : ['00000000-0000-0000-0000-000000000000']);
+    }
     else if (userId) query = query.eq('assigned_to_user_id', userId);
     if (status)  query = query.eq('current_status', status);
     if (batchId) query = query.eq('batch_id', batchId);
