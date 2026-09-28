@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { Montserrat, Spectral, JetBrains_Mono } from 'next/font/google';
+import { CorpHeader } from '@/app/empresa/_header';
+import { WhatsAppFloat } from '@/app/empresa/_whatsapp';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -30,8 +32,13 @@ export const metadata: Metadata = {
 
 export default function PaymaLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`${montserrat.variable} ${spectral.variable} ${mono.variable}`} style={{ background: '#050505' }}>
-      {children}
+    <div
+      className={`${montserrat.variable} ${spectral.variable} ${mono.variable}`}
+      style={{ background: '#050505', minHeight: '100vh', color: '#F2EFE9', WebkitFontSmoothing: 'antialiased' }}
+    >
+      <CorpHeader />
+      <main style={{ paddingTop: 68 }}>{children}</main>
+      <WhatsAppFloat />
     </div>
   );
 }
