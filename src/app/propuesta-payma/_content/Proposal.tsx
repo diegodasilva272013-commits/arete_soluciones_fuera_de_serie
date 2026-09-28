@@ -47,11 +47,21 @@ export function Proposal({ markdown }: { markdown: string }) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
+          h1: ({ children }) => (
+            <div className={`${s.sectionHead} ${s.reveal}`}>
+              <h1 className={s.docTitle}>{textOf(children)}</h1>
+            </div>
+          ),
           h2: ({ children }) => {
             const { numero, titulo } = splitHeading(textOf(children));
+            // Un h2 sin número, justo después del h1, es la bajada del documento
+            // (no una sección numerada): sin kicker y sin el borde separador.
+            if (!numero) {
+              return <h2 className={`${s.docSubtitle} ${s.reveal}`}>{titulo}</h2>;
+            }
             return (
               <div className={`${s.sectionHead} ${s.reveal}`}>
-                {numero && <span className={s.kicker}>{numero}</span>}
+                <span className={s.kicker}>{numero}</span>
                 <h2 className={s.sectionTitle}>{titulo}</h2>
               </div>
             );
@@ -60,11 +70,17 @@ export function Proposal({ markdown }: { markdown: string }) {
           p: ({ children }) => <p className={`${s.body} ${s.reveal}`}>{children}</p>,
           ul: ({ children }) => <ul className={`${s.body} ${s.reveal}`}>{children}</ul>,
           ol: ({ children }) => <ol className={`${s.body} ${s.reveal}`}>{children}</ol>,
+          hr: () => null,
           table: ({ children }) => (
             <div className={`${s.tableWrap} ${s.reveal}`}>
               <table className={s.table}>{children}</table>
             </div>
           ),
+          tr: ({ children }) => {
+            const cells = Array.isArray(children) ? children : [children];
+            const isTotal = /^total/i.test(textOf(cells[0]).trim());
+            return <tr className={isTotal ? s.totalRow : undefined}>{children}</tr>;
+          },
         }}
       >
         {markdown}

@@ -43,6 +43,24 @@
   line-height: 1.15;
 }
 
+/* Título principal del documento (h1) y su bajada (h2 sin número, justo debajo) */
+.docTitle {
+  font-family: var(--f-display), Montserrat, sans-serif;
+  font-weight: 800;
+  font-size: clamp(30px, 5vw, 46px);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 12px;
+}
+.docSubtitle {
+  font-family: var(--f-display), Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: clamp(16px, 2.2vw, 20px);
+  color: var(--secundario);
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+
 .body {
   font-family: var(--f-texto), Spectral, serif;
   font-size: 16px;
@@ -82,10 +100,12 @@
   color: rgba(242, 239, 233, 0.85);
 }
 .table tr:last-child td { border-bottom: none; }
-/* Fila de total, si la última fila de una tabla empieza con "Total" */
-.table tr:last-child td:first-child {
+/* Fila cuya primera celda empieza con "Total" (ej. el total de la Inversión) */
+.totalRow td {
   font-weight: 700;
+  font-size: 16px;
   color: var(--texto);
+  border-top: 1px solid rgba(47, 123, 246, 0.4);
 }
 
 .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }

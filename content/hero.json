@@ -1,13 +1,43 @@
 {
-  "marca": "Organización Payma",
-  "bajada": "Propuesta de Areté Soluciones",
+  "marca": "Organización Payma — Propuesta de Areté Soluciones",
+  "bajada": "Así van a entrar sus clientes a cada propiedad.",
   "indicacion_scroll": "Deslizá para entrar",
   "etapas": [
-    { "desde": 0.00, "hasta": 0.15, "kicker": "", "titulo": "", "texto": "" },
-    { "desde": 0.15, "hasta": 0.30, "kicker": "", "titulo": "", "texto": "" },
-    { "desde": 0.30, "hasta": 0.50, "kicker": "", "titulo": "", "texto": "" },
-    { "desde": 0.50, "hasta": 0.70, "kicker": "", "titulo": "", "texto": "" },
-    { "desde": 0.70, "hasta": 0.88, "kicker": "", "titulo": "", "texto": "" },
-    { "desde": 0.88, "hasta": 1.00, "kicker": "", "titulo": "", "texto": "" }
+    {
+      "desde": 0.04, "hasta": 0.18,
+      "kicker": "Web de propiedades",
+      "titulo": "Cada casa, antes de visitarla.",
+      "texto": "El cliente recorre la propiedad desde el celular, a cualquier hora del día."
+    },
+    {
+      "desde": 0.18, "hasta": 0.34,
+      "kicker": "Portada con recorrido",
+      "titulo": "La portada abre la puerta.",
+      "texto": "A medida que baja por la página, entra a la casa. Nadie sigue de largo."
+    },
+    {
+      "desde": 0.34, "hasta": 0.52,
+      "kicker": "Catálogo y fichas",
+      "titulo": "Fotos, video y todos los datos.",
+      "texto": "Cada propiedad con galería, video recorrido, mapa y consulta directa."
+    },
+    {
+      "desde": 0.52, "hasta": 0.70,
+      "kicker": "Panel propio",
+      "titulo": "Payma carga todo, sin depender de nadie.",
+      "texto": "Propiedades, fotos y videos. Lo que se vende desaparece de la web al instante."
+    },
+    {
+      "desde": 0.70, "hasta": 0.86,
+      "kicker": "Tres agentes de IA",
+      "titulo": "Ventas, Alquileres y Emergencias.",
+      "texto": "Atienden por la web y por WhatsApp, las 24 horas, conectados entre sí."
+    },
+    {
+      "desde": 0.86, "hasta": 1.00,
+      "kicker": "Emergencias 24/7",
+      "titulo": "A las 3 de la mañana, alguien atiende.",
+      "texto": "Cerrajería, plomería, vidrios, electricidad y gas, con registro de quién paga cada arreglo."
+    }
   ]
 }
