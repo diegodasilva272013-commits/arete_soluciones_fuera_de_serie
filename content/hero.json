@@ -1,0 +1,13 @@
+{
+  "marca": "Organización Payma",
+  "bajada": "Propuesta de Areté Soluciones",
+  "indicacion_scroll": "Deslizá para entrar",
+  "etapas": [
+    { "desde": 0.00, "hasta": 0.15, "kicker": "", "titulo": "", "texto": "" },
+    { "desde": 0.15, "hasta": 0.30, "kicker": "", "titulo": "", "texto": "" },
+    { "desde": 0.30, "hasta": 0.50, "kicker": "", "titulo": "", "texto": "" },
+    { "desde": 0.50, "hasta": 0.70, "kicker": "", "titulo": "", "texto": "" },
+    { "desde": 0.70, "hasta": 0.88, "kicker": "", "titulo": "", "texto": "" },
+    { "desde": 0.88, "hasta": 1.00, "kicker": "", "titulo": "", "texto": "" }
+  ]
+}
