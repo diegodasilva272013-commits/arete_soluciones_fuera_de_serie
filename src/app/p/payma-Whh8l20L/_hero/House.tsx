@@ -31,6 +31,7 @@ export function House({ progressRef }: Props) {
   const glassLeftRef = useRef<THREE.Mesh>(null);
   const glassRightRef = useRef<THREE.Mesh>(null);
   const lampsRef = useRef<THREE.PointLight[]>([]);
+  const shadesRef = useRef<THREE.Mesh[]>([]);
 
   useFrame(() => {
     const p = progressRef.current;
@@ -43,6 +44,13 @@ export function House({ progressRef }: Props) {
     // colgantes de la cocina, 4: lámpara de pie del living).
     const LAMP_MAX = [2.2, 1.6, 1.6, 1.6, 1.1];
     lampsRef.current.forEach((l, i) => { if (l) l.intensity = li * (LAMP_MAX[i] ?? 1.2); });
+    // Brillo del material emisivo de cada pantalla (0-2: colgantes cocina, 3: pie living).
+    // Sin esto, la pantalla se ve "encendida" aunque la luz puntual esté en 0.
+    const SHADE_MAX = [0.6, 0.6, 0.6, 0.4];
+    shadesRef.current.forEach((m, i) => {
+      const mat = m?.material as THREE.MeshStandardMaterial | undefined;
+      if (mat) mat.emissiveIntensity = li * (SHADE_MAX[i] ?? 0.5);
+    });
   });
 
   return (
@@ -99,13 +107,13 @@ export function House({ progressRef }: Props) {
         </mesh>
       ))}
 
-      {/* Puerta (pivota sobre su bisagra izquierda) */}
-      <group position={[-0.75, 0, FACHADA_Z]} ref={doorRef}>
-        <mesh position={[0.65, 1.1, 0]} castShadow>
-          <boxGeometry args={[1.3, 2.2, 0.08]} />
+      {/* Puerta (pivota sobre su bisagra izquierda, ancho de hoja = ancho del hueco) */}
+      <group position={[-0.8, 0, FACHADA_Z]} ref={doorRef}>
+        <mesh position={[0.75, 1.1, 0]} castShadow>
+          <boxGeometry args={[1.5, 2.2, 0.08]} />
           <meshStandardMaterial map={textures.woodDark} roughness={0.55} metalness={0.05} />
         </mesh>
-        <mesh position={[1.2, 1.1, 0.05]}>
+        <mesh position={[1.4, 1.1, 0.05]}>
           <sphereGeometry args={[0.04, 12, 12]} />
           <meshStandardMaterial color="#caa457" metalness={0.8} roughness={0.3} />
         </mesh>
@@ -114,8 +122,8 @@ export function House({ progressRef }: Props) {
       {/* Luz que se derrama por la puerta abierta */}
       <pointLight position={[0, 1.6, FACHADA_Z - 0.3]} color="#ffb877" intensity={0} ref={(r) => { if (r) lampsRef.current[0] = r; }} distance={4} decay={2} />
 
-      <LivingRoom textures={textures} lampsRef={lampsRef} />
-      <Kitchen textures={textures} lampsRef={lampsRef} />
+      <LivingRoom textures={textures} lampsRef={lampsRef} shadesRef={shadesRef} />
+      <Kitchen textures={textures} lampsRef={lampsRef} shadesRef={shadesRef} />
       <Patio textures={textures} />
     </group>
   );
@@ -124,19 +132,19 @@ export function House({ progressRef }: Props) {
 // ── Muros ──────────────────────────────────────────────────────────────────
 
 function FrontWall({ texture, stone }: { texture: THREE.Texture; stone: THREE.Texture }) {
-  // Fachada con hueco de puerta (x: -1.5..1.5) armado con 3 cajas alrededor.
+  // Fachada con hueco de puerta (x: -0.8..0.8, mismo ancho que la hoja) armado con 3 cajas alrededor.
   return (
     <group position={[0, 0, FACHADA_Z]}>
-      <mesh position={[-3.25, ALTO / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[3.5, ALTO, 0.25]} />
+      <mesh position={[-2.9, ALTO / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[4.2, ALTO, 0.25]} />
         <meshStandardMaterial map={texture} roughness={0.95} />
       </mesh>
-      <mesh position={[3.25, ALTO / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[3.5, ALTO, 0.25]} />
+      <mesh position={[2.9, ALTO / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[4.2, ALTO, 0.25]} />
         <meshStandardMaterial map={stone} roughness={0.9} />
       </mesh>
       <mesh position={[0, ALTO - 0.2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[3, 0.4, 0.25]} />
+        <boxGeometry args={[1.6, 0.4, 0.25]} />
         <meshStandardMaterial map={texture} roughness={0.95} />
       </mesh>
     </group>
@@ -185,7 +193,7 @@ function BackWallWithWindow({ glassLeftRef, glassRightRef, texture }: {
 
 // ── Living ───────────────────────────────────────────────────────────────
 
-function LivingRoom({ textures, lampsRef }: { textures: Record<string, THREE.Texture>; lampsRef: React.MutableRefObject<THREE.PointLight[]> }) {
+function LivingRoom({ textures, lampsRef, shadesRef }: { textures: Record<string, THREE.Texture>; lampsRef: React.MutableRefObject<THREE.PointLight[]>; shadesRef: React.MutableRefObject<THREE.Mesh[]> }) {
   const ox = -3, oz = 1.5;
   return (
     <group position={[ox, 0, oz]}>
@@ -223,9 +231,9 @@ function LivingRoom({ textures, lampsRef }: { textures: Record<string, THREE.Tex
         <cylinderGeometry args={[0.02, 0.02, 1.4]} />
         <meshStandardMaterial color="#2a2a2a" metalness={0.5} roughness={0.5} />
       </mesh>
-      <mesh position={[1.7, 1.42, -0.9]}>
+      <mesh position={[1.7, 1.42, -0.9]} ref={(r) => { if (r) shadesRef.current[3] = r; }}>
         <coneGeometry args={[0.22, 0.3, 16, 1, true]} />
-        <meshStandardMaterial color="#e8dcc4" emissive="#ffb877" emissiveIntensity={0.4} side={THREE.DoubleSide} />
+        <meshStandardMaterial color="#e8dcc4" emissive="#ffb877" emissiveIntensity={0} side={THREE.DoubleSide} />
       </mesh>
       <pointLight
         position={[1.7, 1.35, -0.9]}
@@ -242,7 +250,7 @@ function LivingRoom({ textures, lampsRef }: { textures: Record<string, THREE.Tex
 
 // ── Cocina ───────────────────────────────────────────────────────────────
 
-function Kitchen({ textures, lampsRef }: { textures: Record<string, THREE.Texture>; lampsRef: React.MutableRefObject<THREE.PointLight[]> }) {
+function Kitchen({ textures, lampsRef, shadesRef }: { textures: Record<string, THREE.Texture>; lampsRef: React.MutableRefObject<THREE.PointLight[]>; shadesRef: React.MutableRefObject<THREE.Mesh[]> }) {
   const ox = 2.8, oz = -0.2;
   return (
     <group position={[ox, 0, oz]}>
@@ -273,9 +281,9 @@ function Kitchen({ textures, lampsRef }: { textures: Record<string, THREE.Textur
             <cylinderGeometry args={[0.008, 0.008, 0.7]} />
             <meshStandardMaterial color="#1c1c1c" />
           </mesh>
-          <mesh position={[0, 1.62, 0]}>
+          <mesh position={[0, 1.62, 0]} ref={(r) => { if (r) shadesRef.current[i] = r; }}>
             <coneGeometry args={[0.16, 0.16, 20, 1, true]} />
-            <meshStandardMaterial color="#3a3a3a" emissive="#ffcf94" emissiveIntensity={0.6} side={THREE.DoubleSide} />
+            <meshStandardMaterial color="#3a3a3a" emissive="#ffcf94" emissiveIntensity={0} side={THREE.DoubleSide} />
           </mesh>
           <pointLight
             position={[0, 1.55, 0]}

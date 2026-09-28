@@ -11,4 +11,4 @@ Esto es solo para verificar visualmente que el render de tablas funciona. No es 
 | Ítem | Detalle |
 |---|---|
 | Ejemplo de fila | Esto se borra |
-| Total de ejemplo | USD 999999-PRUEBA |
+| Total de ejemplo | USD 0 |
