@@ -19,7 +19,7 @@ export const heroSub =
   'Esta propuesta cubre un sistema único para Payma, con una sola base de datos central que alimenta todo.';
 
 export const heroMetricas: Metric[] = [
-  { val: 'USD 5.200', label: 'Inversión total', sub: 'Pago único' },
+  { val: 'USD 9.999-PRUEBA', label: 'Inversión total', sub: 'Pago único' },
   { val: '5 a 6 semanas', label: 'Entrega', sub: 'Desde el material' },
   { val: 'Sin abono', label: 'Mensual con Areté', sub: 'El sistema es de Payma' },
 ];
@@ -211,7 +211,7 @@ export const inversionConceptos: { concepto: string; monto: string }[] = [
   { concepto: 'Agente de Emergencias 24/7 y módulo de proveedores y reclamos', monto: 'Incluido' },
   { concepto: 'Ficha compartible por propiedad', monto: 'Sin cargo' },
 ];
-export const inversionTotal = { concepto: 'Total, pago único', monto: 'USD 5.200' };
+export const inversionTotal = { concepto: 'Total, pago único', monto: 'USD 9.999-PRUEBA' };
 
 export const formaDePago: { momento: string; porcentaje: string; monto: string }[] = [
   { momento: 'Al confirmar', porcentaje: '40%', monto: 'USD 2.080' },
