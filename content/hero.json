@@ -1,7 +1,7 @@
 {
   "marca": "Organización Payma",
   "bajada": "Propuesta de Areté Soluciones",
-  "indicacion_scroll": "Deslizá para entrar",
+  "indicacion_scroll": "PRUEBA-CONTENIDO-DINAMICO-TEMPORAL",
   "etapas": [
     { "desde": 0.00, "hasta": 0.15, "kicker": "", "titulo": "", "texto": "" },
     { "desde": 0.15, "hasta": 0.30, "kicker": "", "titulo": "", "texto": "" },
