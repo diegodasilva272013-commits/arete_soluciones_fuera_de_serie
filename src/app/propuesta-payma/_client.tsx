@@ -12,6 +12,7 @@ import { ElasticSolucion, type ElasticTab } from '@/components/propuesta/Elastic
 import { NumberedList } from '@/components/propuesta/NumberedList';
 import { SectionNav, useSectionNav } from '@/components/propuesta/SectionNav';
 import { AcceptanceCta } from '@/components/propuesta/AcceptanceCta';
+import { AgentCard } from '@/components/propuesta/AgentCard';
 import { checkPassword, notifyAcceptance } from './actions';
 import * as d from './_content/payma.data';
 import s from '@/app/empresa/corp.module.css';
@@ -136,12 +137,10 @@ function ProposalContent({ hero }: { hero: HeroContent }) {
           </div>
           <PanelBand body={d.agentesTraspaso} style={{ marginBottom: 32 }} />
           <PanelBand eyebrow={d.agentesComoSeControla} items={d.agentesLimites} bordered />
-          {d.agentePrueba.agentId && (
-            <div className={s.reveal} data-reveal="" style={{ marginTop: 32 }}>
-              <p className={s.kickerLabel}>{d.agentePruebaEyebrow}</p>
-              <p className={s.bandBody}>{d.agentePrueba.label}</p>
-            </div>
-          )}
+          <div style={{ marginTop: 48 }}>
+            <p className={s.kickerLabel} style={{ textAlign: 'center', justifyContent: 'center', marginBottom: 20 }}>{d.agentePruebaEyebrow}</p>
+            <AgentCard agent={d.agentePrueba} />
+          </div>
         </div>
       </section>
 

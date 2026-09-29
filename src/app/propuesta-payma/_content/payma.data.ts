@@ -9,6 +9,7 @@ import type { ComparacionItem } from '@/components/propuesta/ElasticComparacion'
 import type { FeatureItem } from '@/components/propuesta/FeatureGrid';
 import type { NumberedItem } from '@/components/propuesta/NumberedList';
 import type { NavItem } from '@/components/propuesta/SectionNav';
+import type { AgentData } from '@/components/propuesta/AgentCard';
 
 export const nombreCliente = 'Organización Payma';
 export const kicker = 'Organización Payma · San Vicente, Misiones · Septiembre 2026';
@@ -165,11 +166,26 @@ export const agentesLimites: string[] = [
   'Si les preguntan si son una persona, aclaran que son un asistente de Payma.',
 ];
 
-// Sección "Pruébenlo ustedes": solo se muestra si agentId está cargado.
-// Hoy no hay agente de voz de Payma armado todavía.
-export const agentePrueba: { agentId: string | null; label: string } = {
-  agentId: null,
-  label: 'Agente de Ventas de Payma',
+// Sección "Pruébenlo ustedes": mismo agente real que ya está en producción
+// en /empresa/agentes-ia (no se inventa nada, es el mismo agent_id y la
+// misma descripción que ahí).
+export const agentePrueba: AgentData = {
+  id: 'agent_3301m2r6j4vdehetg6346v5njx37',
+  nombre: 'Payma',
+  tipo: 'Inmobiliaria',
+  tagline: 'Consulta de propiedades · Disponibilidad · Logística',
+  emoji: '🏢',
+  desc: 'Agente inmobiliario de voz. Qualifica prospectos, consulta el catálogo de propiedades, informa disponibilidad, coordina visitas y registra cada interacción automáticamente.',
+  caps: [
+    'Consulta de propiedades disponibles',
+    'Filtro por zona, precio y tipo',
+    'Coordinación de visitas',
+    'Registro y seguimiento del prospecto',
+  ],
+  accentColor: 'rgba(99,102,241,1)',
+  accentBg: 'rgba(99,102,241,0.07)',
+  accentBorder: 'rgba(99,102,241,0.2)',
+  label: 'Payma',
 };
 
 // ── 06 — Emergencias 24/7 (punto 3.4 del .md) ───────────────────────────────
