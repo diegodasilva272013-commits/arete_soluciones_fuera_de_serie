@@ -49,10 +49,11 @@ export function HeroOverlay({
     position: 'absolute', left: 0, right: 0, bottom: '14%',
     textAlign: 'center', padding: '0 20px',
     pointerEvents: 'none',
+    textShadow: '0 2px 18px rgba(0,0,0,0.65)',
   };
   const scrimStyle: React.CSSProperties = {
     position: 'absolute', inset: 0,
-    background: 'linear-gradient(to top, rgba(5,5,5,0.65) 0%, transparent 45%)',
+    background: 'linear-gradient(to top, rgba(5,5,5,0.82) 0%, rgba(5,5,5,0.45) 28%, transparent 55%)',
     pointerEvents: 'none',
   };
 
@@ -61,7 +62,7 @@ export function HeroOverlay({
       <div style={scrimStyle} />
 
       {/* Pantalla inicial: marca + bajada + indicación de scroll */}
-      <div ref={introRef} style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 20px' }}>
+      <div ref={introRef} style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 20px', background: 'radial-gradient(ellipse 60% 45% at center, rgba(5,5,5,0.55) 0%, transparent 100%)', textShadow: '0 2px 18px rgba(0,0,0,0.65)' }}>
         <span style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 11, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#2F7BF6', marginBottom: 14 }}>
           {hero.marca}
         </span>

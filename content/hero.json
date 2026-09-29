@@ -4,40 +4,48 @@
   "indicacion_scroll": "Deslizá para entrar",
   "etapas": [
     {
-      "desde": 0.04, "hasta": 0.18,
+      "desde": 0.02,
+      "hasta": 0.11,
       "kicker": "Web de propiedades",
       "titulo": "Cada casa, antes de visitarla.",
       "texto": "El cliente recorre la propiedad desde el celular, a cualquier hora del día."
     },
     {
-      "desde": 0.18, "hasta": 0.34,
+      "desde": 0.11,
+      "hasta": 0.22,
       "kicker": "Portada con recorrido",
       "titulo": "La portada abre la puerta.",
       "texto": "A medida que baja por la página, entra a la casa. Nadie sigue de largo."
     },
     {
-      "desde": 0.34, "hasta": 0.52,
+      "desde": 0.28,
+      "hasta": 0.38,
       "kicker": "Catálogo y fichas",
       "titulo": "Fotos, video y todos los datos.",
       "texto": "Cada propiedad con galería, video recorrido, mapa y consulta directa."
     },
     {
-      "desde": 0.52, "hasta": 0.70,
+      "desde": 0.42,
+      "hasta": 0.56,
       "kicker": "Panel propio",
       "titulo": "Payma carga todo, sin depender de nadie.",
       "texto": "Propiedades, fotos y videos. Lo que se vende desaparece de la web al instante."
     },
     {
-      "desde": 0.70, "hasta": 0.86,
+      "desde": 0.6,
+      "hasta": 0.76,
       "kicker": "Tres agentes de IA",
       "titulo": "Ventas, Alquileres y Emergencias.",
       "texto": "Atienden por la web y por WhatsApp, las 24 horas, conectados entre sí."
     },
     {
-      "desde": 0.86, "hasta": 1.00,
+      "desde": 0.8,
+      "hasta": 0.95,
       "kicker": "Emergencias 24/7",
       "titulo": "A las 3 de la mañana, alguien atiende.",
       "texto": "Cerrajería, plomería, vidrios, electricidad y gas, con registro de quién paga cada arreglo."
     }
-  ]
+  ],
+  "cuadro_estatico": 0.34,
+  "recorrido_vh": 900
 }

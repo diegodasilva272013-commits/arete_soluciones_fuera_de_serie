@@ -12,7 +12,7 @@ if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 // La escena 3D lee esa ref en useFrame — nunca dispara un re-render de React
 // por frame. Lenis maneja el scroll suave; el ticker de GSAP alimenta a
 // Lenis (no al revés), y Lenis avisa a ScrollTrigger cuando se mueve.
-export function useScrollProgress(pinTargetRef: React.RefObject<HTMLElement>, disabled: boolean) {
+export function useScrollProgress(pinTargetRef: React.RefObject<HTMLElement>, disabled: boolean, lengthVh = 600) {
   const progressRef = useRef(0);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export function useScrollProgress(pinTargetRef: React.RefObject<HTMLElement>, di
     const st = ScrollTrigger.create({
       trigger: pinTarget,
       start: 'top top',
-      end: '+=600%', // 600vh de scroll total para todo el recorrido
+      end: `+=${lengthVh}%`, // largo del recorrido en vh (sale de hero.json)
       pin: true,
       scrub: 1,
       onUpdate: (self) => { progressRef.current = self.progress; },
@@ -42,7 +42,7 @@ export function useScrollProgress(pinTargetRef: React.RefObject<HTMLElement>, di
       lenis.destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [disabled]);
+  }, [disabled, lengthVh]);
 
   return progressRef;
 }
