@@ -2,6 +2,7 @@
 
 import s from '@/app/empresa/corp.module.css';
 import { AgentWidget } from './AgentWidget';
+import { LogoVideo } from './LogoVideo';
 
 export type AgentData = {
   id: string;
@@ -15,13 +16,17 @@ export type AgentData = {
   accentBg: string;
   accentBorder: string;
   label: string;
+  /** Si viene, reemplaza el emoji de cabecera — mismo patrón que el video
+   * de la oficina de Providus en su propuesta: es la identidad visual de
+   * la card, no un adorno aparte. */
+  video?: { src: string; poster?: string };
 };
 
 // Card de agente con botón de llamada real (WebRTC), igual a la de
-// /empresa/agentes-ia y a la de la propuesta de Providus — con emoji en vez
-// de video de cabecera (Providus tiene un video propio de su oficina; acá
-// no hay un equivalente, así que se usa el mismo patrón con emoji que ya
-// usan el resto de los agentes en /empresa/agentes-ia).
+// /empresa/agentes-ia y a la de la propuesta de Providus. Si `agent.video`
+// viene cargado, el video reemplaza el emoji de cabecera (igual que en
+// Providus); si no, cae al patrón con emoji que usan el resto de los
+// agentes en /empresa/agentes-ia.
 export function AgentCard({ agent }: { agent: AgentData }) {
   return (
     <div
@@ -32,30 +37,40 @@ export function AgentCard({ agent }: { agent: AgentData }) {
         margin: '0 auto',
         border: `1px solid ${agent.accentBorder}`,
         background: agent.accentBg,
-        padding: '36px 32px 40px',
+        overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        gap: 24,
         backdropFilter: 'blur(6px)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-        <span style={{
-          fontSize: 36, lineHeight: 1,
-          background: 'rgba(242,239,233,0.06)',
-          border: `1px solid ${agent.accentBorder}`,
-          width: 64, height: 64,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0,
-        }}>
-          {agent.emoji}
-        </span>
+      {agent.video && <LogoVideo src={agent.video.src} poster={agent.video.poster} rounded={false} />}
+
+      <div style={{ padding: '32px 32px 40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {agent.video ? (
         <div>
           <p style={{ fontSize: 11, fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.2em', textTransform: 'uppercase', color: agent.accentColor, marginBottom: 4 }}>{agent.tipo}</p>
           <h3 style={{ fontSize: 26, fontWeight: 800, fontFamily: 'var(--f-display), Montserrat, sans-serif', color: 'var(--hueso)', margin: 0, lineHeight: 1.1 }}>{agent.nombre}</h3>
           <p style={{ fontSize: 12, color: 'rgba(242,239,233,0.4)', fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.1em', marginTop: 5 }}>{agent.tagline}</p>
         </div>
-      </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+          <span style={{
+            fontSize: 36, lineHeight: 1,
+            background: 'rgba(242,239,233,0.06)',
+            border: `1px solid ${agent.accentBorder}`,
+            width: 64, height: 64,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            {agent.emoji}
+          </span>
+          <div>
+            <p style={{ fontSize: 11, fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.2em', textTransform: 'uppercase', color: agent.accentColor, marginBottom: 4 }}>{agent.tipo}</p>
+            <h3 style={{ fontSize: 26, fontWeight: 800, fontFamily: 'var(--f-display), Montserrat, sans-serif', color: 'var(--hueso)', margin: 0, lineHeight: 1.1 }}>{agent.nombre}</h3>
+            <p style={{ fontSize: 12, color: 'rgba(242,239,233,0.4)', fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.1em', marginTop: 5 }}>{agent.tagline}</p>
+          </div>
+        </div>
+      )}
 
       <p style={{ fontSize: 15, lineHeight: 1.7, color: 'rgba(242,239,233,0.6)', fontFamily: 'var(--f-texto), Spectral, serif', margin: 0 }}>{agent.desc}</p>
 
@@ -77,6 +92,7 @@ export function AgentCard({ agent }: { agent: AgentData }) {
       <p style={{ fontSize: 11, color: 'rgba(242,239,233,0.25)', fontFamily: 'var(--f-mono), monospace', letterSpacing: '0.08em', textAlign: 'center', margin: 0 }}>
         Requiere micrófono · Mismo agente que atiende en producción, no es una demo grabada.
       </p>
+      </div>
     </div>
   );
 }

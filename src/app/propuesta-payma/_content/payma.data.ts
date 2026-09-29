@@ -190,6 +190,7 @@ export const agentePrueba: AgentData = {
     'Coordinación de visitas',
     'Registro y seguimiento del prospecto',
   ],
+  video: { src: '/payma_logo_video.mp4', poster: '/payma_logo_video-poster.jpg' },
   accentColor: 'rgba(99,102,241,1)',
   accentBg: 'rgba(99,102,241,0.07)',
   accentBorder: 'rgba(99,102,241,0.2)',
