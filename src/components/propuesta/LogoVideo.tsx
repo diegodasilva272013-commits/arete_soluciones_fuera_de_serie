@@ -45,38 +45,40 @@ export function LogoVideo({ src, poster, rounded = true }: { src: string; poster
       >
         <source src={src} type="video/mp4" />
       </video>
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,5,0.4) 0%, transparent 30%)', pointerEvents: 'none' }} />
-      <button
-        onClick={toggleSonido}
-        aria-label={muted ? 'Activar sonido' : 'Silenciar'}
-        style={{
-          position: 'absolute', bottom: 16, right: 16,
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '9px 16px', borderRadius: 999,
-          background: muted ? 'rgba(47,123,246,0.9)' : 'rgba(5,5,5,0.75)',
-          border: `1px solid ${muted ? 'rgba(47,123,246,1)' : 'rgba(255,255,255,0.2)'}`,
-          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(8px)',
-          fontFamily: 'var(--f-mono), monospace', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase',
-          transition: 'all 0.2s',
-        }}
-      >
-        {muted ? <Volume2 size={13} /> : <VolumeX size={13} />}
-        {muted ? 'Activar sonido' : 'Silenciar'}
-      </button>
-      <button
-        onClick={toggleFullscreen}
-        aria-label={isFull ? 'Salir de pantalla completa' : 'Ver en pantalla completa'}
-        style={{
-          position: 'absolute', top: 16, left: 16,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          width: 34, height: 34, borderRadius: 999,
-          background: 'rgba(5,5,5,0.6)', border: '1px solid rgba(255,255,255,0.2)',
-          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(8px)',
-          transition: 'all 0.2s',
-        }}
-      >
-        {isFull ? <Minimize size={14} /> : <Maximize size={14} />}
-      </button>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,5,0.45) 0%, transparent 35%)', pointerEvents: 'none' }} />
+      {/* Dos botones chicos, del mismo tamaño y estilo, juntos en la misma
+          esquina — antes eran una píldora grande con texto (sonido) más un
+          círculo suelto (pantalla completa) en la esquina opuesta, y en
+          videos chicos (ej. la card del agente) quedaba desprolijo. */}
+      <div style={{ position: 'absolute', bottom: 12, right: 12, display: 'flex', gap: 8 }}>
+        <button
+          onClick={toggleSonido}
+          aria-label={muted ? 'Activar sonido' : 'Silenciar'}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 32, height: 32, borderRadius: 999, flexShrink: 0,
+            background: muted ? 'rgba(47,123,246,0.85)' : 'rgba(5,5,5,0.6)',
+            border: `1px solid ${muted ? 'rgba(47,123,246,1)' : 'rgba(255,255,255,0.2)'}`,
+            color: '#fff', cursor: 'pointer', backdropFilter: 'blur(8px)',
+            transition: 'all 0.2s',
+          }}
+        >
+          {muted ? <Volume2 size={14} /> : <VolumeX size={14} />}
+        </button>
+        <button
+          onClick={toggleFullscreen}
+          aria-label={isFull ? 'Salir de pantalla completa' : 'Ver en pantalla completa'}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 32, height: 32, borderRadius: 999, flexShrink: 0,
+            background: 'rgba(5,5,5,0.6)', border: '1px solid rgba(255,255,255,0.2)',
+            color: '#fff', cursor: 'pointer', backdropFilter: 'blur(8px)',
+            transition: 'all 0.2s',
+          }}
+        >
+          {isFull ? <Minimize size={14} /> : <Maximize size={14} />}
+        </button>
+      </div>
     </div>
   );
 }
