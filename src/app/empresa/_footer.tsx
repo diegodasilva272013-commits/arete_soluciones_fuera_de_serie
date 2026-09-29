@@ -7,6 +7,7 @@ const EMPRESA = [
   { href: '/empresa',             label: 'Inicio'       },
   { href: '/empresa/metodologia', label: 'Método'       },
   { href: '/empresa/resultados',  label: 'Resultados'   },
+  { href: '/empresa/testimonios', label: 'Testimonios'  },
   { href: '/empresa/nosotros',    label: 'Nosotros'     },
   { href: '/empresa/equipo',      label: 'Equipo'       },
   { href: '/empresa/contacto',    label: 'Contacto'     },

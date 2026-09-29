@@ -86,6 +86,13 @@ export const SEO = {
     canonical:   `${SITE_URL}/empresa/resultados`,
   },
 
+  testimonios: {
+    title:       'Testimonios — clientes reales de Areté Soluciones',
+    description: 'Casos reales de empresas que ya trabajan con Areté Soluciones, en sus propias palabras.',
+    h1:          'Clientes reales, en sus propias palabras',
+    canonical:   `${SITE_URL}/empresa/testimonios`,
+  },
+
   equipo: {
     title:       'El equipo de Areté Soluciones',
     description: 'El equipo detrás del sistema: quiénes diagnostican, diseñan e implementan en cada proyecto.',
@@ -166,6 +173,7 @@ export const PUBLIC_ROUTES = [
   { path: '/empresa/metodologia',                            priority: 0.7,  changefreq: 'monthly'  },
   { path: '/empresa/nosotros',                               priority: 0.6,  changefreq: 'monthly'  },
   { path: '/empresa/resultados',                             priority: 0.65, changefreq: 'monthly'  },
+  { path: '/empresa/testimonios',                            priority: 0.65, changefreq: 'monthly'  },
   { path: '/empresa/equipo',                                 priority: 0.5,  changefreq: 'monthly'  },
   { path: '/empresa/contacto',                               priority: 0.6,  changefreq: 'monthly'  },
   { path: '/fuera-de-serie',                                 priority: 0.9,  changefreq: 'monthly'  },
