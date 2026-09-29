@@ -464,10 +464,10 @@ export function ChatInputArea({
   );
 }
 
-function ChatMultilineInput({
-  ref,
-  ...props
-}: React.ComponentProps<typeof InputGroupTextarea>) {
+const ChatMultilineInput = React.forwardRef<
+  HTMLTextAreaElement,
+  React.ComponentProps<typeof InputGroupTextarea>
+>((props, ref) => {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const composedRef = useComposedRefs<HTMLTextAreaElement>(ref, textareaRef);
 
@@ -496,13 +496,16 @@ function ChatMultilineInput({
   }, []);
 
   return <InputGroupTextarea name="message" {...props} ref={composedRef} />;
-}
+});
+ChatMultilineInput.displayName = "ChatMultilineInput";
 
-function ChatSinglelineInput({
-  ...props
-}: React.ComponentProps<typeof InputGroupInput>) {
-  return <InputGroupInput name="message" {...props} />;
-}
+const ChatSinglelineInput = React.forwardRef<
+  HTMLInputElement,
+  React.ComponentProps<typeof InputGroupInput>
+>((props, ref) => {
+  return <InputGroupInput name="message" {...props} ref={ref} />;
+});
+ChatSinglelineInput.displayName = "ChatSinglelineInput";
 
 type TextareaProps = Omit<
   React.ComponentProps<typeof InputGroupTextarea>,
