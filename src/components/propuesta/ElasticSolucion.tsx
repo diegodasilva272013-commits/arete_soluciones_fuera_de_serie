@@ -106,11 +106,17 @@ export function ElasticSolucion({ items }: { items: ElasticTab[] }) {
 
   return (
     <div style={{ position: 'relative' }}>
-      {/* Fila gemela oculta, sin transiciones — solo para medir. */}
+      {/* Fila gemela oculta, sin transiciones — solo para medir. Tiene que
+          incluir el mismo badge de label que la fila visible (más abajo):
+          si no se mide de menos y el texto real queda cortado por el
+          overflow:hidden de la columna. */}
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, visibility: 'hidden', pointerEvents: 'none', zIndex: -1, display: 'flex', gap: 1 }}>
         {items.map((item) => (
           <div key={item.id} style={{ flex: activeId === item.id ? 5 : 1, minWidth: 0 }}>
-            <div ref={getMeasureRef(item.id)} style={{ padding: '18px 20px' }}>{item.content}</div>
+            <div ref={getMeasureRef(item.id)} style={{ padding: '18px 20px' }}>
+              <span style={{ display: 'inline-block', marginBottom: 10, padding: '2px 8px', fontFamily: 'var(--f-mono), monospace', fontSize: 8, letterSpacing: '0.24em', textTransform: 'uppercase' }}>{item.label}</span>
+              {item.content}
+            </div>
           </div>
         ))}
       </div>
