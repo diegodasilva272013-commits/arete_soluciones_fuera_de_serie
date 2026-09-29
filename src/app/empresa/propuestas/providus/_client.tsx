@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Conversation } from '@11labs/client';
 import { ArrowRight, ChevronDown, Check, X, Mic, Zap, Database, Radio, Volume2, VolumeX, BellRing, Maximize, Minimize, Wallet, Store, SlidersHorizontal } from 'lucide-react';
 import { checkPassword, notifyAcceptance } from './actions';
+import { waUrl } from '../../_content';
 import AnimatedGradient from '@/components/ui/animated-gradient';
 import dynamic from 'next/dynamic';
 
@@ -1151,6 +1152,14 @@ function ProposalContent() {
 
   const handleAccept = () => {
     setAccepting(true);
+    // El aviso por email (notifyAcceptance) depende de RESEND_API_KEY y puede
+    // fallar en silencio; abrir WhatsApp directo a Marcos es lo que garantiza
+    // que la aceptación llega. window.open va sincrónico, antes del await,
+    // para que el navegador no lo bloquee como popup.
+    window.open(
+      waUrl(encodeURIComponent('Hola Marcos, te escribo por Providus S.A.: confirmamos que aceptamos la propuesta de la plataforma de captación, gestión y venta.')),
+      '_blank'
+    );
     start(async () => { await notifyAcceptance(); setAccepted(true); setAccepting(false); });
   };
 
