@@ -31,12 +31,31 @@ export default function TestimoniosPage() {
         </div>
       </section>
 
-      {/* ── Caso: testimonio en video ── */}
+      {/* ── Caso: Centro Jurídico NOA ── */}
       <div className={s.band}>
-        <div className={s.bandGrid}>
-          <div className={`${s.reveal}`} data-reveal="">
+        <div className={s.inner}>
+          <div className={`${s.sectionLockup} ${s.reveal}`} data-reveal="" style={{ marginBottom: 48, maxWidth: 760 }}>
             <p className={s.bandNum}>Centro Jurídico NOA · Jujuy, Argentina</p>
-            <h2 className={s.bandTitle}>Excel, Notion, Calendar y WhatsApp.<br /><em>Ahora, una sola pantalla.</em></h2>
+            <h2 className={s.sectionTitle}>Excel, Notion, Calendar y WhatsApp.<br /><em>Ahora, una sola pantalla.</em></h2>
+          </div>
+
+          <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="" style={{ maxWidth: 760, margin: '0 auto 64px' }}>
+            <div className={s.glowCard}>
+              <span className={s.glowCardBadge}>Testimonio real</span>
+              <div className={s.glowCardInner}>
+                <LogoVideo
+                  src="/testimonios/noa-testimonio.mp4"
+                  poster="/testimonios/noa-testimonio-poster.jpg"
+                  rounded={false}
+                />
+              </div>
+            </div>
+            <p className={s.bandNum} style={{ margin: '20px 0 0', textAlign: 'center' }}>Rodrigo Reyes — Centro Jurídico NOA</p>
+          </div>
+        </div>
+
+        <div className={s.bandGrid}>
+          <div className={`${s.reveal} ${s.revealDelay2}`} data-reveal="">
             <p className={s.bandBody}>
               Centro Jurídico NOA llevaba cada caso en Excel, coordinaba al equipo por WhatsApp,
               agendaba en Google Calendar y guardaba notas en Notion. Cuatro herramientas, cuatro
@@ -48,8 +67,10 @@ export default function TestimoniosPage() {
               procuradores, y las finanzas del estudio — mensuales, gastos, salidas y cobros —
               controladas desde el mismo lugar donde se gestiona el caso.
             </p>
+          </div>
 
-            <ul style={{ listStyle: 'none', margin: '24px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div className={`${s.reveal} ${s.revealDelay2}`} data-reveal="">
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
                 'Gestión de casos por abogado',
                 'Tareas asignadas a empleados, secretaría y procuradores',
@@ -71,20 +92,6 @@ export default function TestimoniosPage() {
                 Probar el agente en desarrollo <ArrowRight size={15} />
               </Link>
             </div>
-          </div>
-
-          <div className={`${s.bandRight} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            <div className={s.glowCard}>
-              <span className={s.glowCardBadge}>Testimonio real</span>
-              <div className={s.glowCardInner}>
-                <LogoVideo
-                  src="/testimonios/noa-testimonio.mp4"
-                  poster="/testimonios/noa-testimonio-poster.jpg"
-                  rounded={false}
-                />
-              </div>
-            </div>
-            <p className={s.bandNum} style={{ margin: '20px 0 0' }}>Rodrigo Reyes — Centro Jurídico NOA</p>
           </div>
         </div>
       </div>
@@ -120,9 +127,9 @@ export default function TestimoniosPage() {
 
       {/* ── El estudio, por fuera ── */}
       <div className={s.band}>
-        <div className={`${s.bandGrid} ${s.bandGridFlip}`}>
+        <div className={`${s.bandGrid} ${s.bandGridFlip}`} style={{ alignItems: 'center' }}>
           <div className={`${s.bandRight} ${s.reveal}`} data-reveal="" style={{ display: 'flex', justifyContent: 'center' }}>
-            <div className={s.glowCard} style={{ maxWidth: 280 }}>
+            <div className={s.glowCard} style={{ maxWidth: 220 }}>
               <div className={s.glowCardInner} style={{ aspectRatio: '9/16' }}>
                 <AutoplayVideo
                   src="/testimonios/noa-demo.mp4"
