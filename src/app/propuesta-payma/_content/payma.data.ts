@@ -11,6 +11,8 @@ import type { NumberedItem } from '@/components/propuesta/NumberedList';
 import type { NavItem } from '@/components/propuesta/SectionNav';
 import type { AgentData } from '@/components/propuesta/AgentCard';
 
+export const logoVideo = { src: '/payma_logo_video.mp4', poster: '/payma_logo_video-poster.jpg' };
+
 export const nombreCliente = 'Organización Payma';
 export const kicker = 'Organización Payma · San Vicente, Misiones · Septiembre 2026';
 
@@ -190,7 +192,7 @@ export const agentePrueba: AgentData = {
     'Coordinación de visitas',
     'Registro y seguimiento del prospecto',
   ],
-  video: { src: '/payma_logo_video.mp4', poster: '/payma_logo_video-poster.jpg' },
+  video: logoVideo,
   accentColor: 'rgba(99,102,241,1)',
   accentBg: 'rgba(99,102,241,0.07)',
   accentBorder: 'rgba(99,102,241,0.2)',

@@ -14,6 +14,7 @@ import { SectionNav, useSectionNav } from '@/components/propuesta/SectionNav';
 import { AcceptanceCta } from '@/components/propuesta/AcceptanceCta';
 import { AgentCard } from '@/components/propuesta/AgentCard';
 import { PropertyCardDemo } from '@/components/propuesta/PropertyCardDemo';
+import { LogoVideo } from '@/components/propuesta/LogoVideo';
 import AnimatedGradient from '@/components/ui/animated-gradient';
 import { checkPassword, notifyAcceptance } from './actions';
 import * as d from './_content/payma.data';
@@ -75,6 +76,9 @@ function ProposalContent({ hero }: { hero: HeroContent }) {
       <section className={s.section} style={{ textAlign: 'center', paddingTop: 80, position: 'relative', overflow: 'hidden', isolation: 'isolate' }}>
         <AnimatedGradient config={{ preset: 'Prism' }} />
         <div className={s.inner}>
+          <div className={s.reveal} data-reveal="" style={{ maxWidth: 300, margin: '0 auto 40px' }}>
+            <LogoVideo src={d.logoVideo.src} poster={d.logoVideo.poster} rounded />
+          </div>
           <div className={`${s.kicker} ${s.reveal}`} data-reveal="" style={{ justifyContent: 'center' }}>
             <span className={s.kickerLine} />
             <span className={s.kickerLabel}>{d.kicker}</span>
