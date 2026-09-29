@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import s from '../corp.module.css';
 import { RevealObserver } from '../_reveal';
-import { AutoplayVideo } from '../_autoplay-video';
 import { waUrl, WA_MSG_GENERAL } from '../_content';
 import AnimatedGradient from '@/components/ui/animated-gradient';
 import { LogoVideo } from '@/components/propuesta/LogoVideo';
@@ -124,11 +123,12 @@ export default function TestimoniosPage() {
         <div className={`${s.bandGrid} ${s.bandGridFlip}`} style={{ alignItems: 'center' }}>
           <div className={`${s.bandRight} ${s.reveal}`} data-reveal="" style={{ display: 'flex', justifyContent: 'center' }}>
             <div className={s.glowCard} style={{ maxWidth: 340 }}>
-              <div className={s.glowCardInner} style={{ aspectRatio: '9/16' }}>
-                <AutoplayVideo
+              <div className={s.glowCardInner}>
+                <LogoVideo
                   src="/testimonios/noa-demo.mp4"
                   poster="/testimonios/noa-demo-poster.jpg"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  rounded={false}
+                  aspectRatio="9/16"
                 />
               </div>
             </div>
