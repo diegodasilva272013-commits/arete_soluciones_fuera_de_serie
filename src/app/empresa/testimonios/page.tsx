@@ -23,10 +23,10 @@ export default function TestimoniosPage() {
             <span className={s.kickerLabel}>Casos reales</span>
           </div>
           <h1 className={`${s.heroTitle} ${s.reveal} ${s.revealDelay1}`} data-reveal="" style={{ maxWidth: 720 }}>
-            No lo contamos nosotros.<br /><em>Lo cuenta quien ya lo usa.</em>
+            No lo contamos nosotros.<br /><em>Lo cuenta quien trabaja con nosotros.</em>
           </h1>
           <p className={`${s.heroSub} ${s.reveal} ${s.revealDelay2}`} data-reveal="" style={{ maxWidth: 560 }}>
-            Un caso real: qué construimos para Centro Jurídico NOA y qué dice quien lo usa todos los días.
+            Un caso real: qué construimos para Centro Jurídico NOA, y qué dice Rodrigo Reyes sobre trabajar con Areté.
           </p>
         </div>
       </section>
@@ -36,28 +36,28 @@ export default function TestimoniosPage() {
         <div className={s.bandGrid}>
           <div className={`${s.reveal}`} data-reveal="">
             <p className={s.bandNum}>Centro Jurídico NOA · Jujuy, Argentina</p>
-            <h2 className={s.bandTitle}>Un estudio jurídico,<br /><em>disponible las 24 horas.</em></h2>
+            <h2 className={s.bandTitle}>Un ERP a medida,<br /><em>y un agente en camino.</em></h2>
             <p className={s.bandBody}>
-              Centro Jurídico NOA es un estudio jurídico en Jujuy. Le construimos dos agentes de voz
-              con inteligencia artificial: uno para el estudio, que responde consultas legales, agenda
-              turnos con los abogados e informa las áreas de práctica; y uno para Rodrigo Reyes, abogado
-              y consultor patrimonial, enfocado en protección de activos y planificación patrimonial.
-            </p>
-            <p className={s.bandBody}>
-              Los dos derivan cada caso al profesional indicado, disponibles las 24 horas.
+              Centro Jurídico NOA es un estudio jurídico en Jujuy. Le construimos un ERP a medida
+              para ordenar la gestión del estudio, y estamos implementando un agente de voz con
+              inteligencia artificial para atender consultas y coordinar turnos.
             </p>
             <div style={{ marginTop: 28 }}>
               <Link href="/empresa/agentes-ia" className={s.btnGhost}>
-                Ver el agente en vivo <ArrowRight size={15} />
+                Probar el agente en desarrollo <ArrowRight size={15} />
               </Link>
             </div>
           </div>
 
           <div className={`${s.bandRight} ${s.reveal} ${s.revealDelay1}`} data-reveal="">
-            <LogoVideo
-              src="/testimonios/noa-testimonio.mp4"
-              poster="/testimonios/noa-testimonio-poster.jpg"
-            />
+            <div className={s.bandPanel} style={{ padding: 16 }}>
+              <span className={s.bandPanelBorder} aria-hidden="true" />
+              <LogoVideo
+                src="/testimonios/noa-testimonio.mp4"
+                poster="/testimonios/noa-testimonio-poster.jpg"
+                rounded={false}
+              />
+            </div>
             <p className={s.bandNum} style={{ margin: '16px 0 0' }}>Rodrigo Reyes — Centro Jurídico NOA</p>
           </div>
         </div>
@@ -66,21 +66,24 @@ export default function TestimoniosPage() {
       {/* ── El estudio, por fuera ── */}
       <div className={s.band}>
         <div className={`${s.bandGrid} ${s.bandGridFlip}`}>
-          <div className={`${s.bandFig} ${s.reveal}`} data-reveal="">
-            <div className={s.bandFigFrame} style={{ aspectRatio: '9/16', maxWidth: 340, margin: '0 auto' }}>
-              <AutoplayVideo
-                src="/testimonios/noa-demo.mp4"
-                poster="/testimonios/noa-demo-poster.jpg"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-              />
+          <div className={`${s.bandRight} ${s.reveal}`} data-reveal="" style={{ display: 'flex', justifyContent: 'center' }}>
+            <div className={s.bandPanel} style={{ padding: 16, display: 'flex', justifyContent: 'center' }}>
+              <span className={s.bandPanelBorder} aria-hidden="true" />
+              <div style={{ aspectRatio: '9/16', maxWidth: 280, width: '100%', overflow: 'hidden' }}>
+                <AutoplayVideo
+                  src="/testimonios/noa-demo.mp4"
+                  poster="/testimonios/noa-demo-poster.jpg"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                />
+              </div>
             </div>
           </div>
           <div className={`${s.reveal} ${s.revealDelay1}`} data-reveal="">
             <p className={s.bandNum}>El estudio</p>
             <h2 className={s.bandTitle}>Así es Centro Jurídico NOA,<br /><em>por fuera.</em></h2>
             <p className={s.bandBody}>
-              El mismo estudio, atendido también por voz: un agente de inteligencia artificial que
-              responde consultas legales, agenda turnos y deriva cada caso, disponible las 24 horas.
+              El estudio donde estamos implementando el sistema: el ERP ya está en uso, y el agente
+              de voz con inteligencia artificial está en desarrollo.
             </p>
           </div>
         </div>
