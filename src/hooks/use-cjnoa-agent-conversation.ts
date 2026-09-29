@@ -3,12 +3,13 @@
 import { useCallback, useRef, useState } from 'react';
 import { Conversation } from '@11labs/client';
 
-// El agent_id del agente real de Centro Jurídico NOA vive acá, en una
-// sola variable de entorno pública (hace falta en el cliente para
-// Conversation.startSession). Configurarla en Vercel →
-// NEXT_PUBLIC_CJNOA_AGENT_ID=agent_xxxxx antes de usar esta página —
-// sin eso, connect() falla con el mensaje de error de abajo.
-const CJNOA_AGENT_ID = process.env.NEXT_PUBLIC_CJNOA_AGENT_ID;
+// Mismo agent_id real de Centro Jurídico NOA que ya está en producción
+// en /empresa/agentes-ia (agente de voz del estudio, Jujuy). Se puede
+// pisar con NEXT_PUBLIC_CJNOA_AGENT_ID en Vercel si en algún momento
+// hay que apuntar este tester a un agente distinto (por ej. uno nuevo,
+// específico para las ramas de jubilaciones que lista esta página).
+const CJNOA_AGENT_ID =
+  process.env.NEXT_PUBLIC_CJNOA_AGENT_ID || 'agent_9801m2tg8136e28sbnjptxxq1841';
 
 export type CJNoaConnectionStatus =
   | 'disconnected'
