@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { Conversation } from '@11labs/client';
 import { Mic } from 'lucide-react';
+import { VoiceOrb } from '@/components/ui/voice-orb';
 
 // Botón de llamada real por WebRTC (@11labs/client), igual al que ya
 // funciona en /empresa/agentes-ia y en la propuesta de Providus. Widget
@@ -40,13 +41,27 @@ export function AgentWidget({ agentId, label }: { agentId: string; label: string
   const isBusy = status === 'connecting';
   const isError = status === 'error';
 
+  const getLevel = useCallback(() => {
+    const conv = convRef.current;
+    if (!conv) return 0;
+    try {
+      // getOutputVolume = el agente hablando; getInputVolume*0.5 mantiene
+      // el orbe con algo de vida cuando habla el usuario, sin que domine.
+      return Math.max(conv.getOutputVolume(), conv.getInputVolume() * 0.5);
+    } catch {
+      return 0;
+    }
+  }, []);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
       {isActive && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, height: 36, padding: '0 8px' }}>
-          {[0.6, 1, 0.8, 1.2, 0.7, 1, 0.9].map((h, i) => (
-            <span key={i} style={{ display: 'block', width: 3, height: `${h * 24}px`, borderRadius: 3, background: 'rgba(47,123,246,0.8)', animation: 'agWave 0.9s ease-in-out infinite alternate', animationDelay: `${i * 0.09}s` }} />
-          ))}
+        <div style={{
+          width: 140, height: 140, borderRadius: '50%', overflow: 'hidden',
+          background: 'rgba(47,123,246,0.05)', border: '1px solid rgba(47,123,246,0.25)',
+          boxShadow: '0 0 40px rgba(47,123,246,0.15)',
+        }}>
+          <VoiceOrb hue={205} getLevel={getLevel} />
         </div>
       )}
 
@@ -101,7 +116,6 @@ export function AgentWidget({ agentId, label }: { agentId: string; label: string
 
       <style>{`
         @keyframes agPulse { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.6); opacity: 0; } }
-        @keyframes agWave { from { transform: scaleY(0.4); } to { transform: scaleY(1.2); } }
         @keyframes agSpin { to { transform: rotate(360deg); } }
       `}</style>
     </div>
