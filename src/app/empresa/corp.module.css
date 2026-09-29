@@ -801,6 +801,50 @@
 
 .bandRight {}
 
+/* Card premium para video/media destacado (testimonios, casos reales):
+   borde en degradé + resplandor azul que respira + badge flotante.
+   Distinta del .bandPanel (esquinas cortadas, look técnico de specs) —
+   esta es la versión "vidriera" para contenido que se mira, no se lee. */
+.glowCard {
+  position: relative;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(160deg, rgba(47,123,246,.55) 0%, rgba(47,123,246,.08) 45%, rgba(242,239,233,.12) 100%);
+  box-shadow: 0 30px 70px -25px rgba(47,123,246,.35);
+  animation: glowBreathe 4s ease-in-out infinite;
+}
+
+.glowCardInner {
+  border-radius: 19px;
+  overflow: hidden;
+  background: #050505;
+}
+
+.glowCardBadge {
+  position: absolute;
+  top: -12px;
+  left: 24px;
+  z-index: 2;
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #050505;
+  background: var(--azul);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+@keyframes glowBreathe {
+  0%, 100% { box-shadow: 0 30px 70px -25px rgba(47,123,246,.35); }
+  50%      { box-shadow: 0 30px 80px -20px rgba(47,123,246,.55); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glowCard { animation: none; }
+}
+
 /* Slot placeholder */
 .slot {
   position: absolute;
