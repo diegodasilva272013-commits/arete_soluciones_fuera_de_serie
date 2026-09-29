@@ -3,6 +3,19 @@ import path from 'node:path';
 import { cookies } from 'next/headers';
 import { PaymaClient } from './_client';
 
+// Sin esto, el link hereda el title/description/OG del layout raíz (la
+// academia "Fuera de Serie"), que es lo que aparecía mal en las previews
+// de WhatsApp de esta propuesta.
+export const metadata = {
+  title: 'Propuesta — Organización Payma',
+  description: 'Web de propiedades y agentes de inteligencia artificial, por Areté Soluciones.',
+  robots: 'noindex,nofollow',
+  openGraph: {
+    title: 'Propuesta — Organización Payma',
+    description: 'Web de propiedades y agentes de inteligencia artificial, por Areté Soluciones.',
+  },
+};
+
 type HeroEtapa = { desde: number; hasta: number; kicker: string; titulo: string; texto: string };
 type HeroContent = { marca: string; bajada: string; indicacion_scroll: string; etapas: HeroEtapa[] };
 

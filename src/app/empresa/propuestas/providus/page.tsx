@@ -3,7 +3,12 @@ import { ProvidusClient } from './_client';
 
 export const metadata = {
   title: 'Propuesta — Providus S.A.',
+  description: 'Plataforma de captación, gestión y venta, por Areté Soluciones.',
   robots: 'noindex,nofollow',
+  openGraph: {
+    title: 'Propuesta — Providus S.A.',
+    description: 'Plataforma de captación, gestión y venta, por Areté Soluciones.',
+  },
 };
 
 export default function ProvidusPage() {
