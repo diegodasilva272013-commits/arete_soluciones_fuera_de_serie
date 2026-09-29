@@ -22,7 +22,7 @@ export const heroSub =
 export const heroMetricas: Metric[] = [
   { val: 'USD 5.200', label: 'Inversión total', sub: 'Pago único' },
   { val: '5 a 6 semanas', label: 'Entrega', sub: 'Desde el material' },
-  { val: 'Sin abono', label: 'Mensual con Areté', sub: 'El sistema es de Payma' },
+  { val: 'Sin abono', label: 'Mensual con Areté', sub: 'Solo paga los servicios técnicos, a su nombre' },
 ];
 
 export type SectionMeta = { eyebrow: string; titulo1: string; titulo2Em: string };
