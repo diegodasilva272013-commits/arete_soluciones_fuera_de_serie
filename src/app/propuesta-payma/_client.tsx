@@ -14,6 +14,7 @@ import { SectionNav, useSectionNav } from '@/components/propuesta/SectionNav';
 import { AcceptanceCta } from '@/components/propuesta/AcceptanceCta';
 import { AgentCard } from '@/components/propuesta/AgentCard';
 import { PropertyCardDemo } from '@/components/propuesta/PropertyCardDemo';
+import AnimatedGradient from '@/components/ui/animated-gradient';
 import { checkPassword, notifyAcceptance } from './actions';
 import * as d from './_content/payma.data';
 import s from '@/app/empresa/corp.module.css';
@@ -71,7 +72,8 @@ function ProposalContent({ hero }: { hero: HeroContent }) {
       <SectionNav items={d.navItems} activeId={activeId} onNavigate={scrollTo} />
 
       {/* ── Apertura ── */}
-      <section className={s.section} style={{ textAlign: 'center', paddingTop: 80 }}>
+      <section className={s.section} style={{ textAlign: 'center', paddingTop: 80, position: 'relative', overflow: 'hidden', isolation: 'isolate' }}>
+        <AnimatedGradient config={{ preset: 'Prism' }} />
         <div className={s.inner}>
           <div className={`${s.kicker} ${s.reveal}`} data-reveal="" style={{ justifyContent: 'center' }}>
             <span className={s.kickerLine} />
