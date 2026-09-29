@@ -146,7 +146,7 @@ export const Home = () => {
       </Sidebar>
 
       {/* Main Content */}
-      <SidebarInset>
+      <SidebarInset className="h-full min-h-0">
         <ResizablePanelGroup direction="horizontal" className="h-full">
           {/* Left Panel - único contacto (sin lista de ejemplo) */}
           <ResizablePanel

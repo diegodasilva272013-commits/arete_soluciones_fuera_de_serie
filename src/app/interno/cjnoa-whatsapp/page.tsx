@@ -99,7 +99,7 @@ export default async function CJNoaWhatsAppTestPage() {
               "polygon(0 16px, 16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)",
           }}
         >
-          <SidebarProvider>
+          <SidebarProvider className="h-full min-h-0">
             <CJNoaChatWindow />
           </SidebarProvider>
         </div>
