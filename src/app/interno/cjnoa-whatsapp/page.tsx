@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 
-import { SidebarProvider } from "@/components/blocks/sidebar"
 import { Home as CJNoaChatWindow } from "@/components/blocks/chat-template"
 import { hasValidCJNoaSession } from "@/lib/cjnoa-access"
 import { CJNoaAccessGate } from "./access-gate"
@@ -99,9 +98,7 @@ export default async function CJNoaWhatsAppTestPage() {
               "polygon(0 16px, 16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)",
           }}
         >
-          <SidebarProvider className="h-full min-h-0">
-            <CJNoaChatWindow />
-          </SidebarProvider>
+          <CJNoaChatWindow />
         </div>
 
         {/* Guía rápida de testeo — texto sacado de clientes/cjnoa-whatsapp/ */}
