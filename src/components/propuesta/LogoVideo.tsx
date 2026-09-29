@@ -6,7 +6,7 @@ import { Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 // Video con audio propio (no un loop de fondo, un video con intención de
 // verse) con botón de sonido y de pantalla completa. Versión genérica de
 // "ProvidusLogoVideo" de la propuesta de Providus.
-export function LogoVideo({ src, poster, rounded = true }: { src: string; poster?: string; rounded?: boolean }) {
+export function LogoVideo({ src, poster, rounded = true, aspectRatio = '16/9' }: { src: string; poster?: string; rounded?: boolean; aspectRatio?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [muted, setMuted] = useState(true);
@@ -33,7 +33,7 @@ export function LogoVideo({ src, poster, rounded = true }: { src: string; poster
   };
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: rounded ? 18 : 0, border: rounded ? '1px solid var(--linea)' : 'none', background: '#050505' }}>
+    <div ref={containerRef} style={{ position: 'relative', width: '100%', aspectRatio, overflow: 'hidden', borderRadius: rounded ? 18 : 0, border: rounded ? '1px solid var(--linea)' : 'none', background: '#050505' }}>
       <video
         ref={videoRef}
         autoPlay
