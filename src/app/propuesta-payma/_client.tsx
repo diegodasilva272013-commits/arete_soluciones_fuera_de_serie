@@ -13,6 +13,7 @@ import { NumberedList } from '@/components/propuesta/NumberedList';
 import { SectionNav, useSectionNav } from '@/components/propuesta/SectionNav';
 import { AcceptanceCta } from '@/components/propuesta/AcceptanceCta';
 import { AgentCard } from '@/components/propuesta/AgentCard';
+import { PropertyCardDemo } from '@/components/propuesta/PropertyCardDemo';
 import { checkPassword, notifyAcceptance } from './actions';
 import * as d from './_content/payma.data';
 import s from '@/app/empresa/corp.module.css';
@@ -42,6 +43,7 @@ function webTabsToElastic(tabs: d.WebTabData[]): ElasticTab[] {
   return tabs.map((t) => ({
     id: t.id,
     label: t.label,
+    img: t.img,
     content: (
       <>
         {t.intro && <p className={s.bandBody} style={{ margin: 0, fontSize: 14 }}>{t.intro}</p>}
@@ -107,6 +109,11 @@ function ProposalContent({ hero }: { hero: HeroContent }) {
         <div className={s.inner}>
           <SectionHead {...d.sections.web} />
           <div className={s.reveal} data-reveal=""><ElasticSolucion items={webTabsContent} /></div>
+
+          <div className={s.reveal} data-reveal="" style={{ marginTop: 64, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+            <p className={s.kickerLabel} style={{ justifyContent: 'center' }}>{d.fichaDemoEyebrow}</p>
+            <PropertyCardDemo />
+          </div>
         </div>
       </section>
 

@@ -45,6 +45,7 @@ export const formaDePagoEyebrow = 'Forma de pago';
 export const cierreTitulo = 'Para avanzar.';
 export const cierreBotonLabel = 'Aceptar propuesta';
 export const agentePruebaEyebrow = 'Pruébenlo ustedes';
+export const fichaDemoEyebrow = 'Así se ve la ficha de cada propiedad (ejemplo)';
 export const footerText = 'Areté Soluciones — aretesoluciones.space';
 
 export const navItems: NavItem[] = [
@@ -84,17 +85,22 @@ export const nucleoItems: string[] = [
 ];
 
 // ── 03 — La web de propiedades (punto 3.1 del .md) ──────────────────────────
-export type WebTabData = { id: string; label: string; intro?: string; items?: string[] };
+// Las fotos son cuadros del propio recorrido del hero (public/propuesta-payma/
+// frames/desktop/) — la misma casa, no son fotos de stock ni inventadas.
+export type WebTabData = { id: string; label: string; intro?: string; items?: string[]; img?: string };
+const FRAMES = '/propuesta-payma/frames/desktop';
 export const webTabs: WebTabData[] = [
   {
     id: 'portada',
     label: 'Portada con recorrido',
     intro: 'A medida que la persona baja por la página, la cámara avanza: fachada, puerta de entrada, living, cocina, patio. Es el tipo de portada que hoy usan las inmobiliarias y marcas de primer nivel en el mundo. El recorrido se produce con Inteligencia Artificial, con una casa de estética propia de la región, sin necesidad de filmar.',
+    img: `${FRAMES}/f_0001.webp`,
   },
   {
     id: 'catalogo',
     label: 'Catálogo con buscador',
     intro: 'Filtros por operación (venta o alquiler), tipo de propiedad, barrio, precio, dormitorios y servicios.',
+    img: `${FRAMES}/f_0025.webp`,
   },
   {
     id: 'ficha',
@@ -106,11 +112,13 @@ export const webTabs: WebTabData[] = [
       'Video recorrido de la propiedad, cargado por Payma desde el panel.',
       'Botón "Consultar esta propiedad", que abre la conversación con el agente ya ubicado en esa propiedad.',
     ],
+    img: `${FRAMES}/f_0150.webp`,
   },
   {
     id: 'diseno',
     label: 'Diseño',
     intro: 'Hecho a medida, con animaciones y transiciones cuidadas. No es una plantilla. Funciona igual de bien en celular que en computadora.',
+    img: `${FRAMES}/f_0270.webp`,
   },
 ];
 

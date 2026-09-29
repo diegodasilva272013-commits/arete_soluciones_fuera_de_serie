@@ -16,6 +16,25 @@ const config: Config = {
     },
     extend: {
       colors: {
+        // Tokens shadcn genéricos, para componentes copiados de librerías
+        // tipo shadcn/21st.dev que esperan bg-card, text-primary, etc.
+        // Ver las variables en globals.css :root — son aditivos, no tocan
+        // la paleta "brand" que ya usa el resto del sitio.
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        card: {
+          DEFAULT: 'var(--card)',
+          foreground: 'var(--card-foreground)',
+        },
+        primary: {
+          DEFAULT: 'var(--primary)',
+          foreground: 'var(--primary-foreground)',
+        },
+        muted: {
+          DEFAULT: 'var(--muted)',
+          foreground: 'var(--muted-foreground)',
+        },
+        border: 'var(--border)',
         brand: {
           black: '#050505',
           surface: '#111111',

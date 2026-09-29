@@ -51,6 +51,20 @@
   /* Scrollbar */
   --scrollbar-track: #0a0a0a;
   --scrollbar-thumb: #1f1f1f;
+
+  /* Tokens shadcn (para componentes copiados de librerías tipo shadcn/21st.dev
+     que esperan estos nombres exactos — bg-card, text-primary, etc). No
+     existían antes en este proyecto (que usa su propia paleta --bg-base/
+     --text-primary/etc arriba); son aditivos, no reemplazan nada. */
+  --background: #050505;
+  --foreground: #F2EFE9;
+  --card: #0A0A0B;
+  --card-foreground: #F2EFE9;
+  --primary: #2F7BF6;
+  --primary-foreground: #050505;
+  --muted: #111113;
+  --muted-foreground: #8A8A8A;
+  --border: rgba(242, 239, 233, 0.14);
 }
 
 html.light {
