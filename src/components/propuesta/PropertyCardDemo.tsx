@@ -44,7 +44,9 @@ function Front() {
 
         <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-muted-foreground [transform:translateZ(40px)]">
           <span className="group-hover/p-card:text-primary group-hover/p-card:translate-x-1 transition-all">
-            Pasá el mouse para ver más
+            {/* En celular no hay mouse: si no se aclara que hay que tocar, nadie se da cuenta de que la card gira. */}
+            <span className="hidden md:inline">Pasá el mouse para ver más</span>
+            <span className="md:hidden">Tocá para ver más</span>
           </span>
           <ArrowRight className="size-4 group-hover/p-card:text-primary" />
         </div>
