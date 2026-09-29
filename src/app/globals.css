@@ -65,6 +65,31 @@
   --muted: #111113;
   --muted-foreground: #8A8A8A;
   --border: rgba(242, 239, 233, 0.14);
+  --input: rgba(242, 239, 233, 0.14);
+  --ring: #2F7BF6;
+  --popover: #0A0A0B;
+  --popover-foreground: #F2EFE9;
+  --secondary: #1A1A1C;
+  --secondary-foreground: #F2EFE9;
+  --accent: #151519;
+  --accent-foreground: #F2EFE9;
+  --destructive: #EF4444;
+  --destructive-foreground: #F2EFE9;
+  --radius: 0.5rem;
+
+  /* Tokens del componente Sidebar (shadcn), en tripletes HSL sin la
+     función hsl() envolvente — así sirven tanto para las clases
+     bg-sidebar/etc (mapeadas en tailwind.config.ts como hsl(var(--x)))
+     como para el único uso con hsl() hardcodeado dentro del propio
+     componente. */
+  --sidebar: 0 0% 3%;
+  --sidebar-foreground: 40 20% 94%;
+  --sidebar-border: 0 0% 16%;
+  --sidebar-ring: 217 91% 60%;
+  --sidebar-accent: 0 0% 10%;
+  --sidebar-accent-foreground: 40 20% 94%;
+  --sidebar-primary: 217 91% 60%;
+  --sidebar-primary-foreground: 0 0% 2%;
 }
 
 html.light {

@@ -35,6 +35,7 @@ import {
   AlertTriangle,
   CalendarDays,
   Activity,
+  MessageCircle,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -85,6 +86,7 @@ const sections = [
   { href: '/admin/strikes', label: 'Strikes', desc: 'Registro de strikes del equipo.', icon: AlertTriangle },
   { href: '/admin/agenda', label: 'Agenda Closers', desc: 'Disponibilidad y reuniones del equipo de cierre.', icon: CalendarDays },
   { href: '/admin/sesiones-curso', label: 'Mentorías', desc: 'Sesiones de mentoría y seguimiento por curso.', icon: GraduationCap },
+  { href: '/interno/cjnoa-whatsapp', label: 'Agente CJ NOA', desc: 'Entorno privado de prueba por texto del agente real de Centro Jurídico NOA.', icon: MessageCircle },
 ];
 
 function buildDailyBuckets(rows: { created_at: string }[], days = 30) {
