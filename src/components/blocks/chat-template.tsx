@@ -88,7 +88,7 @@ function EstadoConexion({ status }: { status: CJNoaConnectionStatus }) {
 
 export const Home = () => {
   const { toggleSidebar } = useSidebar()
-  const { messages, status, errorMessage, connect, sendMessage } =
+  const { messages, status, errorMessage, connect, disconnect, sendMessage } =
     useCJNoaAgentConversation()
 
   React.useEffect(() => {
@@ -202,7 +202,16 @@ export const Home = () => {
                     {errorMessage}
                   </p>
                 )}
-                {status !== "connected" && (
+                {status === "connected" ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-auto text-red-500 hover:text-red-400"
+                    onClick={() => disconnect()}
+                  >
+                    Cortar
+                  </Button>
+                ) : (
                   <Button
                     variant="ghost"
                     size="sm"

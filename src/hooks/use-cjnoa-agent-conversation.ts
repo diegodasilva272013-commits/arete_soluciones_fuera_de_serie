@@ -91,5 +91,11 @@ export function useCJNoaAgentConversation() {
     [status, addMessage],
   );
 
-  return { messages, status, errorMessage, connect, sendMessage };
+  const disconnect = useCallback(async () => {
+    await convRef.current?.endSession();
+    convRef.current = null;
+    setStatus('disconnected');
+  }, []);
+
+  return { messages, status, errorMessage, connect, disconnect, sendMessage };
 }
