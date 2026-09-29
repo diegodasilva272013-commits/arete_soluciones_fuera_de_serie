@@ -137,8 +137,14 @@ export function FrameSequence({
       if (sizeChanged) { canvas.width = w; canvas.height = h; lastW = w; lastH = h; }
 
       const p = staticProgress ?? progressRef.current;
-      // Fundido a negro al final del recorrido (0.94 → 1), hacia la propuesta.
-      if (fadeRef.current) fadeRef.current.style.opacity = String(Math.max(0, Math.min(1, (p - 0.94) / 0.06)));
+      // Fundido hacia la propuesta al final del recorrido (0.94 → 1). Tope en
+      // 0.6 (no a negro puro): al soltarse el pin, esta última imagen queda
+      // congelada y tarda ~1 pantalla en salir de vista mientras el usuario
+      // sigue scrolleando — si llegaba a negro total (#050505, igual al fondo
+      // de la página) esa pantalla se veía vacía/rota. Oscurecida pero
+      // reconocible, se lee como una transición intencional, no como un hueco.
+      const FADE_MAX = 0.6;
+      if (fadeRef.current) fadeRef.current.style.opacity = String(FADE_MAX * Math.max(0, Math.min(1, (p - 0.94) / 0.06)));
       const target = Math.round(Math.max(0, Math.min(1, p)) * (manifest.count - 1));
       const idx = nearestLoaded(target);
       if (idx >= 0 && (idx !== lastDrawn || sizeChanged)) {
