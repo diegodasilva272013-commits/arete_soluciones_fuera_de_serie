@@ -29,6 +29,7 @@ export function useCJNoaAgentConversation() {
   const [status, setStatus] = useState<CJNoaConnectionStatus>('disconnected');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [messages, setMessages] = useState<CJNoaChatMessage[]>([]);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
 
   const addMessage = useCallback((role: 'user' | 'assistant', text: string) => {
     setMessages((prev) => [
@@ -70,16 +71,16 @@ export function useCJNoaAgentConversation() {
       });
 
       convRef.current = conv;
-      // Es un entorno de prueba por texto (WhatsApp simulado): se silencia
-      // el micrófono y el audio de salida, aunque la conexión underlying
-      // siga siendo la misma sesión de voz de la SDK.
-      conv.setMicMuted(true);
-      conv.setVolume({ volume: 0 });
+      // Arranca en modo texto: mic y audio de salida silenciados. El
+      // botón de micrófono de la UI llama a toggleVoice() para activar
+      // los dos juntos y poder hablarle al agente de verdad.
+      conv.setMicMuted(!voiceEnabled);
+      conv.setVolume({ volume: voiceEnabled ? 1 : 0 });
     } catch (err) {
       setStatus('error');
       setErrorMessage(err instanceof Error ? err.message : 'No se pudo conectar con el agente.');
     }
-  }, [status, addMessage]);
+  }, [status, addMessage, voiceEnabled]);
 
   const sendMessage = useCallback(
     (text: string) => {
@@ -97,5 +98,26 @@ export function useCJNoaAgentConversation() {
     setStatus('disconnected');
   }, []);
 
-  return { messages, status, errorMessage, connect, disconnect, sendMessage };
+  const toggleVoice = useCallback(() => {
+    setVoiceEnabled((prev) => {
+      const next = !prev;
+      const conv = convRef.current;
+      if (conv) {
+        conv.setMicMuted(!next);
+        conv.setVolume({ volume: next ? 1 : 0 });
+      }
+      return next;
+    });
+  }, []);
+
+  return {
+    messages,
+    status,
+    errorMessage,
+    connect,
+    disconnect,
+    sendMessage,
+    voiceEnabled,
+    toggleVoice,
+  };
 }
