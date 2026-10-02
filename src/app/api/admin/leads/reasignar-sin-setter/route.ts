@@ -17,24 +17,19 @@ export async function POST(req: NextRequest) {
     const { setter_id } = await req.json();
     if (!setter_id) return NextResponse.json({ error: 'setter_id requerido' }, { status: 400 });
 
-    // Misma definición de "sin asignar" que el resto del panel (migración
-    // 0056): sin assigned_to_user_id Y sin estar ya en team_leads. Antes
-    // este endpoint solo miraba assigned_to_user_id IS NULL, así que podía
-    // reasignar leads que en realidad ya estaban repartidos a una dupla.
-    const { data: rows } = await (admin as any).rpc('leads_sin_asignar', { p_limit: 0 });
-    const ids = ((rows ?? []) as { id: string }[]).map(r => r.id);
-    if (ids.length === 0) return NextResponse.json({ updated: 0 });
-
-    const nowIso = new Date().toISOString();
-    const { data, error } = await admin
-      .from('leads')
-      .update({ assigned_to_user_id: setter_id, assigned_at: nowIso })
-      .in('id', ids)
-      .select('id');
+    // El UPDATE corre entero del lado de Postgres (migración 0076,
+    // reasignar_leads_sin_setter) con la misma definición de "sin asignar"
+    // que el resto del panel: sin assigned_to_user_id Y sin estar ya en
+    // team_leads. Antes se traían los ids a JS y se hacía .in('id', [...]) —
+    // con miles de leads sin asignar esa URL podía superar el límite que
+    // acepta PostgREST/Vercel y el update no aplicaba a nada.
+    const { data: updated, error } = await (admin as any).rpc('reasignar_leads_sin_setter', {
+      p_setter_id: setter_id,
+    });
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-    return NextResponse.json({ updated: data?.length ?? 0 });
+    return NextResponse.json({ updated: updated ?? 0 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

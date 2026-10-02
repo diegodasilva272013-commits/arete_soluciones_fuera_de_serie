@@ -32,24 +32,24 @@ export async function GET(req: NextRequest) {
     const from     = (page - 1) * perPage;
     const to       = from + perPage - 1;
 
+    // "Sin asignar" se resuelve contra una vista (leads_sin_asignar_view,
+    // migración 0076) que aplica el filtro NOT EXISTS del lado de Postgres.
+    // Antes se traían todos los ids de leads_sin_asignar(0) a JS y se hacía
+    // .in('id', [...]) — con miles de leads sin asignar esa URL supera el
+    // límite que acepta PostgREST/Vercel y la query vuelve vacía, mientras
+    // el total mostrado en el header seguía siendo el de toda la tabla.
+    const table = userId === 'unassigned' ? 'leads_sin_asignar_view' : 'leads';
+    const select = userId === 'unassigned'
+      ? '*'
+      : '*, assignee:profiles!leads_assigned_to_user_id_fkey(id, full_name, email)';
+
     let query = (admin as any)
-      .from('leads')
-      .select('*, assignee:profiles!leads_assigned_to_user_id_fkey(id, full_name, email)', { count: 'exact' })
+      .from(table)
+      .select(select, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(from, to);
 
-    if (userId === 'unassigned') {
-      // "Sin asignar" tiene que ser LA MISMA definición en todos lados: sin
-      // assigned_to_user_id Y sin estar ya repartido a una dupla (team_leads).
-      // Antes esto solo miraba assigned_to_user_id IS NULL, distinto de la
-      // función leads_sin_asignar() (migración 0056) que ya usa el resto de
-      // la app — dos criterios distintos para "lo mismo" daban números que
-      // no coincidían entre pantallas.
-      const { data: rows } = await (admin as any).rpc('leads_sin_asignar', { p_limit: 0 });
-      const ids = (rows ?? []).map((r: any) => r.id);
-      query = query.in('id', ids.length > 0 ? ids : ['00000000-0000-0000-0000-000000000000']);
-    }
-    else if (userId) query = query.eq('assigned_to_user_id', userId);
+    if (userId && userId !== 'unassigned') query = query.eq('assigned_to_user_id', userId);
     if (status)  query = query.eq('current_status', status);
     if (batchId) query = query.eq('batch_id', batchId);
     if (source)  query = query.eq('source', source);
