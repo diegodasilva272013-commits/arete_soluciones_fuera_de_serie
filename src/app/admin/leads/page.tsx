@@ -73,6 +73,7 @@ function AdminLeadsPageInner() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterUser, setFilterUser] = useState(searchParams.get('user_id') ?? '');
 
@@ -171,6 +172,7 @@ function AdminLeadsPageInner() {
 
   async function load(p = page) {
     setLoading(true);
+    setLoadError('');
     const params = new URLSearchParams();
     if (filterStatus) params.set('status', filterStatus);
     if (filterUser)   params.set('user_id', filterUser);
@@ -179,6 +181,18 @@ function AdminLeadsPageInner() {
 
     const res = await fetch(`/api/admin/leads?${params}`);
     const json = await res.json();
+    if (!res.ok || json.error) {
+      // Si falla, no dejar el total viejo puesto — eso es lo que hacía
+      // parecer "10.386 encontrados" con la tabla vacía y escondía el
+      // error real.
+      setLeads([]);
+      setTotalLeads(0);
+      setTotalPages(1);
+      setLoadError(json.error ?? `Error ${res.status}`);
+      setPage(p);
+      setLoading(false);
+      return;
+    }
     // Soporta respuesta paginada { data, total, ... } o array legacy
     const leads = Array.isArray(json) ? json : (json.data ?? []);
     setLeads(leads);
@@ -615,6 +629,12 @@ function AdminLeadsPageInner() {
               Limpiar selección ({selected.size})
             </button>
           )}
+        </div>
+      )}
+
+      {loadError && (
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-red-700/40 bg-red-950/30 px-4 py-3 text-sm text-red-300">
+          <span className="font-semibold">Error al cargar leads:</span> {loadError}
         </div>
       )}
 
