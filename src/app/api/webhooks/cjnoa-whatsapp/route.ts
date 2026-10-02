@@ -24,9 +24,9 @@
  *   META_WA_VERIFY_TOKEN     — token de verificación del webhook (lo elegimos nosotros)
  *   META_WA_ACCESS_TOKEN     — access token de la app de Meta (WhatsApp → API Setup)
  *   META_WA_PHONE_NUMBER_ID  — el Phone Number ID de WhatsApp Business (no el número en sí)
- *   ELEVENLABS_API_KEY       — ya configurada para el otro webhook de ElevenLabs
+ *   noa_eleven_labs_api      — API key de ElevenLabs (xi-api-key) para este agente
  *   META_WA_APP_SECRET       — opcional: si está, se verifica la firma X-Hub-Signature-256
- *   CJNOA_AGENT_ID           — opcional: por default usa el mismo agente de /empresa/agentes-ia
+ *   CJNOA_AGENT_ID           — opcional: por default usa el agente dedicado de esta integración
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -37,7 +37,9 @@ import { env } from '@/lib/env';
 export const runtime = 'nodejs';
 export const maxDuration = 30;
 
-const CJNOA_AGENT_ID = process.env.CJNOA_AGENT_ID || 'agent_9801m2tg8136e28sbnjptxxq1841';
+// Agente dedicado a esta integración de WhatsApp (distinto del agente de
+// demo pública en /empresa/agentes-ia).
+const CJNOA_AGENT_ID = process.env.CJNOA_AGENT_ID || 'agent_3901m3sxk6qfe9mb39bp7ddbenpn';
 
 // ── Verificación del webhook (Meta) ──────────────────────────────────────────
 
@@ -84,8 +86,8 @@ async function guardarMensaje(
 // ── Preguntarle al agente de ElevenLabs ──────────────────────────────────────
 
 async function preguntarAgente(userText: string): Promise<string> {
-  const apiKey = process.env.ELEVENLABS_API_KEY;
-  if (!apiKey) throw new Error('Falta ELEVENLABS_API_KEY');
+  const apiKey = process.env.noa_eleven_labs_api;
+  if (!apiKey) throw new Error('Falta noa_eleven_labs_api');
 
   const signedUrlRes = await fetch(
     `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${CJNOA_AGENT_ID}`,

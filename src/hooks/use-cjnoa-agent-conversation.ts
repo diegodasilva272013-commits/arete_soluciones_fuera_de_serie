@@ -3,13 +3,12 @@
 import { useCallback, useRef, useState } from 'react';
 import { Conversation } from '@11labs/client';
 
-// Mismo agent_id real de Centro Jurídico NOA que ya está en producción
-// en /empresa/agentes-ia (agente de voz del estudio, Jujuy). Se puede
-// pisar con NEXT_PUBLIC_CJNOA_AGENT_ID en Vercel si en algún momento
-// hay que apuntar este tester a un agente distinto (por ej. uno nuevo,
-// específico para las ramas de jubilaciones que lista esta página).
+// Agente dedicado de Centro Jurídico NOA para esta integración (jubilaciones,
+// Data Collection, webhooks) — el mismo que atiende por WhatsApp real en
+// /api/webhooks/cjnoa-whatsapp, no el agente de demo genérico de
+// /empresa/agentes-ia. Se puede pisar con NEXT_PUBLIC_CJNOA_AGENT_ID.
 const CJNOA_AGENT_ID =
-  process.env.NEXT_PUBLIC_CJNOA_AGENT_ID || 'agent_9801m2tg8136e28sbnjptxxq1841';
+  process.env.NEXT_PUBLIC_CJNOA_AGENT_ID || 'agent_3901m3sxk6qfe9mb39bp7ddbenpn';
 
 export type CJNoaConnectionStatus =
   | 'disconnected'
