@@ -18,6 +18,20 @@ function parseTranscripcion(t: string | null): Bubble[] {
     });
 }
 
+/** Fuente de burbujas de una consulta: prioriza el historial en tiempo real
+ *  (`mensajes`, los dos lados si la Tool manda `respuesta_agente`), después
+ *  la transcripción completa del webhook post-call, y como último recurso
+ *  el único mensaje viejo guardado antes de que existiera `mensajes`. */
+function bubblesFor(c: CJNoaConsulta): Bubble[] {
+  if (c.mensajes?.length > 0) {
+    return c.mensajes.map((m) => ({ who: m.from, texto: m.texto }));
+  }
+  const fromTranscripcion = parseTranscripcion(c.transcripcion);
+  if (fromTranscripcion.length > 0) return fromTranscripcion;
+  if (c.mensaje) return [{ who: 'cliente', texto: c.mensaje }];
+  return [];
+}
+
 function initials(name: string | null, telefono: string | null) {
   if (name) {
     const parts = name.trim().split(/\s+/);
@@ -60,7 +74,7 @@ export function CJNoaConsultasView({ initial }: { initial: CJNoaConsulta[] }) {
     [consultas, selectedId]
   );
 
-  const bubbles = useMemo(() => parseTranscripcion(selected?.transcripcion ?? null), [selected]);
+  const bubbles = useMemo(() => (selected ? bubblesFor(selected) : []), [selected]);
 
   return (
     <div className="flex h-[calc(100svh-120px)] min-h-[520px] overflow-hidden rounded-lg border border-[#8A8A8A]/20">
@@ -70,9 +84,7 @@ export function CJNoaConsultasView({ initial }: { initial: CJNoaConsulta[] }) {
           <p className="p-5 text-sm text-[#8A8A8A]">Todavía no llegó ninguna consulta.</p>
         )}
         {consultas.map((c) => {
-          const preview = c.transcripcion
-            ? parseTranscripcion(c.transcripcion).slice(-1)[0]?.texto
-            : c.mensaje;
+          const preview = bubblesFor(c).slice(-1)[0]?.texto;
           const active = selected?.id === c.id;
           return (
             <button
@@ -140,20 +152,15 @@ export function CJNoaConsultasView({ initial }: { initial: CJNoaConsulta[] }) {
                     </div>
                   </div>
                 ))
-              ) : selected.mensaje ? (
-                <div className="flex justify-end">
-                  <div className="max-w-[75%] rounded-2xl rounded-br-sm bg-[#2F7BF6] px-4 py-2 text-sm leading-relaxed text-white">
-                    {selected.mensaje}
-                  </div>
-                </div>
               ) : (
                 <p className="text-sm text-[#8A8A8A]">Sin mensajes registrados todavía.</p>
               )}
 
-              {!selected.transcripcion && (
+              {bubbles.length > 0 && !bubbles.some((b) => b.who === 'agente') && (
                 <p className="pt-2 text-center text-[11px] text-[#8A8A8A]/70">
-                  Transcripción completa pendiente — se activa cuando se configure el webhook
-                  post-llamada de ElevenLabs. Por ahora se muestra el último mensaje registrado por la Tool.
+                  Solo se ve el lado del cliente: la Tool de ElevenLabs todavía no manda la respuesta
+                  del agente (parámetro "respuesta_agente") ni llegó la transcripción completa del
+                  webhook post-llamada.
                 </p>
               )}
             </div>

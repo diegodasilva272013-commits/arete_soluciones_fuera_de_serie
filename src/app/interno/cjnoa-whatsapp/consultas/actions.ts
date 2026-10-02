@@ -4,10 +4,13 @@ import { createClient } from '@supabase/supabase-js';
 import { env } from '@/lib/env';
 import { hasValidCJNoaSession } from '@/lib/cjnoa-access';
 
+export type CJNoaMensaje = { from: 'cliente' | 'agente'; texto: string; at: string };
+
 export type CJNoaConsulta = {
   id: string;
   conversation_id: string | null;
   mensaje: string | null;
+  mensajes: CJNoaMensaje[];
   nombre_consultante: string | null;
   dni_o_cuil: string | null;
   telefono: string | null;
