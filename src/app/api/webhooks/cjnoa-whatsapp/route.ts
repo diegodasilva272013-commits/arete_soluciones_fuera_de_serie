@@ -102,18 +102,23 @@ async function preguntarAgente(userText: string): Promise<string> {
     const ws = new WebSocket(signedUrl);
     let fullResponse = '';
     let settled = false;
+    let settleTimer: ReturnType<typeof setTimeout> | null = null;
 
     const finish = (value: string) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timeout);
+      clearTimeout(hardTimeout);
+      if (settleTimer) clearTimeout(settleTimer);
       try { ws.close(); } catch { /* ya puede estar cerrado */ }
       resolve(value);
     };
 
-    // Timeout de seguridad: si el agente no termina a tiempo, se manda lo
-    // que se haya acumulado hasta ese momento (igual que la referencia).
-    const timeout = setTimeout(() => finish(fullResponse), 20000);
+    // Probado contra el agente real: NUNCA manda agent_response_correction
+    // ni is_final — solo un agent_response con el texto completo y después
+    // pings. Por eso se resuelve 1.2s después del último agent_response
+    // (por si llega algún chunk extra) en vez de esperar un evento de
+    // cierre que no llega. El timeout de 15s es la red de seguridad final.
+    const hardTimeout = setTimeout(() => finish(fullResponse), 15000);
 
     ws.on('open', () => {
       ws.send(JSON.stringify({ user_message: { text: userText } }));
@@ -129,6 +134,8 @@ async function preguntarAgente(userText: string): Promise<string> {
       if (parsed.type === 'agent_response') {
         const event = parsed.agent_response_event as { agent_response?: string } | undefined;
         fullResponse += event?.agent_response ?? '';
+        if (settleTimer) clearTimeout(settleTimer);
+        settleTimer = setTimeout(() => finish(fullResponse), 1200);
       }
       if (parsed.type === 'agent_response_correction' || parsed.is_final) {
         finish(fullResponse);
@@ -138,7 +145,8 @@ async function preguntarAgente(userText: string): Promise<string> {
     ws.on('error', (err: Error) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timeout);
+      clearTimeout(hardTimeout);
+      if (settleTimer) clearTimeout(settleTimer);
       reject(err);
     });
   });
