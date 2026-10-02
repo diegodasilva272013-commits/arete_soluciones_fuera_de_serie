@@ -55,6 +55,12 @@ export async function GET(req: NextRequest) {
     if (source)  query = query.eq('source', source);
 
     const { data, error, count } = await query;
+    console.log('[admin/leads]', JSON.stringify({
+      table, userId, status, batchId, source, page, perPage,
+      error: error ? { message: error.message, code: (error as any).code, details: (error as any).details, hint: (error as any).hint } : null,
+      count,
+      dataLength: data?.length ?? null,
+    }));
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     const total = count ?? 0;
