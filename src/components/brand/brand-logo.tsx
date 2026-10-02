@@ -31,7 +31,7 @@ export function BrandLogo({ size = 'md', className, priority }: Props) {
       )}
     >
       <Image
-        src="/Aretea_fuera _de_serie_logo.png"
+        src="/arete-fuera-de-serie-logo.png"
         alt="Areté Soluciones"
         width={px}
         height={px}

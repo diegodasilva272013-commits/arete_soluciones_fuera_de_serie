@@ -11,7 +11,7 @@ export const Component = () => {
       <div className={`${s.box} ${s.logoBox}`}>
         <div className={s.logo}>
           <Image
-            src="/Aretea_fuera _de_serie_logo.png"
+            src="/arete-fuera-de-serie-logo.png"
             alt="Areté Fuera de Serie"
             width={480}
             height={480}

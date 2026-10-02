@@ -45,7 +45,7 @@ function Mark({
       }}
     >
       <Image
-        src="/Aretea_fuera _de_serie_logo.png"
+        src="/arete-fuera-de-serie-logo.png"
         alt="Areté Soluciones"
         width={px}
         height={px}
@@ -155,7 +155,7 @@ function Stamp({
         }}
       >
         <Image
-          src="/Aretea_fuera _de_serie_logo.png"
+          src="/arete-fuera-de-serie-logo.png"
           alt="Areté Soluciones"
           width={px}
           height={px}

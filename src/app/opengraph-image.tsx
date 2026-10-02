@@ -10,7 +10,7 @@ export default async function OgImage() {
   const base = 'https://arete-soluciones-plataforma.vercel.app';
   let logoSrc: string = '';
   try {
-    const res = await fetch(`${base}/Aretea_fuera%20_de_serie_logo.png`);
+    const res = await fetch(`${base}/arete-fuera-de-serie-logo.png`);
     const buf = await res.arrayBuffer();
     logoSrc = `data:image/png;base64,${Buffer.from(buf).toString('base64')}`;
   } catch {
