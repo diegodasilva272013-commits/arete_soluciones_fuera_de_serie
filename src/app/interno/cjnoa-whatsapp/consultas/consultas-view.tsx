@@ -59,12 +59,7 @@ export function CJNoaConsultasView({ initial }: { initial: CJNoaConsulta[] }) {
   useEffect(() => {
     const interval = setInterval(async () => {
       const fresh = await fetchCJNoaConsultas();
-      setConsultas((prev) => {
-        const changed =
-          fresh.length !== prev.length ||
-          fresh.some((c, i) => c.updated_at !== prev[i]?.updated_at || c.id !== prev[i]?.id);
-        return changed ? fresh : prev;
-      });
+      setConsultas(fresh);
     }, 5000);
     return () => clearInterval(interval);
   }, []);
