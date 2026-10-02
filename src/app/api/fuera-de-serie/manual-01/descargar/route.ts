@@ -1,9 +1,9 @@
 /**
- * GET /api/academia-fuera-de-serie/descargar
+ * GET /api/fuera-de-serie/manual-01/descargar
  *
  * Sirve el PDF del Manual 01 forzando la descarga (Content-Disposition:
  * attachment) y suma uno al contador antes de responder, para poder
- * mostrar "descargado N veces" en /academia-fuera-de-serie.
+ * mostrar "descargado N veces" en /fuera-de-serie/manual-01.
  */
 
 import { NextResponse } from 'next/server';
@@ -19,7 +19,7 @@ export async function GET() {
   const supabase = createClient(env.supabase.url, env.supabase.serviceRoleKey);
   await supabase.rpc('increment_academia_descarga', { p_slug: SLUG }).then(
     () => {},
-    (err) => console.error('[academia-descargar] no se pudo incrementar el contador', err)
+    (err) => console.error('[manual-01-descargar] no se pudo incrementar el contador', err)
   );
 
   const filePath = path.join(process.cwd(), 'public', FILE_NAME);
