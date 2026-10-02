@@ -12,20 +12,22 @@
  *   Método: POST
  *   Header: Authorization: Bearer <CJNOA_TOOL_SECRET>
  *
- * Payload esperado:
+ * Payload real configurado en la Tool "registrar_consulta" de ElevenLabs:
  *   {
  *     parameters: {
- *       conversation_id?:          string — para no duplicar si se llama más de una vez
- *       nombre_consultante?:       string
- *       dni_o_cuil?:               string
- *       telefono?:                 string
- *       rama_consulta?:            string
- *       tipo_tramite_previsional?: string
- *       requiere_turno?:           boolean
- *       resumen?:                  string
- *       datos_adicionales?:        string
+ *       mensaje?:          string — lo que escribió el cliente
+ *       nombre_cliente?:   string
+ *       telefono_cliente?: string
+ *       resumen_caso?:     string
  *     }
  *   }
+ *
+ * También acepta los nombres del diseño original (por si se configura la
+ * Tool o el Data Collection del webhook post-call con esos nombres en vez
+ * de los de arriba — ambos escriben en las mismas columnas):
+ *   conversation_id, nombre_consultante, dni_o_cuil, telefono,
+ *   rama_consulta, tipo_tramite_previsional, requiere_turno, resumen,
+ *   datos_adicionales
  *
  * Env vars requeridas en Vercel:
  *   CJNOA_TOOL_SECRET — secret que el agente manda en el header Authorization
@@ -58,15 +60,20 @@ export async function POST(req: NextRequest) {
   }
 
   const str = (v: unknown) => (v === undefined || v === null || v === '' ? null : String(v));
+  // Acepta tanto los nombres reales que manda la Tool de ElevenLabs
+  // (mensaje, nombre_cliente, telefono_cliente, resumen_caso) como los del
+  // diseño original (por si el Data Collection del webhook post-call usa
+  // esos otros nombres) — ambos caen en las mismas columnas.
   const row = {
     conversation_id: str(params.conversation_id),
-    nombre_consultante: str(params.nombre_consultante),
+    mensaje: str(params.mensaje),
+    nombre_consultante: str(params.nombre_cliente ?? params.nombre_consultante),
     dni_o_cuil: str(params.dni_o_cuil),
-    telefono: str(params.telefono),
+    telefono: str(params.telefono_cliente ?? params.telefono),
     rama_consulta: str(params.rama_consulta),
     tipo_tramite_previsional: str(params.tipo_tramite_previsional),
     requiere_turno: typeof params.requiere_turno === 'boolean' ? params.requiere_turno : null,
-    resumen: str(params.resumen),
+    resumen: str(params.resumen_caso ?? params.resumen),
     datos_adicionales: str(params.datos_adicionales),
   };
 
@@ -124,6 +131,7 @@ export async function POST(req: NextRequest) {
     <tr style="background:#f5f5f5"><td style="padding:10px 14px;font-weight:700">Trámite</td><td style="padding:10px 14px">${row.tipo_tramite_previsional ?? '—'}</td></tr>
     <tr><td style="padding:10px 14px;font-weight:700">Quiere turno</td><td style="padding:10px 14px">${row.requiere_turno ? 'Sí' : 'No / no especificado'}</td></tr>
     <tr style="background:#f5f5f5"><td style="padding:10px 14px;font-weight:700">Resumen</td><td style="padding:10px 14px">${row.resumen ?? '—'}</td></tr>
+    <tr><td style="padding:10px 14px;font-weight:700">Mensaje del cliente</td><td style="padding:10px 14px">${row.mensaje ?? '—'}</td></tr>
   </table>
   <p style="margin-top:32px;font-size:13px;color:#999">Centro Jurídico NOA · agente de Areté Soluciones</p>
 </div>`,
