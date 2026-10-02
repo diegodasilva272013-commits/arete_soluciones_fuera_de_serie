@@ -54,6 +54,13 @@ export async function GET() {
     byId.set(l.assigned_to_user_id, (byId.get(l.assigned_to_user_id) ?? 0) + 1);
   }
 
+  // Probar directamente las dos funciones SQL que usa el resto de la app
+  // para "sin asignar", para ver si alguna está rota o desincronizada
+  // contra el cálculo hecho acá mismo en JS (NOT EXISTS equivalente).
+  const rpcCount = await (admin as any).rpc('leads_sin_asignar_count');
+  const rpcList0 = await (admin as any).rpc('leads_sin_asignar', { p_limit: 0 });
+  const rpcList20 = await (admin as any).rpc('leads_sin_asignar', { p_limit: 20 });
+
   const ids = [...byId.keys()];
   const profileMap = new Map<string, { full_name: string | null; email: string | null }>();
   for (let i = 0; i < ids.length; i += 500) {
@@ -78,6 +85,16 @@ export async function GET() {
     assigned: total - unassigned,
     unassigned_pero_en_pool_de_dupla: unassignedInPool,
     unassigned_realmente_libres: unassignedTrulyFree,
+    rpc_leads_sin_asignar_count: { data: rpcCount.data, error: rpcCount.error?.message ?? null },
+    rpc_leads_sin_asignar_p_limit_0: {
+      count: rpcList0.data?.length ?? null,
+      error: rpcList0.error?.message ?? null,
+      sample_ids: (rpcList0.data ?? []).slice(0, 3).map((r: any) => r.id),
+    },
+    rpc_leads_sin_asignar_p_limit_20: {
+      count: rpcList20.data?.length ?? null,
+      error: rpcList20.error?.message ?? null,
+    },
     rows,
   });
 }
