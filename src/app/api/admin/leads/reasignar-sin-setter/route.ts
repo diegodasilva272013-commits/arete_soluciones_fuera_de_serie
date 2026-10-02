@@ -17,19 +17,34 @@ export async function POST(req: NextRequest) {
     const { setter_id } = await req.json();
     if (!setter_id) return NextResponse.json({ error: 'setter_id requerido' }, { status: 400 });
 
-    // El UPDATE corre entero del lado de Postgres (migración 0076,
-    // reasignar_leads_sin_setter) con la misma definición de "sin asignar"
-    // que el resto del panel: sin assigned_to_user_id Y sin estar ya en
-    // team_leads. Antes se traían los ids a JS y se hacía .in('id', [...]) —
-    // con miles de leads sin asignar esa URL podía superar el límite que
-    // acepta PostgREST/Vercel y el update no aplicaba a nada.
-    const { data: updated, error } = await (admin as any).rpc('reasignar_leads_sin_setter', {
-      p_setter_id: setter_id,
-    });
+    // Misma definición de "sin asignar" que el resto del panel (función
+    // leads_sin_asignar, migración 0056/0076): sin assigned_to_user_id Y
+    // sin estar ya en team_leads. Se procesa en lotes de 300 ids en vez
+    // de traer todos de una — con miles de leads sin asignar, un solo
+    // .in('id', [...]) con todos los ids arma una URL demasiado larga
+    // para PostgREST/Vercel y el update no aplicaba a nada. Cada vuelta
+    // pide offset 0 porque los leads ya actualizados salen del resultado.
+    const BATCH = 300;
+    const nowIso = new Date().toISOString();
+    let totalUpdated = 0;
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    for (;;) {
+      const { data: rows, error: rpcErr } = await (admin as any).rpc('leads_sin_asignar', { p_limit: BATCH, p_offset: 0 });
+      if (rpcErr) return NextResponse.json({ error: rpcErr.message }, { status: 500 });
+      const ids = ((rows ?? []) as { id: string }[]).map(r => r.id);
+      if (ids.length === 0) break;
 
-    return NextResponse.json({ updated: updated ?? 0 });
+      const { error: updErr } = await admin
+        .from('leads')
+        .update({ assigned_to_user_id: setter_id, assigned_at: nowIso })
+        .in('id', ids);
+      if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 });
+
+      totalUpdated += ids.length;
+      if (ids.length < BATCH) break;
+    }
+
+    return NextResponse.json({ updated: totalUpdated });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

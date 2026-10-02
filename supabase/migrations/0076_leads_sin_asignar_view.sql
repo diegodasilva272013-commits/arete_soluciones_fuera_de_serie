@@ -10,38 +10,66 @@
 -- el total sin filtrar. Con pocos leads sin asignar nunca se notaba —
 -- por eso "antes andaba" y ahora no, a medida que creció la base.
 --
--- FIX: una vista hace el filtro NOT EXISTS del lado de Postgres. La API
--- consulta la vista directo (con paginación normal), nunca arma una
--- lista de ids para mandar por URL.
+-- FIX: nada de tablas ni vistas nuevas — se extienden las dos funciones
+-- que YA EXISTÍAN (leads_sin_asignar y leads_sin_asignar_count, de la
+-- migración 0056) para que soporten paginación (p_offset) y filtro por
+-- estado (p_status) directo en SQL. La API pagina llamando a la función
+-- con el limit/offset de cada página — nunca arma una lista de ids para
+-- mandar por URL.
 -- =====================================================================
 
-CREATE OR REPLACE VIEW public.leads_sin_asignar_view AS
-SELECT l.*
-FROM public.leads l
-WHERE l.assigned_to_user_id IS NULL
-  AND NOT EXISTS (
-    SELECT 1 FROM public.team_leads tl WHERE tl.source_lead_id = l.id
-  );
-
--- Mismo problema en /api/admin/leads/reasignar-sin-setter: traía todos
--- los ids a JS para después hacer .update(...).in('id', [...]). Ahora
--- el UPDATE completo corre del lado de Postgres, sin pasar ids por URL.
-CREATE OR REPLACE FUNCTION public.reasignar_leads_sin_setter(p_setter_id uuid)
-RETURNS integer
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
-DECLARE
-  n integer;
-BEGIN
-  UPDATE public.leads l
-  SET assigned_to_user_id = p_setter_id,
-      assigned_at = now()
+DROP FUNCTION IF EXISTS public.leads_sin_asignar_count();
+CREATE FUNCTION public.leads_sin_asignar_count(p_status text DEFAULT NULL)
+RETURNS bigint
+LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT COUNT(*)
+  FROM public.leads l
   WHERE l.assigned_to_user_id IS NULL
+    AND (p_status IS NULL OR l.current_status = p_status)
     AND NOT EXISTS (
       SELECT 1 FROM public.team_leads tl WHERE tl.source_lead_id = l.id
     );
-  GET DIAGNOSTICS n = ROW_COUNT;
-  RETURN n;
-END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.reasignar_leads_sin_setter(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.leads_sin_asignar_count(text) TO authenticated;
+
+DROP FUNCTION IF EXISTS public.leads_sin_asignar(int);
+CREATE FUNCTION public.leads_sin_asignar(
+  p_limit  int DEFAULT 20,
+  p_offset int DEFAULT 0,
+  p_status text DEFAULT NULL
+)
+RETURNS TABLE (
+  id               uuid,
+  first_name       text,
+  last_name        text,
+  phone            text,
+  email            text,
+  country          text,
+  source           text,
+  current_status   text,
+  batch_id         text,
+  follow_up_count  integer,
+  assigned_at      timestamptz,
+  is_closed        boolean,
+  created_at       timestamptz
+)
+LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT l.id, l.first_name, l.last_name, l.phone, l.email, l.country, l.source,
+         l.current_status, l.batch_id, l.follow_up_count, l.assigned_at, l.is_closed, l.created_at
+  FROM public.leads l
+  WHERE l.assigned_to_user_id IS NULL
+    AND (p_status IS NULL OR l.current_status = p_status)
+    AND NOT EXISTS (
+      SELECT 1 FROM public.team_leads tl WHERE tl.source_lead_id = l.id
+    )
+  ORDER BY l.created_at DESC
+  LIMIT CASE WHEN p_limit > 0 THEN p_limit ELSE NULL END
+  OFFSET p_offset;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.leads_sin_asignar(int, int, text) TO authenticated;

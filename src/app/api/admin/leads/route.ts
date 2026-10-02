@@ -32,35 +32,42 @@ export async function GET(req: NextRequest) {
     const from     = (page - 1) * perPage;
     const to       = from + perPage - 1;
 
-    // "Sin asignar" se resuelve contra una vista (leads_sin_asignar_view,
-    // migración 0076) que aplica el filtro NOT EXISTS del lado de Postgres.
-    // Antes se traían todos los ids de leads_sin_asignar(0) a JS y se hacía
-    // .in('id', [...]) — con miles de leads sin asignar esa URL supera el
-    // límite que acepta PostgREST/Vercel y la query vuelve vacía, mientras
-    // el total mostrado en el header seguía siendo el de toda la tabla.
-    const table = userId === 'unassigned' ? 'leads_sin_asignar_view' : 'leads';
-    const select = userId === 'unassigned'
-      ? '*'
-      : '*, assignee:profiles!leads_assigned_to_user_id_fkey(id, full_name, email)';
+    // "Sin asignar" pagina llamando directo a leads_sin_asignar(limit,
+    // offset, status) — la misma función de siempre (migración 0056),
+    // ahora con soporte de offset/status (migración 0076). Antes se
+    // traían TODOS los ids a JS y se hacía .in('id', [...]) contra la
+    // tabla leads: con miles de leads sin asignar esa URL supera el
+    // límite que acepta PostgREST/Vercel y la query volvía vacía,
+    // mientras el total mostrado seguía siendo el de toda la tabla.
+    if (userId === 'unassigned') {
+      const [{ data: rows, error: rpcErr }, { data: countData, error: countErr }] = await Promise.all([
+        (admin as any).rpc('leads_sin_asignar', { p_limit: perPage, p_offset: from, p_status: status || null }),
+        (admin as any).rpc('leads_sin_asignar_count', { p_status: status || null }),
+      ]);
+      if (rpcErr) return NextResponse.json({ error: rpcErr.message }, { status: 500 });
+      const total = countErr ? 0 : Number(countData ?? 0);
+      return NextResponse.json({
+        data: rows ?? [],
+        total,
+        page,
+        per_page: perPage,
+        total_pages: Math.ceil(total / perPage),
+        has_more: to < total - 1,
+      });
+    }
 
     let query = (admin as any)
-      .from(table)
-      .select(select, { count: 'exact' })
+      .from('leads')
+      .select('*, assignee:profiles!leads_assigned_to_user_id_fkey(id, full_name, email)', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(from, to);
 
-    if (userId && userId !== 'unassigned') query = query.eq('assigned_to_user_id', userId);
+    if (userId)   query = query.eq('assigned_to_user_id', userId);
     if (status)  query = query.eq('current_status', status);
     if (batchId) query = query.eq('batch_id', batchId);
     if (source)  query = query.eq('source', source);
 
     const { data, error, count } = await query;
-    console.log('[admin/leads]', JSON.stringify({
-      table, userId, status, batchId, source, page, perPage,
-      error: error ? { message: error.message, code: (error as any).code, details: (error as any).details, hint: (error as any).hint } : null,
-      count,
-      dataLength: data?.length ?? null,
-    }));
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     const total = count ?? 0;
