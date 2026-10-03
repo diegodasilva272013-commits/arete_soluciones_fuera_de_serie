@@ -9,14 +9,6 @@ export const TEMPORADA_NOMBRE = 'Areté Fuera de Serie · Temporada 1';
 /** Primera clase: lunes 5 de octubre, 20 h Argentina (UTC-3). */
 export const TEMPORADA_INICIO = '2026-10-05T20:00:00-03:00';
 
-/**
- * Video de presentación de la semana. Subir el archivo a /public y
- * poner acá la ruta (p. ej. '/video_temporada_1.mp4'). Mientras sea
- * null, la sección muestra el póster con el aviso "se publica en estos días".
- */
-export const VIDEO_TEMPORADA_SRC: string | null = null;
-export const VIDEO_TEMPORADA_POSTER = '/academia-fuera-de-serie-poster.jpg';
-
 export type Episodio = {
   n: number;
   dia: string;

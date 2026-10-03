@@ -3,7 +3,7 @@ import c from '@/app/empresa/corp.module.css';
 import s from './t1.module.css';
 import { SEO_FDS, SITE_URL } from '@/app/empresa/_seo';
 import AnimatedGradient from '@/components/ui/animated-gradient';
-import { BlurIn, Countdown, Equipo, HeroEscena, HeroFoto, Programa, ReservaBoton, ReservaProvider, VideoTemporada } from './_efectos';
+import { BlurIn, Countdown, Equipo, HeroEscena, HeroFoto, Programa, ReservaBoton, ReservaProvider } from './_efectos';
 import { RegistroForm } from './_registro';
 import { EPISODIOS, POSTER_TEMPORADA, TEMPORADA_INICIO, TEMPORADA_NOMBRE } from './_data';
 
@@ -104,25 +104,11 @@ export default function Temporada1Page() {
         <HeroFoto />
       </section>
 
-      {/* ══════════════ VIDEO ══════════════ */}
-      <section className={c.section}>
-        <div className={c.inner}>
-          <BlurIn className={c.sectionLockup}>
-            <p className={c.kickerLabel} style={{ marginBottom: 14 }}>01 · Esta semana</p>
-            <h2 className={c.sectionTitle}>Qué va a pasar<br /><em>esta semana.</em></h2>
-            <p className={c.sectionSub}>Cómo funcionan las clases, quiénes las dan y qué te llevás de cada una.</p>
-          </BlurIn>
-          <BlurIn delay={0.1}>
-            <VideoTemporada />
-          </BlurIn>
-        </div>
-      </section>
-
       {/* ══════════════ PROGRAMA ══════════════ */}
       <section id="programa" className={`${c.section} ${c.sectionAlt} ${s.programa}`} style={{ scrollMarginTop: 68 }}>
         <div className={c.inner}>
           <BlurIn className={c.sectionLockup}>
-            <p className={c.kickerLabel} style={{ marginBottom: 14 }}>02 · El programa</p>
+            <p className={c.kickerLabel} style={{ marginBottom: 14 }}>01 · El programa</p>
             <h2 className={c.sectionTitle}>Tres semanas.<br /><em>Nueve episodios.</em></h2>
             <p className={c.sectionSub}>Cada episodio es una parte de la misma conversación. Pasá el cursor por la temporada y tocá un episodio para abrirlo.</p>
           </BlurIn>
@@ -136,7 +122,7 @@ export default function Temporada1Page() {
       <section className={c.section}>
         <div className={c.inner}>
           <BlurIn className={c.sectionLockup}>
-            <p className={c.kickerLabel} style={{ marginBottom: 14 }}>03 · Del otro lado</p>
+            <p className={c.kickerLabel} style={{ marginBottom: 14 }}>02 · Del otro lado</p>
             <h2 className={c.sectionTitle}>Quiénes dan<br /><em>las clases.</em></h2>
             <p className={c.sectionSub}>El equipo de Areté, en vivo. Las mismas personas que entrenan todos los días sobre conversaciones reales.</p>
           </BlurIn>
@@ -148,7 +134,7 @@ export default function Temporada1Page() {
       <section id="registro" className={`${c.section} ${c.sectionAlt} ${s.registro}`} style={{ scrollMarginTop: 68 }}>
         <div className={c.inner} style={{ maxWidth: 820 }}>
           <BlurIn className={c.sectionLockup}>
-            <p className={c.kickerLabel} style={{ marginBottom: 14 }}>04 · Inscripción</p>
+            <p className={c.kickerLabel} style={{ marginBottom: 14 }}>03 · Inscripción</p>
             <h2 className={c.sectionTitle}>Reservá<br /><em>tu lugar.</em></h2>
             <p className={c.sectionSub}>Registrate y te mandamos por mail el link de Zoom para las clases. Agendá las que quieras.</p>
           </BlurIn>
