@@ -94,21 +94,34 @@ export function BlurIn({
 
 /* ═════════════════════ HERO: BLUR (entrada + scroll) + CROSSFADE ═════════════════════ */
 
-/** Envuelve el hero: al scrollear hacia abajo, todo el contenido se desenfoca y se apaga. */
-export function HeroEscena({ children, poster }: { children: React.ReactNode; poster: React.ReactNode }) {
+/**
+ * BLUR por scroll, por elemento: cada pieza se desenfoca recién cuando ella
+ * misma empieza a salir por arriba de la pantalla. Así el póster se ve
+ * nítido mientras está a la vista, también en celular (donde va apilado).
+ */
+function ScrollBlur({ children, className }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const blur = useTransform(scrollYProgress, [0, 0.9], [0, 16]);
+  const blur = useTransform(scrollYProgress, [0.45, 0.95], [0, 14]);
   const filter = useTransform(blur, (b) => `blur(${b}px)`);
-  const opacity = useTransform(scrollYProgress, [0, 0.9], [1, 0.15]);
-  const y = useTransform(scrollYProgress, [0, 1], [0, 90]);
+  const opacity = useTransform(scrollYProgress, [0.45, 0.95], [1, 0.15]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, 60]);
 
   return (
+    <motion.div ref={ref} className={className} style={{ filter, opacity, y }}>
+      {children}
+    </motion.div>
+  );
+}
+
+/** Hero en dos columnas (texto + póster); cada columna con su propio blur de salida. */
+export function HeroEscena({ children, poster }: { children: React.ReactNode; poster: React.ReactNode }) {
+  return (
     <MotionConfig reducedMotion="user">
-      <motion.div ref={ref} className={s.heroGrid} style={{ filter, opacity, y }}>
-        <div>{children}</div>
-        {poster}
-      </motion.div>
+      <div className={s.heroGrid}>
+        <ScrollBlur>{children}</ScrollBlur>
+        <ScrollBlur className={s.heroPosterCol}>{poster}</ScrollBlur>
+      </div>
     </MotionConfig>
   );
 }
@@ -330,15 +343,17 @@ function ReservaFlotante({ oculto }: { oculto: boolean }) {
   return (
     <AnimatePresence>
       {visible && !oculto && (
-        <motion.div
-          className={s.ctaFlotante}
-          initial={{ opacity: 0, y: 24, filter: 'blur(10px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, y: 24, filter: 'blur(10px)' }}
-          transition={{ duration: 0.45, ease: EASE }}
-        >
-          <ReservaBoton id="flotante" label="Reservar mi lugar · Gratis" />
-        </motion.div>
+        <div className={s.ctaFlotante}>
+          <motion.div
+            className={s.ctaFlotanteInner}
+            initial={{ opacity: 0, y: 24, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: 24, filter: 'blur(10px)' }}
+            transition={{ duration: 0.45, ease: EASE }}
+          >
+            <ReservaBoton id="flotante" label="Reservar mi lugar · Gratis" />
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );

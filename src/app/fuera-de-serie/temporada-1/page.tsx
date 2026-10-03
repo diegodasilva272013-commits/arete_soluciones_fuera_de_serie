@@ -76,7 +76,7 @@ export default function Temporada1Page() {
                   <span className={c.metaDt}>Formato</span>
                   <span className={c.metaDd}>9 clases · 90 min</span>
                 </div>
-                <div className={c.metaItem}>
+                <div className={`${c.metaItem} ${s.metaAncho}`}>
                   <span className={c.metaDt}>Horario (ARG)</span>
                   <span className={c.metaDd}>Lun y Mié 20 h · Sáb 18 h</span>
                 </div>
@@ -87,7 +87,7 @@ export default function Temporada1Page() {
               </div>
             </BlurIn>
             <BlurIn delay={0.48}>
-              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <div className={s.heroCtas}>
                 <ReservaBoton id="hero" />
                 <a href="#programa" className={c.btnGhost}>
                   Ver el programa
@@ -140,7 +140,7 @@ export default function Temporada1Page() {
       </section>
 
       {/* ══════════════ REGISTRO ══════════════ */}
-      <section id="registro" className={`${c.section} ${c.sectionAlt}`} style={{ scrollMarginTop: 68 }}>
+      <section id="registro" className={`${c.section} ${c.sectionAlt} ${s.registro}`} style={{ scrollMarginTop: 68 }}>
         <div className={c.inner} style={{ maxWidth: 820 }}>
           <BlurIn className={c.sectionLockup}>
             <p className={c.kickerLabel} style={{ marginBottom: 14 }}>04 · Inscripción</p>
