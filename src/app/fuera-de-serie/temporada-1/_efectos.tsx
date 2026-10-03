@@ -123,8 +123,11 @@ export function HeroEscena({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Póster del equipo: entra desenfocado y hace foco cuando llega a la pantalla (BLUR). */
-export function PosterEquipo() {
+/**
+ * Foto del equipo integrada al hero (BLUR: entra desenfocada y hace foco).
+ * Va de fondo a la derecha y se funde con el degradado; en celular, arriba.
+ */
+export function HeroFoto() {
   const [falta, setFalta] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   // Si la imagen falló antes de hidratar, onError no llega a dispararse.
@@ -136,23 +139,16 @@ export function PosterEquipo() {
   if (falta) return null;
   return (
     <MotionConfig reducedMotion="user">
-    <motion.div
-      className={s.poster}
-      initial={{ opacity: 0.4, filter: 'blur(28px)', scale: 1.06 }}
-      whileInView={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
-      viewport={{ once: true, amount: 0.35 }}
-      transition={{ duration: 1.5, ease: EASE }}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-          ref={imgRef}
-          src={POSTER_TEMPORADA}
-          alt="Diego Da Silva, Mauro Benitez, Fátima Rivera, Cecilia Gutierrez y Daniel Peña · Fuera de Serie Temporada 1"
-          width={1932}
-          height={1932}
-          onError={() => setFalta(true)}
-        />
-    </motion.div>
+      <motion.div
+        className={s.heroFoto}
+        initial={{ opacity: 0, filter: 'blur(30px)', scale: 1.06 }}
+        animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+        transition={{ duration: 1.8, ease: EASE, delay: 0.15 }}
+        aria-hidden
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img ref={imgRef} src={POSTER_TEMPORADA} alt="" onError={() => setFalta(true)} />
+      </motion.div>
     </MotionConfig>
   );
 }
