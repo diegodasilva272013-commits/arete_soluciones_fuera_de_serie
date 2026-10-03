@@ -35,6 +35,7 @@ import {
   AlertTriangle,
   CalendarDays,
   Activity,
+  Video,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -78,6 +79,7 @@ const sections = [
   { href: '/admin/comunicados', label: 'Comunicados', desc: 'Avisos, strikes, reuniones. Ves quién lo leyó.', icon: Bell },
   { href: '/admin/forms', label: 'Formularios de refuerzo', desc: 'Formularios por clase con resultados analizados por el Motor IA.', icon: ClipboardCheck },
   { href: '/admin/calendario-ia', label: 'Calendario IA', desc: 'Slots, reuniones y llamadas del agente de voz.', icon: Bot },
+  { href: '/admin/temporada-1', label: 'Temporada 1 · Inscriptos', desc: 'Inscriptos a las clases en vivo de Fuera de Serie y envío del link de Zoom.', icon: Video },
   { href: '/admin/reclutamiento', label: 'Reclutamiento', desc: 'Postulantes al equipo Areté y seguimiento del proceso.', icon: UserPlus },
   { href: '/admin/setters', label: 'Setters', desc: 'Gestión de setters, rendimiento y asignación de leads.', icon: Users2 },
   { href: '/admin/equipos', label: 'Equipos Dupla', desc: 'Configuración de duplas setter-closer.', icon: Handshake },

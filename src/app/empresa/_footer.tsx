@@ -25,6 +25,7 @@ const FUERA_DE_SERIE = [
   { href: '/fuera-de-serie/capacitacion-equipos-de-venta',      label: 'Capacitación de equipos' },
   { href: '/fuera-de-serie/programa-venta-consultiva',          label: 'Programa venta consultiva' },
   { href: '/fuera-de-serie/incorporar-equipo-comercial',        label: 'Incorporar comerciales' },
+  { href: '/fuera-de-serie/temporada-1',                        label: 'Temporada 1 · Clases en vivo' },
 ];
 
 const PLATAFORMA = [

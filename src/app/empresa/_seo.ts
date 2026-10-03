@@ -138,6 +138,13 @@ export const SEO_FDS = {
     h1:          'Incorporá comerciales capacitados a tu equipo',
     canonical:   `${SITE_URL}/fuera-de-serie/incorporar-equipo-comercial`,
   },
+
+  temporada1: {
+    title:       'Temporada 1: 9 clases de venta en vivo | Fuera de Serie',
+    description: '9 clases en vivo y gratis sobre la conversación comercial real, desde el primer minuto hasta el cierre. Lunes y miércoles 20 h, sábados 18 h (Argentina).',
+    h1:          'Areté Fuera de Serie · Temporada 1',
+    canonical:   `${SITE_URL}/fuera-de-serie/temporada-1`,
+  },
 };
 
 // ── Alts de imágenes por contexto ────────────────────────────────────────────
@@ -179,4 +186,5 @@ export const PUBLIC_ROUTES = [
   { path: '/fuera-de-serie',                                 priority: 0.9,  changefreq: 'monthly'  },
   { path: '/fuera-de-serie/capacitacion-equipos-de-venta',   priority: 0.85, changefreq: 'monthly'  },
   { path: '/fuera-de-serie/programa-venta-consultiva',       priority: 0.85, changefreq: 'monthly'  },
+  { path: '/fuera-de-serie/temporada-1',                     priority: 0.85, changefreq: 'weekly'   },
 ] as const;
