@@ -1,15 +1,12 @@
 import type { Metadata } from 'next';
-import { existsSync } from 'node:fs';
-import path from 'node:path';
-import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import c from '@/app/empresa/corp.module.css';
 import s from './t1.module.css';
 import { SEO_FDS, SITE_URL } from '@/app/empresa/_seo';
 import AnimatedGradient from '@/components/ui/animated-gradient';
-import { BlurIn, Countdown, DockProfes, ProximoEpisodio, Programa, VideoTemporada } from './_efectos';
+import { BlurIn, Countdown, DockProfes, PosterEquipo, ProximoEpisodio, Programa, VideoTemporada } from './_efectos';
 import { RegistroForm } from './_registro';
-import { EPISODIOS, POSTER_TEMPORADA, TEMPORADA_INICIO, TEMPORADA_NOMBRE } from './_data';
+import { EPISODIOS, TEMPORADA_INICIO, TEMPORADA_NOMBRE } from './_data';
 
 const SEO = SEO_FDS.temporada1;
 
@@ -44,8 +41,6 @@ const EVENT_SCHEMA = {
 };
 
 export default function Temporada1Page() {
-  const hayPoster = existsSync(path.join(process.cwd(), 'public', POSTER_TEMPORADA));
-
   return (
     <>
       <script
@@ -146,17 +141,7 @@ export default function Temporada1Page() {
             <h2 className={c.sectionTitle}>Quiénes dan<br /><em>las clases.</em></h2>
             <p className={c.sectionSub}>El equipo de Areté, en vivo. Las mismas personas que entrenan todos los días sobre conversaciones reales.</p>
           </BlurIn>
-          {hayPoster && (
-            <BlurIn delay={0.1} className={s.poster}>
-              <Image
-                src={POSTER_TEMPORADA}
-                alt="Diego Da Silva, Mauro Benitez, Fátima Rivera, Cecilia Gutierrez y Daniel Peña · Fuera de Serie Temporada 1"
-                width={1932}
-                height={1932}
-                sizes="(max-width: 820px) 100vw, 760px"
-              />
-            </BlurIn>
-          )}
+          <PosterEquipo />
           <BlurIn delay={0.1}>
             <DockProfes />
           </BlurIn>

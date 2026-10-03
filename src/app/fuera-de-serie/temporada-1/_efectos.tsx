@@ -26,6 +26,7 @@ import c from '@/app/empresa/corp.module.css';
 import s from './t1.module.css';
 import {
   EPISODIOS,
+  POSTER_TEMPORADA,
   PROFES,
   SEMANAS,
   TEMPORADA_INICIO,
@@ -120,6 +121,37 @@ export function Countdown() {
     <p className={s.countdown}>
       Primera clase en <b>{txt}</b>
     </p>
+  );
+}
+
+/* ═════════════════════ PÓSTER DEL EQUIPO ═════════════════════ */
+
+/**
+ * Se oculta sola si el archivo todavía no está en /public. No se chequea
+ * con fs en el servidor a propósito: un path dinámico dentro de public/
+ * hace que Vercel empaquete toda la carpeta (videos) en la función.
+ */
+export function PosterEquipo() {
+  const [falta, setFalta] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+  // Si la imagen falló antes de hidratar, onError no llega a dispararse.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth === 0) setFalta(true);
+  }, []);
+  if (falta) return null;
+  return (
+    <BlurIn delay={0.1} className={s.poster}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={POSTER_TEMPORADA}
+        alt="Diego Da Silva, Mauro Benitez, Fátima Rivera, Cecilia Gutierrez y Daniel Peña · Fuera de Serie Temporada 1"
+        width={1932}
+        height={1932}
+        ref={imgRef}
+        onError={() => setFalta(true)}
+      />
+    </BlurIn>
   );
 }
 
