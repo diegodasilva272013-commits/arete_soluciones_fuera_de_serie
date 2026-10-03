@@ -3,7 +3,7 @@ import c from '@/app/empresa/corp.module.css';
 import s from './t1.module.css';
 import { SEO_FDS, SITE_URL } from '@/app/empresa/_seo';
 import AnimatedGradient from '@/components/ui/animated-gradient';
-import { BlurIn, Countdown, Equipo, HeroEscena, HeroPoster, Programa, ReservaBoton, ReservaProvider, VideoTemporada } from './_efectos';
+import { BlurIn, Countdown, Equipo, HeroEscena, PosterEquipo, Programa, ReservaBoton, ReservaProvider, VideoTemporada } from './_efectos';
 import { RegistroForm } from './_registro';
 import { EPISODIOS, POSTER_TEMPORADA, TEMPORADA_INICIO, TEMPORADA_NOMBRE } from './_data';
 
@@ -50,10 +50,10 @@ export default function Temporada1Page() {
       />
 
       {/* ══════════════ HERO (azul, mismo que Metodología / Contacto) ══════════════ */}
-      <section className={`${c.pageHero} ${s.hero}`} style={{ isolation: 'isolate' }}>
+      <section className={c.pageHero} style={{ isolation: 'isolate' }}>
         <AnimatedGradient config={{ preset: 'Prism' }} />
         <div className={`${c.pageHeroInner} ${s.heroInner}`}>
-          <HeroEscena poster={<HeroPoster />}>
+          <HeroEscena>
             <BlurIn>
               <div className={`${c.kicker} ${c.revealOn}`}>
                 <span className={c.kickerLine} />
@@ -135,6 +135,7 @@ export default function Temporada1Page() {
             <h2 className={c.sectionTitle}>Quiénes dan<br /><em>las clases.</em></h2>
             <p className={c.sectionSub}>El equipo de Areté, en vivo. Las mismas personas que entrenan todos los días sobre conversaciones reales.</p>
           </BlurIn>
+          <PosterEquipo />
           <Equipo />
         </div>
       </section>

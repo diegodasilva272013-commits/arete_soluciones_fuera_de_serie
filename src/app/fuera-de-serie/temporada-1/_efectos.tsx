@@ -114,20 +114,17 @@ function ScrollBlur({ children, className }: { children: React.ReactNode; classN
   );
 }
 
-/** Hero en dos columnas (texto + póster); cada columna con su propio blur de salida. */
-export function HeroEscena({ children, poster }: { children: React.ReactNode; poster: React.ReactNode }) {
+/** Contenido del hero, con blur de salida al scrollear. */
+export function HeroEscena({ children }: { children: React.ReactNode }) {
   return (
     <MotionConfig reducedMotion="user">
-      <div className={s.heroGrid}>
-        <ScrollBlur>{children}</ScrollBlur>
-        <ScrollBlur className={s.heroPosterCol}>{poster}</ScrollBlur>
-      </div>
+      <ScrollBlur>{children}</ScrollBlur>
     </MotionConfig>
   );
 }
 
-/** Póster del equipo: entra desde un blur fuerte y sobre él rotan los episodios (crossfade). */
-export function HeroPoster() {
+/** Póster del equipo: entra desenfocado y hace foco cuando llega a la pantalla (BLUR). */
+export function PosterEquipo() {
   const [falta, setFalta] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   // Si la imagen falló antes de hidratar, onError no llega a dispararse.
@@ -136,16 +133,18 @@ export function HeroPoster() {
     if (img && img.complete && img.naturalWidth === 0) setFalta(true);
   }, []);
 
+  if (falta) return null;
   return (
+    <MotionConfig reducedMotion="user">
     <motion.div
-      className={`${s.heroPoster} ${falta ? s.heroPosterVacio : ''}`}
-      initial={{ opacity: 0, filter: 'blur(36px)', scale: 1.1 }}
-      animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
-      transition={{ duration: 1.6, ease: EASE, delay: 0.2 }}
+      className={s.poster}
+      initial={{ opacity: 0.4, filter: 'blur(28px)', scale: 1.06 }}
+      whileInView={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+      viewport={{ once: true, amount: 0.35 }}
+      transition={{ duration: 1.5, ease: EASE }}
     >
-      {!falta && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
           ref={imgRef}
           src={POSTER_TEMPORADA}
           alt="Diego Da Silva, Mauro Benitez, Fátima Rivera, Cecilia Gutierrez y Daniel Peña · Fuera de Serie Temporada 1"
@@ -153,42 +152,8 @@ export function HeroPoster() {
           height={1932}
           onError={() => setFalta(true)}
         />
-      )}
-      <EpisodiosCrossfade />
     </motion.div>
-  );
-}
-
-function EpisodiosCrossfade() {
-  const [i, setI] = useState(0);
-
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const id = setInterval(() => setI((v) => (v + 1) % EPISODIOS.length), 3400);
-    return () => clearInterval(id);
-  }, []);
-
-  const ep = EPISODIOS[i];
-  return (
-    <div className={s.posterCaption}>
-      <span className={c.kickerLabel}>Episodio {ep.n} de 9</span>
-      <div className={s.xfade} aria-live="off">
-        <AnimatePresence initial={false}>
-          <motion.div
-            key={ep.n}
-            initial={{ opacity: 0, filter: 'blur(10px)', y: 8 }}
-            animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
-            exit={{ opacity: 0, filter: 'blur(10px)', y: -8 }}
-            transition={{ duration: 1, ease: EASE }}
-          >
-            <div className={s.posterEpTitle}>{ep.titulo}</div>
-            <div className={s.posterEpMeta}>
-              {ep.dia} {ep.fecha} · {ep.hora} · {ep.n === 9 ? 'Cierre de temporada' : profesLabel(ep.profes)}
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </div>
+    </MotionConfig>
   );
 }
 
@@ -361,7 +326,7 @@ function ReservaFlotante({ oculto }: { oculto: boolean }) {
 
 /* ═════════════════════ PROGRAMA: MAGNIFICATION + SHARED ELEMENT ═════════════════════ */
 
-function DockEpisodio({ ep, mouseX, onOpen }: { ep: Episodio; mouseX: MotionValue<number>; onOpen: (ep: Episodio, el: HTMLElement) => void }) {
+function DockEpisodio({ ep, mouseX, onOpen, onFoco }: { ep: Episodio; mouseX: MotionValue<number>; onOpen: (ep: Episodio, el: HTMLElement) => void; onFoco: (ep: Episodio) => void }) {
   const ref = useRef<HTMLButtonElement>(null);
   const distancia = useTransform(mouseX, (x) => {
     const r = ref.current?.getBoundingClientRect();
@@ -380,6 +345,8 @@ function DockEpisodio({ ep, mouseX, onOpen }: { ep: Episodio; mouseX: MotionValu
       layoutId={`ep-${ep.n}`}
       className={`${s.dockEp} ${finale ? s.dockEpFinale : ''}`}
       style={{ width, height }}
+      onPointerEnter={() => onFoco(ep)}
+      onFocus={() => onFoco(ep)}
       onClick={(e) => onOpen(ep, e.currentTarget)}
       aria-label={`Episodio ${ep.n}: ${ep.titulo}. ${ep.dia} ${ep.fecha}, ${ep.hora}`}
     >
@@ -391,6 +358,33 @@ function DockEpisodio({ ep, mouseX, onOpen }: { ep: Episodio; mouseX: MotionValu
         <em>{finale ? 'Cierre de temporada' : `Con ${profesLabel(ep.profes)}`} · {ep.hora}</em>
       </motion.span>
     </motion.button>
+  );
+}
+
+/** CROSSFADE: el panel muestra el episodio apuntado en el dock, con fundido entre uno y otro. */
+function PanelEpisodio({ ep, semana }: { ep: Episodio; semana: string }) {
+  return (
+    <div className={`${s.panelEp} ${s.xfade}`} aria-live="polite">
+      <AnimatePresence initial={false}>
+        <motion.div
+          key={ep.n}
+          className={s.panelEpInner}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.45, ease: 'easeInOut' }}
+        >
+          <span className={s.panelEpN}>{pad(ep.n)}</span>
+          <div>
+            <span className={c.kickerLabel}>
+              {ep.dia} {ep.fecha} · {ep.hora} · {ep.n === 9 ? 'Cierre de temporada' : `Con ${profesLabel(ep.profes)}`} · {semana}
+            </span>
+            <h3 className={s.panelEpTitle}>{ep.titulo}</h3>
+            <p className={s.panelEpBajada}>{ep.bajada}</p>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -414,6 +408,7 @@ function ListaEpisodio({ ep, onOpen }: { ep: Episodio; onOpen: (ep: Episodio, el
 export function Programa() {
   const mouseX = useMotionValue(Infinity);
   const [abierto, setAbierto] = useState<Episodio | null>(null);
+  const [foco, setFoco] = useState<Episodio>(EPISODIOS[0]);
   const [esDock, setEsDock] = useState(true);
   const lastCard = useRef<HTMLElement | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -447,6 +442,8 @@ export function Programa() {
     <MotionConfig reducedMotion="user">
       <LayoutGroup id="programa">
         {esDock ? (
+          <>
+          <PanelEpisodio ep={foco} semana={semanaDe(foco)?.nombre ?? ''} />
           <div
             className={s.dockProg}
             onPointerMove={(e) => mouseX.set(e.clientX)}
@@ -456,7 +453,7 @@ export function Programa() {
               <div key={sem.n} className={s.dockSemana}>
                 <div className={s.dockEps}>
                   {sem.episodios.map((ep) => (
-                    <DockEpisodio key={ep.n} ep={ep} mouseX={mouseX} onOpen={abrir} />
+                    <DockEpisodio key={ep.n} ep={ep} mouseX={mouseX} onOpen={abrir} onFoco={setFoco} />
                   ))}
                 </div>
                 <div className={s.dockSemanaLabel}>
@@ -466,6 +463,7 @@ export function Programa() {
               </div>
             ))}
           </div>
+          </>
         ) : (
           <div className={s.listaProg}>
             {SEMANAS.map((sem) => (
