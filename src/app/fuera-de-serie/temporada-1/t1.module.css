@@ -480,21 +480,30 @@
 }
 
 .equipoItem {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-  gap: 24px;
-  align-items: baseline;
   padding: 26px 0;
   border-bottom: 1px solid var(--linea);
 }
 
+.equipoFila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 24px;
+  align-items: baseline;
+}
+
 /* BLUR de foco en el equipo (sobre los hijos: el item ya tiene filter inline de BlurIn) */
-.equipoItem > * {
-  transition: filter .2s ease, opacity .2s ease;
+.equipoFila > * {
+  transition: filter .3s ease, opacity .3s ease;
+}
+
+/* táctil: foco por scroll (el que pasa por el centro de la pantalla) */
+.equipoScroll .equipoFila:not(.equipoActivo) > * {
+  filter: blur(4px);
+  opacity: .3;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .equipo:hover .equipoItem:not(:hover) > * {
+  .equipo:hover .equipoItem:not(:hover) .equipoFila > * {
     filter: blur(4px);
     opacity: .3;
   }
@@ -661,7 +670,7 @@
 
 @media (max-width: 960px) {
   .fotoBanda { padding: 32px 16px; }
-  .equipoItem { grid-template-columns: 1fr; gap: 12px; }
+  .equipoFila { grid-template-columns: 1fr; gap: 12px; }
   .epGrid { grid-template-columns: 1fr; }
   .epCard { min-height: 0; }
 }
@@ -686,5 +695,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .epCard:active, .dockEp:active, .ctaFlotanteInner button:active, .heroCtas button:active { transform: none; }
-  .dockProg:hover .dockEp:not(:hover), .equipo:hover .equipoItem:not(:hover) > * { filter: none; }
+  .dockProg:hover .dockEp:not(:hover), .equipo:hover .equipoItem:not(:hover) .equipoFila > *, .equipoScroll .equipoFila > * { filter: none; }
 }

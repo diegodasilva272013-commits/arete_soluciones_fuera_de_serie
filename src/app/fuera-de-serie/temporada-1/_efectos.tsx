@@ -569,19 +569,67 @@ export function Programa() {
 /* ═════════════════════ EQUIPO ═════════════════════ */
 
 export function Equipo() {
+  // En pantallas táctiles no hay hover: el foco lo marca el scroll. El nombre que
+  // pasa por el centro de la pantalla queda nítido y el resto se desenfoca.
+  const [tactil, setTactil] = useState(false);
+  const [activo, setActivo] = useState(-1);
+  const refs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: none), (pointer: coarse)');
+    const update = () => setTactil(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    if (!tactil) return;
+    let raf = 0;
+    const calcular = () => {
+      raf = 0;
+      const centro = window.innerHeight / 2;
+      let mejor = -1;
+      let dist = Infinity;
+      refs.current.forEach((el, i) => {
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const d = Math.abs(r.top + r.height / 2 - centro);
+        if (d < dist) { dist = d; mejor = i; }
+      });
+      // solo hay foco mientras la lista está cerca del centro de la pantalla
+      setActivo(dist < window.innerHeight * 0.35 ? mejor : -1);
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(calcular); };
+    calcular();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [tactil]);
+
   return (
-    <div className={s.equipo}>
+    <div className={`${s.equipo} ${tactil && activo >= 0 ? s.equipoScroll : ''}`}>
       {PROFES.map((p, i) => {
         const alias = p.nombre === 'Daniel' ? ['Daniel', 'Dani'] : [p.nombre];
         const eps = EPISODIOS.filter((e) => e.profes.some((x) => alias.includes(x)));
         return (
           <BlurIn key={p.nombre} delay={i * 0.08} className={s.equipoItem}>
-            <span className={s.equipoNombre}>{p.nombre} <em>{p.apellido}</em></span>
-            <span className={s.equipoEps}>
-              {eps.map((e) => (
-                <span key={e.n}>{pad(e.n)} · {e.titulo}</span>
-              ))}
-            </span>
+            <div
+              ref={(el) => { refs.current[i] = el; }}
+              data-i={i}
+              className={`${s.equipoFila} ${activo === i ? s.equipoActivo : ''}`}
+            >
+              <span className={s.equipoNombre}>{p.nombre} <em>{p.apellido}</em></span>
+              <span className={s.equipoEps}>
+                {eps.map((e) => (
+                  <span key={e.n}>{pad(e.n)} · {e.titulo}</span>
+                ))}
+              </span>
+            </div>
           </BlurIn>
         );
       })}
