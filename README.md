@@ -95,3 +95,18 @@ Desde Supabase → SQL Editor:
 ```sql
 update public.profiles set role = 'admin' where email = 'tu@email.com';
 ```
+
+## Fuera de Serie · Temporada 1
+
+Landing pública en `/fuera-de-serie/temporada-1` y panel en `/admin/temporada-1`.
+
+Puesta en marcha:
+
+1. Correr `supabase/migrations/0077_fds_temporada_registros.sql` en Supabase → SQL Editor.
+2. Variables en Vercel:
+   - `RESEND_API_KEY` (ya existente) — mails de confirmación y de Zoom.
+   - `FDS_T1_ZOOM_URL` (opcional) — si está, el mail de confirmación ya incluye el link de Zoom.
+   - `FDS_EMAIL_FROM` (opcional) — remitente; por defecto `Areté Fuera de Serie <ia@aretesoluciones.com>`.
+3. Póster del equipo: `public/fuera-de-serie-temporada-1.jpg`.
+4. Video de la semana: subir a `public/` y poner la ruta en `VIDEO_TEMPORADA_SRC` (`src/app/fuera-de-serie/temporada-1/_data.ts`).
+5. Para mandar el Zoom a todos los inscriptos: `/admin/temporada-1` → pegar el link → "Enviar Zoom a pendientes".
