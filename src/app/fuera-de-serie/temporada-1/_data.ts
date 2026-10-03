@@ -14,8 +14,8 @@ export const TEMPORADA_INICIO = '2026-10-05T20:00:00-03:00';
  * poner acá la ruta (p. ej. '/video_temporada_1.mp4'). Mientras sea
  * null, la sección muestra el póster con el aviso "se publica en estos días".
  */
-export const VIDEO_TEMPORADA_SRC: string | null = null;
-export const VIDEO_TEMPORADA_POSTER = '/academia-fuera-de-serie-poster.jpg';
+export const VIDEO_TEMPORADA_SRC: string | null = '/temporada_1_video.mp4';
+export const VIDEO_TEMPORADA_POSTER = '/fuera-de-serie-temporada-1.jpg';
 
 export type Episodio = {
   n: number;

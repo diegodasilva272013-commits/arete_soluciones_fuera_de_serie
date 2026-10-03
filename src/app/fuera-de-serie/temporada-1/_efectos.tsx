@@ -189,11 +189,19 @@ export function Countdown() {
 /* ═════════════════════ VIDEO ═════════════════════ */
 
 export function VideoTemporada() {
+  // Si el archivo todavía no está en /public, se muestra el aviso en vez de un recuadro negro.
+  const [falla, setFalla] = useState(!VIDEO_TEMPORADA_SRC);
   return (
     <div className={s.videoFrame}>
-      {VIDEO_TEMPORADA_SRC ? (
-        <video controls playsInline preload="metadata" poster={VIDEO_TEMPORADA_POSTER}>
-          <source src={VIDEO_TEMPORADA_SRC} type="video/mp4" />
+      {!falla ? (
+        <video
+          controls
+          playsInline
+          preload="metadata"
+          poster={VIDEO_TEMPORADA_POSTER}
+          onError={() => setFalla(true)}
+        >
+          <source src={VIDEO_TEMPORADA_SRC ?? undefined} type="video/mp4" onError={() => setFalla(true)} />
         </video>
       ) : (
         <>

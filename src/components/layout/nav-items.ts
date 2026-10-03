@@ -4,7 +4,7 @@ import {
   Target, TrendingUp, BookOpen, ClipboardList, ClipboardCheck,
   UserCheck, Inbox, Megaphone, Wifi, LayoutGrid, FileSearch, Handshake,
   AlertTriangle, ListChecks, CalendarDays, Clock, List, LineChart,
-  Sparkles, UserPlus, Bot, Phone,
+  Sparkles, UserPlus, Bot, Phone, Video,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -90,6 +90,7 @@ export const ADMIN_NAV: NavItem[] = [
   { label: 'Calendario IA',   href: '/admin/calendario-ia',    icon: Bot },
   { label: 'Mentorías Curso', href: '/admin/sesiones-curso',   icon: GraduationCap },
   { label: 'Reclutamiento',   href: '/admin-reclutamiento',    icon: UserPlus },
+  { label: 'Temporada 1',     href: '/admin/temporada-1',      icon: Video },
   { label: 'Post-Llamada',    href: '/cierre',                 icon: Phone },
   { label: 'Reportes Diarios',href: '/admin/reportes',         icon: BarChart2 },
 ];
