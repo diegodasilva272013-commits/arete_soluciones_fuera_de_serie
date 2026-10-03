@@ -188,8 +188,25 @@
   transition: background .3s;
 }
 
-.epCard:hover {
-  background: #0B0D12;
+@media (hover: hover) and (pointer: fine) {
+  .epCard:hover { background: #0B0D12; }
+}
+
+/* feedback al presionar (0.97, 160ms ease-out) */
+.epCard,
+.dockEp,
+.ctaFlotanteInner button,
+.heroCtas button {
+  transition-property: background, border-color, box-shadow, filter, opacity, transform;
+  transition-duration: .2s, .2s, .2s, .2s, .2s, .16s;
+  transition-timing-function: ease, ease, ease, ease, ease, ease-out;
+}
+
+.epCard:active,
+.dockEp:active,
+.ctaFlotanteInner button:active,
+.heroCtas button:active {
+  transform: scale(0.97);
 }
 
 .epCard:focus-visible {
@@ -208,8 +225,8 @@
   transition: color .4s;
 }
 
-.epCard:hover .epN {
-  color: var(--azul);
+@media (hover: hover) and (pointer: fine) {
+  .epCard:hover .epN { color: var(--azul); }
 }
 
 .epWhen {
@@ -260,9 +277,8 @@
   transition: color .3s, transform .3s cubic-bezier(0.16, 0.84, 0.28, 1);
 }
 
-.epCard:hover .epMore {
-  color: var(--azul-luz);
-  transform: translate(2px, -2px);
+@media (hover: hover) and (pointer: fine) {
+  .epCard:hover .epMore { color: var(--azul-luz); transform: translate(2px, -2px); }
 }
 
 .finale {
@@ -404,7 +420,9 @@
   -webkit-text-stroke: 1px var(--azul);
 }
 
-.dockEp:hover .dockEpN { color: var(--azul); }
+@media (hover: hover) and (pointer: fine) {
+  .dockEp:hover .dockEpN { color: var(--azul); }
+}
 
 .dockEpTitle {
   margin-top: 12px;
@@ -444,12 +462,14 @@
 
 /* BLUR de foco: al apuntar un episodio, el resto se desenfoca */
 .dockEp {
-  transition: border-color .3s, box-shadow .3s, filter .35s, opacity .35s;
+  transition: border-color .2s ease, box-shadow .2s ease, filter .2s ease, opacity .2s ease;
 }
 
-.dockProg:hover .dockEp:not(:hover) {
-  filter: blur(3px);
-  opacity: .45;
+@media (hover: hover) and (pointer: fine) {
+  .dockProg:hover .dockEp:not(:hover) {
+    filter: blur(3px);
+    opacity: .45;
+  }
 }
 
 /* Lista (celular / tablet) */
@@ -489,10 +509,10 @@
 
 /* BLUR de foco en el equipo (sobre los hijos: el item ya tiene filter inline de BlurIn) */
 .equipoItem > * {
-  transition: filter .35s, opacity .35s;
+  transition: filter .2s ease, opacity .2s ease;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .equipo:hover .equipoItem:not(:hover) > * {
     filter: blur(4px);
     opacity: .3;
@@ -691,4 +711,9 @@
   .formGrid { grid-template-columns: 1fr; }
   .formCard { padding: 30px 20px; }
   .detail { padding: 40px 24px 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .epCard:active, .dockEp:active, .ctaFlotanteInner button:active, .heroCtas button:active { transform: none; }
+  .dockProg:hover .dockEp:not(:hover), .equipo:hover .equipoItem:not(:hover) > * { filter: none; }
 }

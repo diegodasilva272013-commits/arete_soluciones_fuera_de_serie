@@ -41,7 +41,7 @@ import {
   type Episodio,
 } from './_data';
 
-const EASE = [0.16, 0.84, 0.28, 1] as const;
+const EASE = [0.23, 1, 0.32, 1] as const; // ease-out fuerte (Emil Kowalski)
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** Destino de portales: el wrapper del layout (tiene las fuentes y no está transformado). */
@@ -81,8 +81,8 @@ export function BlurIn({
     <MotionConfig reducedMotion="user">
       <motion.div
         className={className}
-        initial={{ opacity: 0, filter: 'blur(14px)', y: 18 }}
-        whileInView={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
+        initial={{ opacity: 0, filter: 'blur(14px)', transform: 'translateY(18px)' }}
+        whileInView={{ opacity: 1, filter: 'blur(0px)', transform: 'translateY(0px)' }}
         viewport={{ once: true, margin: '0px 0px -60px 0px' }}
         transition={{ duration: 0.9, delay, ease: EASE }}
       >
@@ -105,10 +105,10 @@ function ScrollBlur({ children, className }: { children: React.ReactNode; classN
   const blur = useTransform(scrollYProgress, [0.45, 0.95], [0, 14]);
   const filter = useTransform(blur, (b) => `blur(${b}px)`);
   const opacity = useTransform(scrollYProgress, [0.45, 0.95], [1, 0.15]);
-  const y = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const transform = useTransform(scrollYProgress, (p) => `translateY(${p * 60}px)`);
 
   return (
-    <motion.div ref={ref} className={className} style={{ filter, opacity, y }}>
+    <motion.div ref={ref} className={className} style={{ filter, opacity, transform }}>
       {children}
     </motion.div>
   );
@@ -141,8 +141,8 @@ export function HeroFoto() {
     <MotionConfig reducedMotion="user">
       <motion.div
         className={s.heroFoto}
-        initial={{ opacity: 0, filter: 'blur(30px)', scale: 1.06 }}
-        animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+        initial={{ opacity: 0, filter: 'blur(18px)', transform: 'scale(1.04)' }}
+        animate={{ opacity: 1, filter: 'blur(0px)', transform: 'scale(1)' }}
         transition={{ duration: 1.8, ease: EASE, delay: 0.15 }}
         aria-hidden
       >
@@ -240,12 +240,12 @@ export function ReservaProvider({ children }: { children: React.ReactNode }) {
                       role="dialog"
                       aria-modal="true"
                       aria-label="Reservá tu lugar"
-                      transition={{ duration: 0.55, ease: EASE }}
+                      transition={{ duration: 0.4, ease: EASE }}
                     >
                       <button className={s.close} onClick={cerrar} aria-label="Cerrar"><X size={18} /></button>
                       <motion.div
-                        initial={{ opacity: 0, filter: 'blur(8px)' }}
-                        animate={{ opacity: 1, filter: 'blur(0px)', transition: { delay: 0.25, duration: 0.5 } }}
+                        initial={{ opacity: 0, transform: 'translateY(8px)' }}
+                        animate={{ opacity: 1, transform: 'translateY(0px)', transition: { delay: 0.15, duration: 0.25, ease: EASE } }}
                         exit={{ opacity: 0, transition: { duration: 0.1 } }}
                       >
                         <span className={c.kickerLabel}>Temporada 1 · Inscripción gratuita</span>
@@ -273,7 +273,7 @@ export function ReservaBoton({ id, label = 'Reservar mi lugar' }: { id: string; 
       layoutId={`reserva-${id}`}
       className={c.btnPrimary}
       onClick={() => abrir(id)}
-      transition={{ duration: 0.55, ease: EASE }}
+      transition={{ duration: 0.4, ease: EASE }}
     >
       <motion.span layout="position" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
         {label} <ArrowUpRight size={14} />
@@ -307,10 +307,10 @@ function ReservaFlotante({ oculto }: { oculto: boolean }) {
         <div className={s.ctaFlotante}>
           <motion.div
             className={s.ctaFlotanteInner}
-            initial={{ opacity: 0, y: 24, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, y: 24, filter: 'blur(10px)' }}
-            transition={{ duration: 0.45, ease: EASE }}
+            initial={{ opacity: 0, transform: 'translateY(16px)' }}
+            animate={{ opacity: 1, transform: 'translateY(0px)' }}
+            exit={{ opacity: 0, transform: 'translateY(16px)' }}
+            transition={{ duration: 0.25, ease: EASE }}
           >
             <ReservaBoton id="flotante" label="Reservar mi lugar · Gratis" />
           </motion.div>
@@ -368,7 +368,7 @@ function PanelEpisodio({ ep, semana }: { ep: Episodio; semana: string }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.45, ease: 'easeInOut' }}
+          transition={{ duration: 0.25, ease: [0.77, 0, 0.175, 1] }}
         >
           <span className={s.panelEpN}>{pad(ep.n)}</span>
           <div>
@@ -487,7 +487,7 @@ export function Programa() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4 }}
+                    transition={{ duration: 0.25 }}
                     onClick={cerrar}
                   />
                   <div className={s.detailWrap} key="detail">
@@ -497,7 +497,7 @@ export function Programa() {
                       role="dialog"
                       aria-modal="true"
                       aria-labelledby={`ep-dlg-${abierto.n}`}
-                      transition={{ duration: 0.55, ease: EASE }}
+                      transition={{ duration: 0.4, ease: EASE }}
                     >
                       <button ref={closeRef} className={s.close} onClick={cerrar} aria-label="Cerrar">
                         <X size={18} />
@@ -510,8 +510,8 @@ export function Programa() {
                         </motion.h3>
                       </div>
                       <motion.div
-                        initial={{ opacity: 0, filter: 'blur(8px)', y: 8 }}
-                        animate={{ opacity: 1, filter: 'blur(0px)', y: 0, transition: { delay: 0.25, duration: 0.5 } }}
+                        initial={{ opacity: 0, transform: 'translateY(8px)' }}
+                        animate={{ opacity: 1, transform: 'translateY(0px)', transition: { delay: 0.15, duration: 0.25, ease: EASE } }}
                         exit={{ opacity: 0, transition: { duration: 0.1 } }}
                       >
                         <p className={s.epBajada}>{abierto.bajada}</p>
