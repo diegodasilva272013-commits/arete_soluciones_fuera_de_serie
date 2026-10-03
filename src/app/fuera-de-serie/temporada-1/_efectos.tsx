@@ -12,7 +12,7 @@
  * Todo respeta prefers-reduced-motion vía MotionConfig reducedMotion="user".
  */
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   AnimatePresence,
@@ -114,8 +114,26 @@ function ScrollBlur({ children, className }: { children: React.ReactNode; classN
   );
 }
 
+/**
+ * El link que se mandó para difundir la landing quedó con #programa
+ * (de cuando alguien tocó "Ver el programa" y copió la URL de la barra
+ * de direcciones) — el navegador salta directo a esa sección antes de
+ * que React llegue a pintar nada. Como esto es lo primero que monta en
+ * la página, fuerza volver arriba antes del primer paint (layout effect,
+ * no effect normal) y limpia el hash para que no vuelva a pasar si
+ * alguien recarga o comparte la URL de nuevo.
+ */
+function useForzarInicio() {
+  useLayoutEffect(() => {
+    if (!window.location.hash) return;
+    window.scrollTo(0, 0);
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }, []);
+}
+
 /** Contenido del hero, con blur de salida al scrollear. */
 export function HeroEscena({ children }: { children: React.ReactNode }) {
+  useForzarInicio();
   return (
     <MotionConfig reducedMotion="user">
       <ScrollBlur>{children}</ScrollBlur>
