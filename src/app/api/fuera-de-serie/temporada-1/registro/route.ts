@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
   }
 
   const emailNorm = email.trim().toLowerCase();
+  const telDigits = telefono.replace(/\D/g, '');
   const admin = createSupabaseAdminClient() as any;
 
   const { data: existente } = await admin
@@ -61,6 +62,24 @@ export async function POST(req: NextRequest) {
     .eq('temporada', TEMPORADA_SLUG)
     .eq('email', emailNorm)
     .maybeSingle();
+
+  // Mismo teléfono con otro mail → no dejar inscribirse de nuevo. Se compara
+  // solo por dígitos (sin +, espacios ni guiones) para que no se cuelen
+  // duplicados por formato. No hay índice único en la base para esto —
+  // se trae la lista de teléfonos ya inscriptos y se compara acá; para la
+  // escala de esta inscripción (cientos, no millones) es más que suficiente.
+  if (!existente) {
+    const { data: telefonos } = await admin
+      .from('fds_temporada_registros')
+      .select('telefono')
+      .eq('temporada', TEMPORADA_SLUG);
+    const yaExiste = ((telefonos ?? []) as { telefono: string }[]).some(
+      (r) => r.telefono.replace(/\D/g, '') === telDigits
+    );
+    if (yaExiste) {
+      return NextResponse.json({ error: 'Ese teléfono ya está inscripto en la Temporada 1.' }, { status: 409 });
+    }
+  }
 
   const { error } = await admin
     .from('fds_temporada_registros')

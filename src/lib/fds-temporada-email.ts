@@ -166,6 +166,20 @@ export async function enviarZoomMasivo(
   return enviarMails(destinatarios.map((d) => ({ to: d.email, subject: ASUNTO, html: html(d.nombre, intro, url) })));
 }
 
+/**
+ * Anuncio libre a todos los inscriptos (no solo los pendientes) — para
+ * mandar, día a día, el link de la próxima clase o cualquier aviso con
+ * un link. Usa el mismo diseño de mail que la confirmación y el Zoom.
+ */
+export async function enviarAnuncioMasivo(
+  destinatarios: { email: string; nombre: string }[],
+  opts: { asunto: string; intro: string; url: string }
+): Promise<string[]> {
+  return enviarMails(
+    destinatarios.map((d) => ({ to: d.email, subject: opts.asunto, html: html(d.nombre, opts.intro, opts.url) }))
+  );
+}
+
 /** Hay algún medio de envío configurado (SMTP de Hostinger o Resend). */
 export function hayEnvioConfigurado(): boolean {
   return Boolean(process.env.SMTP_PASS || process.env.RESEND_API_KEY);

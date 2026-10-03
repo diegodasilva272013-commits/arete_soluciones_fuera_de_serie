@@ -1,5 +1,5 @@
 import { createSupabaseAdminClient } from '@/lib/supabase-server';
-import { enviarZoomMasivo, zoomUrl } from '@/lib/fds-temporada-email';
+import { enviarZoomMasivo, enviarAnuncioMasivo, zoomUrl } from '@/lib/fds-temporada-email';
 import { TEMPORADA_SLUG } from '@/app/fuera-de-serie/temporada-1/_data';
 
 /**
@@ -35,5 +35,35 @@ export async function enviarZoomPendientes(url: string = zoomUrl()) {
     enviados: ids.length,
     fallidos: pendientes.length - ids.length,
     pendientes: pendientes.length - ids.length,
+  };
+}
+
+/**
+ * Manda un anuncio con un link (el de la próxima clase, por ejemplo) a
+ * TODOS los inscriptos de la temporada, ya hayan recibido algo antes o
+ * no — a diferencia de enviarZoomPendientes, que solo manda a los que
+ * nunca recibieron nada. Pensado para usarlo día a día según vayan
+ * cambiando los links de las clases.
+ */
+export async function enviarAnuncioATodos(opts: { asunto: string; intro: string; url: string }) {
+  const admin = createSupabaseAdminClient() as any;
+
+  const { data: filas, error } = await admin
+    .from('fds_temporada_registros')
+    .select('id, nombre, email')
+    .eq('temporada', TEMPORADA_SLUG)
+    .order('created_at', { ascending: true })
+    .limit(2000);
+  if (error) throw new Error(error.message);
+
+  const inscriptos = (filas ?? []) as { id: string; nombre: string; email: string }[];
+  if (inscriptos.length === 0) return { enviados: 0, fallidos: 0, total: 0 };
+
+  const ok = new Set(await enviarAnuncioMasivo(inscriptos, opts));
+
+  return {
+    enviados: ok.size,
+    fallidos: inscriptos.length - ok.size,
+    total: inscriptos.length,
   };
 }
