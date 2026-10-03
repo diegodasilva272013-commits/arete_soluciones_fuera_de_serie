@@ -25,7 +25,7 @@ import {
   useTransform,
   type MotionValue,
 } from 'framer-motion';
-import { ArrowUpRight, X } from 'lucide-react';
+import { ArrowUpRight, Play, X } from 'lucide-react';
 import c from '@/app/empresa/corp.module.css';
 import s from './t1.module.css';
 import { RegistroForm } from './_registro';
@@ -35,6 +35,8 @@ import {
   PROFES,
   SEMANAS,
   TEMPORADA_INICIO,
+  VIDEO_TEMPORADA_POSTER,
+  VIDEO_TEMPORADA_SRC,
   profesLabel,
   type Episodio,
 } from './_data';
@@ -181,6 +183,29 @@ export function Countdown() {
     <p className={s.countdown}>
       Primera clase en <b>{txt}</b>
     </p>
+  );
+}
+
+/* ═════════════════════ VIDEO ═════════════════════ */
+
+export function VideoTemporada() {
+  return (
+    <div className={s.videoFrame}>
+      {VIDEO_TEMPORADA_SRC ? (
+        <video controls playsInline preload="metadata" poster={VIDEO_TEMPORADA_POSTER}>
+          <source src={VIDEO_TEMPORADA_SRC} type="video/mp4" />
+        </video>
+      ) : (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={VIDEO_TEMPORADA_POSTER} alt="Areté Fuera de Serie · Temporada 1" />
+          <div className={s.videoSoon}>
+            <span className={s.playRing}><Play size={26} /></span>
+            <span className={c.kickerLabel}>El video se publica en estos días</span>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
