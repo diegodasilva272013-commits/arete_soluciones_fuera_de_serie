@@ -664,12 +664,12 @@
     position: relative;
     width: 100%;
     height: auto;
-    margin-bottom: 8px;
-    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+    margin-bottom: 28px;
+    -webkit-mask-image: linear-gradient(to bottom, #000 88%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 88%, transparent 100%);
   }
-  /* recorte al equipo: el título propio del póster (desde ~68% de alto) queda afuera */
-  .heroFoto img { aspect-ratio: 1 / 0.64; object-fit: cover; object-position: center 12%; }
+  /* foto completa, sin recorte */
+  .heroFoto img { width: 100%; height: auto; min-height: 0; aspect-ratio: auto; object-fit: contain; }
   .equipoItem { grid-template-columns: 1fr; gap: 12px; }
   .epGrid { grid-template-columns: 1fr; }
   .epCard { min-height: 0; }
