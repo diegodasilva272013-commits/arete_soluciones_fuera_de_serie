@@ -82,11 +82,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No pudimos guardar tu registro. Probá de nuevo.' }, { status: 500 });
   }
 
-  // Mail de confirmación solo en el primer registro. Si el Zoom ya está
-  // configurado, el mail lo incluye y la fila queda marcada como enviada.
+  // Mail de confirmación (incluye el Zoom) solo en el primer registro;
+  // si sale bien, la fila queda marcada como enviada.
   if (!existente) {
     const enviado = await enviarConfirmacion(emailNorm, nombre.trim());
-    if (enviado && process.env.FDS_T1_ZOOM_URL) {
+    if (enviado) {
       await admin
         .from('fds_temporada_registros')
         .update({ zoom_enviado_at: new Date().toISOString() })

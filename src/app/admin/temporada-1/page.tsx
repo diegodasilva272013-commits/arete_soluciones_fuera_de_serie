@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/layout/page-header';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabase-server';
 import { TEMPORADA_SLUG } from '@/app/fuera-de-serie/temporada-1/_data';
 import { EnviarZoom } from './_enviar-zoom';
+import { zoomUrl } from '@/lib/fds-temporada-email';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,7 +42,7 @@ export default async function Temporada1AdminPage() {
         eyebrow="Admin · Fuera de Serie"
         title="Temporada 1 · Inscriptos"
         description={`${registros.length} inscriptos · ${pendientes} sin link de Zoom`}
-        actions={<EnviarZoom pendientes={pendientes} zoomDefault={process.env.FDS_T1_ZOOM_URL ?? ''} />}
+        actions={<EnviarZoom pendientes={pendientes} zoomDefault={zoomUrl()} />}
       />
 
       {registros.length === 0 ? (

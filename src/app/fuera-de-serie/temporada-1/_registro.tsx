@@ -117,7 +117,7 @@ export function RegistroForm({ compacto = false }: { compacto?: boolean }) {
                   Ya estás adentro, <em>{nombre}.</em>
                 </h3>
                 <p className={c.sectionSub} style={{ maxWidth: '46ch', margin: '0 auto' }}>
-                  Te mandamos un mail de confirmación. En estos días te llega a ese mismo mail el link de Zoom para las clases. Primera clase: lunes 5 de octubre, 20 h.
+                  Te mandamos a tu mail el link de Zoom para las clases (desde arete@aretesoluciones.space). Si no lo ves, revisá spam. Primera clase: lunes 5 de octubre, 20 h.
                 </p>
               </motion.div>
             )}

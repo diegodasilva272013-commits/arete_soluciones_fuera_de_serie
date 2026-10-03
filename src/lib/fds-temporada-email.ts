@@ -3,11 +3,29 @@ import { SEMANAS, TEMPORADA_NOMBRE, profesLabel } from '@/app/fuera-de-serie/tem
 
 /**
  * Mails de Areté Fuera de Serie · Temporada 1.
- * - Confirmación al registrarse (incluye el Zoom si FDS_T1_ZOOM_URL ya está cargado).
- * - Envío del link de Zoom (desde /admin/temporada-1).
+ * - Confirmación al registrarse (con el link de Zoom).
+ * - Envío del link de Zoom a los inscriptos que todavía no lo tienen
+ *   (cron diario y botón en /admin/temporada-1).
+ *
+ * Remitente: arete@aretesoluciones.space. Si Resend rechaza ese remitente
+ * (p. ej. dominio todavía no verificado), reintenta con el remitente de
+ * respaldo y deja arete@aretesoluciones.space como dirección de respuesta.
  */
 
-const FROM = process.env.FDS_EMAIL_FROM || 'Areté Fuera de Serie <ia@aretesoluciones.com>';
+const CORREO_ARETE = 'arete@aretesoluciones.space';
+const FROM = process.env.FDS_EMAIL_FROM || `Areté Fuera de Serie <${CORREO_ARETE}>`;
+const FROM_RESPALDO = 'Areté Fuera de Serie <ia@aretesoluciones.com>';
+
+/** Zoom de la temporada (se puede pisar con la variable FDS_T1_ZOOM_URL). */
+const ZOOM_T1 = {
+  url: 'https://us06web.zoom.us/j/89430152746?pwd=nyBebUNzOHDXKAXUn4eHZwZupxnnu3.1',
+  id: '894 3015 2746',
+  codigo: '896785',
+};
+
+export function zoomUrl(): string {
+  return process.env.FDS_T1_ZOOM_URL || ZOOM_T1.url;
+}
 
 function esc(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
@@ -23,7 +41,20 @@ function programaHtml(): string {
     </tr>`).join('')}`).join('');
 }
 
-function layout(nombre: string, cuerpo: string): string {
+function zoomBlock(url: string): string {
+  const esDefault = url === ZOOM_T1.url;
+  return `
+    <p style="margin:24px 0">
+      <a href="${esc(url)}" style="background:#2969D1;color:#fff;padding:14px 26px;text-decoration:none;font-family:monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase">Entrar a las clases por Zoom</a>
+    </p>
+    <p style="font-size:14px;color:#444;line-height:1.6">
+      ${esDefault ? `ID de reunión: <b>${ZOOM_T1.id}</b><br>Código de acceso: <b>${ZOOM_T1.codigo}</b><br>` : ''}
+      Es el mismo link para las 9 clases. Guardá este mail.<br>
+      <span style="color:#8A8A8A;font-size:12px">${esc(url)}</span>
+    </p>`;
+}
+
+function html(nombre: string, intro: string, url: string): string {
   return `
 <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#111;background:#fff">
   <div style="background:#050505;padding:28px 32px">
@@ -32,7 +63,8 @@ function layout(nombre: string, cuerpo: string): string {
   </div>
   <div style="padding:28px 32px">
     <p style="font-size:17px">Hola ${esc(nombre)},</p>
-    ${cuerpo}
+    <p style="font-size:16px">${intro}</p>
+    ${zoomBlock(url)}
     <p style="font-size:15px;color:#444;margin-top:8px">9 clases en vivo · 90 minutos · Gratis<br>Lun y Mié 20 h · Sáb 18 h (hora Argentina)</p>
     <table style="width:100%;border-collapse:collapse;margin-top:8px">${programaHtml()}</table>
     <p style="font-size:15px;margin-top:28px">Agendá las que quieras. Nos vemos del otro lado.<br>— Equipo Areté</p>
@@ -40,46 +72,56 @@ function layout(nombre: string, cuerpo: string): string {
 </div>`;
 }
 
-function zoomBlock(zoomUrl: string): string {
-  return `
-    <p style="margin:24px 0">
-      <a href="${esc(zoomUrl)}" style="background:#2969D1;color:#fff;padding:14px 26px;text-decoration:none;font-family:monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase">Entrar a las clases por Zoom</a>
-    </p>
-    <p style="font-size:13px;color:#8A8A8A">Es el mismo link para las 9 clases. Guardá este mail.<br>${esc(zoomUrl)}</p>`;
-}
-
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
   return key ? new Resend(key) : null;
 }
 
+type Mail = { to: string; subject: string; html: string };
+
+/** Envía un lote (máx. 100) desde arete@; si Resend lo rechaza, reintenta con el remitente de respaldo. */
+async function enviarLote(resend: Resend, mails: Mail[]): Promise<boolean> {
+  const armar = (from: string) =>
+    mails.map((m) => ({ from, to: [m.to], subject: m.subject, html: m.html, replyTo: CORREO_ARETE }));
+
+  const primero = await resend.batch.send(armar(FROM));
+  if (!primero.error) return true;
+  console.error('[fds-t1] lote rechazado con', FROM, primero.error);
+
+  const respaldo = await resend.batch.send(armar(FROM_RESPALDO));
+  if (respaldo.error) console.error('[fds-t1] lote rechazado con respaldo', respaldo.error);
+  return !respaldo.error;
+}
+
+const ASUNTO = 'Tu link de Zoom · Fuera de Serie T1';
+
+/** Mail de confirmación al registrarse (ya incluye el Zoom). */
 export async function enviarConfirmacion(to: string, nombre: string): Promise<boolean> {
   const resend = getResend();
   if (!resend) return false;
-  const zoom = process.env.FDS_T1_ZOOM_URL;
-  const cuerpo = zoom
-    ? `<p style="font-size:16px">Ya estás adentro de <b>${TEMPORADA_NOMBRE}</b>. Este es tu link para las clases:</p>${zoomBlock(zoom)}`
-    : `<p style="font-size:16px">Ya estás adentro de <b>${TEMPORADA_NOMBRE}</b>. En estos días te mandamos a este mail el link de Zoom para las clases.</p>`;
-  const { error } = await resend.emails.send({
-    from: FROM,
-    to: [to],
-    subject: zoom ? 'Tu link de Zoom · Fuera de Serie T1' : 'Estás adentro · Fuera de Serie T1',
-    html: layout(nombre, cuerpo),
-  });
-  if (error) console.error('[fds-t1] confirmación', to, error);
-  return !error;
+  const intro = `Ya estás adentro de <b>${TEMPORADA_NOMBRE}</b>. Arrancamos el <b>lunes 5 de octubre a las 20 h</b> (Argentina). Este es tu link para las clases:`;
+  return enviarLote(resend, [{ to, subject: ASUNTO, html: html(nombre, intro, zoomUrl()) }]);
 }
 
-export async function enviarZoom(to: string, nombre: string, zoomUrl: string): Promise<boolean> {
+/**
+ * Manda el Zoom a una lista de inscriptos, en lotes de 100.
+ * Devuelve los emails a los que se envió bien.
+ */
+export async function enviarZoomMasivo(
+  destinatarios: { email: string; nombre: string }[],
+  url: string = zoomUrl()
+): Promise<string[]> {
   const resend = getResend();
-  if (!resend) return false;
-  const cuerpo = `<p style="font-size:16px">Este es el link de Zoom para <b>${TEMPORADA_NOMBRE}</b>. Arrancamos el <b>lunes 5 de octubre a las 20 h</b>.</p>${zoomBlock(zoomUrl)}`;
-  const { error } = await resend.emails.send({
-    from: FROM,
-    to: [to],
-    subject: 'Tu link de Zoom · Fuera de Serie T1',
-    html: layout(nombre, cuerpo),
-  });
-  if (error) console.error('[fds-t1] zoom', to, error);
-  return !error;
+  if (!resend) return [];
+  const intro = `Este es el link de Zoom para <b>${TEMPORADA_NOMBRE}</b>. Arrancamos el <b>lunes 5 de octubre a las 20 h</b> (Argentina).`;
+  const ok: string[] = [];
+  for (let i = 0; i < destinatarios.length; i += 100) {
+    const lote = destinatarios.slice(i, i + 100);
+    const enviado = await enviarLote(
+      resend,
+      lote.map((d) => ({ to: d.email, subject: ASUNTO, html: html(d.nombre, intro, url) }))
+    );
+    if (enviado) ok.push(...lote.map((d) => d.email));
+  }
+  return ok;
 }

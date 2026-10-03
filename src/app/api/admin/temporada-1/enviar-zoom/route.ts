@@ -1,21 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabase-server';
-import { enviarZoom } from '@/lib/fds-temporada-email';
-import { TEMPORADA_SLUG } from '@/app/fuera-de-serie/temporada-1/_data';
+import { zoomUrl as zoomDefault } from '@/lib/fds-temporada-email';
+import { enviarZoomPendientes } from '@/lib/fds-temporada-zoom';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
-
-const LOTE = 60;
-const CONCURRENCIA = 5;
 
 /**
  * POST /api/admin/temporada-1/enviar-zoom
  * Body: { zoomUrl?: string }  (si no viene, usa FDS_T1_ZOOM_URL)
  *
- * Manda el link de Zoom a los inscriptos que todavía no lo recibieron,
- * en lotes de LOTE. Devuelve cuántos quedan pendientes: el admin repite
- * la llamada hasta que `pendientes` sea 0. Solo role='admin'.
+ * Manda el link de Zoom (desde arete@aretesoluciones.space) a los inscriptos
+ * que todavía no lo recibieron. Solo role='admin'.
  */
 export async function POST(req: NextRequest) {
   const supabase = createSupabaseServerClient();
@@ -27,7 +23,7 @@ export async function POST(req: NextRequest) {
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Sin permiso' }, { status: 403 });
 
   const body = await req.json().catch(() => ({}));
-  const zoomUrl = (typeof body?.zoomUrl === 'string' && body.zoomUrl.trim()) || process.env.FDS_T1_ZOOM_URL || '';
+  const zoomUrl = (typeof body?.zoomUrl === 'string' && body.zoomUrl.trim()) || zoomDefault();
   if (!/^https:\/\/\S+$/.test(zoomUrl)) {
     return NextResponse.json({ error: 'Falta un link de Zoom válido (https://…)' }, { status: 400 });
   }
@@ -35,37 +31,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'RESEND_API_KEY no está configurada' }, { status: 500 });
   }
 
-  const { data: filas, error } = await admin
-    .from('fds_temporada_registros')
-    .select('id, nombre, email')
-    .eq('temporada', TEMPORADA_SLUG)
-    .is('zoom_enviado_at', null)
-    .order('created_at', { ascending: true })
-    .limit(LOTE);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  let enviados = 0;
-  let fallidos = 0;
-  const cola = [...(filas ?? [])];
-  await Promise.all(
-    Array.from({ length: CONCURRENCIA }, async () => {
-      for (let f = cola.shift(); f; f = cola.shift()) {
-        const ok = await enviarZoom(f.email, f.nombre, zoomUrl);
-        if (ok) {
-          enviados++;
-          await admin.from('fds_temporada_registros').update({ zoom_enviado_at: new Date().toISOString() }).eq('id', f.id);
-        } else {
-          fallidos++;
-        }
-      }
-    })
-  );
-
-  const { count } = await admin
-    .from('fds_temporada_registros')
-    .select('id', { count: 'exact', head: true })
-    .eq('temporada', TEMPORADA_SLUG)
-    .is('zoom_enviado_at', null);
-
-  return NextResponse.json({ enviados, fallidos, pendientes: count ?? 0 });
+  try {
+    return NextResponse.json(await enviarZoomPendientes(zoomUrl));
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : 'Error' }, { status: 500 });
+  }
 }
