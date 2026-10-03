@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { brand } from '@/constants/branding';
 import { BrandLogo } from '@/components/brand/brand-logo';
@@ -52,6 +53,15 @@ export function Sidebar({
   const pathname = usePathname();
   const isSetter = role === 'setter' || isAdmin;
   const isCloser = role === 'closer';
+  const navRef = useRef<HTMLElement>(null);
+
+  // El nav es parte del layout persistente: no se desmonta al cambiar de
+  // página, así que si quedó scrolleado (por ej. bajando hasta "Admin"
+  // para entrar a Temporada 1) se quedaba así para cualquier página
+  // siguiente. Vuelve arriba en cada cambio de ruta.
+  useEffect(() => {
+    navRef.current?.scrollTo({ top: 0 });
+  }, [pathname]);
 
   return (
     <aside className="hidden lg:flex lg:w-60 lg:flex-col lg:border-r lg:border-[rgba(26,111,255,0.12)] lg:bg-[#0a0a0a]">
@@ -64,7 +74,7 @@ export function Sidebar({
         </div>
       </div>
 
-      <nav className="flex-1 space-y-0 overflow-y-auto px-3 py-4">
+      <nav ref={navRef} className="flex-1 space-y-0 overflow-y-auto px-3 py-4">
         {isAdmin ? (
           /* ── ADMIN: plataforma + setter + closer + admin ────────────────── */
           <>
