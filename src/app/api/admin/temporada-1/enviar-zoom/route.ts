@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabase-server';
-import { zoomUrl as zoomDefault } from '@/lib/fds-temporada-email';
+import { hayEnvioConfigurado, zoomUrl as zoomDefault } from '@/lib/fds-temporada-email';
 import { enviarZoomPendientes } from '@/lib/fds-temporada-zoom';
 
 export const dynamic = 'force-dynamic';
@@ -27,8 +27,8 @@ export async function POST(req: NextRequest) {
   if (!/^https:\/\/\S+$/.test(zoomUrl)) {
     return NextResponse.json({ error: 'Falta un link de Zoom válido (https://…)' }, { status: 400 });
   }
-  if (!process.env.RESEND_API_KEY) {
-    return NextResponse.json({ error: 'RESEND_API_KEY no está configurada' }, { status: 500 });
+  if (!hayEnvioConfigurado()) {
+    return NextResponse.json({ error: 'Falta SMTP_PASS (Hostinger) o RESEND_API_KEY' }, { status: 500 });
   }
 
   try {

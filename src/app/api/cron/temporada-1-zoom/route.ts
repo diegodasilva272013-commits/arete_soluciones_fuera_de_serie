@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { enviarZoomPendientes } from '@/lib/fds-temporada-zoom';
+import { hayEnvioConfigurado } from '@/lib/fds-temporada-email';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -14,8 +15,8 @@ export async function GET(req: NextRequest) {
   if (!secret || req.headers.get('authorization') !== `Bearer ${secret}`) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
-  if (!process.env.RESEND_API_KEY) {
-    return NextResponse.json({ error: 'RESEND_API_KEY no está configurada' }, { status: 500 });
+  if (!hayEnvioConfigurado()) {
+    return NextResponse.json({ error: 'Falta SMTP_PASS (Hostinger) o RESEND_API_KEY' }, { status: 500 });
   }
   try {
     const r = await enviarZoomPendientes();

@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import { SEMANAS, TEMPORADA_NOMBRE, profesLabel } from '@/app/fuera-de-serie/temporada-1/_data';
 
 /**
@@ -7,9 +8,11 @@ import { SEMANAS, TEMPORADA_NOMBRE, profesLabel } from '@/app/fuera-de-serie/tem
  * - Envío del link de Zoom a los inscriptos que todavía no lo tienen
  *   (cron diario y botón en /admin/temporada-1).
  *
- * Remitente: arete@aretesoluciones.space. Si Resend rechaza ese remitente
- * (p. ej. dominio todavía no verificado), reintenta con el remitente de
- * respaldo y deja arete@aretesoluciones.space como dirección de respuesta.
+ * Remitente: arete@aretesoluciones.space.
+ *  1. Si SMTP_PASS está configurada, se envía por el SMTP de Hostinger con
+ *     esa casilla (smtp.hostinger.com:465). Es el camino principal.
+ *  2. Si no, por Resend; si Resend rechaza el remitente, reintenta con el de
+ *     respaldo y deja arete@aretesoluciones.space como dirección de respuesta.
  */
 
 const CORREO_ARETE = 'arete@aretesoluciones.space';
@@ -77,10 +80,29 @@ function getResend(): Resend | null {
   return key ? new Resend(key) : null;
 }
 
+/** SMTP de Hostinger con la casilla arete@aretesoluciones.space. */
+function getSmtp() {
+  const pass = process.env.SMTP_PASS;
+  if (!pass) return null;
+  const user = process.env.SMTP_USER || CORREO_ARETE;
+  return {
+    user,
+    transport: nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.hostinger.com',
+      port: Number(process.env.SMTP_PORT || 465),
+      secure: Number(process.env.SMTP_PORT || 465) === 465,
+      auth: { user, pass },
+      pool: true,
+      maxConnections: 2,
+      maxMessages: 100,
+    }),
+  };
+}
+
 type Mail = { to: string; subject: string; html: string };
 
-/** Envía un lote (máx. 100) desde arete@; si Resend lo rechaza, reintenta con el remitente de respaldo. */
-async function enviarLote(resend: Resend, mails: Mail[]): Promise<boolean> {
+/** Envía por Resend un lote (máx. 100); si rechaza el remitente, reintenta con el de respaldo. */
+async function enviarLoteResend(resend: Resend, mails: Mail[]): Promise<boolean> {
   const armar = (from: string) =>
     mails.map((m) => ({ from, to: [m.to], subject: m.subject, html: m.html, replyTo: CORREO_ARETE }));
 
@@ -93,35 +115,58 @@ async function enviarLote(resend: Resend, mails: Mail[]): Promise<boolean> {
   return !respaldo.error;
 }
 
+/** Envía los mails y devuelve los destinatarios a los que salió bien. */
+async function enviarMails(mails: Mail[]): Promise<string[]> {
+  const smtp = getSmtp();
+  if (smtp) {
+    const ok: string[] = [];
+    for (const m of mails) {
+      try {
+        await smtp.transport.sendMail({
+          from: `Areté Fuera de Serie <${smtp.user}>`,
+          to: m.to,
+          subject: m.subject,
+          html: m.html,
+          replyTo: CORREO_ARETE,
+        });
+        ok.push(m.to);
+      } catch (e) {
+        console.error('[fds-t1] SMTP Hostinger falló para', m.to, e);
+      }
+    }
+    smtp.transport.close();
+    return ok;
+  }
+
+  const resend = getResend();
+  if (!resend) return [];
+  const ok: string[] = [];
+  for (let i = 0; i < mails.length; i += 100) {
+    const lote = mails.slice(i, i + 100);
+    if (await enviarLoteResend(resend, lote)) ok.push(...lote.map((m) => m.to));
+  }
+  return ok;
+}
+
 const ASUNTO = 'Tu link de Zoom · Fuera de Serie T1';
 
 /** Mail de confirmación al registrarse (ya incluye el Zoom). */
 export async function enviarConfirmacion(to: string, nombre: string): Promise<boolean> {
-  const resend = getResend();
-  if (!resend) return false;
   const intro = `Ya estás adentro de <b>${TEMPORADA_NOMBRE}</b>. Arrancamos el <b>lunes 5 de octubre a las 20 h</b> (Argentina). Este es tu link para las clases:`;
-  return enviarLote(resend, [{ to, subject: ASUNTO, html: html(nombre, intro, zoomUrl()) }]);
+  const ok = await enviarMails([{ to, subject: ASUNTO, html: html(nombre, intro, zoomUrl()) }]);
+  return ok.length === 1;
 }
 
-/**
- * Manda el Zoom a una lista de inscriptos, en lotes de 100.
- * Devuelve los emails a los que se envió bien.
- */
+/** Manda el Zoom a una lista de inscriptos. Devuelve los emails a los que se envió bien. */
 export async function enviarZoomMasivo(
   destinatarios: { email: string; nombre: string }[],
   url: string = zoomUrl()
 ): Promise<string[]> {
-  const resend = getResend();
-  if (!resend) return [];
   const intro = `Este es el link de Zoom para <b>${TEMPORADA_NOMBRE}</b>. Arrancamos el <b>lunes 5 de octubre a las 20 h</b> (Argentina).`;
-  const ok: string[] = [];
-  for (let i = 0; i < destinatarios.length; i += 100) {
-    const lote = destinatarios.slice(i, i + 100);
-    const enviado = await enviarLote(
-      resend,
-      lote.map((d) => ({ to: d.email, subject: ASUNTO, html: html(d.nombre, intro, url) }))
-    );
-    if (enviado) ok.push(...lote.map((d) => d.email));
-  }
-  return ok;
+  return enviarMails(destinatarios.map((d) => ({ to: d.email, subject: ASUNTO, html: html(d.nombre, intro, url) })));
+}
+
+/** Hay algún medio de envío configurado (SMTP de Hostinger o Resend). */
+export function hayEnvioConfigurado(): boolean {
+  return Boolean(process.env.SMTP_PASS || process.env.RESEND_API_KEY);
 }
