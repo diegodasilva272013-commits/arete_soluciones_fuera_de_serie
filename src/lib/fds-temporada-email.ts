@@ -170,3 +170,41 @@ export async function enviarZoomMasivo(
 export function hayEnvioConfigurado(): boolean {
   return Boolean(process.env.SMTP_PASS || process.env.RESEND_API_KEY);
 }
+
+/** Qué medio de envío está activo (para mostrarlo en el panel). */
+export function estadoEnvio(): { via: 'hostinger' | 'resend' | 'ninguno'; detalle: string } {
+  if (process.env.SMTP_PASS) {
+    return { via: 'hostinger', detalle: `Hostinger SMTP con ${process.env.SMTP_USER || CORREO_ARETE}` };
+  }
+  if (process.env.RESEND_API_KEY) {
+    return { via: 'resend', detalle: 'Resend (falta SMTP_PASS de Hostinger)' };
+  }
+  return { via: 'ninguno', detalle: 'Sin medio de envío: falta SMTP_PASS' };
+}
+
+/** Envía un mail de prueba y devuelve el error exacto si falla. */
+export async function enviarPrueba(to: string): Promise<{ ok: boolean; via: string; error?: string }> {
+  const intro = `Esto es una <b>prueba</b> del envío de ${TEMPORADA_NOMBRE}. Así le llega el mail a cada inscripto:`;
+  const mail = { to, subject: `[Prueba] ${ASUNTO}`, html: html('equipo Areté', intro, zoomUrl()) };
+  const smtp = getSmtp();
+  if (smtp) {
+    try {
+      await smtp.transport.sendMail({
+        from: `Areté Fuera de Serie <${smtp.user}>`,
+        to: mail.to,
+        subject: mail.subject,
+        html: mail.html,
+        replyTo: CORREO_ARETE,
+      });
+      return { ok: true, via: 'hostinger' };
+    } catch (e) {
+      return { ok: false, via: 'hostinger', error: e instanceof Error ? e.message : String(e) };
+    } finally {
+      smtp.transport.close();
+    }
+  }
+  const resend = getResend();
+  if (!resend) return { ok: false, via: 'ninguno', error: 'Falta SMTP_PASS (Hostinger) en Vercel' };
+  const r = await resend.emails.send({ from: FROM, to: [to], subject: mail.subject, html: mail.html, replyTo: CORREO_ARETE });
+  return r.error ? { ok: false, via: 'resend', error: r.error.message } : { ok: true, via: 'resend' };
+}
