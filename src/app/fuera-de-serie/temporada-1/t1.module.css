@@ -21,44 +21,25 @@
   max-width: 640px;
 }
 
-/* ── Foto del equipo integrada al hero ── */
-.hero.hero {
-  min-height: min(760px, calc(100vh - 68px));
-  display: flex;
-  align-items: center;
-}
-
-.heroInner {
-  width: 100%;
+/* ── Foto del equipo: completa, justo después del hero ── */
+.fotoBanda {
+  padding: 72px 40px;
+  border-bottom: 1px solid var(--linea);
+  background: radial-gradient(ellipse 60% 70% at 50% 45%, rgba(var(--azul-rgb), .14), transparent 70%);
 }
 
 .heroFoto {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: min(58%, 900px);
-  z-index: 0;
+  max-width: 920px;
+  margin: 0 auto;
+  border: 1px solid var(--linea-2);
+  box-shadow: 0 50px 140px rgba(0,0,0,.6), 0 0 90px rgba(var(--azul-rgb), .18);
   overflow: hidden;
-  pointer-events: none;
-  /* se funde hacia el texto (izquierda) y hacia abajo */
-  -webkit-mask-image:
-    linear-gradient(to right, transparent 0%, #000 38%),
-    linear-gradient(to bottom, #000 46%, transparent 66%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to right, transparent 0%, #000 38%),
-    linear-gradient(to bottom, #000 46%, transparent 66%);
-  mask-composite: intersect;
 }
 
 .heroFoto img {
   display: block;
   width: 100%;
   height: auto;
-  min-height: 100%;
-  object-fit: cover;
-  object-position: center top;
 }
 
 .heroInner > * {
@@ -679,17 +660,7 @@
 }
 
 @media (max-width: 960px) {
-  .hero.hero { display: block; min-height: 0; padding-top: 0; }
-  .heroFoto {
-    position: relative;
-    width: 100%;
-    height: auto;
-    margin-bottom: 28px;
-    -webkit-mask-image: linear-gradient(to bottom, #000 88%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 88%, transparent 100%);
-  }
-  /* foto completa, sin recorte */
-  .heroFoto img { width: 100%; height: auto; min-height: 0; aspect-ratio: auto; object-fit: contain; }
+  .fotoBanda { padding: 32px 16px; }
   .equipoItem { grid-template-columns: 1fr; gap: 12px; }
   .epGrid { grid-template-columns: 1fr; }
   .epCard { min-height: 0; }

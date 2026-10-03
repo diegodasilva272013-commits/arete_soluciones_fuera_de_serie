@@ -50,9 +50,8 @@ export default function Temporada1Page() {
       />
 
       {/* ══════════════ HERO (azul, mismo que Metodología / Contacto) ══════════════ */}
-      <section className={`${c.pageHero} ${s.hero}`} style={{ isolation: 'isolate' }}>
+      <section className={c.pageHero} style={{ isolation: 'isolate' }}>
         <AnimatedGradient config={{ preset: 'Prism' }} />
-        <HeroFoto />
         <div className={`${c.pageHeroInner} ${s.heroInner}`}>
           <HeroEscena>
             <BlurIn>
@@ -98,6 +97,11 @@ export default function Temporada1Page() {
             </BlurIn>
           </HeroEscena>
         </div>
+      </section>
+
+      {/* ══════════════ FOTO DEL EQUIPO (completa, después del hero) ══════════════ */}
+      <section className={s.fotoBanda}>
+        <HeroFoto />
       </section>
 
       {/* ══════════════ VIDEO ══════════════ */}

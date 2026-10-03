@@ -141,13 +141,20 @@ export function HeroFoto() {
     <MotionConfig reducedMotion="user">
       <motion.div
         className={s.heroFoto}
-        initial={{ opacity: 0, filter: 'blur(18px)', transform: 'scale(1.04)' }}
-        animate={{ opacity: 1, filter: 'blur(0px)', transform: 'scale(1)' }}
-        transition={{ duration: 1.8, ease: EASE, delay: 0.15 }}
-        aria-hidden
+        initial={{ opacity: 0, filter: 'blur(18px)', transform: 'scale(1.03)' }}
+        whileInView={{ opacity: 1, filter: 'blur(0px)', transform: 'scale(1)' }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 1.2, ease: EASE }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img ref={imgRef} src={POSTER_TEMPORADA} alt="" onError={() => setFalta(true)} />
+        <img
+          ref={imgRef}
+          src={POSTER_TEMPORADA}
+          alt="Diego Da Silva, Mauro Benitez, Fátima Rivera, Cecilia Gutierrez y Daniel Peña · Fuera de Serie Temporada 1"
+          width={1400}
+          height={1400}
+          onError={() => setFalta(true)}
+        />
       </motion.div>
     </MotionConfig>
   );
