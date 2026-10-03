@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
-import { ArrowRight } from 'lucide-react';
 import c from '@/app/empresa/corp.module.css';
 import s from './t1.module.css';
 import { SEO_FDS, SITE_URL } from '@/app/empresa/_seo';
 import AnimatedGradient from '@/components/ui/animated-gradient';
-import { BlurIn, Countdown, DockProfes, PosterEquipo, ProximoEpisodio, Programa, VideoTemporada } from './_efectos';
+import { BlurIn, Countdown, Equipo, HeroEscena, HeroPoster, Programa, ReservaBoton, ReservaProvider, VideoTemporada } from './_efectos';
 import { RegistroForm } from './_registro';
-import { EPISODIOS, TEMPORADA_INICIO, TEMPORADA_NOMBRE } from './_data';
+import { EPISODIOS, POSTER_TEMPORADA, TEMPORADA_INICIO, TEMPORADA_NOMBRE } from './_data';
 
 const SEO = SEO_FDS.temporada1;
 
@@ -18,11 +17,13 @@ export const metadata: Metadata = {
     title: SEO.title,
     description: SEO.description,
     url: SEO.canonical,
+    images: [{ url: POSTER_TEMPORADA, width: 1400, height: 1400, alt: TEMPORADA_NOMBRE }],
   },
   twitter: {
     card: 'summary_large_image',
     title: SEO.title,
     description: SEO.description,
+    images: [POSTER_TEMPORADA],
   },
 };
 
@@ -42,66 +43,59 @@ const EVENT_SCHEMA = {
 
 export default function Temporada1Page() {
   return (
-    <>
+    <ReservaProvider>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(EVENT_SCHEMA) }}
       />
 
       {/* ══════════════ HERO (azul, mismo que Metodología / Contacto) ══════════════ */}
-      <section className={c.pageHero} style={{ isolation: 'isolate' }}>
+      <section className={`${c.pageHero} ${s.hero}`} style={{ isolation: 'isolate' }}>
         <AnimatedGradient config={{ preset: 'Prism' }} />
         <div className={`${c.pageHeroInner} ${s.heroInner}`}>
-          <BlurIn>
-            <div className={`${c.kicker} ${c.revealOn}`}>
-              <span className={c.kickerLine} />
-              <span className={c.kickerLabel}>Areté Fuera de Serie · Clases en vivo</span>
-            </div>
-          </BlurIn>
-          <BlurIn delay={0.12}>
-            <h1 className={c.heroTitle}>
-              Fuera de Serie.<br /><em>Temporada 1.</em>
-            </h1>
-          </BlurIn>
-          <BlurIn delay={0.24}>
-            <p className={c.heroSub}>
-              Nueve clases en vivo sobre lo que pasa de verdad en una conversación de venta. Desde el primer minuto hasta el cierre. Porque nunca fue el precio.
-            </p>
-          </BlurIn>
-          <BlurIn delay={0.36}>
-            <div className={s.heroMeta}>
-              <div className={c.metaItem}>
-                <span className={c.metaDt}>Formato</span>
-                <span className={c.metaDd}>9 clases en vivo</span>
+          <HeroEscena poster={<HeroPoster />}>
+            <BlurIn>
+              <div className={`${c.kicker} ${c.revealOn}`}>
+                <span className={c.kickerLine} />
+                <span className={c.kickerLabel}>Areté Fuera de Serie · Clases en vivo</span>
               </div>
-              <div className={c.metaItem}>
-                <span className={c.metaDt}>Duración</span>
-                <span className={c.metaDd}>90 minutos</span>
+            </BlurIn>
+            <BlurIn delay={0.12}>
+              <h1 className={c.heroTitle}>
+                Fuera de Serie.<br /><em>Temporada 1.</em>
+              </h1>
+            </BlurIn>
+            <BlurIn delay={0.24}>
+              <p className={c.heroSub}>
+                Nueve clases en vivo sobre lo que pasa de verdad en una conversación de venta. Desde el primer minuto hasta el cierre. Porque nunca fue el precio.
+              </p>
+            </BlurIn>
+            <BlurIn delay={0.36}>
+              <div className={s.heroMeta}>
+                <div className={c.metaItem}>
+                  <span className={c.metaDt}>Formato</span>
+                  <span className={c.metaDd}>9 clases · 90 min</span>
+                </div>
+                <div className={c.metaItem}>
+                  <span className={c.metaDt}>Horario (ARG)</span>
+                  <span className={c.metaDd}>Lun y Mié 20 h · Sáb 18 h</span>
+                </div>
+                <div className={c.metaItem}>
+                  <span className={c.metaDt}>Inversión</span>
+                  <span className={c.metaDd}><em>Gratis</em></span>
+                </div>
               </div>
-              <div className={c.metaItem}>
-                <span className={c.metaDt}>Horario (ARG)</span>
-                <span className={c.metaDd}>Lun y Mié 20 h · Sáb 18 h</span>
+            </BlurIn>
+            <BlurIn delay={0.48}>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                <ReservaBoton id="hero" />
+                <a href="#programa" className={c.btnGhost}>
+                  Ver el programa
+                </a>
               </div>
-              <div className={c.metaItem}>
-                <span className={c.metaDt}>Inversión</span>
-                <span className={c.metaDd}><em>Gratis</em></span>
-              </div>
-            </div>
-          </BlurIn>
-          <BlurIn delay={0.46}>
-            <ProximoEpisodio />
-          </BlurIn>
-          <BlurIn delay={0.56}>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <a href="#registro" className={c.btnPrimary}>
-                Reservar mi lugar <ArrowRight size={14} />
-              </a>
-              <a href="#programa" className={c.btnGhost}>
-                Ver el programa
-              </a>
-            </div>
-            <Countdown />
-          </BlurIn>
+              <Countdown />
+            </BlurIn>
+          </HeroEscena>
         </div>
       </section>
 
@@ -120,12 +114,12 @@ export default function Temporada1Page() {
       </section>
 
       {/* ══════════════ PROGRAMA ══════════════ */}
-      <section id="programa" className={`${c.section} ${c.sectionAlt}`} style={{ scrollMarginTop: 68 }}>
+      <section id="programa" className={`${c.section} ${c.sectionAlt} ${s.programa}`} style={{ scrollMarginTop: 68 }}>
         <div className={c.inner}>
           <BlurIn className={c.sectionLockup}>
             <p className={c.kickerLabel} style={{ marginBottom: 14 }}>02 · El programa</p>
             <h2 className={c.sectionTitle}>Tres semanas.<br /><em>Nueve episodios.</em></h2>
-            <p className={c.sectionSub}>Cada episodio es una parte de la misma conversación. Tocá uno para ver el detalle.</p>
+            <p className={c.sectionSub}>Cada episodio es una parte de la misma conversación. Pasá el cursor por la temporada y tocá un episodio para abrirlo.</p>
           </BlurIn>
           <BlurIn delay={0.1}>
             <Programa />
@@ -141,10 +135,7 @@ export default function Temporada1Page() {
             <h2 className={c.sectionTitle}>Quiénes dan<br /><em>las clases.</em></h2>
             <p className={c.sectionSub}>El equipo de Areté, en vivo. Las mismas personas que entrenan todos los días sobre conversaciones reales.</p>
           </BlurIn>
-          <PosterEquipo />
-          <BlurIn delay={0.1}>
-            <DockProfes />
-          </BlurIn>
+          <Equipo />
         </div>
       </section>
 
@@ -161,6 +152,6 @@ export default function Temporada1Page() {
           </BlurIn>
         </div>
       </section>
-    </>
+    </ReservaProvider>
   );
 }

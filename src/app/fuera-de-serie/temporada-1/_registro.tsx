@@ -11,7 +11,7 @@ type Estado = 'idle' | 'enviando' | 'listo';
 const EASE = [0.16, 0.84, 0.28, 1] as const;
 
 /** Formulario de inscripción. Al enviarse, hace crossfade + blur a la confirmación. */
-export function RegistroForm() {
+export function RegistroForm({ compacto = false }: { compacto?: boolean }) {
   const [estado, setEstado] = useState<Estado>('idle');
   const [error, setError] = useState('');
   const [nombre, setNombre] = useState('');
@@ -44,7 +44,7 @@ export function RegistroForm() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className={s.formCard}>
+      <div className={compacto ? undefined : s.formCard}>
         <div className={s.xfade}>
           <AnimatePresence initial={false} mode="popLayout">
             {estado !== 'listo' ? (
