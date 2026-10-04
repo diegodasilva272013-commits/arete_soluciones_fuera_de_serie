@@ -79,6 +79,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/mi-evolucion') ||
     pathname.startsWith('/bloqueado') ||
     pathname.startsWith('/onboarding') ||
+    pathname.startsWith('/frecuencia') ||
     pathname.startsWith('/admin');
 
   if (!user && isPrivateRoute) {
@@ -127,6 +128,28 @@ export async function middleware(request: NextRequest) {
 
     const role = (profile as { role?: string } | null)?.role;
     if (role !== 'admin') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Protección extra: /frecuencia solo para los roles habilitados en
+  // knowledge_blocks (clave 'frecuencia_roles_habilitados') — lista
+  // dinámica, no hardcodeada. No alcanza con ocultar el link del
+  // sidebar: esto bloquea también la entrada por URL directa.
+  if (user && pathname.startsWith('/frecuencia')) {
+    const [{ data: profile }, { data: config }] = await Promise.all([
+      supabase.from('profiles').select('role').eq('id', user.id).maybeSingle(),
+      supabase.from('knowledge_blocks').select('valor').eq('clave', 'frecuencia_roles_habilitados').maybeSingle(),
+    ]);
+
+    const role = (profile as { role?: string } | null)?.role ?? null;
+    const configValor = (config as { valor?: unknown } | null)?.valor;
+    const habilitados = Array.isArray(configValor) ? (configValor as string[]) : ['admin', 'setter', 'closer'];
+
+    if (!role || !habilitados.includes(role)) {
       const url = request.nextUrl.clone();
       url.pathname = '/dashboard';
       url.search = '';

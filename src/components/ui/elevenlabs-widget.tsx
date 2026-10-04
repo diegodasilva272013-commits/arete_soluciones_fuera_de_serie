@@ -7,7 +7,13 @@ const DEFAULT_AGENT_ID = 'agent_0701m2fyqzbffg3v5x1s94xckhpc';
 
 type Status = 'idle' | 'connecting' | 'active' | 'error';
 
-export function ElevenLabsWidget({ agentId }: { agentId?: string } = {}) {
+type Props = {
+  agentId?: string;
+  /** Label en reposo del botón. Por defecto "Llamar a un asesor" (uso comercial). */
+  label?: string;
+};
+
+export function ElevenLabsWidget({ agentId, label = 'Llamar a un asesor' }: Props = {}) {
   const convRef = useRef<Conversation | null>(null);
   const [status, setStatus] = useState<Status>('idle');
   const resolvedId = agentId || DEFAULT_AGENT_ID;
@@ -50,7 +56,7 @@ export function ElevenLabsWidget({ agentId }: { agentId?: string } = {}) {
     <button
       onClick={handleClick}
       disabled={isBusy}
-      aria-label={isActive ? 'Colgar' : 'Llamar a un asesor'}
+      aria-label={isActive ? 'Colgar' : label}
       style={{
         position: 'fixed',
         bottom: 28,
@@ -156,7 +162,7 @@ export function ElevenLabsWidget({ agentId }: { agentId?: string } = {}) {
         {isBusy  ? 'Conectando…' :
          isActive ? 'Colgar'      :
          isError  ? 'Reintentar' :
-                    'Llamar a un asesor'}
+                    label}
       </span>
 
       <style>{`

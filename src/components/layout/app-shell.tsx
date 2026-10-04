@@ -2,12 +2,14 @@ import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { getCurrentUserContext } from '@/lib/current-user';
 import { createSupabaseAdminClient } from '@/lib/supabase-server';
+import { tieneAccesoFrecuencia } from '@/lib/frecuencia-access';
 import { PushAutoPrompt } from '@/components/push-auto-prompt';
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const ctx = await getCurrentUserContext();
   const isAdmin = ctx?.isAdmin ?? false;
   const role = ctx?.role ?? 'student';
+  const frecuenciaHabilitado = await tieneAccesoFrecuencia(ctx?.role);
 
   let newSignupsToday = 0;
   if (isAdmin) {
@@ -25,7 +27,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-brand-black">
-      <Sidebar isAdmin={isAdmin} role={role} newSignupsToday={newSignupsToday} />
+      <Sidebar isAdmin={isAdmin} role={role} newSignupsToday={newSignupsToday} frecuenciaHabilitado={frecuenciaHabilitado} />
       <div className="flex min-h-screen flex-1 flex-col">
         <Topbar isAdmin={isAdmin} role={role} newSignupsToday={newSignupsToday} />
         <main className="flex-1 px-4 py-6 lg:px-10 lg:py-8">{children}</main>

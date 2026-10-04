@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
+import { Radio } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { brand } from '@/constants/branding';
 import { BrandLogo } from '@/components/brand/brand-logo';
@@ -45,10 +46,13 @@ function Section({ label, items, pathname }: { label?: string; items: NavItem[];
 export function Sidebar({
   isAdmin = false,
   role = 'student',
+  frecuenciaHabilitado = false,
 }: {
   isAdmin?: boolean;
   role?: string;
   newSignupsToday?: number;
+  /** Visible solo para los roles habilitados en knowledge_blocks (ver frecuencia-access.ts) — no es un rol fijo. */
+  frecuenciaHabilitado?: boolean;
 }) {
   const pathname = usePathname();
   const isSetter = role === 'setter' || isAdmin;
@@ -75,6 +79,11 @@ export function Sidebar({
       </div>
 
       <nav ref={navRef} className="flex-1 space-y-0 overflow-y-auto px-3 py-4">
+        {frecuenciaHabilitado && (
+          <div className="mb-3 pb-3 border-b border-[rgba(26,111,255,0.08)]">
+            <NavLink item={{ href: '/frecuencia', label: 'Frecuencia', icon: Radio }} pathname={pathname} />
+          </div>
+        )}
         {isAdmin ? (
           /* ── ADMIN: plataforma + setter + closer + admin ────────────────── */
           <>
