@@ -51,7 +51,7 @@ export function Sidebar({
   isAdmin?: boolean;
   role?: string;
   newSignupsToday?: number;
-  /** Visible solo para los roles habilitados en knowledge_blocks (ver frecuencia-access.ts) — no es un rol fijo. */
+  /** Visible solo para los roles habilitados en frecuencia_knowledge_blocks (ver frecuencia-access.ts) — no es un rol fijo. */
   frecuenciaHabilitado?: boolean;
 }) {
   const pathname = usePathname();

@@ -136,13 +136,15 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protección extra: /frecuencia solo para los roles habilitados en
-  // knowledge_blocks (clave 'frecuencia_roles_habilitados') — lista
-  // dinámica, no hardcodeada. No alcanza con ocultar el link del
-  // sidebar: esto bloquea también la entrada por URL directa.
+  // frecuencia_knowledge_blocks (clave 'frecuencia_roles_habilitados') —
+  // lista dinámica, no hardcodeada. No alcanza con ocultar el link del
+  // sidebar: esto bloquea también la entrada por URL directa. Si la
+  // tabla no existe todavía, el fallback de abajo (no la ausencia de
+  // fila) decide — nunca un error 500 ni lista vacía.
   if (user && pathname.startsWith('/frecuencia')) {
     const [{ data: profile }, { data: config }] = await Promise.all([
       supabase.from('profiles').select('role').eq('id', user.id).maybeSingle(),
-      supabase.from('knowledge_blocks').select('valor').eq('clave', 'frecuencia_roles_habilitados').maybeSingle(),
+      supabase.from('frecuencia_knowledge_blocks').select('valor').eq('clave', 'frecuencia_roles_habilitados').maybeSingle(),
     ]);
 
     const role = (profile as { role?: string } | null)?.role ?? null;
