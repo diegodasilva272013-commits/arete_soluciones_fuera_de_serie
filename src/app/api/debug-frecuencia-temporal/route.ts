@@ -19,11 +19,18 @@ export async function GET() {
 
   const resuelto = await getFrecuenciaRolesHabilitados();
 
+  const { data: perfilDiego } = await admin
+    .from('profiles')
+    .select('id, role, email')
+    .eq('email', 'diegodasilva272013@gmail.com')
+    .maybeSingle();
+
   return NextResponse.json({
     tabla_knowledge_blocks_query: {
       data,
       error: error ? { message: error.message, code: error.code, details: error.details } : null,
     },
     roles_habilitados_resueltos_por_el_helper: resuelto,
+    perfil_diego: perfilDiego ? { role: perfilDiego.role, habilitado: resuelto.includes(perfilDiego.role) } : 'no encontrado con ese email',
   });
 }
