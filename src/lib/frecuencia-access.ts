@@ -6,29 +6,37 @@ import { createSupabaseAdminClient } from './supabase-server';
  * a 'student' más adelante es agregarlo a esa lista desde el admin,
  * sin tocar código.
  *
- * Si la tabla todavía no existe (migración no corrida) o la fila no
- * está seedeada, cae al default — nunca a lista vacía: una falla acá
- * no puede ser lo que determina quién entra, solo un piso de seguridad.
+ * FALLA CERRADA: si no se puede leer la config (tabla inexistente, fila
+ * sin seedear, cualquier error), NO hay una lista por default escrita acá
+ * — solo admin pasa, y se loguea el error para que quede visible en los
+ * logs de Vercel. Una falla de config nunca puede ampliar el acceso.
  */
-const DEFAULT_ROLES_HABILITADOS = ['admin', 'setter', 'closer'];
-
-export async function getFrecuenciaRolesHabilitados(): Promise<string[]> {
+export async function getFrecuenciaRolesHabilitados(): Promise<string[] | null> {
   try {
     const admin = createSupabaseAdminClient();
-    const { data } = await (admin as any)
+    const { data, error } = await (admin as any)
       .from('frecuencia_knowledge_blocks')
       .select('valor')
       .eq('clave', 'frecuencia_roles_habilitados')
       .maybeSingle();
+
+    if (error) {
+      console.error('[frecuencia-access] error leyendo frecuencia_knowledge_blocks — falla cerrada (solo admin):', error.message);
+      return null;
+    }
     if (Array.isArray(data?.valor)) return data.valor as string[];
-  } catch {
-    /* si frecuencia_knowledge_blocks no está disponible, cae al default */
+
+    console.error('[frecuencia-access] frecuencia_knowledge_blocks sin fila "frecuencia_roles_habilitados" — falla cerrada (solo admin)');
+    return null;
+  } catch (err) {
+    console.error('[frecuencia-access] excepción leyendo config — falla cerrada (solo admin):', err);
+    return null;
   }
-  return DEFAULT_ROLES_HABILITADOS;
 }
 
 export async function tieneAccesoFrecuencia(role: string | null | undefined): Promise<boolean> {
   if (!role) return false;
   const habilitados = await getFrecuenciaRolesHabilitados();
+  if (habilitados === null) return role === 'admin'; // falla cerrada
   return habilitados.includes(role);
 }

@@ -138,20 +138,30 @@ export async function middleware(request: NextRequest) {
   // Protección extra: /frecuencia solo para los roles habilitados en
   // frecuencia_knowledge_blocks (clave 'frecuencia_roles_habilitados') —
   // lista dinámica, no hardcodeada. No alcanza con ocultar el link del
-  // sidebar: esto bloquea también la entrada por URL directa. Si la
-  // tabla no existe todavía, el fallback de abajo (no la ausencia de
-  // fila) decide — nunca un error 500 ni lista vacía.
+  // sidebar: esto bloquea también la entrada por URL directa.
+  // FALLA CERRADA: si no se puede leer la config, no hay una lista por
+  // default escrita acá — solo admin pasa, y se loguea el error.
   if (user && pathname.startsWith('/frecuencia')) {
-    const [{ data: profile }, { data: config }] = await Promise.all([
+    const [{ data: profile }, { data: config, error: configError }] = await Promise.all([
       supabase.from('profiles').select('role').eq('id', user.id).maybeSingle(),
       supabase.from('frecuencia_knowledge_blocks').select('valor').eq('clave', 'frecuencia_roles_habilitados').maybeSingle(),
     ]);
 
     const role = (profile as { role?: string } | null)?.role ?? null;
     const configValor = (config as { valor?: unknown } | null)?.valor;
-    const habilitados = Array.isArray(configValor) ? (configValor as string[]) : ['admin', 'setter', 'closer'];
 
-    if (!role || !habilitados.includes(role)) {
+    let habilitados: string[] | null = null;
+    if (configError) {
+      console.error('[middleware/frecuencia] error leyendo frecuencia_knowledge_blocks — falla cerrada (solo admin):', configError.message);
+    } else if (Array.isArray(configValor)) {
+      habilitados = configValor as string[];
+    } else {
+      console.error('[middleware/frecuencia] frecuencia_knowledge_blocks sin fila "frecuencia_roles_habilitados" — falla cerrada (solo admin)');
+    }
+
+    const permitido = habilitados ? !!role && habilitados.includes(role) : role === 'admin';
+
+    if (!permitido) {
       const url = request.nextUrl.clone();
       url.pathname = '/dashboard';
       url.search = '';
