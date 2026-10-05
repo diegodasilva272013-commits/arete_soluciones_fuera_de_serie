@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Radio } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { brand } from '@/constants/branding';
 import { BrandLogo } from '@/components/brand/brand-logo';
+import { createSupabaseBrowserClient } from '@/lib/supabase-client';
 import { PLATFORM_NAV, SETTER_NAV, ADMIN_NAV, CLOSER_NAV, type NavItem } from './nav-items';
 
 function NavLink({ item, pathname, onClose }: { item: NavItem; pathname: string; onClose: () => void }) {
@@ -53,11 +54,50 @@ export function MobileNav({
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [frecuenciaHabilitado, setFrecuenciaHabilitado] = useState(false);
   const pathname = usePathname();
   const isSetter = role === 'setter' || isAdmin;
   const isCloser = role === 'closer';
 
   useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    // MobileNav vive dentro de Topbar (no se toca) y es un componente
+    // aparte de Sidebar, así que no recibe frecuenciaHabilitado por
+    // prop. frecuencia_knowledge_blocks ya es legible por cualquier
+    // autenticado (ver migración 0078), así que lo resolvemos acá,
+    // con la misma regla de "falla cerrada: solo admin" que
+    // frecuencia-access.ts y middleware.ts.
+    let cancelado = false;
+    (async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data, error } = await supabase
+          .from('frecuencia_knowledge_blocks')
+          .select('valor')
+          .eq('clave', 'frecuencia_roles_habilitados')
+          .maybeSingle();
+        if (cancelado) return;
+        if (error) {
+          console.error('[mobile-nav/frecuencia] error leyendo config — falla cerrada (solo admin):', error.message);
+          setFrecuenciaHabilitado(role === 'admin' || isAdmin);
+          return;
+        }
+        const lista = (data as { valor?: unknown } | null)?.valor;
+        if (Array.isArray(lista)) {
+          setFrecuenciaHabilitado(isAdmin || lista.includes(role));
+        } else {
+          console.error('[mobile-nav/frecuencia] config sin fila "frecuencia_roles_habilitados" — falla cerrada (solo admin)');
+          setFrecuenciaHabilitado(role === 'admin' || isAdmin);
+        }
+      } catch (err) {
+        if (!cancelado) {
+          console.error('[mobile-nav/frecuencia] excepción leyendo config — falla cerrada (solo admin):', err);
+          setFrecuenciaHabilitado(role === 'admin' || isAdmin);
+        }
+      }
+    })();
+    return () => { cancelado = true; };
+  }, [role, isAdmin]);
   useEffect(() => {
     if (open) {
       const prev = document.body.style.overflow;
@@ -111,6 +151,15 @@ export function MobileNav({
 
             {/* Nav */}
             <nav className="mt-4 flex-1 space-y-0 overflow-y-auto pr-1">
+              {frecuenciaHabilitado && (
+                <div className="mb-3 pb-3 border-b border-[rgba(26,111,255,0.08)]">
+                  <NavLink
+                    item={{ href: '/frecuencia', label: 'Frecuencia', icon: Radio }}
+                    pathname={pathname}
+                    onClose={() => setOpen(false)}
+                  />
+                </div>
+              )}
               {isAdmin ? (
                 <>
                   <Section items={PLATFORM_NAV} pathname={pathname} onClose={() => setOpen(false)} />
