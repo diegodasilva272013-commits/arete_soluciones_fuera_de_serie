@@ -19,6 +19,19 @@ export async function GET(req: NextRequest) {
   }
 
   const admin = createSupabaseAdminClient() as any;
+  const accion = req.nextUrl.searchParams.get('accion');
+
+  if (accion === 'limpiar_residuo') {
+    const resultados = [];
+    for (const dominio of PATRONES_TEST) {
+      const { error, count } = await admin
+        .from('personas')
+        .delete({ count: 'exact' })
+        .like('email', `%@${dominio}`);
+      resultados.push({ dominio, borradas: count ?? 0, error: error?.message });
+    }
+    return NextResponse.json({ resultados });
+  }
 
   // ── 1. Residuo en personas, profiles, notifications ────────────────
   const residuo: Record<string, unknown> = {};
