@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Montserrat, Spectral, JetBrains_Mono } from 'next/font/google';
 import { getCurrentUserContext } from '@/lib/current-user';
 import { tieneAccesoFrecuencia } from '@/lib/frecuencia-access';
-import { Dock } from './_dock';
+import { ContenidoConDock } from './_contenido-con-dock';
 
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['500', '700', '800', '900'], variable: '--f-display', display: 'swap' });
 const spectral = Spectral({ subsets: ['latin'], weight: ['300', '400', '600'], style: ['normal', 'italic'], variable: '--f-texto', display: 'swap' });
@@ -28,8 +28,7 @@ export default async function FrecuenciaLayout({ children }: { children: React.R
     <div
       className={`${montserrat.variable} ${spectral.variable} ${mono.variable} -m-4 -mt-6 min-h-screen bg-[#050505] text-[#F2EFE9] lg:-m-10 lg:-mt-8`}
     >
-      {children}
-      <Dock />
+      <ContenidoConDock>{children}</ContenidoConDock>
     </div>
   );
 }

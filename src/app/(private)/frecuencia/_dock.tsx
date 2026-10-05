@@ -12,6 +12,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { copy } from './_copy';
+import { dockVisibleEnRuta } from './_dock-visibilidad';
 import s from './frecuencia.module.css';
 
 const ITEMS = [
@@ -24,7 +25,7 @@ const ITEMS = [
 export function Dock() {
   const pathname = usePathname();
 
-  if (pathname?.startsWith('/frecuencia/onboarding')) return null;
+  if (!dockVisibleEnRuta(pathname)) return null;
 
   return (
     <div className={s.dockWrap}>
