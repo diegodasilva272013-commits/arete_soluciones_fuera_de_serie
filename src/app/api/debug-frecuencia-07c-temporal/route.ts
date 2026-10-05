@@ -28,10 +28,11 @@ export async function GET(req: NextRequest) {
 
   for (const tabla of TABLAS) {
     const def = spec?.definitions?.[tabla];
-    const columnas = def?.properties ? Object.keys(def.properties).length : -1;
+    const nombresColumnas = def?.properties ? Object.keys(def.properties) : [];
+    const columnas = nombresColumnas.length || -1;
 
     const { count, error } = await admin.from(tabla).select('*', { count: 'exact', head: true });
-    resultado[tabla] = { columnas, filas: count ?? null, error: error?.message };
+    resultado[tabla] = { columnas, nombresColumnas, filas: count ?? null, error: error?.message };
   }
 
   return NextResponse.json(resultado);
