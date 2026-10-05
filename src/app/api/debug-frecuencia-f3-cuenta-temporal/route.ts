@@ -29,6 +29,22 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ borrado: !error, error: error?.message });
   }
 
+  if (accion === 'reiniciar') {
+    if (!existente) return NextResponse.json({ error: 'no existe la cuenta de prueba' }, { status: 404 });
+    const tablas = [
+      'frecuencia_delegaciones', 'frecuencia_imagenes', 'frecuencia_evidencia', 'frecuencia_bloques',
+      'frecuencia_criterios', 'frecuencia_tareas', 'frecuencia_objetivos', 'frecuencia_ideas',
+      'frecuencia_revisiones', 'frecuencia_compromisos', 'frecuencia_dial', 'frecuencia_espejo',
+      'frecuencia_mapa_energia', 'frecuencia_areas', 'frecuencia_identidad', 'frecuencia_preferencias',
+      'frecuencia_equipo_miembros', 'frecuencia_equipos',
+    ];
+    for (const t of tablas) {
+      await admin.from(t).delete().eq('user_id', existente.id);
+      await admin.from(t).delete().eq('lider_id', existente.id);
+    }
+    return NextResponse.json({ reiniciado: true });
+  }
+
   if (accion === 'verificar') {
     if (!existente) return NextResponse.json({ error: 'no existe la cuenta de prueba' }, { status: 404 });
     const anon = createClient(env.supabase.url, env.supabase.anonKey);
