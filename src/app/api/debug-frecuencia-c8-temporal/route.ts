@@ -49,6 +49,16 @@ async function limpiarDatosDeTest(admin: any, userIds: string[]) {
   await admin.from('frecuencia_espejo').delete().in('user_id', userIds);
   await admin.from('frecuencia_equipo_miembros').delete().in('user_id', userIds);
   await admin.from('frecuencia_equipos').delete().in('lider_id', userIds);
+  // Efecto colateral de un trigger de OTRO subsistema (Motor de
+  // Evolución, migración 0036): poner role='setter' crea una fila en
+  // `personas` con ON CONFLICT (user_id) DO NOTHING — no está
+  // deduplicado por email. Si no se borra acá, la próxima corrida crea
+  // un usuario nuevo con el mismo email de prueba y choca contra
+  // `personas_email_key` (fila huérfana de la corrida anterior), y el
+  // UPDATE de role completo para esa fila. Se borra por dominio de
+  // email de prueba, no por user_id, porque la fila puede haber
+  // quedado huérfana tras borrar la cuenta de Auth.
+  await admin.from('personas').delete().like('email', `%@${DOMINIO_TEST}`);
   for (const uid of userIds) {
     const { data: files } = await admin.storage.from(BUCKET).list(uid);
     if (files?.length) {
