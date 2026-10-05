@@ -62,6 +62,7 @@ export function Dial({
   // x del handle en px, 0 = extremo izquierdo de la pista.
   const x = useMotionValue(0);
   const [anchoPista, setAnchoPista] = useState(0);
+  const arrastrandoRef = useRef(false);
 
   useEffect(() => {
     const el = pistaRef.current;
@@ -74,9 +75,12 @@ export function Dial({
   }, []);
 
   // Posiciona el handle según `valor` cuando cambia el ancho medido o
-  // al montar (no durante el arrastre, ahí manda el puntero).
+  // al montar. Nunca mientras se está arrastrando: si el ancho de la
+  // pista se recalcula en pleno arrastre (por ejemplo, un reflow al
+  // terminar de cargar una fuente web), este efecto no debe pelearse
+  // con el puntero y tirar la aguja de vuelta a su posición vieja.
   useEffect(() => {
-    if (anchoPista <= 0) return;
+    if (anchoPista <= 0 || arrastrandoRef.current) return;
     const px = ((valor + 100) / 200) * anchoPista;
     x.set(px);
   }, [anchoPista]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -172,11 +176,15 @@ export function Dial({
           dragElastic={0.04}
           dragMomentum={!prefiereReducido}
           dragTransition={{ power: 0.1, timeConstant: 300, bounceStiffness: 500, bounceDamping: 50 }}
+          onDragStart={() => { arrastrandoRef.current = true; }}
           onDrag={() => actualizarValorDesdeX(x.get())}
           onDragEnd={() => {
             // Deja que la inercia termine y vuelve a leer la posición final.
             const id = setInterval(() => actualizarValorDesdeX(x.get()), 16);
-            setTimeout(() => clearInterval(id), 900);
+            setTimeout(() => {
+              clearInterval(id);
+              arrastrandoRef.current = false;
+            }, 900);
           }}
           role="slider"
           aria-label={copy.dial.kicker}
