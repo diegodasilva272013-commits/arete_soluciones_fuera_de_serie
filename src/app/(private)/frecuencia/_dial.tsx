@@ -90,9 +90,11 @@ export function Dial({
     [anchoPista]
   );
 
-  const abundancia = clamp(valor / 100, 0, 1);
-  const escasez = clamp(-valor / 100, 0, 1);
   const enAbundancia = valor >= 0;
+  // Piso de 0.25 para que la escena nunca quede vacía justo en el
+  // límite (valor = 0) — sin esto, las dos capas daban opacity 0 ahí.
+  const abundancia = enAbundancia ? 0.25 + 0.75 * clamp(valor / 100, 0, 1) : 0;
+  const escasez = !enAbundancia ? 0.25 + 0.75 * clamp(-valor / 100, 0, 1) : 0;
 
   const energiasOrdenPath = useMemo(() => {
     // Onda simple, semilla fija (no aleatoria en cada render).
