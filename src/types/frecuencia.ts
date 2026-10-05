@@ -1,0 +1,148 @@
+/**
+ * Tipos de las tablas frecuencia_* — no están en src/types/database.ts
+ * (migración manual 0078, nunca pasó por generación automática). Las
+ * consultas a estas tablas van con `(supabase as any)`, mismo patrón
+ * que el resto del repo para tablas sin tipo generado.
+ */
+
+export interface FrecuenciaIdentidad {
+  user_id: string;
+  quien_creia_ser: string | null;
+  quien_soy: string | null;
+  como_me_ven: string | null;
+  quien_quiero_ser: string | null;
+  no_negociables: string[];
+  estandar_minimo: string[];
+  updated_at: string;
+}
+
+export interface FrecuenciaPreferencias {
+  user_id: string;
+  timezone: string;
+  hora_despertar: string | null; // "HH:MM:SS"
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FrecuenciaFranja {
+  tipo: 'profundo' | 'decision' | 'creativo';
+  respuesta: string;
+}
+
+export interface FrecuenciaMapaEnergia {
+  id: string;
+  user_id: string;
+  franjas: FrecuenciaFranja[];
+  fecha_diagnostico: string;
+  proximo_rediagnostico: string | null;
+  created_at: string;
+}
+
+export interface FrecuenciaDial {
+  id: string;
+  user_id: string;
+  fecha: string; // date
+  momento: 'manana' | 'noche';
+  frecuencia: number; // -100..100
+  energias_escasez: Record<string, number>;
+  acciones_subida: string[];
+  created_at: string;
+}
+
+export interface FrecuenciaEspejo {
+  id: string;
+  user_id: string;
+  fecha: string;
+  momento: 'manana' | 'noche';
+  como_me_veo: string | null;
+  como_me_percibo: string | null;
+  como_me_siento: string | null;
+  foto_storage_path: string | null;
+  vestimenta_manana: string | null;
+  created_at: string;
+}
+
+export interface FrecuenciaArea {
+  id: string;
+  user_id: string;
+  area_key: string;
+  nivel_actual: number; // 0..10
+  es_palanca: boolean;
+  es_manzana_podrida: boolean;
+  updated_at: string;
+}
+
+export interface FrecuenciaObjetivo {
+  id: string;
+  user_id: string;
+  titulo: string;
+  imagen_mental: string | null;
+  area_key: string | null;
+  fecha_limite: string | null;
+  identidad_que_expresa: string | null;
+  metas_por_periodo: unknown[];
+  created_at: string;
+  updated_at: string;
+}
+
+// ── Formas de frecuencia_knowledge_blocks relevantes a esta fase ──────
+
+export interface AreaVida {
+  key: string;
+  nombre: string;
+}
+
+export interface AreasReglas {
+  palanca: string;
+  manzana_podrida: string;
+  contagio_rapido: string[];
+}
+
+export interface EnergiaEscasez {
+  key: string;
+  nombre: string;
+}
+
+export interface MapaEnergiaDefault {
+  regla: string;
+  relativo_a: string;
+  rediagnosticar: string;
+}
+
+export interface PreguntaConClave {
+  key: string;
+  pregunta: string;
+}
+
+export interface PreguntasOnboarding {
+  dial: { pregunta: string };
+  identidad: PreguntaConClave[];
+  no_negociables: { pregunta: string; ayuda: string };
+  estandar_minimo: { pregunta: string; ayuda: string };
+  ecualizador: { pregunta: string; palanca: string; manzana_podrida: string };
+  energia: PreguntaConClave[];
+  espejo: PreguntaConClave[];
+  objetivo: PreguntaConClave[];
+  sin_proposito: { pregunta: string };
+}
+
+export type PasoOnboarding =
+  | 'dial'
+  | 'identidad'
+  | 'no_negociables'
+  | 'ecualizador'
+  | 'energia'
+  | 'espejo'
+  | 'objetivo'
+  | 'completo';
+
+export const ORDEN_PASOS: PasoOnboarding[] = [
+  'dial',
+  'identidad',
+  'no_negociables',
+  'ecualizador',
+  'energia',
+  'espejo',
+  'objetivo',
+  'completo',
+];
