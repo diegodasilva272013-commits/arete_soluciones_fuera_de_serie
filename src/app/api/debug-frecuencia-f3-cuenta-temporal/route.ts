@@ -64,6 +64,11 @@ export async function GET(req: NextRequest) {
   }
 
   // crear
+  // Limpiar antes cualquier fila huérfana en `personas` (trigger de
+  // otro subsistema, migración 0036, deduplicado solo por user_id, no
+  // por email) — si no, poner role='setter' choca contra
+  // personas_email_key en cuentas reusadas entre corridas.
+  await admin.from('personas').delete().eq('email', EMAIL);
   let user = existente;
   if (!user) {
     const { data, error } = await admin.auth.admin.createUser({
