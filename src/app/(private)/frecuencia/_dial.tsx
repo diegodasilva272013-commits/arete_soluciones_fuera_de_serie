@@ -171,7 +171,7 @@ export function Dial({
           dragConstraints={pistaRef}
           dragElastic={0.04}
           dragMomentum={!prefiereReducido}
-          dragTransition={{ power: 0.25, timeConstant: 180, bounceStiffness: 400, bounceDamping: 40 }}
+          dragTransition={{ power: 0.1, timeConstant: 300, bounceStiffness: 500, bounceDamping: 50 }}
           onDrag={() => actualizarValorDesdeX(x.get())}
           onDragEnd={() => {
             // Deja que la inercia termine y vuelve a leer la posición final.
