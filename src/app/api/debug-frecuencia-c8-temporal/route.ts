@@ -76,6 +76,11 @@ export async function GET(req: NextRequest) {
   const resultados: Resultado[] = [];
   const push = (paso: string, ok: boolean, detalle?: unknown) => resultados.push({ paso, ok, detalle });
 
+  // Limpieza de "personas" ANTES de tocar roles — ver el comentario en
+  // limpiarDatosDeTest(). Tiene que correr antes del loop de abajo,
+  // porque ahí es donde se pone role='setter' y choca si no se hizo.
+  await admin.from('personas').delete().like('email', `%@${DOMINIO_TEST}`);
+
   // ── 1. Crear/recuperar usuarios de prueba vía Auth (idempotente) ───
   const cuentas = [
     { key: 'setter',  email: `frecuencia-test-setter@${DOMINIO_TEST}`,  role: 'setter' },
