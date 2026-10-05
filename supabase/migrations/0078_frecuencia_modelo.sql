@@ -1,171 +1,127 @@
 -- =====================================================================
--- 0078 · Frecuencia — modelo de datos completo (v2, reemplaza la v1
--- que nunca se corrió).
+-- 0078 · Frecuencia — modelo de datos completo (v6, reemplaza v1-v5,
+-- ninguna de las cinco se corrió).
 --
--- Todo prefijado frecuencia_. Cero referencias a objetos existentes de
--- la plataforma salvo: FK de lectura hacia profiles(id)/auth.users(id),
--- y una lectura de profiles.role desde el middleware (no se modifica
--- profiles). setter_teams NO se usa — Frecuencia tiene su propio
--- concepto de equipo (frecuencia_equipos / frecuencia_equipo_miembros).
+-- NOTA (bucket): storage.buckets está protegido en producción contra
+-- INSERT/DELETE directo por SQL (triggers protect_bucket_control_insert
+-- / protect_buckets_delete, confirmado por consulta de Diego). El
+-- bucket 'frecuencia-imagenes' se crea con la Storage API, en
+-- scripts/frecuencia-bucket.mjs, DESPUÉS de correr esta migración —
+-- nunca con INSERT. Las 3 CREATE POLICY de storage.objects que siguen
+-- no necesitan que el bucket ya exista (solo comparan bucket_id como
+-- texto), así que se quedan acá sin problema.
 --
--- Sin CREATE TABLE IF NOT EXISTS a propósito: si algo con este nombre
--- ya existe, esta migración tiene que fallar, no seguir en silencio.
--- Todo envuelto en una sola transacción: si algo falla, no queda nada
--- a medias.
+-- NOTA (compañeros de equipo): no se creó frecuencia_companeros() —
+-- public.profiles ya tiene la policy "profiles_select_all_authenticated"
+-- (0001_init.sql), que deja leer nombre/rol de cualquier perfil a todo
+-- autenticado. No hacía falta una función nueva ni tocar profiles.
+--
+-- Orden del archivo (fuerza de Postgres: CREATE FUNCTION LANGUAGE sql y
+-- CREATE POLICY se analizan al crearse, no al ejecutarse — toda tabla o
+-- función referenciada tiene que existir ANTES):
+--   a) CREATE TABLE (todas, sin RLS ni políticas).
+--   b) CREATE FUNCTION (todas: RLS, avance de compromiso, triggers,
+--      updated_at), con sus REVOKE/GRANT.
+--   c) ENABLE ROW LEVEL SECURITY + REVOKE ALL ... FROM anon + CREATE
+--      POLICY, tabla por tabla.
+--   d) CREATE TRIGGER, índices, storage, seed.
+--
+-- Todo calificado con public. explícito. Todo prefijado frecuencia_.
+-- Cero referencias a objetos existentes salvo FK de lectura hacia
+-- public.profiles(id) y lectura de profiles.role. setter_teams NO se
+-- usa. Sin CREATE TABLE IF NOT EXISTS: si algo ya existe, esto falla.
+-- Todo en una transacción.
+--
+-- NOTA TÉCNICA (SELECT version();): no tengo forma de ejecutarlo yo
+-- mismo — no hay conexión directa a Postgres, solo la API de
+-- PostgREST, que no expone version() como RPC. Por eso ningún "borrar
+-- padre desvincula hijo" usa ON DELETE SET NULL (columna) (eso pide
+-- Postgres 15+): todos son triggers propios, que funcionan en
+-- cualquier versión.
 -- =====================================================================
 
 BEGIN;
 
 -- =====================================================================
--- 1. CONFIG / CONTENIDO DEL MÉTODO
+-- a) TABLAS
 -- =====================================================================
 
-CREATE TABLE frecuencia_knowledge_blocks (
+CREATE TABLE public.frecuencia_knowledge_blocks (
   id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   clave       text        NOT NULL UNIQUE,
   valor       jsonb       NOT NULL,
   updated_at  timestamptz NOT NULL DEFAULT now()
 );
 
-ALTER TABLE frecuencia_knowledge_blocks ENABLE ROW LEVEL SECURITY;
-
--- Lectura: cualquier autenticado (la UI la necesita para labels, reglas,
--- etc.). Escritura: solo admin.
-CREATE POLICY frecuencia_knowledge_blocks_select ON frecuencia_knowledge_blocks
-  FOR SELECT USING (auth.uid() IS NOT NULL);
-
-CREATE POLICY frecuencia_knowledge_blocks_admin_write ON frecuencia_knowledge_blocks
-  FOR ALL USING (public.is_admin(auth.uid())) WITH CHECK (public.is_admin(auth.uid()));
-
--- =====================================================================
--- 2. PREFERENCIAS (zona horaria y hora de despertar — se preguntan en
---    el onboarding; ninguna tabla usa CURRENT_DATE del servidor para
---    "fecha", la calcula la app con esto)
--- =====================================================================
-
-CREATE TABLE frecuencia_preferencias (
-  user_id       uuid PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
-  timezone      text NOT NULL DEFAULT 'America/Argentina/Buenos_Aires',
-  hora_despertar time, -- null hasta que el onboarding la pida
-  created_at    timestamptz NOT NULL DEFAULT now(),
-  updated_at    timestamptz NOT NULL DEFAULT now()
+CREATE TABLE public.frecuencia_preferencias (
+  user_id        uuid PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
+  timezone       text NOT NULL DEFAULT 'America/Argentina/Buenos_Aires',
+  hora_despertar time,
+  created_at     timestamptz NOT NULL DEFAULT now(),
+  updated_at     timestamptz NOT NULL DEFAULT now()
 );
 
-ALTER TABLE frecuencia_preferencias ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY frecuencia_preferencias_own ON frecuencia_preferencias
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-
-CREATE POLICY frecuencia_preferencias_admin_select ON frecuencia_preferencias
-  FOR SELECT USING (public.is_admin(auth.uid()));
-
--- =====================================================================
--- 3. EQUIPOS PROPIOS DE FRECUENCIA (no setter_teams)
--- =====================================================================
-
-CREATE TABLE frecuencia_equipos (
+CREATE TABLE public.frecuencia_equipos (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   nombre      text NOT NULL,
   lider_id    uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   created_at  timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE frecuencia_equipo_miembros (
-  equipo_id       uuid NOT NULL REFERENCES frecuencia_equipos(id) ON DELETE CASCADE,
-  user_id         uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  rol_en_equipo   text,
-  created_at      timestamptz NOT NULL DEFAULT now(),
+CREATE TABLE public.frecuencia_equipo_miembros (
+  equipo_id      uuid NOT NULL REFERENCES public.frecuencia_equipos(id) ON DELETE CASCADE,
+  user_id        uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  rol_en_equipo  text,
+  created_at     timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (equipo_id, user_id)
 );
 
-ALTER TABLE frecuencia_equipos         ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_equipo_miembros ENABLE ROW LEVEL SECURITY;
-
--- Equipos: el líder ve y administra el suyo; un miembro ve el equipo
--- del que es parte (solo lectura); admin ve y administra todos.
-CREATE POLICY frecuencia_equipos_select ON frecuencia_equipos
-  FOR SELECT USING (
-    lider_id = auth.uid()
-    OR EXISTS (SELECT 1 FROM frecuencia_equipo_miembros m WHERE m.equipo_id = id AND m.user_id = auth.uid())
-    OR public.is_admin(auth.uid())
-  );
-CREATE POLICY frecuencia_equipos_write ON frecuencia_equipos
-  FOR INSERT WITH CHECK (lider_id = auth.uid() OR public.is_admin(auth.uid()));
-CREATE POLICY frecuencia_equipos_update ON frecuencia_equipos
-  FOR UPDATE USING (lider_id = auth.uid() OR public.is_admin(auth.uid()))
-  WITH CHECK (lider_id = auth.uid() OR public.is_admin(auth.uid()));
-CREATE POLICY frecuencia_equipos_delete ON frecuencia_equipos
-  FOR DELETE USING (lider_id = auth.uid() OR public.is_admin(auth.uid()));
-
--- Miembros: el propio miembro se ve a sí mismo; el líder del equipo ve
--- y administra la lista; admin ve y administra todo.
-CREATE POLICY frecuencia_equipo_miembros_select ON frecuencia_equipo_miembros
-  FOR SELECT USING (
-    user_id = auth.uid()
-    OR EXISTS (SELECT 1 FROM frecuencia_equipos e WHERE e.id = equipo_id AND e.lider_id = auth.uid())
-    OR public.is_admin(auth.uid())
-  );
-CREATE POLICY frecuencia_equipo_miembros_write ON frecuencia_equipo_miembros
-  FOR INSERT WITH CHECK (
-    EXISTS (SELECT 1 FROM frecuencia_equipos e WHERE e.id = equipo_id AND e.lider_id = auth.uid())
-    OR public.is_admin(auth.uid())
-  );
-CREATE POLICY frecuencia_equipo_miembros_delete ON frecuencia_equipo_miembros
-  FOR DELETE USING (
-    EXISTS (SELECT 1 FROM frecuencia_equipos e WHERE e.id = equipo_id AND e.lider_id = auth.uid())
-    OR public.is_admin(auth.uid())
-  );
-
--- =====================================================================
--- 4. ÍNTIMO — SOLO EL DUEÑO, SIN EXCEPCIÓN DE ADMIN NI DE LÍDER
--- =====================================================================
-
-CREATE TABLE frecuencia_identidad (
-  user_id             uuid PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
-  quien_creia_ser     text,
-  quien_soy           text,
-  como_me_ven         text,
-  quien_quiero_ser    text,
-  no_negociables      jsonb NOT NULL DEFAULT '[]'::jsonb,
-  estandar_minimo     jsonb NOT NULL DEFAULT '[]'::jsonb,
-  updated_at          timestamptz NOT NULL DEFAULT now()
+CREATE TABLE public.frecuencia_identidad (
+  user_id           uuid PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
+  quien_creia_ser   text,
+  quien_soy         text,
+  como_me_ven       text,
+  quien_quiero_ser  text,
+  no_negociables    jsonb NOT NULL DEFAULT '[]'::jsonb,
+  estandar_minimo   jsonb NOT NULL DEFAULT '[]'::jsonb,
+  updated_at        timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE frecuencia_mapa_energia (
-  id                      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id                 uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  franjas                 jsonb NOT NULL DEFAULT '[]'::jsonb, -- [{offset_desde_horas, offset_hasta_horas, tipo}] relativas a hora_despertar
-  fecha_diagnostico       timestamptz NOT NULL,
-  proximo_rediagnostico   timestamptz,
-  created_at              timestamptz NOT NULL DEFAULT now()
+CREATE TABLE public.frecuencia_mapa_energia (
+  id                     uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id                uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  franjas                jsonb NOT NULL DEFAULT '[]'::jsonb,
+  fecha_diagnostico      timestamptz NOT NULL,
+  proximo_rediagnostico  timestamptz,
+  created_at             timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE frecuencia_dial (
-  id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id             uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  fecha               date NOT NULL, -- la calcula la app en la timezone del usuario, nunca CURRENT_DATE
-  momento             text NOT NULL CHECK (momento IN ('manana', 'noche')),
-  frecuencia          int NOT NULL CHECK (frecuencia BETWEEN -100 AND 100),
-  energias_escasez    jsonb NOT NULL DEFAULT '{}'::jsonb,
-  acciones_subida     jsonb NOT NULL DEFAULT '[]'::jsonb,
-  created_at          timestamptz NOT NULL DEFAULT now(),
+CREATE TABLE public.frecuencia_dial (
+  id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id            uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  fecha              date NOT NULL,
+  momento            text NOT NULL CHECK (momento IN ('manana', 'noche')),
+  frecuencia         int NOT NULL CHECK (frecuencia BETWEEN -100 AND 100),
+  energias_escasez   jsonb NOT NULL DEFAULT '{}'::jsonb,
+  acciones_subida    jsonb NOT NULL DEFAULT '[]'::jsonb,
+  created_at         timestamptz NOT NULL DEFAULT now(),
   UNIQUE (user_id, fecha, momento)
 );
 
-CREATE TABLE frecuencia_espejo (
-  id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id             uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  fecha               date NOT NULL, -- idem: calculada por la app, no CURRENT_DATE
-  momento             text NOT NULL CHECK (momento IN ('manana', 'noche')),
-  como_me_veo         text,
-  como_me_percibo     text,
-  como_me_siento      text,
-  foto_storage_path   text, -- ruta dentro del bucket privado frecuencia-imagenes, no una URL pública
-  vestimenta_manana   text,
-  created_at          timestamptz NOT NULL DEFAULT now()
+CREATE TABLE public.frecuencia_espejo (
+  id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id            uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  fecha              date NOT NULL,
+  momento            text NOT NULL CHECK (momento IN ('manana', 'noche')),
+  como_me_veo        text,
+  como_me_percibo    text,
+  como_me_siento     text,
+  foto_storage_path  text,
+  vestimenta_manana  text,
+  created_at         timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE frecuencia_conversaciones (
+CREATE TABLE public.frecuencia_conversaciones (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   canal       text NOT NULL CHECK (canal IN ('texto', 'voz')),
@@ -173,53 +129,21 @@ CREATE TABLE frecuencia_conversaciones (
   UNIQUE (id, user_id)
 );
 
-CREATE TABLE frecuencia_mensajes (
-  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  conversacion_id   uuid NOT NULL,
-  user_id           uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  rol               text NOT NULL CHECK (rol IN ('user', 'assistant', 'system', 'tool')),
-  contenido         text NOT NULL,
-  modelo            text,
-  created_at        timestamptz NOT NULL DEFAULT now(),
-  FOREIGN KEY (conversacion_id, user_id) REFERENCES frecuencia_conversaciones (id, user_id) ON DELETE CASCADE
+CREATE TABLE public.frecuencia_mensajes (
+  id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversacion_id  uuid NOT NULL,
+  user_id          uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  rol              text NOT NULL CHECK (rol IN ('user', 'assistant', 'system', 'tool')),
+  contenido        text NOT NULL,
+  modelo           text,
+  created_at       timestamptz NOT NULL DEFAULT now(),
+  FOREIGN KEY (conversacion_id, user_id) REFERENCES public.frecuencia_conversaciones (id, user_id) ON DELETE CASCADE
 );
 
-ALTER TABLE frecuencia_identidad      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_mapa_energia   ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_dial           ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_espejo         ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_conversaciones ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_mensajes       ENABLE ROW LEVEL SECURITY;
-
--- Sin OR public.is_admin(...) en ninguna de estas seis. A propósito.
-CREATE POLICY frecuencia_identidad_own ON frecuencia_identidad
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-
-CREATE POLICY frecuencia_mapa_energia_own ON frecuencia_mapa_energia
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-
-CREATE POLICY frecuencia_dial_own ON frecuencia_dial
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-
-CREATE POLICY frecuencia_espejo_own ON frecuencia_espejo
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-
-CREATE POLICY frecuencia_conversaciones_own ON frecuencia_conversaciones
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-
-CREATE POLICY frecuencia_mensajes_own ON frecuencia_mensajes
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-
--- =====================================================================
--- 5. ÁREAS, OBJETIVOS, TAREAS, BLOQUES, EVIDENCIA, IDEAS
---    (dueño siempre; admin SOLO lectura, nunca escribe filas ajenas;
---    bloques/evidencia suman lectura del líder de equipo)
--- =====================================================================
-
-CREATE TABLE frecuencia_areas (
+CREATE TABLE public.frecuencia_areas (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id             uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  area_key            text NOT NULL, -- matchea una key de frecuencia_knowledge_blocks['areas_vida']
+  area_key            text NOT NULL,
   nivel_actual        int  NOT NULL DEFAULT 0 CHECK (nivel_actual BETWEEN 0 AND 10),
   es_palanca          boolean NOT NULL DEFAULT false,
   es_manzana_podrida  boolean NOT NULL DEFAULT false,
@@ -227,21 +151,21 @@ CREATE TABLE frecuencia_areas (
   UNIQUE (user_id, area_key)
 );
 
-CREATE TABLE frecuencia_objetivos (
-  id                       uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id                  uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  titulo                   text NOT NULL,
-  imagen_mental            text,
-  area_key                 text,
-  fecha_limite             date,
-  identidad_que_expresa    text,
-  metas_por_periodo        jsonb NOT NULL DEFAULT '[]'::jsonb,
-  created_at               timestamptz NOT NULL DEFAULT now(),
-  updated_at               timestamptz NOT NULL DEFAULT now(),
+CREATE TABLE public.frecuencia_objetivos (
+  id                     uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id                uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  titulo                 text NOT NULL,
+  imagen_mental          text,
+  area_key               text,
+  fecha_limite           date,
+  identidad_que_expresa  text,
+  metas_por_periodo      jsonb NOT NULL DEFAULT '[]'::jsonb,
+  created_at             timestamptz NOT NULL DEFAULT now(),
+  updated_at             timestamptz NOT NULL DEFAULT now(),
   UNIQUE (id, user_id)
 );
 
-CREATE TABLE frecuencia_tareas (
+CREATE TABLE public.frecuencia_tareas (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id           uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   objetivo_id       uuid,
@@ -257,26 +181,29 @@ CREATE TABLE frecuencia_tareas (
   created_at        timestamptz NOT NULL DEFAULT now(),
   updated_at        timestamptz NOT NULL DEFAULT now(),
   UNIQUE (id, user_id),
-  FOREIGN KEY (objetivo_id, user_id) REFERENCES frecuencia_objetivos (id, user_id) ON DELETE CASCADE
+  FOREIGN KEY (objetivo_id, user_id) REFERENCES public.frecuencia_objetivos (id, user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE frecuencia_bloques (
-  id                    uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id               uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  tarea_id              uuid,
-  tipo                  text NOT NULL,
-  inicio                timestamptz NOT NULL,
-  fin                   timestamptz NOT NULL,
-  estado                text NOT NULL DEFAULT 'PROGRAMADO',
-  interrupciones        int NOT NULL DEFAULT 0,
-  minutos_reales_foco   int NOT NULL DEFAULT 0,
-  created_at            timestamptz NOT NULL DEFAULT now(),
-  updated_at            timestamptz NOT NULL DEFAULT now(),
+-- bloques.tarea_id / evidencia.bloque_id: FK simple sin acción
+-- (RESTRICT implícito) + trigger que desvincula antes del borrado —
+-- ver sección b) y nota técnica del encabezado.
+CREATE TABLE public.frecuencia_bloques (
+  id                   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id              uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  tarea_id             uuid,
+  tipo                 text NOT NULL,
+  inicio               timestamptz NOT NULL,
+  fin                  timestamptz NOT NULL,
+  estado               text NOT NULL DEFAULT 'PROGRAMADO',
+  interrupciones       int NOT NULL DEFAULT 0,
+  minutos_reales_foco  int NOT NULL DEFAULT 0,
+  created_at           timestamptz NOT NULL DEFAULT now(),
+  updated_at           timestamptz NOT NULL DEFAULT now(),
   UNIQUE (id, user_id),
-  FOREIGN KEY (tarea_id, user_id) REFERENCES frecuencia_tareas (id, user_id) ON DELETE SET NULL (tarea_id)
+  FOREIGN KEY (tarea_id, user_id) REFERENCES public.frecuencia_tareas (id, user_id)
 );
 
-CREATE TABLE frecuencia_evidencia (
+CREATE TABLE public.frecuencia_evidencia (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   bloque_id   uuid,
@@ -284,10 +211,10 @@ CREATE TABLE frecuencia_evidencia (
   texto       text NOT NULL,
   tipo        text NOT NULL,
   created_at  timestamptz NOT NULL DEFAULT now(),
-  FOREIGN KEY (bloque_id, user_id) REFERENCES frecuencia_bloques (id, user_id) ON DELETE SET NULL (bloque_id)
+  FOREIGN KEY (bloque_id, user_id) REFERENCES public.frecuencia_bloques (id, user_id)
 );
 
-CREATE TABLE frecuencia_ideas (
+CREATE TABLE public.frecuencia_ideas (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   texto       text NOT NULL,
@@ -295,130 +222,168 @@ CREATE TABLE frecuencia_ideas (
   created_at  timestamptz NOT NULL DEFAULT now()
 );
 
-ALTER TABLE frecuencia_areas      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_objetivos  ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_tareas     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_bloques    ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_evidencia  ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_ideas      ENABLE ROW LEVEL SECURITY;
-
--- Áreas, objetivos, tareas, ideas: dueño CRUD; admin SOLO select.
-CREATE POLICY frecuencia_areas_own ON frecuencia_areas
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-CREATE POLICY frecuencia_areas_admin_select ON frecuencia_areas
-  FOR SELECT USING (public.is_admin(auth.uid()));
-
-CREATE POLICY frecuencia_objetivos_own ON frecuencia_objetivos
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-CREATE POLICY frecuencia_objetivos_admin_select ON frecuencia_objetivos
-  FOR SELECT USING (public.is_admin(auth.uid()));
-
-CREATE POLICY frecuencia_tareas_own ON frecuencia_tareas
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-CREATE POLICY frecuencia_tareas_admin_select ON frecuencia_tareas
-  FOR SELECT USING (public.is_admin(auth.uid()));
-
-CREATE POLICY frecuencia_ideas_own ON frecuencia_ideas
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-CREATE POLICY frecuencia_ideas_admin_select ON frecuencia_ideas
-  FOR SELECT USING (public.is_admin(auth.uid()));
-
--- Bloques y evidencia: dueño CRUD; admin select; líder del equipo del
--- dueño, select.
-CREATE POLICY frecuencia_bloques_own ON frecuencia_bloques
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-CREATE POLICY frecuencia_bloques_admin_select ON frecuencia_bloques
-  FOR SELECT USING (public.is_admin(auth.uid()));
-CREATE POLICY frecuencia_bloques_lider_select ON frecuencia_bloques
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM frecuencia_equipos eq
-      JOIN frecuencia_equipo_miembros em ON em.equipo_id = eq.id
-      WHERE eq.lider_id = auth.uid() AND em.user_id = frecuencia_bloques.user_id
-    )
-  );
-
-CREATE POLICY frecuencia_evidencia_own ON frecuencia_evidencia
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-CREATE POLICY frecuencia_evidencia_admin_select ON frecuencia_evidencia
-  FOR SELECT USING (public.is_admin(auth.uid()));
-CREATE POLICY frecuencia_evidencia_lider_select ON frecuencia_evidencia
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM frecuencia_equipos eq
-      JOIN frecuencia_equipo_miembros em ON em.equipo_id = eq.id
-      WHERE eq.lider_id = auth.uid() AND em.user_id = frecuencia_evidencia.user_id
-    )
-  );
-
--- =====================================================================
--- 6. COMPROMISOS (co-conductor) Y REVISIONES
--- =====================================================================
-
-CREATE TABLE frecuencia_compromisos (
-  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id           uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  co_conductor_id   uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
-  texto_mensual     text NOT NULL,
-  avance            int NOT NULL DEFAULT 0,
-  mes               date NOT NULL,
-  created_at        timestamptz NOT NULL DEFAULT now(),
-  updated_at        timestamptz NOT NULL DEFAULT now()
+CREATE TABLE public.frecuencia_compromisos (
+  id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id          uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  co_conductor_id  uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
+  texto_mensual    text NOT NULL,
+  avance           int NOT NULL DEFAULT 0,
+  mes              date NOT NULL,
+  created_at       timestamptz NOT NULL DEFAULT now(),
+  updated_at       timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE frecuencia_revisiones (
-  id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id             uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  semana              date NOT NULL,
-  que_funciono        jsonb NOT NULL DEFAULT '[]'::jsonb,
-  que_no              jsonb NOT NULL DEFAULT '[]'::jsonb,
-  ajustes             jsonb NOT NULL DEFAULT '[]'::jsonb,
-  carga_siguiente     jsonb NOT NULL DEFAULT '{}'::jsonb,
-  created_at          timestamptz NOT NULL DEFAULT now(),
+CREATE TABLE public.frecuencia_revisiones (
+  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id           uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  semana            date NOT NULL,
+  que_funciono      jsonb NOT NULL DEFAULT '[]'::jsonb,
+  que_no            jsonb NOT NULL DEFAULT '[]'::jsonb,
+  ajustes           jsonb NOT NULL DEFAULT '[]'::jsonb,
+  carga_siguiente   jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at        timestamptz NOT NULL DEFAULT now(),
   UNIQUE (user_id, semana)
 );
 
-ALTER TABLE frecuencia_compromisos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_revisiones  ENABLE ROW LEVEL SECURITY;
+CREATE TABLE public.frecuencia_criterios (
+  id                           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id                      uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  equipo_id                    uuid REFERENCES public.frecuencia_equipos(id) ON DELETE SET NULL,
+  ambito                       text NOT NULL CHECK (ambito IN ('personal', 'equipo')),
+  titulo                       text NOT NULL,
+  que_se_decide                text NOT NULL,
+  que_entra                    text,
+  que_no_entra                 text,
+  costo_si_sale_mal            text,
+  reversible                   boolean NOT NULL DEFAULT false,
+  tiempo_reversibilidad        text,
+  quien_asume_responsabilidad  text,
+  activo                       boolean NOT NULL DEFAULT true,
+  created_at                   timestamptz NOT NULL DEFAULT now(),
+  updated_at                   timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (id, user_id)
+);
 
--- Compromisos: el dueño hace todo; el co-conductor solo LEE (el update
--- de "avance" es exclusivo de la función de abajo, no de esta policy);
--- admin y líder del equipo del dueño, solo lectura.
-CREATE POLICY frecuencia_compromisos_select ON frecuencia_compromisos
-  FOR SELECT USING (
-    user_id = auth.uid()
-    OR co_conductor_id = auth.uid()
-    OR public.is_admin(auth.uid())
-    OR EXISTS (
-      SELECT 1 FROM frecuencia_equipos eq
-      JOIN frecuencia_equipo_miembros em ON em.equipo_id = eq.id
-      WHERE eq.lider_id = auth.uid() AND em.user_id = frecuencia_compromisos.user_id
-    )
-  );
-CREATE POLICY frecuencia_compromisos_insert ON frecuencia_compromisos
-  FOR INSERT WITH CHECK (user_id = auth.uid());
-CREATE POLICY frecuencia_compromisos_update ON frecuencia_compromisos
-  FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-CREATE POLICY frecuencia_compromisos_delete ON frecuencia_compromisos
-  FOR DELETE USING (user_id = auth.uid());
+CREATE TABLE public.frecuencia_delegaciones (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tarea_id     uuid NOT NULL,
+  de_user_id   uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  a_user_id    uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  criterio_id  uuid NOT NULL,
+  volvio       boolean NOT NULL DEFAULT false,
+  fecha        date NOT NULL,
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  CHECK (de_user_id <> a_user_id),
+  FOREIGN KEY (tarea_id, de_user_id) REFERENCES public.frecuencia_tareas (id, user_id) ON DELETE CASCADE,
+  FOREIGN KEY (criterio_id, de_user_id) REFERENCES public.frecuencia_criterios (id, user_id) ON DELETE RESTRICT
+);
 
--- Revisiones: dueño CRUD; admin solo lectura. (No está en la lista de
--- visibilidad del líder — C2 solo nombra bloques/evidencia/compromisos/
--- delegaciones.)
-CREATE POLICY frecuencia_revisiones_own ON frecuencia_revisiones
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-CREATE POLICY frecuencia_revisiones_admin_select ON frecuencia_revisiones
-  FOR SELECT USING (public.is_admin(auth.uid()));
+CREATE TABLE public.frecuencia_imagenes (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id       uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  objetivo_id   uuid,
+  tarea_id      uuid,
+  criterio_id   uuid,
+  prompt        text NOT NULL,
+  modelo        text,
+  storage_path  text,
+  estado        text NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'generando', 'lista', 'error')),
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  FOREIGN KEY (objetivo_id, user_id) REFERENCES public.frecuencia_objetivos (id, user_id),
+  FOREIGN KEY (tarea_id, user_id)    REFERENCES public.frecuencia_tareas    (id, user_id),
+  FOREIGN KEY (criterio_id, user_id) REFERENCES public.frecuencia_criterios (id, user_id)
+);
 
--- Función SECURITY DEFINER: es la ÚNICA vía por la que el co-conductor
--- puede tocar un compromiso ajeno, y solo puede tocar "avance" — nunca
--- el resto de la fila. Sin policy de UPDATE para co_conductor_id en la
--- tabla: si no pasa por acá, no puede escribir nada.
-CREATE FUNCTION frecuencia_actualizar_avance_compromiso(p_compromiso_id uuid, p_avance int)
-RETURNS void
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+-- =====================================================================
+-- b) FUNCIONES — ya existen todas las tablas que referencian.
+-- =====================================================================
+
+-- ¿auth.uid() está habilitado para usar Frecuencia según su rol y la
+-- lista dinámica de frecuencia_knowledge_blocks? Falla cerrada: si no
+-- hay fila de config, solo admin.
+CREATE FUNCTION public.frecuencia_habilitado()
+RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public AS $$
+DECLARE
+  v_role  text;
+  v_lista jsonb;
 BEGIN
-  UPDATE frecuencia_compromisos
+  SELECT role INTO v_role FROM public.profiles WHERE id = auth.uid();
+  IF v_role IS NULL THEN RETURN false; END IF;
+
+  SELECT valor INTO v_lista FROM public.frecuencia_knowledge_blocks
+    WHERE clave = 'frecuencia_roles_habilitados';
+  IF v_lista IS NULL THEN RETURN v_role = 'admin'; END IF;
+
+  RETURN v_lista ? v_role;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.frecuencia_habilitado() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.frecuencia_habilitado() TO authenticated;
+
+-- ¿auth.uid() lidera algún equipo del que p_user es miembro?
+CREATE FUNCTION public.frecuencia_es_lider_de(p_user uuid)
+RETURNS boolean LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.frecuencia_equipos eq
+    JOIN public.frecuencia_equipo_miembros em ON em.equipo_id = eq.id
+    WHERE eq.lider_id = auth.uid() AND em.user_id = p_user
+  );
+$$;
+REVOKE ALL ON FUNCTION public.frecuencia_es_lider_de(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.frecuencia_es_lider_de(uuid) TO authenticated;
+
+-- ¿auth.uid() es miembro (o líder) del equipo p_equipo?
+CREATE FUNCTION public.frecuencia_es_miembro(p_equipo uuid)
+RETURNS boolean LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.frecuencia_equipo_miembros em WHERE em.equipo_id = p_equipo AND em.user_id = auth.uid()
+  ) OR EXISTS (
+    SELECT 1 FROM public.frecuencia_equipos eq WHERE eq.id = p_equipo AND eq.lider_id = auth.uid()
+  );
+$$;
+REVOKE ALL ON FUNCTION public.frecuencia_es_miembro(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.frecuencia_es_miembro(uuid) TO authenticated;
+
+-- ¿p_a y p_b comparten algún equipo?
+CREATE FUNCTION public.frecuencia_comparten_equipo(p_a uuid, p_b uuid)
+RETURNS boolean LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.frecuencia_equipo_miembros m1
+    JOIN public.frecuencia_equipo_miembros m2 ON m1.equipo_id = m2.equipo_id
+    WHERE m1.user_id = p_a AND m2.user_id = p_b
+  );
+$$;
+REVOKE ALL ON FUNCTION public.frecuencia_comparten_equipo(uuid, uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.frecuencia_comparten_equipo(uuid, uuid) TO authenticated;
+
+-- ¿a auth.uid() le delegaron la tarea p_tarea?
+CREATE FUNCTION public.frecuencia_me_delegaron(p_tarea uuid)
+RETURNS boolean LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.frecuencia_delegaciones d WHERE d.tarea_id = p_tarea AND d.a_user_id = auth.uid()
+  );
+$$;
+REVOKE ALL ON FUNCTION public.frecuencia_me_delegaron(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.frecuencia_me_delegaron(uuid) TO authenticated;
+
+-- ¿el criterio p_criterio es el de una delegación que recibió auth.uid()?
+CREATE FUNCTION public.frecuencia_criterio_delegado(p_criterio uuid)
+RETURNS boolean LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.frecuencia_delegaciones d WHERE d.criterio_id = p_criterio AND d.a_user_id = auth.uid()
+  );
+$$;
+REVOKE ALL ON FUNCTION public.frecuencia_criterio_delegado(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.frecuencia_criterio_delegado(uuid) TO authenticated;
+
+-- Única vía para que el co-conductor toque "avance" — nunca el resto
+-- de la fila, y nunca directo por UPDATE (no tiene policy de UPDATE).
+CREATE FUNCTION public.frecuencia_actualizar_avance_compromiso(p_compromiso_id uuid, p_avance int)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  UPDATE public.frecuencia_compromisos
   SET avance = p_avance, updated_at = now()
   WHERE id = p_compromiso_id
     AND (user_id = auth.uid() OR co_conductor_id = auth.uid());
@@ -428,226 +393,438 @@ BEGIN
   END IF;
 END;
 $$;
+REVOKE ALL ON FUNCTION public.frecuencia_actualizar_avance_compromiso(uuid, int) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.frecuencia_actualizar_avance_compromiso(uuid, int) TO authenticated;
 
-GRANT EXECUTE ON FUNCTION frecuencia_actualizar_avance_compromiso(uuid, int) TO authenticated;
+-- Al crear un equipo (o cambiarle el líder), el líder queda cargado
+-- como miembro automáticamente — así frecuencia_comparten_equipo y
+-- frecuencia_es_miembro funcionan sin depender de una carga manual.
+CREATE FUNCTION public.frecuencia_al_crear_equipo()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  INSERT INTO public.frecuencia_equipo_miembros (equipo_id, user_id, rol_en_equipo)
+  VALUES (NEW.id, NEW.lider_id, 'lider')
+  ON CONFLICT (equipo_id, user_id) DO NOTHING;
+  RETURN NEW;
+END;
+$$;
 
--- =====================================================================
--- 7. CRITERIOS Y DELEGACIONES
--- =====================================================================
+CREATE FUNCTION public.frecuencia_al_cambiar_lider()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  IF NEW.lider_id IS DISTINCT FROM OLD.lider_id THEN
+    INSERT INTO public.frecuencia_equipo_miembros (equipo_id, user_id, rol_en_equipo)
+    VALUES (NEW.id, NEW.lider_id, 'lider')
+    ON CONFLICT (equipo_id, user_id) DO NOTHING;
+  END IF;
+  RETURN NEW;
+END;
+$$;
 
-CREATE TABLE frecuencia_criterios (
-  id                          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id                     uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  equipo_id                   uuid REFERENCES frecuencia_equipos(id) ON DELETE SET NULL,
-  ambito                      text NOT NULL CHECK (ambito IN ('personal', 'equipo')),
-  titulo                      text NOT NULL,
-  que_se_decide               text NOT NULL,
-  que_entra                   text,
-  que_no_entra                text,
-  costo_si_sale_mal           text,
-  reversible                  boolean NOT NULL DEFAULT false,
-  tiempo_reversibilidad       text,
-  quien_asume_responsabilidad text,
-  activo                      boolean NOT NULL DEFAULT true,
-  created_at                  timestamptz NOT NULL DEFAULT now(),
-  updated_at                  timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (id, user_id)
-);
+-- Desvincular hijos al borrar el padre (reemplaza "ON DELETE SET NULL
+-- (columna)" — ver nota técnica del encabezado).
+CREATE FUNCTION public.frecuencia_al_borrar_tarea()
+RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
+BEGIN
+  UPDATE public.frecuencia_bloques  SET tarea_id = NULL WHERE tarea_id = OLD.id;
+  UPDATE public.frecuencia_imagenes SET tarea_id = NULL WHERE tarea_id = OLD.id;
+  RETURN OLD;
+END;
+$$;
 
-CREATE TABLE frecuencia_delegaciones (
-  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tarea_id        uuid NOT NULL,
-  de_user_id      uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  a_user_id       uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  criterio_id     uuid NOT NULL, -- obligatorio: no se delega sin criterio escrito
-  volvio          boolean NOT NULL DEFAULT false,
-  fecha           date NOT NULL,
-  created_at      timestamptz NOT NULL DEFAULT now(),
-  FOREIGN KEY (tarea_id, de_user_id) REFERENCES frecuencia_tareas (id, user_id) ON DELETE CASCADE,
-  FOREIGN KEY (criterio_id, de_user_id) REFERENCES frecuencia_criterios (id, user_id) ON DELETE RESTRICT
-);
+CREATE FUNCTION public.frecuencia_al_borrar_bloque()
+RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
+BEGIN
+  UPDATE public.frecuencia_evidencia SET bloque_id = NULL WHERE bloque_id = OLD.id;
+  RETURN OLD;
+END;
+$$;
 
-ALTER TABLE frecuencia_criterios    ENABLE ROW LEVEL SECURITY;
-ALTER TABLE frecuencia_delegaciones ENABLE ROW LEVEL SECURITY;
+CREATE FUNCTION public.frecuencia_al_borrar_objetivo()
+RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
+BEGIN
+  UPDATE public.frecuencia_imagenes SET objetivo_id = NULL WHERE objetivo_id = OLD.id;
+  RETURN OLD;
+END;
+$$;
 
-CREATE POLICY frecuencia_criterios_own ON frecuencia_criterios
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-CREATE POLICY frecuencia_criterios_admin_select ON frecuencia_criterios
-  FOR SELECT USING (public.is_admin(auth.uid()));
+CREATE FUNCTION public.frecuencia_al_borrar_criterio()
+RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
+BEGIN
+  UPDATE public.frecuencia_imagenes SET criterio_id = NULL WHERE criterio_id = OLD.id;
+  RETURN OLD;
+END;
+$$;
 
--- Delegaciones: las dos partes (quien delega y quien recibe) leen y
--- participan; admin y líder del equipo de cualquiera de las dos
--- partes, solo lectura. Solo quien delega inserta/edita/borra.
-CREATE POLICY frecuencia_delegaciones_select ON frecuencia_delegaciones
-  FOR SELECT USING (
-    de_user_id = auth.uid()
-    OR a_user_id = auth.uid()
-    OR public.is_admin(auth.uid())
-    OR EXISTS (
-      SELECT 1 FROM frecuencia_equipos eq
-      JOIN frecuencia_equipo_miembros em ON em.equipo_id = eq.id
-      WHERE eq.lider_id = auth.uid()
-        AND (em.user_id = frecuencia_delegaciones.de_user_id OR em.user_id = frecuencia_delegaciones.a_user_id)
-    )
-  );
-CREATE POLICY frecuencia_delegaciones_insert ON frecuencia_delegaciones
-  FOR INSERT WITH CHECK (de_user_id = auth.uid());
-CREATE POLICY frecuencia_delegaciones_update ON frecuencia_delegaciones
-  FOR UPDATE USING (de_user_id = auth.uid() OR a_user_id = auth.uid())
-  WITH CHECK (de_user_id = auth.uid() OR a_user_id = auth.uid());
-CREATE POLICY frecuencia_delegaciones_delete ON frecuencia_delegaciones
-  FOR DELETE USING (de_user_id = auth.uid());
-
--- =====================================================================
--- 8. IMÁGENES
--- =====================================================================
-
-CREATE TABLE frecuencia_imagenes (
-  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id         uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  objetivo_id     uuid,
-  tarea_id        uuid,
-  criterio_id     uuid,
-  prompt          text NOT NULL,
-  modelo          text,
-  storage_path    text,
-  estado          text NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'generando', 'lista', 'error')),
-  created_at      timestamptz NOT NULL DEFAULT now(),
-  FOREIGN KEY (objetivo_id, user_id) REFERENCES frecuencia_objetivos (id, user_id) ON DELETE SET NULL (objetivo_id),
-  FOREIGN KEY (tarea_id, user_id)    REFERENCES frecuencia_tareas    (id, user_id) ON DELETE SET NULL (tarea_id),
-  FOREIGN KEY (criterio_id, user_id) REFERENCES frecuencia_criterios (id, user_id) ON DELETE SET NULL (criterio_id)
-);
-
-ALTER TABLE frecuencia_imagenes ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY frecuencia_imagenes_own ON frecuencia_imagenes
-  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-CREATE POLICY frecuencia_imagenes_admin_select ON frecuencia_imagenes
-  FOR SELECT USING (public.is_admin(auth.uid()));
-
--- =====================================================================
--- 9. ÍNDICES
--- =====================================================================
-
-CREATE INDEX idx_frecuencia_objetivos_user      ON frecuencia_objetivos(user_id);
-CREATE INDEX idx_frecuencia_tareas_user         ON frecuencia_tareas(user_id);
-CREATE INDEX idx_frecuencia_tareas_objetivo     ON frecuencia_tareas(objetivo_id);
-CREATE INDEX idx_frecuencia_bloques_user        ON frecuencia_bloques(user_id, inicio);
-CREATE INDEX idx_frecuencia_bloques_tarea       ON frecuencia_bloques(tarea_id);
-CREATE INDEX idx_frecuencia_dial_user           ON frecuencia_dial(user_id, fecha DESC);
-CREATE INDEX idx_frecuencia_espejo_user         ON frecuencia_espejo(user_id, fecha DESC);
-CREATE INDEX idx_frecuencia_evidencia_user      ON frecuencia_evidencia(user_id, fecha DESC);
-CREATE INDEX idx_frecuencia_evidencia_bloque    ON frecuencia_evidencia(bloque_id);
-CREATE INDEX idx_frecuencia_ideas_user          ON frecuencia_ideas(user_id);
-CREATE INDEX idx_frecuencia_criterios_user      ON frecuencia_criterios(user_id);
-CREATE INDEX idx_frecuencia_delegaciones_de     ON frecuencia_delegaciones(de_user_id);
-CREATE INDEX idx_frecuencia_delegaciones_a      ON frecuencia_delegaciones(a_user_id);
-CREATE INDEX idx_frecuencia_delegaciones_tarea  ON frecuencia_delegaciones(tarea_id);
-CREATE INDEX idx_frecuencia_imagenes_user       ON frecuencia_imagenes(user_id);
-CREATE INDEX idx_frecuencia_equipo_miembros_user ON frecuencia_equipo_miembros(user_id);
-CREATE INDEX idx_frecuencia_compromisos_user    ON frecuencia_compromisos(user_id);
-CREATE INDEX idx_frecuencia_compromisos_co      ON frecuencia_compromisos(co_conductor_id);
-
--- =====================================================================
--- 10. TRIGGER updated_at (función propia, solo sobre tablas frecuencia_)
--- =====================================================================
-
-CREATE FUNCTION frecuencia_set_updated_at()
-RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION public.frecuencia_set_updated_at()
+RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
 BEGIN NEW.updated_at = now(); RETURN NEW; END;
 $$;
 
-CREATE TRIGGER trg_frecuencia_identidad_updated     BEFORE UPDATE ON frecuencia_identidad     FOR EACH ROW EXECUTE FUNCTION frecuencia_set_updated_at();
-CREATE TRIGGER trg_frecuencia_preferencias_updated   BEFORE UPDATE ON frecuencia_preferencias   FOR EACH ROW EXECUTE FUNCTION frecuencia_set_updated_at();
-CREATE TRIGGER trg_frecuencia_objetivos_updated      BEFORE UPDATE ON frecuencia_objetivos      FOR EACH ROW EXECUTE FUNCTION frecuencia_set_updated_at();
-CREATE TRIGGER trg_frecuencia_tareas_updated         BEFORE UPDATE ON frecuencia_tareas         FOR EACH ROW EXECUTE FUNCTION frecuencia_set_updated_at();
-CREATE TRIGGER trg_frecuencia_bloques_updated        BEFORE UPDATE ON frecuencia_bloques        FOR EACH ROW EXECUTE FUNCTION frecuencia_set_updated_at();
-CREATE TRIGGER trg_frecuencia_compromisos_updated    BEFORE UPDATE ON frecuencia_compromisos    FOR EACH ROW EXECUTE FUNCTION frecuencia_set_updated_at();
-CREATE TRIGGER trg_frecuencia_criterios_updated      BEFORE UPDATE ON frecuencia_criterios      FOR EACH ROW EXECUTE FUNCTION frecuencia_set_updated_at();
-CREATE TRIGGER trg_frecuencia_knowledge_blocks_updated BEFORE UPDATE ON frecuencia_knowledge_blocks FOR EACH ROW EXECUTE FUNCTION frecuencia_set_updated_at();
-
 -- =====================================================================
--- 11. STORAGE — bucket privado nuevo + políticas nuevas, prefijadas,
---     limitadas a bucket_id = 'frecuencia-imagenes'. No se toca ninguna
---     policy existente de storage.objects. Carpeta por usuario:
---     la ruta tiene que empezar con "<user_id>/".
+-- c) RLS — ENABLE + REVOKE ALL FROM anon + políticas, tabla por tabla.
 -- =====================================================================
 
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('frecuencia-imagenes', 'frecuencia-imagenes', false);
+ALTER TABLE public.frecuencia_knowledge_blocks ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_knowledge_blocks FROM anon;
+CREATE POLICY frecuencia_knowledge_blocks_select ON public.frecuencia_knowledge_blocks
+  FOR SELECT USING (auth.uid() IS NOT NULL);
+CREATE POLICY frecuencia_knowledge_blocks_admin_write ON public.frecuencia_knowledge_blocks
+  FOR ALL USING (public.is_admin(auth.uid())) WITH CHECK (public.is_admin(auth.uid()));
+
+ALTER TABLE public.frecuencia_preferencias ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_preferencias FROM anon;
+CREATE POLICY frecuencia_preferencias_select ON public.frecuencia_preferencias
+  FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_preferencias_insert ON public.frecuencia_preferencias
+  FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_preferencias_update ON public.frecuencia_preferencias
+  FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_preferencias_delete ON public.frecuencia_preferencias
+  FOR DELETE USING (user_id = auth.uid());
+
+-- Solo admin crea/edita/borra equipos y miembros. Líder y miembros,
+-- solo lectura — vía las funciones de la sección b), sin subconsultas
+-- cruzadas entre estas dos tablas en la misma policy.
+ALTER TABLE public.frecuencia_equipos ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_equipos FROM anon;
+CREATE POLICY frecuencia_equipos_select ON public.frecuencia_equipos
+  FOR SELECT USING (
+    lider_id = auth.uid()
+    OR public.frecuencia_es_miembro(id)
+    OR public.is_admin(auth.uid())
+  );
+CREATE POLICY frecuencia_equipos_admin_insert ON public.frecuencia_equipos
+  FOR INSERT WITH CHECK (public.is_admin(auth.uid()));
+CREATE POLICY frecuencia_equipos_admin_update ON public.frecuencia_equipos
+  FOR UPDATE USING (public.is_admin(auth.uid())) WITH CHECK (public.is_admin(auth.uid()));
+CREATE POLICY frecuencia_equipos_admin_delete ON public.frecuencia_equipos
+  FOR DELETE USING (public.is_admin(auth.uid()));
+
+ALTER TABLE public.frecuencia_equipo_miembros ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_equipo_miembros FROM anon;
+CREATE POLICY frecuencia_equipo_miembros_select ON public.frecuencia_equipo_miembros
+  FOR SELECT USING (
+    user_id = auth.uid()
+    OR public.frecuencia_es_miembro(equipo_id)
+    OR public.is_admin(auth.uid())
+  );
+CREATE POLICY frecuencia_equipo_miembros_admin_insert ON public.frecuencia_equipo_miembros
+  FOR INSERT WITH CHECK (public.is_admin(auth.uid()));
+CREATE POLICY frecuencia_equipo_miembros_admin_delete ON public.frecuencia_equipo_miembros
+  FOR DELETE USING (public.is_admin(auth.uid()));
+
+-- Íntimo — solo el dueño, sin excepción de admin ni de líder.
+ALTER TABLE public.frecuencia_identidad ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_identidad FROM anon;
+CREATE POLICY frecuencia_identidad_select ON public.frecuencia_identidad FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_identidad_insert ON public.frecuencia_identidad FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_identidad_update ON public.frecuencia_identidad FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_identidad_delete ON public.frecuencia_identidad FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_mapa_energia ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_mapa_energia FROM anon;
+CREATE POLICY frecuencia_mapa_energia_select ON public.frecuencia_mapa_energia FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_mapa_energia_insert ON public.frecuencia_mapa_energia FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_mapa_energia_update ON public.frecuencia_mapa_energia FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_mapa_energia_delete ON public.frecuencia_mapa_energia FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_dial ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_dial FROM anon;
+CREATE POLICY frecuencia_dial_select ON public.frecuencia_dial FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_dial_insert ON public.frecuencia_dial FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_dial_update ON public.frecuencia_dial FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_dial_delete ON public.frecuencia_dial FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_espejo ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_espejo FROM anon;
+CREATE POLICY frecuencia_espejo_select ON public.frecuencia_espejo FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_espejo_insert ON public.frecuencia_espejo FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_espejo_update ON public.frecuencia_espejo FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_espejo_delete ON public.frecuencia_espejo FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_conversaciones ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_conversaciones FROM anon;
+CREATE POLICY frecuencia_conversaciones_select ON public.frecuencia_conversaciones FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_conversaciones_insert ON public.frecuencia_conversaciones FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_conversaciones_update ON public.frecuencia_conversaciones FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_conversaciones_delete ON public.frecuencia_conversaciones FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_mensajes ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_mensajes FROM anon;
+CREATE POLICY frecuencia_mensajes_select ON public.frecuencia_mensajes FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_mensajes_insert ON public.frecuencia_mensajes FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_mensajes_update ON public.frecuencia_mensajes FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_mensajes_delete ON public.frecuencia_mensajes FOR DELETE USING (user_id = auth.uid());
+
+-- Admin no lee datos personales de nadie: sin *_admin_select en nada
+-- de lo que sigue. Visibilidad extra: líder en bloques/evidencia;
+-- quien recibió una delegación en tareas/criterios.
+ALTER TABLE public.frecuencia_areas ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_areas FROM anon;
+CREATE POLICY frecuencia_areas_select ON public.frecuencia_areas FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_areas_insert ON public.frecuencia_areas FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_areas_update ON public.frecuencia_areas FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_areas_delete ON public.frecuencia_areas FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_objetivos ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_objetivos FROM anon;
+CREATE POLICY frecuencia_objetivos_select ON public.frecuencia_objetivos FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_objetivos_insert ON public.frecuencia_objetivos FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_objetivos_update ON public.frecuencia_objetivos FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_objetivos_delete ON public.frecuencia_objetivos FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_tareas ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_tareas FROM anon;
+CREATE POLICY frecuencia_tareas_select ON public.frecuencia_tareas
+  FOR SELECT USING (user_id = auth.uid() OR public.frecuencia_me_delegaron(id));
+CREATE POLICY frecuencia_tareas_insert ON public.frecuencia_tareas FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_tareas_update ON public.frecuencia_tareas FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_tareas_delete ON public.frecuencia_tareas FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_ideas ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_ideas FROM anon;
+CREATE POLICY frecuencia_ideas_select ON public.frecuencia_ideas FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_ideas_insert ON public.frecuencia_ideas FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_ideas_update ON public.frecuencia_ideas FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_ideas_delete ON public.frecuencia_ideas FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_bloques ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_bloques FROM anon;
+CREATE POLICY frecuencia_bloques_select ON public.frecuencia_bloques
+  FOR SELECT USING (user_id = auth.uid() OR public.frecuencia_es_lider_de(user_id));
+CREATE POLICY frecuencia_bloques_insert ON public.frecuencia_bloques FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_bloques_update ON public.frecuencia_bloques FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_bloques_delete ON public.frecuencia_bloques FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_evidencia ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_evidencia FROM anon;
+CREATE POLICY frecuencia_evidencia_select ON public.frecuencia_evidencia
+  FOR SELECT USING (user_id = auth.uid() OR public.frecuencia_es_lider_de(user_id));
+CREATE POLICY frecuencia_evidencia_insert ON public.frecuencia_evidencia FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_evidencia_update ON public.frecuencia_evidencia FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_evidencia_delete ON public.frecuencia_evidencia FOR DELETE USING (user_id = auth.uid());
+
+-- Compromisos y revisiones. Sin admin. Dueño + co-conductor (solo
+-- lectura) + líder del equipo del dueño (solo lectura).
+ALTER TABLE public.frecuencia_compromisos ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_compromisos FROM anon;
+CREATE POLICY frecuencia_compromisos_select ON public.frecuencia_compromisos
+  FOR SELECT USING (
+    user_id = auth.uid()
+    OR co_conductor_id = auth.uid()
+    OR public.frecuencia_es_lider_de(user_id)
+  );
+CREATE POLICY frecuencia_compromisos_insert ON public.frecuencia_compromisos
+  FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_compromisos_update ON public.frecuencia_compromisos
+  FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_compromisos_delete ON public.frecuencia_compromisos
+  FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_revisiones ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_revisiones FROM anon;
+CREATE POLICY frecuencia_revisiones_select ON public.frecuencia_revisiones FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_revisiones_insert ON public.frecuencia_revisiones FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_revisiones_update ON public.frecuencia_revisiones FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_revisiones_delete ON public.frecuencia_revisiones FOR DELETE USING (user_id = auth.uid());
+
+-- Criterios y delegaciones. Las dos partes leen una delegación. Edita
+-- (incluido "volvio") SOLO quien delega. INSERT exige que delegador y
+-- receptor compartan equipo.
+ALTER TABLE public.frecuencia_criterios ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_criterios FROM anon;
+CREATE POLICY frecuencia_criterios_select ON public.frecuencia_criterios
+  FOR SELECT USING (user_id = auth.uid() OR public.frecuencia_criterio_delegado(id));
+CREATE POLICY frecuencia_criterios_insert ON public.frecuencia_criterios FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_criterios_update ON public.frecuencia_criterios FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_criterios_delete ON public.frecuencia_criterios FOR DELETE USING (user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_delegaciones ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_delegaciones FROM anon;
+CREATE POLICY frecuencia_delegaciones_select ON public.frecuencia_delegaciones
+  FOR SELECT USING (
+    de_user_id = auth.uid()
+    OR a_user_id = auth.uid()
+    OR public.frecuencia_es_lider_de(de_user_id)
+    OR public.frecuencia_es_lider_de(a_user_id)
+  );
+CREATE POLICY frecuencia_delegaciones_insert ON public.frecuencia_delegaciones
+  FOR INSERT WITH CHECK (
+    de_user_id = auth.uid()
+    AND public.frecuencia_comparten_equipo(de_user_id, a_user_id)
+    AND public.frecuencia_habilitado()
+  );
+CREATE POLICY frecuencia_delegaciones_update ON public.frecuencia_delegaciones
+  FOR UPDATE USING (de_user_id = auth.uid())
+  WITH CHECK (de_user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_delegaciones_delete ON public.frecuencia_delegaciones
+  FOR DELETE USING (de_user_id = auth.uid());
+
+ALTER TABLE public.frecuencia_imagenes ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.frecuencia_imagenes FROM anon;
+CREATE POLICY frecuencia_imagenes_select ON public.frecuencia_imagenes FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY frecuencia_imagenes_insert ON public.frecuencia_imagenes FOR INSERT WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_imagenes_update ON public.frecuencia_imagenes FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid() AND public.frecuencia_habilitado());
+CREATE POLICY frecuencia_imagenes_delete ON public.frecuencia_imagenes FOR DELETE USING (user_id = auth.uid());
+
+-- =====================================================================
+-- d) TRIGGERS, ÍNDICES, STORAGE, SEED
+-- =====================================================================
+
+CREATE TRIGGER trg_frecuencia_equipos_after_insert
+  AFTER INSERT ON public.frecuencia_equipos
+  FOR EACH ROW EXECUTE FUNCTION public.frecuencia_al_crear_equipo();
+CREATE TRIGGER trg_frecuencia_equipos_after_update_lider
+  AFTER UPDATE OF lider_id ON public.frecuencia_equipos
+  FOR EACH ROW EXECUTE FUNCTION public.frecuencia_al_cambiar_lider();
+
+CREATE TRIGGER trg_frecuencia_tareas_before_delete
+  BEFORE DELETE ON public.frecuencia_tareas
+  FOR EACH ROW EXECUTE FUNCTION public.frecuencia_al_borrar_tarea();
+CREATE TRIGGER trg_frecuencia_bloques_before_delete
+  BEFORE DELETE ON public.frecuencia_bloques
+  FOR EACH ROW EXECUTE FUNCTION public.frecuencia_al_borrar_bloque();
+CREATE TRIGGER trg_frecuencia_objetivos_before_delete
+  BEFORE DELETE ON public.frecuencia_objetivos
+  FOR EACH ROW EXECUTE FUNCTION public.frecuencia_al_borrar_objetivo();
+CREATE TRIGGER trg_frecuencia_criterios_before_delete
+  BEFORE DELETE ON public.frecuencia_criterios
+  FOR EACH ROW EXECUTE FUNCTION public.frecuencia_al_borrar_criterio();
+
+CREATE TRIGGER trg_frecuencia_identidad_updated        BEFORE UPDATE ON public.frecuencia_identidad        FOR EACH ROW EXECUTE FUNCTION public.frecuencia_set_updated_at();
+CREATE TRIGGER trg_frecuencia_preferencias_updated     BEFORE UPDATE ON public.frecuencia_preferencias     FOR EACH ROW EXECUTE FUNCTION public.frecuencia_set_updated_at();
+CREATE TRIGGER trg_frecuencia_objetivos_updated        BEFORE UPDATE ON public.frecuencia_objetivos        FOR EACH ROW EXECUTE FUNCTION public.frecuencia_set_updated_at();
+CREATE TRIGGER trg_frecuencia_tareas_updated           BEFORE UPDATE ON public.frecuencia_tareas           FOR EACH ROW EXECUTE FUNCTION public.frecuencia_set_updated_at();
+CREATE TRIGGER trg_frecuencia_bloques_updated          BEFORE UPDATE ON public.frecuencia_bloques          FOR EACH ROW EXECUTE FUNCTION public.frecuencia_set_updated_at();
+CREATE TRIGGER trg_frecuencia_compromisos_updated      BEFORE UPDATE ON public.frecuencia_compromisos      FOR EACH ROW EXECUTE FUNCTION public.frecuencia_set_updated_at();
+CREATE TRIGGER trg_frecuencia_criterios_updated        BEFORE UPDATE ON public.frecuencia_criterios        FOR EACH ROW EXECUTE FUNCTION public.frecuencia_set_updated_at();
+CREATE TRIGGER trg_frecuencia_knowledge_blocks_updated BEFORE UPDATE ON public.frecuencia_knowledge_blocks FOR EACH ROW EXECUTE FUNCTION public.frecuencia_set_updated_at();
+
+CREATE INDEX idx_frecuencia_objetivos_user        ON public.frecuencia_objetivos(user_id);
+CREATE INDEX idx_frecuencia_tareas_user           ON public.frecuencia_tareas(user_id);
+CREATE INDEX idx_frecuencia_tareas_objetivo       ON public.frecuencia_tareas(objetivo_id);
+CREATE INDEX idx_frecuencia_bloques_user          ON public.frecuencia_bloques(user_id, inicio);
+CREATE INDEX idx_frecuencia_bloques_tarea         ON public.frecuencia_bloques(tarea_id);
+CREATE INDEX idx_frecuencia_dial_user             ON public.frecuencia_dial(user_id, fecha DESC);
+CREATE INDEX idx_frecuencia_espejo_user           ON public.frecuencia_espejo(user_id, fecha DESC);
+CREATE INDEX idx_frecuencia_evidencia_user        ON public.frecuencia_evidencia(user_id, fecha DESC);
+CREATE INDEX idx_frecuencia_evidencia_bloque      ON public.frecuencia_evidencia(bloque_id);
+CREATE INDEX idx_frecuencia_ideas_user            ON public.frecuencia_ideas(user_id);
+CREATE INDEX idx_frecuencia_criterios_user        ON public.frecuencia_criterios(user_id);
+CREATE INDEX idx_frecuencia_delegaciones_de       ON public.frecuencia_delegaciones(de_user_id);
+CREATE INDEX idx_frecuencia_delegaciones_a        ON public.frecuencia_delegaciones(a_user_id);
+CREATE INDEX idx_frecuencia_delegaciones_tarea    ON public.frecuencia_delegaciones(tarea_id);
+CREATE INDEX idx_frecuencia_delegaciones_criterio ON public.frecuencia_delegaciones(criterio_id);
+CREATE INDEX idx_frecuencia_imagenes_user         ON public.frecuencia_imagenes(user_id);
+CREATE INDEX idx_frecuencia_equipo_miembros_user  ON public.frecuencia_equipo_miembros(user_id);
+CREATE INDEX idx_frecuencia_compromisos_user      ON public.frecuencia_compromisos(user_id);
+CREATE INDEX idx_frecuencia_compromisos_co        ON public.frecuencia_compromisos(co_conductor_id);
+
+-- El bucket 'frecuencia-imagenes' se crea aparte, con la Storage API
+-- (scripts/frecuencia-bucket.mjs) — ver nota técnica del encabezado.
 
 CREATE POLICY frecuencia_imagenes_storage_select ON storage.objects
-  FOR SELECT USING (
-    bucket_id = 'frecuencia-imagenes'
-    AND (storage.foldername(name))[1] = auth.uid()::text
-  );
-
+  FOR SELECT USING (bucket_id = 'frecuencia-imagenes' AND (storage.foldername(name))[1] = auth.uid()::text);
 CREATE POLICY frecuencia_imagenes_storage_insert ON storage.objects
-  FOR INSERT WITH CHECK (
-    bucket_id = 'frecuencia-imagenes'
-    AND (storage.foldername(name))[1] = auth.uid()::text
-  );
-
+  FOR INSERT WITH CHECK (bucket_id = 'frecuencia-imagenes' AND (storage.foldername(name))[1] = auth.uid()::text);
 CREATE POLICY frecuencia_imagenes_storage_delete ON storage.objects
-  FOR DELETE USING (
-    bucket_id = 'frecuencia-imagenes'
-    AND (storage.foldername(name))[1] = auth.uid()::text
-  );
+  FOR DELETE USING (bucket_id = 'frecuencia-imagenes' AND (storage.foldername(name))[1] = auth.uid()::text);
 
--- =====================================================================
--- 12. SEED — solo lo que Diego dio textual en esta conversación. Todo
---     lo demás queda marcado TODO_DIEGO en vez de inventado (regla 14).
--- =====================================================================
+INSERT INTO public.frecuencia_knowledge_blocks (clave, valor) VALUES
+('frecuencia_roles_habilitados', '["admin","setter","closer"]'::jsonb),
 
-INSERT INTO frecuencia_knowledge_blocks (clave, valor) VALUES
+('areas_vida', '[
+ {"key":"conocer_quien_sos","nombre":"Conocer quién sos"},
+ {"key":"creer_en_vos","nombre":"Creer en vos"},
+ {"key":"salud","nombre":"Salud"},
+ {"key":"relaciones","nombre":"Relaciones"},
+ {"key":"familia","nombre":"Familia"},
+ {"key":"pareja","nombre":"Pareja"},
+ {"key":"trascendencia","nombre":"Trascendencia"},
+ {"key":"proposito","nombre":"Propósito"},
+ {"key":"carrera_profesional","nombre":"Carrera profesional"},
+ {"key":"libertad_financiera","nombre":"Libertad financiera"}
+]'::jsonb),
 
-  ('frecuencia_roles_habilitados', '["admin", "setter", "closer"]'::jsonb),
+('areas_reglas', '{
+ "palanca":"El área fuerte tira de las demás: el objetivo principal se apoya en ella.",
+ "manzana_podrida":"El área débil contagia al resto: se lleva como mínimo a un aprobado.",
+ "contagio_rapido":["salud","libertad_financiera"]
+}'::jsonb),
 
-  -- Las 10 áreas de Sergio Fernández, tal cual las escribió Diego.
-  ('areas_vida', '[
-    {"key": "conocer_quien_sos",     "nombre": "Conocer quién sos"},
-    {"key": "creer_en_vos",          "nombre": "Creer en vos"},
-    {"key": "salud",                 "nombre": "Salud"},
-    {"key": "relaciones",            "nombre": "Relaciones"},
-    {"key": "familia",               "nombre": "Familia"},
-    {"key": "pareja",                "nombre": "Pareja"},
-    {"key": "trascendencia",         "nombre": "Trascendencia"},
-    {"key": "proposito",             "nombre": "Propósito"},
-    {"key": "carrera_profesional",   "nombre": "Carrera profesional"},
-    {"key": "libertad_financiera",   "nombre": "Libertad financiera"}
-  ]'::jsonb),
+('energias_escasez', '[
+ {"key":"envidia","nombre":"Envidia"},
+ {"key":"resentimiento","nombre":"Resentimiento"},
+ {"key":"critica","nombre":"Crítica"},
+ {"key":"queja","nombre":"Queja"}
+]'::jsonb),
 
-  ('TODO_DIEGO_energias_escasez', '{"todo": true, "nota": "Las 4 energías de escasez según los podcasts — no las tengo confirmadas textualmente, no las invento."}'::jsonb),
+('acciones_subida', '["Silencio","Dormir bien","Libros que elevan","Películas que elevan","Personas que elevan","Movimiento"]'::jsonb),
 
-  -- Acciones de subida, tal cual las escribió Diego en esta conversación.
-  ('acciones_subida', '[
-    "Silencio",
-    "Dormir bien",
-    "Libros que elevan",
-    "Películas que elevan",
-    "Personas que elevan",
-    "Movimiento"
-  ]'::jsonb),
+('pasos_ante_falla', '[
+ {"paso":1,"nombre":"Conciencia","descripcion":"Tomar conciencia de los hechos: pasó esto."},
+ {"paso":2,"nombre":"Comprensión","descripcion":"Entender por qué pasó: hice tal cosa, o cuando pasa esto tiendo a responder así."},
+ {"paso":3,"nombre":"Disociación","descripcion":"Separar el hecho de la persona: no soy un fracaso, cometí un error."},
+ {"paso":4,"nombre":"Declaración","descripcion":"Declarar qué voy a hacer distinto la próxima vez."}
+]'::jsonb),
 
-  ('TODO_DIEGO_pasos_ante_falla', '{"todo": true, "nota": "4 pasos ante una falla, según los podcasts. En el pseudocódigo original figuraban como conciencia/comprensión/disociación/declaración, pero eso lo escribiste vos en el diseño, no está confirmado como cita textual del material — lo dejo en TODO para que lo confirmes o corrijas."}'::jsonb),
+('reglas_foco', '[
+ "Las primeras horas del día, sin mail ni celular, van a la tarea más difícil.",
+ "Una sola tarea por bloque: el multitasking no existe.",
+ "Cada interrupción cuesta el tiempo de la interrupción más el de antes y el de volver a enfocarse.",
+ "Anticipá el bloque: avisá al equipo o a tu casa que vas a estar en foco.",
+ "Lo que hacés, hacelo completo: la media dosis genera resistencia."
+]'::jsonb),
 
-  ('TODO_DIEGO_reglas_plan', '{"todo": true, "nota": "Reglas del armado de semana (no negociables primero, área débil nunca en cero, decisiones solo temprano, no mezclar ejecutar/orquestar, huecos para imprevistos) — mismo caso: estaban en tu pseudocódigo de diseño, no confirmadas contra los podcasts."}'::jsonb),
+('reglas_decision', '{
+ "decisiones_importantes":"temprano, con energía; nunca al final del día cansado",
+ "decisiones_dificiles":"si no hay urgencia, dormirlas una noche y volver a mirarlas",
+ "umbral_fatiga":{"todo":true,"nota":"hora a partir de la cual no se agendan decisiones importantes"}
+}'::jsonb),
 
-  ('TODO_DIEGO_mapa_energia_default', '{"todo": true, "nota": "Regla Papayani confirmada por vos: primeras 3-4h desde que te despertás = tarea más difícil, sin mail ni celular; decisiones importantes temprano, nunca en horas de fatiga. Falta: el umbral exacto de \"horas de fatiga\" y si son siempre 3 o siempre 4 horas."}'::jsonb),
+('mapa_energia_default', '{
+ "regla":"Las primeras 3 a 4 horas desde que te despertás son para la tarea más difícil, sin mail ni celular.",
+ "relativo_a":"hora_despertar",
+ "rediagnosticar":"el mapa cambia con la edad y con los hechos de la vida: volver a diagnosticar cada tanto",
+ "frecuencia_rediagnostico_semanas":{"todo":true}
+}'::jsonb),
 
-  ('TODO_DIEGO_reglas_foco', '{"todo": true, "nota": "Reglas visibles durante el bloque EN EL AIRE (celular afuera, una sola tarea) — confirmar texto exacto."}'::jsonb),
+('reglas_plan', '{
+ "pre_diseno":"El día se diseña la noche anterior; la semana se arma el domingo en bloques.",
+ "no_negociables_primero":"Descanso, familia, entrenamiento y lo propio se agendan antes que todo, como un cliente más.",
+ "area_debil":"La manzana podrida recibe una dosis mínima fija cada semana.",
+ "ejecutar_vs_orquestar":"No se ejecuta y se orquesta en el mismo bloque.",
+ "imprevistos":"Se deja margen libre a propósito para lo que surja.",
+ "prioridad":"Primero la tarea que desbloquea más tareas."
+}'::jsonb),
 
-  ('TODO_DIEGO_dosis_y_escalado', '{"todo": true, "nota": "Dosis mínima por área, reglas de cuándo escalar o bajar la dosis, tope de \"no necesito ser primero\", regla de los 2 minutos de dolor — confirmar valores/umbrales."}'::jsonb),
+('reglas_dosis', '{
+ "habitos_en_oferta":"Arrancar con una dosis que cualquiera pueda cumplir (ejemplo: 15 minutos, 3 veces por semana) y dejar que crezca por interés compuesto.",
+ "dosis_completa":"Chica pero completa: nunca media dosis de algo grande.",
+ "no_necesito_ser_primero":"Ser primero cuesta 100 horas; ser segundo, 70. Las 30 que sobran van a las otras áreas.",
+ "dos_minutos_de_dolor":"Casi todo lo bueno es incómodo al principio y pasa rápido: arrancá solo los primeros minutos.",
+ "umbral_subir_dosis":{"todo":true},
+ "umbral_bajar_dosis":{"todo":true}
+}'::jsonb),
 
-  ('TODO_DIEGO_preguntas_onboarding', '{"todo": true, "nota": "Preguntas exactas de cada paso del onboarding (identidad, no negociables, estándar mínimo, etc.)."}'::jsonb),
+('criterio', '{
+ "puntos":[
+  {"key":"que_se_decide","pregunta":"¿Qué se está decidiendo?"},
+  {"key":"que_entra_y_que_no","pregunta":"¿Qué entra en esta decisión y qué queda afuera?"},
+  {"key":"costo_si_sale_mal","pregunta":"¿Qué costo pago si sale mal?"},
+  {"key":"reversible","pregunta":"¿Es reversible? ¿En cuánto tiempo?"}
+ ],
+ "regla":"Si no está escrito, no es criterio.",
+ "responsabilidad":"Quien delega asume por escrito la responsabilidad si sale mal.",
+ "no_delegable":["Decisiones sobre personas","Reputación: lo que defendés con tu nombre","Dirección de la empresa"],
+ "test":"Si delegás una tarea y vuelve a tu escritorio, no delegaste criterio."
+}'::jsonb),
 
-  ('TODO_DIEGO_preguntas_criterio', '{"todo": true, "nota": "Las preguntas de los 4 puntos del criterio (qué se decide, qué entra, qué no entra, costo si sale mal) y qué es \"lo no delegable\" (personas, reputación, dirección) — confirmar redacción exacta para mostrar en la UI."}'::jsonb),
-
-  ('TODO_DIEGO_limite_imagenes', '{"todo": true, "nota": "Límite diario de generación de imágenes por usuario — confirmar número."}'::jsonb),
-
-  ('TODO_DIEGO_tono_agente', '{"todo": true, "nota": "Tono del agente (\"el amigo que te agarra de las solapas\") — confirmar si se usa tal cual o se ajusta."}'::jsonb),
-
-  ('modelos_ia', '{"chat": [], "imagenes": []}'::jsonb) -- se completa en la Parte D, con los links de build.nvidia.com
+('limite_imagenes_diario', '{"todo":true}'::jsonb),
+('tono_agente', '{"todo":true,"propuesta":"El amigo que te agarra de las solapas: te hace decirte la verdad, sin culpa, separando el hecho de la persona."}'::jsonb),
+('preguntas_onboarding', '{"todo":true}'::jsonb),
+('modelos_ia', '{"chat":[],"imagenes":[]}'::jsonb)
 
 ON CONFLICT (clave) DO NOTHING;
 
