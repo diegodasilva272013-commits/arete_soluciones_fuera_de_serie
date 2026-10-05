@@ -301,8 +301,7 @@
   display: flex;
   gap: 6px;
   padding: 6px;
-  background: rgba(10, 10, 11, 0.86);
-  backdrop-filter: blur(14px);
+  background: #0a0a0b;
   border: 1px solid var(--linea);
   clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
 }
