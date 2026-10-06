@@ -1,0 +1,56 @@
+01-acceso-y-navegacion-desktop	0:00	Sin sesión: abre /frecuencia
+CHECK	OK   sin sesión → /login?redirectTo=%2Ffrecuencia
+01-acceso-y-navegacion-desktop	0:02	Login como student
+CHECK	OK   student: el sidebar no muestra Frecuencia
+01-acceso-y-navegacion-desktop	0:06	Student abre /frecuencia por URL
+CHECK	OK   student → rebota a /dashboard
+01-acceso-y-navegacion-desktop	0:09	Login como setter
+CHECK	OK   setter: el sidebar muestra el link a Frecuencia
+01-acceso-y-navegacion-desktop	0:14	Click en "Frecuencia" del sidebar de la plataforma
+CHECK	OK   sidebar → /frecuencia/dial
+CHECK	OK   dentro de Frecuencia no hay sidebar de la plataforma
+CHECK	OK   header propio de Frecuencia
+CHECK	OK   no está la barra superior de la plataforma (buscador, tema)
+01-acceso-y-navegacion-desktop	0:14	Pantalla completa: fondo vivo + header mínimo + dock
+01-acceso-y-navegacion-desktop	0:17	Magnificación del dock (barrido del puntero)
+01-acceso-y-navegacion-desktop	0:22	Dock → Hoy (transición: sale con blur, entra en cascada)
+01-acceso-y-navegacion-desktop	0:24	Dock → Semana (transición: sale con blur, entra en cascada)
+01-acceso-y-navegacion-desktop	0:26	Dock → Áreas (transición: sale con blur, entra en cascada)
+01-acceso-y-navegacion-desktop	0:29	Dock → Dial (transición: sale con blur, entra en cascada)
+CHECK	OK   ítem activo del dock = /frecuencia/dial
+01-acceso-y-navegacion-desktop	0:31	Click en "Salir a la plataforma"
+CHECK	OK   Salir a la plataforma → /dashboard
+CHECK	OK   de vuelta en la plataforma con su sidebar
+02-fondo-sintoniza-con-el-dial	0:03	Dial de hoy = -95 (escasez) → /frecuencia/hoy
+CHECK	OK   data-sintonia=0.03 para dial -95
+02-fondo-sintoniza-con-el-dial	0:08	Dial de hoy = 0 (medio) → /frecuencia/hoy
+CHECK	OK   data-sintonia=0.50 para dial 0
+02-fondo-sintoniza-con-el-dial	0:13	Dial de hoy = 95 (abundancia) → /frecuencia/hoy
+CHECK	OK   data-sintonia=0.97 para dial 95
+02-fondo-sintoniza-con-el-dial	0:22	En vivo: /frecuencia/dial (fondo 0.70); arrastro la aguja a escasez y guardo
+CHECK	OK   en vivo: fondo 0.70 → 0.05 al guardar, sin recargar la página (misma página)
+02-fondo-sintoniza-con-el-dial	0:33	Refresco tras server action: estaciono una idea en Hoy (revalidatePath) con el dial cambiado en el servidor
+CHECK	OK   server action refresca la pantalla: dial mini "+40 ABUNDANCIA FM" → "-60 ESCASEZ FM" sin recargar
+03-flujos-sin-dock-barra-fija-movil	0:03	Setter sin onboarding entra a /frecuencia → onboarding
+CHECK	OK   onboarding: sin dock
+CHECK	OK   onboarding: el CTA está en la barra fija de abajo (y=784)
+03-flujos-sin-dock-barra-fija-movil	0:07	Scroll: la barra queda fija y no tapa contenido
+03-flujos-sin-dock-barra-fija-movil	0:12	Cierre del día (flujo): sin dock, barra fija
+CHECK	OK   cierre: sin dock
+03-flujos-sin-dock-barra-fija-movil	0:15	Semana → "Armar mi semana": la propuesta es un flujo (sin dock, una sola barra fija)
+CHECK	OK   semana con propuesta: 1 barra fija, sin dock, "Guardar esta semana" recibe el toque
+CHECK	OK   semana: al descartar la propuesta vuelve el dock
+03-flujos-sin-dock-barra-fija-movil	0:24	Volver a Hoy: vuelve el dock
+CHECK	OK   hoy: con dock
+04-navegacion-movil	0:03	Móvil: /frecuencia
+04-navegacion-movil	0:06	Dock → Hoy
+04-navegacion-movil	0:08	Dock → Semana
+04-navegacion-movil	0:10	Dock → Áreas
+04-navegacion-movil	0:12	Dock → Dial
+CHECK	OK   móvil: sin scroll horizontal (sobra 0px)
+04-navegacion-movil	0:14	Salir
+CHECK	OK   movil/dial: con scroll al final el contenido termina (716) antes del dock (760)
+CHECK	OK   movil/hoy: con scroll al final el contenido termina (716) antes del dock (760)
+CHECK	OK   desktop/dial: con scroll al final el contenido termina (748) antes del dock (816)
+CHECK	OK   desktop/hoy: con scroll al final el contenido termina (748) antes del dock (816)
+CHECK	OK   reduced-motion: sin WebGL (0 canvas) y sin animación de grano (ninguna)

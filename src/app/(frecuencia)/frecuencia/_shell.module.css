@@ -1,0 +1,355 @@
+/* Shell inmersivo de Frecuencia: fondo vivo, header propio, dock y
+   barra fija de pasos. Tokens de color: src/app/globals.css (:root). */
+
+/* ── Fondo vivo ───────────────────────────────────────────────────── */
+
+.fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--negro);
+}
+.fondoBase {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 115%, rgba(var(--azul-rgb), 0.1) 0%, transparent 60%),
+    var(--negro);
+}
+.fondoHalo {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 45% at 50% -8%, rgba(var(--azul-rgb), 0.28) 0%, transparent 70%);
+  transition: opacity 1.4s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+/* Media resolución ×2: ver _fondo-vivo.tsx. */
+.fondoGradiente {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  transform: scale(2);
+  transform-origin: 0 0;
+  transition: opacity 1.4s cubic-bezier(0.16, 0.84, 0.28, 1), filter 1.4s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+.fondoGrano,
+.fondoGranoQuieto {
+  position: absolute;
+  inset: -50%;
+  background-repeat: repeat;
+  background-size: 160px 160px;
+  mix-blend-mode: screen;
+  transition: opacity 1.4s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+.fondoGrano {
+  animation: grano 0.9s steps(6) infinite;
+}
+@keyframes grano {
+  0% { transform: translate(0, 0); }
+  17% { transform: translate(-7%, 4%); }
+  33% { transform: translate(5%, -9%); }
+  50% { transform: translate(-11%, -3%); }
+  67% { transform: translate(9%, 7%); }
+  83% { transform: translate(-3%, 11%); }
+  100% { transform: translate(0, 0); }
+}
+.fondoVineta {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 45%, rgba(0, 0, 0, 0.85) 100%);
+  transition: opacity 1.4s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+
+/* ── Header mínimo ────────────────────────────────────────────────── */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 56px;
+  padding: 0 20px;
+  padding-top: env(safe-area-inset-top, 0px);
+  box-sizing: content-box;
+  background: linear-gradient(180deg, rgba(5, 5, 5, 0.82) 0%, rgba(5, 5, 5, 0.4) 70%, transparent 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+@media (min-width: 1024px) {
+  .header {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--hueso);
+}
+.marcaNombre {
+  font-family: var(--f-display), Montserrat, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+/* Cuatro barras de señal que laten — el "on air" mínimo de la marca. */
+.marcaOnda {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+.marcaOnda i {
+  display: block;
+  width: 2px;
+  background: var(--azul-luz);
+  box-shadow: 0 0 6px rgba(var(--azul-rgb), 0.9);
+  animation: senal 1.6s ease-in-out infinite;
+}
+.marcaOnda i:nth-child(1) { height: 5px; animation-delay: 0s; }
+.marcaOnda i:nth-child(2) { height: 9px; animation-delay: 0.2s; }
+.marcaOnda i:nth-child(3) { height: 14px; animation-delay: 0.4s; }
+.marcaOnda i:nth-child(4) { height: 7px; animation-delay: 0.6s; }
+@keyframes senal {
+  0%, 100% { transform: scaleY(1); opacity: 1; }
+  50% { transform: scaleY(0.45); opacity: 0.6; }
+}
+.marcaOnda i { transform-origin: bottom; }
+
+.salir {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 4px;
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.salir:hover,
+.salir:focus-visible {
+  color: var(--hueso);
+}
+.salirFlecha {
+  font-size: 12px;
+  color: var(--azul-luz);
+  transition: transform 0.2s ease;
+}
+.salir:hover .salirFlecha {
+  transform: translate(2px, -2px);
+}
+.salirCorto { display: none; }
+@media (max-width: 420px) {
+  .salirLargo { display: none; }
+  .salirCorto { display: inline; }
+}
+
+/* ── Contenido ────────────────────────────────────────────────────── */
+
+/* Sin z-index a propósito: no crea un contexto de apilamiento, así un
+   overlay de pantalla completa de adentro (EN EL AIRE, z 60) puede quedar
+   por encima del header (z 30). Pinta sobre el fondo por orden del DOM. */
+.contenido {
+  position: relative;
+  min-height: calc(100dvh - 56px);
+}
+
+/* ── Dock ─────────────────────────────────────────────────────────── */
+
+.dockWrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
+.dock {
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 6px;
+  background: linear-gradient(180deg, rgba(22, 22, 26, 0.62) 0%, rgba(8, 8, 10, 0.78) 100%);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(242, 239, 233, 0.08), inset 0 0 0 1px var(--linea);
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+}
+.dockCelda {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dockItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  width: 100%;
+  min-height: 58px;
+  padding: 9px 4px 8px;
+  color: var(--ceniza);
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  text-decoration: none;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.dockItem:hover,
+.dockItem:focus-visible {
+  color: var(--hueso);
+  background: rgba(255, 255, 255, 0.04);
+}
+.dockItem:focus-visible {
+  outline: none;
+  /* inset: el clip-path del ítem recortaría un outline o un shadow de afuera */
+  box-shadow: inset 0 0 0 2px var(--azul-luz);
+}
+.dockItem:active {
+  transform: scale(0.96);
+}
+.dockIcono {
+  display: block;
+  width: 20px;
+  height: 20px;
+  transform-origin: bottom center;
+}
+.dockLabel {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.dockItemActivo {
+  composes: dockItem;
+  color: var(--hueso);
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 100%, rgba(var(--azul-rgb), 0.38) 0%, transparent 75%),
+    rgba(var(--azul-rgb), 0.1);
+  box-shadow: inset 0 0 0 1px rgba(var(--azul-rgb), 0.45), inset 0 0 18px rgba(var(--azul-rgb), 0.25);
+}
+.dockItemActivo .dockIcono {
+  color: var(--azul-luz);
+  filter: drop-shadow(0 0 6px rgba(var(--azul-rgb), 0.95));
+}
+.dockItemActivo .dockLabel {
+  color: var(--azul-luz);
+  text-shadow: 0 0 8px rgba(var(--azul-rgb), 0.8);
+}
+.dockItemActivo:hover {
+  color: var(--hueso);
+}
+/* LED del ítem activo: una línea que respira en la base. */
+.dockActivoLed {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 2px;
+  height: 2px;
+  background: var(--azul-luz);
+  box-shadow: 0 0 8px 1px rgba(var(--azul-rgb), 0.9);
+  animation: respira 2.4s ease-in-out infinite;
+}
+@keyframes respira {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.dockItemDeshabilitado {
+  composes: dockItem;
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.dockItemDeshabilitado:hover {
+  color: var(--ceniza);
+  background: transparent;
+}
+
+/* ── Barra fija de pasos (flujos) ─────────────────────────────────── */
+
+.barraFija {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(8, 8, 10, 0.55) 0%, rgba(5, 5, 5, 0.9) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 0 var(--linea);
+  animation: barraEntra 0.45s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+@keyframes barraEntra {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+.barraFijaInterior {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.barraFijaInterior > * {
+  flex: 0 1 auto;
+}
+@media (max-width: 520px) {
+  .barraFijaInterior > :global(button),
+  .barraFijaInterior > :global(a) {
+    flex: 1 1 0;
+  }
+}
+
+/* ── Aviso de notificaciones de la plataforma, por encima del dock ── */
+
+.pushSobreDock :global(.fixed) {
+  bottom: calc(104px + 12px + env(safe-area-inset-bottom, 0px)) !important;
+}
+.pushOculto {
+  display: none;
+}
+.soloLector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fondoHalo,
+  .fondoGradiente,
+  .fondoGrano,
+  .fondoGranoQuieto,
+  .fondoVineta,
+  .dockItem,
+  .salirFlecha {
+    transition: none;
+  }
+  .marcaOnda i,
+  .dockActivoLed,
+  .barraFija {
+    animation: none;
+  }
+}

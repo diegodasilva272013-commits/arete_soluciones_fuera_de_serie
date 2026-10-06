@@ -1,0 +1,478 @@
+/* Frecuencia — estilos compartidos. Tokens de color vienen de
+   src/app/globals.css (:root, ya global): --azul, --azul-luz, --hueso,
+   --negro, --negro-2, --negro-3, --ceniza, --linea, --linea-2,
+   --azul-rgb. Las fuentes (--f-display/--f-texto/--f-mono) se cargan
+   en layout.tsx porque (private) no las trae por defecto. */
+
+/* Sin min-height propio: el contenedor del shell ya ocupa el alto de la
+   pantalla (descontando header y dock); con 100dvh acá toda pantalla
+   scrolleaba de más aunque fuera corta. */
+.pantalla {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+}
+@media (min-width: 1024px) {
+  .pantalla {
+    padding: 48px 64px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+}
+
+/* Variante ancha: pantallas de grilla (Semana) que no caben en 720px. */
+.pantallaAncha {
+  composes: pantalla;
+}
+@media (min-width: 1024px) {
+  .pantallaAncha {
+    max-width: none;
+  }
+}
+
+/* ── Kicker con línea animada ─────────────────────────────────────── */
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.kickerLine {
+  width: 34px;
+  height: 1px;
+  background: var(--azul);
+  flex-shrink: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.16, 0.84, 0.28, 1) 0.1s;
+}
+/* Se dibuja al montar (antes .on ya venía puesto desde el primer render
+   y la transición nunca corría: la línea aparecía quieta). */
+.kickerLine.on {
+  transform: scaleX(1);
+  animation: kickerDibuja 0.8s cubic-bezier(0.16, 0.84, 0.28, 1) 0.15s both;
+  box-shadow: 0 0 8px rgba(var(--azul-rgb), 0.8);
+}
+@keyframes kickerDibuja {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.kickerLabel {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+.kickerPaso {
+  margin-left: auto;
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--ceniza);
+}
+
+/* ── Títulos ──────────────────────────────────────────────────────── */
+
+/* Patrón heroTitle de la web corporativa (corp.module.css): Montserrat
+   800 apretada; .tituloAcento es la SEGUNDA LÍNEA en Spectral itálica
+   azul con glow. */
+.titulo {
+  font-family: var(--f-display), Montserrat, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(30px, 7vw, 52px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: var(--hueso);
+  text-wrap: balance;
+}
+.tituloAcento {
+  display: block;
+  margin-top: 0.06em;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--azul-luz);
+  text-shadow: 0 0 24px rgba(var(--azul-rgb), 0.45);
+}
+.subtitulo {
+  margin-top: 12px;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ceniza);
+  max-width: 46ch;
+}
+.ayuda {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--ceniza);
+  font-style: italic;
+}
+
+/* ── Chanfles ─────────────────────────────────────────────────────── */
+
+.chaflan {
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.panel {
+  padding: 22px;
+  border: 1px solid var(--linea);
+  background: rgba(255, 255, 255, 0.02);
+  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+}
+
+/* ── Inputs ───────────────────────────────────────────────────────── */
+
+.campo {
+  margin-top: 28px;
+}
+.campoLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+}
+.input,
+.textarea {
+  width: 100%;
+  background: var(--negro-2);
+  border: 1px solid var(--linea);
+  color: var(--hueso);
+  padding: 13px 14px;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 15px;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: border-color 0.2s ease;
+}
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--azul);
+}
+.textarea {
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.6;
+}
+
+/* ── Chips (no negociables / estándar mínimo) ────────────────────── */
+
+.chipsFila {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: var(--negro-2);
+  border: 1px solid var(--linea-2);
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 13px;
+  color: var(--hueso);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.chipQuitar {
+  color: var(--ceniza);
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.chipQuitar:hover {
+  color: var(--azul-luz);
+}
+
+/* ── Selector de área (chips) ─────────────────────────────────────── */
+
+.areasFila {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.areaChip {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 9px 14px;
+  border: 1px solid var(--linea-2);
+  background: var(--negro-2);
+  color: var(--ceniza);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.areaChip:hover {
+  color: var(--hueso);
+}
+.areaChipElegido {
+  border-color: var(--azul-luz);
+  color: var(--azul-luz);
+  box-shadow: 0 0 10px rgba(var(--azul-rgb), 0.3);
+}
+
+/* ── Botones ──────────────────────────────────────────────────────── */
+
+.filaBotones {
+  margin-top: 40px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+/* Botones chanfleados. El chanfle va en ::before/::after y NO en el
+   botón: un clip-path en el propio elemento recorta también el glow
+   (box-shadow / drop-shadow). Así el glow del hover sigue la forma
+   chanfleada por fuera. Primario y secundario tienen el mismo alto. */
+.btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 14px 24px;
+  border: none;
+  background: transparent;
+  color: var(--negro);
+  font-weight: 600;
+  transition: filter 0.25s ease, transform 0.15s ease, opacity 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--azul);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: background 0.2s ease;
+}
+.btn:hover::before,
+.btn:focus-visible::before {
+  background: var(--azul-luz);
+}
+.btn:hover,
+.btn:focus-visible {
+  filter: drop-shadow(0 0 10px rgba(var(--azul-rgb), 0.75)) drop-shadow(0 0 22px rgba(var(--azul-rgb), 0.35));
+}
+.btn:focus-visible {
+  outline: none;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: var(--ceniza);
+  filter: none;
+}
+.btn:disabled::before {
+  background: var(--negro-3);
+}
+
+/* Secundario: contorno chanfleado (::before = borde, ::after = relleno
+   1px adentro), así el borde sigue también las diagonales. */
+.btnSec {
+  composes: btn;
+  color: var(--ceniza);
+}
+.btnSec::before {
+  background: var(--linea-2);
+}
+.btnSec::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: rgba(10, 10, 11, 0.92);
+  clip-path: polygon(9.6px 0, 100% 0, 100% calc(100% - 9.6px), calc(100% - 9.6px) 100%, 0 100%, 0 9.6px);
+  transition: background 0.2s ease;
+}
+.btnSec:hover,
+.btnSec:focus-visible {
+  color: var(--hueso);
+  filter: drop-shadow(0 0 8px rgba(var(--azul-rgb), 0.45));
+}
+.btnSec:hover::before,
+.btnSec:focus-visible::before {
+  background: rgba(var(--azul-rgb), 0.85);
+}
+.btnSec:hover::after,
+.btnSec:focus-visible::after {
+  background: rgba(14, 18, 28, 0.94);
+}
+.btnSec:disabled::before {
+  background: var(--linea);
+}
+.btnGhost {
+  composes: btnSec;
+  padding: 10px 4px;
+}
+.btnGhost::before,
+.btnGhost::after,
+.btnGhost:hover::before,
+.btnGhost:hover::after,
+.btnGhost:focus-visible::before,
+.btnGhost:focus-visible::after,
+.btnGhost:disabled::before,
+.btnGhost:disabled::after {
+  background: transparent;
+}
+.btnGhost:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.btnGhost:hover,
+.btnGhost:focus-visible {
+  filter: none;
+  color: var(--azul-luz);
+}
+
+/* ── Barra de progreso "sintonizando" ─────────────────────────────── */
+
+.progresoWrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--negro-2);
+  z-index: 50;
+}
+.progresoBarra {
+  height: 100%;
+  background: linear-gradient(90deg, var(--azul), var(--azul-luz));
+  transition: width 0.5s cubic-bezier(0.16, 0.84, 0.28, 1);
+  position: relative;
+}
+.progresoBarra::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.35) 0px,
+    rgba(255, 255, 255, 0.35) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  opacity: 0.5;
+}
+@media (prefers-reduced-motion: reduce) {
+  .progresoBarra {
+    transition: none;
+  }
+}
+
+/* ── Dock inferior ────────────────────────────────────────────────── */
+
+.dockWrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
+.dock {
+  pointer-events: auto;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  background: #0a0a0b;
+  border: 1px solid var(--linea);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.dockItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 64px;
+  padding: 10px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ceniza);
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+.dockItem:hover {
+  color: var(--hueso);
+}
+.dockItem:active {
+  transform: scale(0.95);
+}
+.dockItemActivo {
+  composes: dockItem;
+  color: var(--azul-luz);
+  border-color: rgba(var(--azul-rgb), 0.3);
+  background: rgba(var(--azul-rgb), 0.08);
+}
+.dockItemDeshabilitado {
+  composes: dockItem;
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dockItem,
+  .dockItemActivo,
+  .dockItemDeshabilitado {
+    transition: none;
+  }
+}
+
+/* ── Cascada de entrada ───────────────────────────────────────────── */
+/* Cada bloque directo de una pantalla entra escalonado al montarla (la
+   pantalla se vuelve a montar en cada navegación — ver _shell.tsx). Para
+   lo que queda debajo del pliegue, las pantallas usan data-reveal +
+   .etapa de corp.module.css (RevealObserver, montado por el shell). */
+.pantalla > * {
+  animation: etapaEntra 0.6s cubic-bezier(0.16, 0.84, 0.28, 1) both;
+}
+.pantalla > :nth-child(1) { animation-delay: 0.05s; }
+.pantalla > :nth-child(2) { animation-delay: 0.12s; }
+.pantalla > :nth-child(3) { animation-delay: 0.19s; }
+.pantalla > :nth-child(4) { animation-delay: 0.26s; }
+.pantalla > :nth-child(5) { animation-delay: 0.33s; }
+.pantalla > :nth-child(n + 6) { animation-delay: 0.4s; }
+@keyframes etapaEntra {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kickerLine.on,
+  .pantalla > * {
+    animation: none;
+  }
+  .btn,
+  .btn::before,
+  .btnSec::after {
+    transition: none;
+  }
+}
