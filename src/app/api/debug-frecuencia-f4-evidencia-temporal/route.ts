@@ -97,8 +97,8 @@ export async function GET(req: NextRequest) {
   push('identidad (no_negociables: 1 legacy + 1 agendado)', !idErr, idErr?.message);
 
   const { error: areasErr } = await a.from('frecuencia_areas').insert([
-    { user_id: userId, area_key: 'salud', nivel_actual: 3, es_manzana_podrida: true },
-    { user_id: userId, area_key: 'libertad_financiera', nivel_actual: 7, es_palanca: true },
+    { user_id: userId, area_key: 'salud', nivel_actual: 3, es_palanca: false, es_manzana_podrida: true },
+    { user_id: userId, area_key: 'libertad_financiera', nivel_actual: 7, es_palanca: true, es_manzana_podrida: false },
   ]);
   push('areas (salud = manzana podrida)', !areasErr, areasErr?.message);
 
