@@ -47,7 +47,7 @@ export default async function SemanaPage() {
     inicio: b.inicio,
     fin: b.fin,
     estado: b.estado,
-    titulo: b.tarea_id ? titulosPorTarea.get(b.tarea_id) ?? '—' : b.tipo === 'IMPREVISTOS' ? copy.tareas.vacio : '',
+    titulo: b.tarea_id ? titulosPorTarea.get(b.tarea_id) ?? '—' : copy.semana.tipoLabel.IMPREVISTOS,
   }));
 
   const { data: identidad } = await (supabase as any)
