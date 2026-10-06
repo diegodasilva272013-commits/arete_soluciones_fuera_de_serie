@@ -31,6 +31,15 @@ DROP TABLE IF EXISTS public.frecuencia_revisiones;
 DROP TABLE IF EXISTS public.frecuencia_compromisos;
 DROP TABLE IF EXISTS public.frecuencia_evidencia;
 DROP TABLE IF EXISTS public.frecuencia_ideas;
+
+-- 0079: columnas/constraint/índice de inicio y fin reales del bloque
+-- (EN EL AIRE), antes de borrar la tabla.
+DROP INDEX IF EXISTS public.idx_frecuencia_bloques_un_solo_en_el_aire;
+ALTER TABLE public.frecuencia_bloques DROP CONSTRAINT IF EXISTS frecuencia_bloques_fin_real_valido;
+ALTER TABLE public.frecuencia_bloques
+  DROP COLUMN IF EXISTS fin_real,
+  DROP COLUMN IF EXISTS inicio_real;
+
 DROP TABLE IF EXISTS public.frecuencia_bloques;
 DROP TABLE IF EXISTS public.frecuencia_tareas;
 DROP TABLE IF EXISTS public.frecuencia_objetivos;
