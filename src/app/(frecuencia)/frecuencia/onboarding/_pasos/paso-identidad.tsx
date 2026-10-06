@@ -2,13 +2,16 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { PreguntaUnica } from '../_pregunta-unica';
+import { PantallaPregunta } from '../_pantalla-pregunta';
+import { LineaTransmision, inicioDeFrase, tieneRespuesta } from '../_linea-transmision';
 import { guardarIdentidad } from '../../actions';
 import { siguienteRuta } from '../_navegacion';
 import { copy } from '../../_copy';
 import base from '../../frecuencia.module.css';
-import type { PreguntaConClave } from '@/types/frecuencia';
+import s from '../_onboarding.module.css';
+import type { OnboardingCopy } from '@/types/frecuencia';
 import { BarraPasos } from '../../_barra-pasos';
+import { BotonAtras } from '../_boton-atras';
 
 const CAMPO_POR_KEY: Record<string, 'quienCreiaSer' | 'quienSoy' | 'comoMeVen' | 'quienQuieroSer'> = {
   quien_creia_ser: 'quienCreiaSer',
@@ -18,24 +21,30 @@ const CAMPO_POR_KEY: Record<string, 'quienCreiaSer' | 'quienSoy' | 'comoMeVen' |
 };
 
 export function PasoIdentidad({
-  preguntas,
+  pantallas,
   valoresIniciales,
+  paso,
 }: {
-  preguntas: PreguntaConClave[];
+  pantallas: OnboardingCopy['pasos']['identidad'];
   valoresIniciales: Record<string, string>;
+  paso: { actual: number; total: number };
 }) {
   const router = useRouter();
   const [indice, setIndice] = useState(0);
-  const [respuestas, setRespuestas] = useState<Record<string, string>>(valoresIniciales);
+  // Cada campo arranca con el comienzo de frase de onboarding_copy
+  // (salvo que ya haya una respuesta guardada).
+  const [respuestas, setRespuestas] = useState<Record<string, string>>(() =>
+    Object.fromEntries(pantallas.map((p) => [p.key, valoresIniciales[p.key] || inicioDeFrase(p.placeholder)]))
+  );
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const actual = preguntas[indice];
-  const esUltima = indice === preguntas.length - 1;
+  const actual = pantallas[indice];
+  const esUltima = indice === pantallas.length - 1;
   const valorActual = respuestas[actual.key] ?? '';
 
   async function siguiente() {
-    if (!valorActual.trim()) {
+    if (!tieneRespuesta(valorActual, actual.placeholder)) {
       setError(copy.estados.campoRequerido);
       return;
     }
@@ -47,9 +56,7 @@ export function PasoIdentidad({
     }
 
     setGuardando(true);
-    const payload = Object.fromEntries(
-      Object.entries(respuestas).map(([key, val]) => [CAMPO_POR_KEY[key], val])
-    );
+    const payload = Object.fromEntries(Object.entries(respuestas).map(([key, val]) => [CAMPO_POR_KEY[key], val.trim()]));
     const r = await guardarIdentidad(payload);
     setGuardando(false);
     if (r.error) {
@@ -60,28 +67,34 @@ export function PasoIdentidad({
   }
 
   return (
-    <div>
-      <PreguntaUnica claveAnimacion={actual.key} pregunta={actual.pregunta}>
-        <textarea
-          className={base.textarea}
-          value={valorActual}
-          onChange={(e) => setRespuestas((prev) => ({ ...prev, [actual.key]: e.target.value }))}
+    <>
+      <PantallaPregunta
+        claveAnimacion={actual.key}
+        kicker={actual.kicker}
+        gancho={actual.gancho}
+        razon={actual.razon}
+        pregunta={actual.pregunta}
+        ejemplo={actual.ejemplo}
+        paso={paso}
+        subPaso={{ actual: indice + 1, total: pantallas.length }}
+        marca={String(paso.actual).padStart(2, '0')}
+      >
+        <LineaTransmision
+          key={actual.key}
+          valor={valorActual}
+          onCambiar={(v) => setRespuestas((prev) => ({ ...prev, [actual.key]: v }))}
+          etiqueta={actual.pregunta}
           autoFocus
         />
-      </PreguntaUnica>
-
-      {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginTop: 12 }}>{error}</p>}
+        {error && <p className={s.error} role="alert">{error}</p>}
+      </PantallaPregunta>
 
       <BarraPasos>
-        {indice > 0 && (
-          <button type="button" className={base.btnSec} onClick={() => setIndice((i) => i - 1)}>
-            {copy.botones.atras}
-          </button>
-        )}
+        <BotonAtras paso="identidad" indice={indice} onAnterior={() => { setError(null); setIndice((i) => i - 1); }} />
         <button type="button" className={base.btn} onClick={siguiente} disabled={guardando}>
           {guardando ? copy.botones.guardando : esUltima ? copy.botones.continuar : copy.botones.siguiente}
         </button>
       </BarraPasos>
-    </div>
+    </>
   );
 }

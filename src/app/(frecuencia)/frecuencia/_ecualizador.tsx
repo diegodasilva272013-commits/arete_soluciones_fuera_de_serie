@@ -100,6 +100,8 @@ export function Ecualizador({
   onGuardar,
   onDespuesDeGuardar,
   onAtras,
+  preguntaPalanca,
+  preguntaManzana,
 }: {
   areas: AreaVida[];
   reglas: AreasReglas | null;
@@ -115,6 +117,9 @@ export function Ecualizador({
   onDespuesDeGuardar?: () => void;
   /** Dentro de un flujo: el Atrás va en la misma barra que el CTA (una sola BarraPasos por pantalla). */
   onAtras?: () => void;
+  /** En el onboarding, las preguntas de palanca y manzana vienen de onboarding_copy. */
+  preguntaPalanca?: string;
+  preguntaManzana?: string;
 }) {
   const [niveles, setNiveles] = useState<Record<string, number>>(() => {
     const base: Record<string, number> = {};
@@ -156,7 +161,7 @@ export function Ecualizador({
       </div>
 
       <div className={s.seleccionGrupo}>
-        <p className={s.seleccionPregunta}>{copy.areas.elegirPalanca}</p>
+        <p className={s.seleccionPregunta}>{preguntaPalanca ?? copy.areas.elegirPalanca}</p>
         <div className={s.chipsSeleccion}>
           {areas.map((a) => (
             <button
@@ -172,7 +177,7 @@ export function Ecualizador({
       </div>
 
       <div className={s.seleccionGrupo}>
-        <p className={s.seleccionPregunta}>{copy.areas.elegirManzana}</p>
+        <p className={s.seleccionPregunta}>{preguntaManzana ?? copy.areas.elegirManzana}</p>
         <div className={s.chipsSeleccion}>
           {areas.map((a) => (
             <button

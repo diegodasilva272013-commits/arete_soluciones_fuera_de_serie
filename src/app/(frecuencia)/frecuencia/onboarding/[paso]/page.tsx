@@ -7,11 +7,9 @@ import {
   getAreasReglas,
   getEnergiasEscasez,
   getAccionesSubida,
-  getMapaEnergiaDefault,
-  getPreguntasOnboarding,
+  getOnboardingCopy,
 } from '@/lib/frecuencia-kb';
-import { esPasoValido, indiceDe } from '../_navegacion';
-import { PasoHeader } from '../_paso-header';
+import { esPasoValido, indiceDe, PASOS_WIZARD } from '../_navegacion';
 import { PasoDial } from '../_pasos/paso-dial';
 import { PasoIdentidad } from '../_pasos/paso-identidad';
 import { PasoNoNegociables } from '../_pasos/paso-no-negociables';
@@ -19,7 +17,6 @@ import { PasoEcualizador } from '../_pasos/paso-ecualizador';
 import { PasoEnergia } from '../_pasos/paso-energia';
 import { PasoEspejo } from '../_pasos/paso-espejo';
 import { PasoObjetivo } from '../_pasos/paso-objetivo';
-import base from '../../frecuencia.module.css';
 
 export default async function PasoOnboardingPage({ params }: { params: { paso: string } }) {
   const { paso } = params;
@@ -40,12 +37,14 @@ export default async function PasoOnboardingPage({ params }: { params: { paso: s
     redirect('/frecuencia/onboarding/completo');
   }
 
-  const preguntas = await getPreguntasOnboarding();
-  if (!preguntas) {
+  const textos = await getOnboardingCopy();
+  if (!textos) {
     // Falla cerrada: sin contenido del método no se puede mostrar el
     // onboarding — mejor un error visible que preguntas vacías.
-    throw new Error('No se pudo cargar el contenido del onboarding (frecuencia_knowledge_blocks.preguntas_onboarding).');
+    throw new Error('No se pudo cargar el contenido del onboarding (frecuencia_knowledge_blocks.onboarding_copy).');
   }
+  const t = textos.pasos;
+  const numero = { actual: indiceDe(paso) + 1, total: PASOS_WIZARD.length };
 
   const supabase = createSupabaseServerClient();
 
@@ -55,7 +54,7 @@ export default async function PasoOnboardingPage({ params }: { params: { paso: s
     case 'dial': {
       const energiasDisponibles = (await getEnergiasEscasez()) ?? [];
       const accionesSubida = (await getAccionesSubida()) ?? [];
-      contenido = <PasoDial pregunta={preguntas.dial.pregunta} energiasDisponibles={energiasDisponibles} accionesSubida={accionesSubida} />;
+      contenido = <PasoDial c={t.dial} energiasDisponibles={energiasDisponibles} accionesSubida={accionesSubida} paso={numero} />;
       break;
     }
     case 'identidad': {
@@ -70,7 +69,10 @@ export default async function PasoOnboardingPage({ params }: { params: { paso: s
         como_me_ven: data?.como_me_ven ?? '',
         quien_quiero_ser: data?.quien_quiero_ser ?? '',
       };
-      contenido = <PasoIdentidad preguntas={preguntas.identidad} valoresIniciales={valoresIniciales} />;
+      // Solo las claves que la app sabe guardar: una clave nueva o
+      // distinta en la base no puede dejar el paso imposible de completar.
+      const pantallas = t.identidad.filter((x) => x.key in valoresIniciales);
+      contenido = <PasoIdentidad pantallas={pantallas} valoresIniciales={valoresIniciales} paso={numero} />;
       break;
     }
     case 'no_negociables': {
@@ -81,10 +83,9 @@ export default async function PasoOnboardingPage({ params }: { params: { paso: s
         .maybeSingle();
       contenido = (
         <PasoNoNegociables
-          preguntaNoNegociables={preguntas.no_negociables.pregunta}
-          ayudaNoNegociables={preguntas.no_negociables.ayuda}
-          preguntaEstandarMinimo={preguntas.estandar_minimo.pregunta}
-          ayudaEstandarMinimo={preguntas.estandar_minimo.ayuda}
+          noNegociablesCopy={t.no_negociables}
+          estandarMinimoCopy={t.estandar_minimo}
+          paso={numero}
           noNegociablesIniciales={data?.no_negociables ?? []}
           estandarMinimoInicial={data?.estandar_minimo ?? []}
         />
@@ -93,11 +94,10 @@ export default async function PasoOnboardingPage({ params }: { params: { paso: s
     }
     case 'ecualizador': {
       const reglas = await getAreasReglas();
-      contenido = <PasoEcualizador pregunta={preguntas.ecualizador.pregunta} areas={areas} reglas={reglas} />;
+      contenido = <PasoEcualizador c={t.ecualizador} areas={areas} reglas={reglas} paso={numero} />;
       break;
     }
     case 'energia': {
-      const mapaDefault = await getMapaEnergiaDefault();
       const { data: pref } = await (supabase as any)
         .from('frecuencia_preferencias')
         .select('hora_despertar')
@@ -114,8 +114,8 @@ export default async function PasoOnboardingPage({ params }: { params: { paso: s
       for (const f of mapa?.franjas ?? []) franjasIniciales[f.tipo] = f.respuesta;
       contenido = (
         <PasoEnergia
-          preguntas={preguntas.energia}
-          reglaSugerida={mapaDefault?.regla ?? ''}
+          c={t.energia}
+          paso={numero}
           horaDespertarInicial={pref?.hora_despertar?.slice(0, 5) ?? ''}
           franjasIniciales={franjasIniciales}
         />
@@ -123,21 +123,18 @@ export default async function PasoOnboardingPage({ params }: { params: { paso: s
       break;
     }
     case 'espejo': {
-      contenido = <PasoEspejo preguntas={preguntas.espejo} />;
+      contenido = <PasoEspejo c={t.espejo} paso={numero} />;
       break;
     }
     case 'objetivo': {
-      contenido = <PasoObjetivo preguntas={preguntas.objetivo} preguntaSinProposito={preguntas.sin_proposito.pregunta} areas={areas} />;
+      const conocidas = ['imagen_mental', 'fecha_limite', 'area_key', 'identidad_que_expresa'];
+      const objetivo = { ...t.objetivo, preguntas: t.objetivo.preguntas.filter((x) => conocidas.includes(x.key)) };
+      contenido = <PasoObjetivo c={objetivo} sinPropositoCopy={t.sin_proposito} areas={areas} paso={numero} />;
       break;
     }
     default:
       notFound();
   }
 
-  return (
-    <div className={base.pantalla}>
-      <PasoHeader paso={paso} />
-      {contenido}
-    </div>
-  );
+  return contenido;
 }

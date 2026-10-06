@@ -10,5 +10,7 @@ export default async function OnboardingIndexPage() {
   const areas = (await getAreasVida()) ?? [];
   const paso = await primerPasoIncompleto(ctx.userId, areas.length);
 
-  redirect(paso === 'completo' ? '/frecuencia/onboarding/completo' : `/frecuencia/onboarding/${paso}`);
+  if (paso === 'completo') redirect('/frecuencia/onboarding/completo');
+  // Quien todavía no arrancó (primer paso pendiente) ve antes la intro.
+  redirect(paso === 'dial' ? '/frecuencia/onboarding/intro' : `/frecuencia/onboarding/${paso}`);
 }

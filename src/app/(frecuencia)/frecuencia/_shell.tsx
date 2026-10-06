@@ -36,6 +36,8 @@ import s from './_shell.module.css';
 type ShellCtx = {
   enFlujo: boolean;
   setFrecuencia: (f: number | null) => void;
+  /** Vuelve el fondo al dial real de hoy (el que trajo el servidor). */
+  restaurarSintonia: () => void;
   registrarFlujo: () => () => void;
   capaFija: HTMLElement | null;
 };
@@ -43,6 +45,7 @@ type ShellCtx = {
 const Ctx = createContext<ShellCtx>({
   enFlujo: false,
   setFrecuencia: () => {},
+  restaurarSintonia: () => {},
   registrarFlujo: () => () => {},
   capaFija: null,
 });
@@ -53,6 +56,10 @@ export function useEnFlujo() {
 
 export function useSintonia() {
   return useContext(Ctx).setFrecuencia;
+}
+
+export function useRestaurarSintonia() {
+  return useContext(Ctx).restaurarSintonia;
 }
 
 /** Mientras `activo` sea true, la pantalla cuenta como flujo de varios pasos (sin dock). */
@@ -135,7 +142,12 @@ export function FrecuenciaShell({
   const [rutaMostrada, setRutaMostrada] = useState(pathname);
 
   // Si el servidor trae un dial nuevo (revalidatePath después de guardar), se sigue.
-  useEffect(() => setFrecuencia(frecuenciaInicial), [frecuenciaInicial]);
+  const frecuenciaDelServidor = useRef(frecuenciaInicial);
+  useEffect(() => {
+    frecuenciaDelServidor.current = frecuenciaInicial;
+    setFrecuencia(frecuenciaInicial);
+  }, [frecuenciaInicial]);
+  const restaurarSintonia = useCallback(() => setFrecuencia(frecuenciaDelServidor.current), []);
   useForzarOscuro();
 
   const registrarFlujo = useCallback(() => {
@@ -144,7 +156,10 @@ export function FrecuenciaShell({
   }, []);
 
   const enFlujo = esRutaDeFlujo(rutaMostrada) || flujosManuales > 0;
-  const valor = useMemo(() => ({ enFlujo, setFrecuencia, registrarFlujo, capaFija }), [enFlujo, registrarFlujo, capaFija]);
+  const valor = useMemo(
+    () => ({ enFlujo, setFrecuencia, restaurarSintonia, registrarFlujo, capaFija }),
+    [enFlujo, restaurarSintonia, registrarFlujo, capaFija]
+  );
 
   return (
     <Ctx.Provider value={valor}>
