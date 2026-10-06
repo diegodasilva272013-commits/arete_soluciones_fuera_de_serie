@@ -90,6 +90,29 @@ function BandaVertical({
   );
 }
 
+/**
+ * Área más alta = palanca, más baja = manzana podrida. Con empate se toma
+ * la primera en el orden de las áreas y se avisa. Si todas tienen el mismo
+ * número no hay extremos que sugerir.
+ */
+function sugerirExtremos(areas: AreaVida[], niveles: Record<string, number>) {
+  const valores = areas.map((a) => niveles[a.key] ?? 0);
+  const max = Math.max(...valores);
+  const min = Math.min(...valores);
+  if (!areas.length || max === min) {
+    return { palanca: null, manzana: null, todasIguales: true, empatePalanca: false, empateManzana: false };
+  }
+  const conMax = areas.filter((a) => (niveles[a.key] ?? 0) === max);
+  const conMin = areas.filter((a) => (niveles[a.key] ?? 0) === min);
+  return {
+    palanca: conMax[0].key,
+    manzana: conMin[0].key,
+    todasIguales: false,
+    empatePalanca: conMax.length > 1,
+    empateManzana: conMin.length > 1,
+  };
+}
+
 export function Ecualizador({
   areas,
   reglas,
@@ -133,8 +156,15 @@ export function Ecualizador({
     for (const a of areas) base[a.key] = nivelesIniciales?.[a.key] ?? 0;
     return base;
   });
-  const [palanca, setPalanca] = useState<string | null>(palancaInicial ?? null);
-  const [manzana, setManzana] = useState<string | null>(manzanaInicial ?? null);
+  // La más fuerte y la más débil salen SOLAS de los números (la más alta y
+  // la más baja): preguntarlas aparte, después de pedir los números, no
+  // tenía sentido. La persona solo toca si quiere otra (p. ej. un empate);
+  // desde ese momento manda lo que eligió.
+  const [palancaElegida, setPalanca] = useState<string | null>(palancaInicial ?? null);
+  const [manzanaElegida, setManzana] = useState<string | null>(manzanaInicial ?? null);
+  const sugerida = sugerirExtremos(areas, niveles);
+  const palanca = palancaElegida ?? sugerida.palanca;
+  const manzana = manzanaElegida ?? sugerida.manzana;
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -144,7 +174,7 @@ export function Ecualizador({
       return;
     }
     if (exigirSeleccion && (!palanca || !manzana)) {
-      setError(!palanca && !manzana ? copy.areas.faltaPalancaYManzana : !palanca ? copy.areas.faltaPalanca : copy.areas.faltaManzana);
+      setError(sugerida.todasIguales ? copy.areas.todasIguales : !palanca && !manzana ? copy.areas.faltaPalancaYManzana : !palanca ? copy.areas.faltaPalanca : copy.areas.faltaManzana);
       return;
     }
     setGuardando(true);
@@ -175,8 +205,11 @@ export function Ecualizador({
         ))}
       </div>
 
+      {!sugerida.todasIguales && <p className={s.seleccionNota}>{copy.areas.marcadasSolas}</p>}
+
       <div className={s.seleccionGrupo}>
         <p className={s.seleccionPregunta}>{preguntaPalanca ?? copy.areas.elegirPalanca}</p>
+        {!palancaElegida && sugerida.empatePalanca && <p className={s.seleccionNota}>{copy.areas.empate}</p>}
         <div className={s.chipsSeleccion}>
           {areas.map((a) => (
             <button
@@ -193,6 +226,7 @@ export function Ecualizador({
 
       <div className={s.seleccionGrupo}>
         <p className={s.seleccionPregunta}>{preguntaManzana ?? copy.areas.elegirManzana}</p>
+        {!manzanaElegida && sugerida.empateManzana && <p className={s.seleccionNota}>{copy.areas.empate}</p>}
         <div className={s.chipsSeleccion}>
           {areas.map((a) => (
             <button

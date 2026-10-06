@@ -82,6 +82,10 @@ export const copy = {
     faltaPalanca: 'Te falta elegir tu área más fuerte.',
     faltaManzana: 'Te falta elegir tu área más débil.',
     mismaArea: 'La más fuerte y la más débil tienen que ser áreas distintas.',
+    // La palanca y la manzana salen solas de los números; las preguntas quedan para corregir.
+    marcadasSolas: 'Ya las marcamos con tus números: la más alta y la más baja. Si para vos es otra, tocala.',
+    empate: 'Hay empate: tocá la que corresponda.',
+    todasIguales: 'Todas tus áreas tienen el mismo número. Movelas para que se note cuál es la más fuerte y cuál la más débil, o elegilas acá abajo.',
   },
 
   objetivos: {
