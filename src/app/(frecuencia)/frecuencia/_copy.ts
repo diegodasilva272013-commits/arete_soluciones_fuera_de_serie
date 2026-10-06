@@ -52,6 +52,10 @@ export const copy = {
     transmitiendo: 'Transmitiendo',
     sumarItem: 'Enter para sumarlo',
     preguntaDe: (actual: number, total: number) => `${actual} de ${total}`,
+    // El Dial automático en 0: la aguja justo entre las dos radios.
+    entreLasDos: 'Entre las dos radios',
+    // Energía: para quien no sabe su mejor horario (ver sin_saber).
+    noLoSe: 'No lo sé',
     introDe: (actual: number, total: number) => `${String(actual).padStart(2, '0')} / ${String(total).padStart(2, '0')}`,
   },
 

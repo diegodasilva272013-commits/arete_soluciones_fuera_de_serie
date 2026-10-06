@@ -69,7 +69,10 @@ export default async function PasoOnboardingPage({ params }: { params: { paso: s
         como_me_ven: data?.como_me_ven ?? '',
         quien_quiero_ser: data?.quien_quiero_ser ?? '',
       };
-      contenido = <PasoIdentidad pantallas={t.identidad} valoresIniciales={valoresIniciales} paso={numero} />;
+      // Solo las claves que la app sabe guardar: una clave nueva o
+      // distinta en la base no puede dejar el paso imposible de completar.
+      const pantallas = t.identidad.filter((x) => x.key in valoresIniciales);
+      contenido = <PasoIdentidad pantallas={pantallas} valoresIniciales={valoresIniciales} paso={numero} />;
       break;
     }
     case 'no_negociables': {
@@ -124,7 +127,9 @@ export default async function PasoOnboardingPage({ params }: { params: { paso: s
       break;
     }
     case 'objetivo': {
-      contenido = <PasoObjetivo c={t.objetivo} sinPropositoCopy={t.sin_proposito} areas={areas} paso={numero} />;
+      const conocidas = ['imagen_mental', 'fecha_limite', 'area_key', 'identidad_que_expresa'];
+      const objetivo = { ...t.objetivo, preguntas: t.objetivo.preguntas.filter((x) => conocidas.includes(x.key)) };
+      contenido = <PasoObjetivo c={objetivo} sinPropositoCopy={t.sin_proposito} areas={areas} paso={numero} />;
       break;
     }
     default:

@@ -14,7 +14,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { copy } from '../_copy';
-import { useSintonia } from '../_shell';
+import { useRestaurarSintonia, useSintonia } from '../_shell';
 import s from './_onboarding.module.css';
 
 const ANCHO = 1000;
@@ -52,6 +52,7 @@ function caminoSenal(valor: number, fase: number): string {
 export function DialAutomatico({ modo, moverFondo = false }: { modo: 'barrido' | 'sintonizar'; moverFondo?: boolean }) {
   const reducido = useReducedMotion();
   const setFrecuencia = useSintonia();
+  const restaurarSintonia = useRestaurarSintonia();
   const [valor, setValor] = useState(modo === 'sintonizar' ? -60 : 0);
   const [fase, setFase] = useState(0);
   const ultimoFondo = useRef<number | null>(null);
@@ -82,14 +83,16 @@ export function DialAutomatico({ modo, moverFondo = false }: { modo: 'barrido' |
     raf = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(raf);
-      // La intro es antes del primer check-in: al salir, el fondo vuelve
-      // al punto medio (todavía no hay dial de hoy).
-      if (moverFondo) setFrecuencia(null);
+      // Al salir, el fondo vuelve al dial real de hoy (o al punto medio si
+      // todavía no hay check-in): la intro no deja la sintonía cambiada.
+      if (moverFondo) restaurarSintonia();
     };
-  }, [modo, moverFondo, reducido, setFrecuencia]);
+  }, [modo, moverFondo, reducido, setFrecuencia, restaurarSintonia]);
 
   const t = (valor + 100) / 200;
-  const enAbundancia = valor >= 0;
+  // En 0 la aguja está justo entre las dos radios: ni una ni otra.
+  const enAbundancia = valor > 0;
+  const enEscasez = valor < 0;
   const xAguja = t * ANCHO;
   const camino = useMemo(() => caminoSenal(valor, fase), [valor, fase]);
 
@@ -105,10 +108,12 @@ export function DialAutomatico({ modo, moverFondo = false }: { modo: 'barrido' |
   return (
     <div className={s.dialAuto} aria-hidden>
       <div className={s.dialAutoDisplay}>
-        <span className={`${s.dialAutoValor} ${enAbundancia ? s.dialAutoValorAlto : s.dialAutoValorBajo}`}>
+        <span className={`${s.dialAutoValor} ${enAbundancia ? s.dialAutoValorAlto : enEscasez ? s.dialAutoValorBajo : ''}`}>
           {valor > 0 ? `+${valor}` : valor}
         </span>
-        <span className={s.dialAutoEstacion}>{enAbundancia ? copy.dial.abundanciaFm : copy.dial.escasezFm}</span>
+        <span className={s.dialAutoEstacion}>
+          {enAbundancia ? copy.dial.abundanciaFm : enEscasez ? copy.dial.escasezFm : copy.onboarding.entreLasDos}
+        </span>
       </div>
 
       <svg className={s.dialAutoSvg} viewBox={`0 0 ${ANCHO} ${ALTO + 46}`} preserveAspectRatio="none">

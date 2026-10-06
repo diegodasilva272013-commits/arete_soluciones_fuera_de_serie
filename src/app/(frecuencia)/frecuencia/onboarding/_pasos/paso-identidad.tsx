@@ -86,7 +86,7 @@ export function PasoIdentidad({
           etiqueta={actual.pregunta}
           autoFocus
         />
-        {error && <p className={s.error}>{error}</p>}
+        {error && <p className={s.error} role="alert">{error}</p>}
       </PantallaPregunta>
 
       <BarraPasos>

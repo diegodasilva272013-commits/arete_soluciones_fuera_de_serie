@@ -43,8 +43,11 @@ export function PasoEnergia({
   const esUltima = indice === preguntas.length - 1;
   const valorActual = esHora ? horaDespertar : franjas[actual.key] ?? '';
 
+  // La hora de despertar es obligatoria (todo el plan se calcula desde ahí).
+  // Las franjas no: la copy promete que si no lo sabés no pasa nada, y el
+  // plan arranca con la regla general (mapa_energia_default).
   async function siguiente() {
-    if (!valorActual.trim()) {
+    if (esHora && !valorActual.trim()) {
       setError(copy.estados.campoRequerido);
       return;
     }
@@ -60,7 +63,9 @@ export function PasoEnergia({
       horaDespertar,
       franjas: preguntas
         .filter((p) => p.key !== 'hora_despertar')
-        .map((p) => ({ tipo: p.key as 'profundo' | 'decision' | 'creativo', respuesta: (franjas[p.key] ?? '').trim() })),
+        .map((p) => ({ tipo: p.key as 'profundo' | 'decision' | 'creativo', respuesta: (franjas[p.key] ?? '').trim() }))
+        // "No lo sé" no se guarda como franja vacía: no se guarda.
+        .filter((f) => f.respuesta),
     });
     setGuardando(false);
     if (r.error) {
@@ -97,12 +102,17 @@ export function PasoEnergia({
             autoFocus
           />
         )}
-        {error && <p className={s.error}>{error}</p>}
+        {error && <p className={s.error} role="alert">{error}</p>}
       </PantallaPregunta>
 
       <BarraPasos>
         <BotonAtras paso="energia" indice={indice} onAnterior={() => { setError(null); setIndice((i) => i - 1); }} />
-        <button type="button" className={base.btn} onClick={siguiente} disabled={guardando}>
+        {!esHora && !valorActual.trim() && c.sin_saber && (
+          <button type="button" className={base.btnSec} onClick={siguiente} disabled={guardando}>
+            {copy.onboarding.noLoSe}
+          </button>
+        )}
+        <button type="button" className={base.btn} onClick={siguiente} disabled={guardando || (!esHora && !valorActual.trim() && !!c.sin_saber)}>
           {guardando ? copy.botones.guardando : esUltima ? copy.botones.continuar : copy.botones.siguiente}
         </button>
       </BarraPasos>

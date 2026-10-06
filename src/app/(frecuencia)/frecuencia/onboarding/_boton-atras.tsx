@@ -31,7 +31,7 @@ export function BotonAtras({
     );
   }
   return (
-    <Link href={anteriorRuta(paso) ?? '/frecuencia/onboarding/intro'} className={base.btnSec}>
+    <Link href={anteriorRuta(paso) ?? '/frecuencia/onboarding/intro?desde=fin'} className={base.btnSec}>
       {copy.botones.atras}
     </Link>
   );

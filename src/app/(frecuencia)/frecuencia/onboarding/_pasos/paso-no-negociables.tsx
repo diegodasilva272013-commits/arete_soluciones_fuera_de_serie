@@ -113,7 +113,7 @@ export function PasoNoNegociables({
         ) : (
           <Registro key="em" valores={estandarMinimo} onCambiar={setEstandarMinimo} sugerencia={c.placeholder} etiqueta={c.pregunta} />
         )}
-        {error && <p className={s.error}>{error}</p>}
+        {error && <p className={s.error} role="alert">{error}</p>}
       </PantallaPregunta>
 
       <BarraPasos>

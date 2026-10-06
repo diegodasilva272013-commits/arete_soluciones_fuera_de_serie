@@ -29,7 +29,7 @@ export function PasoDial({
         textoCta={copy.botones.siguiente}
         onGuardar={guardarDial}
         onDespuesDeGuardar={() => router.push(siguienteRuta('dial'))}
-        onAtras={() => router.push('/frecuencia/onboarding/intro')}
+        onAtras={() => router.push('/frecuencia/onboarding/intro?desde=fin')}
       />
     </PantallaPregunta>
   );

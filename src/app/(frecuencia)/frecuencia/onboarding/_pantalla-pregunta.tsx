@@ -18,6 +18,7 @@
  * otra dentro del mismo paso hay transición propia (AnimatePresence).
  */
 
+import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { copy } from '../_copy';
 import { CapaFija } from '../_shell';
@@ -42,6 +43,16 @@ type Props = {
 export function PantallaPregunta({ claveAnimacion, kicker, gancho, razon, pregunta, ejemplo, notas, paso, subPaso, marca, children }: Props) {
   const reducido = useReducedMotion();
   const notasVisibles = (notas ?? []).filter((n): n is string => !!n);
+
+  // Al cambiar de pregunta, la anterior sigue en pantalla mientras sale
+  // (AnimatePresence). Si su campo conservara el foco, lo que la persona
+  // tipea en ese instante pisaría la respuesta ANTERIOR. Se le saca el
+  // foco ya; el campo nuevo se enfoca solo al montar.
+  useEffect(() => {
+    const activo = document.activeElement;
+    const contenedor = activo instanceof HTMLElement ? activo.closest('[data-pregunta]') : null;
+    if (contenedor && contenedor.getAttribute('data-pregunta') !== claveAnimacion) (activo as HTMLElement).blur();
+  }, [claveAnimacion]);
 
   return (
     <div className={s.pantalla}>
@@ -77,10 +88,11 @@ export function PantallaPregunta({ claveAnimacion, kicker, gancho, razon, pregun
         <motion.div
           key={claveAnimacion}
           className={s.cuerpo}
+          data-pregunta={claveAnimacion}
           initial={reducido ? false : { opacity: 0, x: 28 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={reducido ? { opacity: 0 } : { opacity: 0, x: -28, transition: { duration: 0.22, ease: [0.7, 0, 0.84, 0] } }}
-          transition={{ duration: 0.38, ease: [0.16, 0.84, 0.28, 1] }}
+          exit={reducido ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, x: -28, transition: { duration: 0.22, ease: [0.7, 0, 0.84, 0] } }}
+          transition={reducido ? { duration: 0 } : { duration: 0.38, ease: [0.16, 0.84, 0.28, 1] }}
         >
           <h1 className={`${s.gancho} ${s.etapa}`}>{gancho}</h1>
           {razon && <p className={`${s.razon} ${s.etapa}`}>{razon}</p>}

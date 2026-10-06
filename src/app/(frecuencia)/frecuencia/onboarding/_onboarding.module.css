@@ -5,7 +5,11 @@
 
 .pantalla {
   position: relative;
-  min-height: calc(100dvh - 56px - env(safe-area-inset-top, 0px));
+  /* Contexto de apilamiento propio: la marca de fondo queda detrás del
+     contenido pero delante del fondo vivo. */
+  isolation: isolate;
+  /* Alto visible real: sin el header ni la barra fija de pasos (92px). */
+  min-height: calc(100dvh - 56px - env(safe-area-inset-top, 0px) - 92px - env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -25,7 +29,7 @@
   right: -8px;
   top: 50%;
   transform: translateY(-58%);
-  z-index: -1;
+  z-index: 0;
   font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
   font-weight: 500;
   font-size: clamp(160px, 34vw, 420px);
@@ -50,6 +54,14 @@
     -webkit-text-stroke-color: rgba(var(--azul-rgb), 0.16);
     animation: none;
   }
+}
+
+.cabecera,
+.segmentos,
+.cuerpo,
+.introDial {
+  position: relative;
+  z-index: 1;
 }
 
 .cabecera {
@@ -125,7 +137,7 @@
 
 .pregunta {
   font-family: var(--f-display), Montserrat, system-ui, sans-serif;
-  font-weight: 600;
+  font-weight: 700;
   font-size: clamp(16px, 2vw, 19px);
   line-height: 1.45;
   color: var(--hueso);
@@ -148,7 +160,7 @@
   font-size: 10px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(var(--azul-rgb), 0.9);
+  color: var(--ceniza);
   margin-right: 6px;
 }
 
@@ -160,6 +172,10 @@
   line-height: 1.55;
   color: rgba(242, 239, 233, 0.75);
   max-width: 56ch;
+}
+
+.sinObjetivo {
+  margin-top: 28px;
 }
 
 .error {
@@ -351,7 +367,7 @@
 }
 .frecuenciaNombre {
   font-family: var(--f-display), Montserrat, system-ui, sans-serif;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 13px;
   line-height: 1.25;
 }

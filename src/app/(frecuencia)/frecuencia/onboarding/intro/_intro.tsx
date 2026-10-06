@@ -18,9 +18,9 @@ import { DialAutomatico } from '../_dial-automatico';
 import { BarraPasos } from '../../_barra-pasos';
 import type { PantallaCopy } from '@/types/frecuencia';
 
-export function Intro({ pantallas }: { pantallas: PantallaCopy[] }) {
+export function Intro({ pantallas, empezarAlFinal = false }: { pantallas: PantallaCopy[]; empezarAlFinal?: boolean }) {
   const reducido = useReducedMotion();
-  const [indice, setIndice] = useState(0);
+  const [indice, setIndice] = useState(empezarAlFinal ? pantallas.length - 1 : 0);
   const actual = pantallas[indice];
   const esUltima = indice === pantallas.length - 1;
 

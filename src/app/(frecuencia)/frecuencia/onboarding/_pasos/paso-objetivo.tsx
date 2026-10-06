@@ -72,7 +72,7 @@ export function PasoObjetivo({
           marca={marca}
         >
           <LineaTransmision key="sin_proposito" valor={respuestaSinProposito} onCambiar={setRespuestaSinProposito} etiqueta={sinPropositoCopy.pregunta} autoFocus />
-          {error && <p className={s.error}>{error}</p>}
+          {error && <p className={s.error} role="alert">{error}</p>}
         </PantallaPregunta>
 
         <BarraPasos>
@@ -170,9 +170,9 @@ export function PasoObjetivo({
         {actual.key === 'identidad_que_expresa' && (
           <LineaTransmision key="identidad" valor={identidadQueExpresa} onCambiar={setIdentidadQueExpresa} etiqueta={actual.pregunta} autoFocus />
         )}
-        {error && <p className={s.error}>{error}</p>}
+        {error && <p className={s.error} role="alert">{error}</p>}
         {primera && (
-          <button type="button" className={base.btnGhost} style={{ marginTop: 28 }} onClick={() => { setError(null); setSinProposito(true); }}>
+          <button type="button" className={`${base.btnGhost} ${s.sinObjetivo}`} onClick={() => { setError(null); setSinProposito(true); }}>
             {copy.botones.noTengoObjetivoClaro}
           </button>
         )}
