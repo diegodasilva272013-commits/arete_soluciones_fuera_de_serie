@@ -17,6 +17,7 @@ import s from './frecuencia.module.css';
 
 const ITEMS = [
   { href: '/frecuencia/hoy', label: copy.dock.hoy, habilitado: false },
+  { href: '/frecuencia/semana', label: copy.dock.semana, habilitado: true },
   { href: '/frecuencia/dial', label: copy.dock.dial, habilitado: true },
   { href: '/frecuencia/areas', label: copy.dock.areas, habilitado: true },
   { href: '/frecuencia/espejo', label: copy.dock.espejo, habilitado: false },

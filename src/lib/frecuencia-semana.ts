@@ -1,0 +1,97 @@
+/**
+ * Junta todo lo que arrancarSemana() necesita por parámetro — hora de
+ * despertar, no negociables agendados, áreas, tareas y las reglas
+ * numéricas — leyendo con el cliente de sesión del usuario (RLS real,
+ * nunca service role). armarSemana() en sí sigue sin tocar la base: acá
+ * vive únicamente el puente entre la base y la función pura.
+ */
+import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { getReglasPlan, getReglasDecision } from '@/lib/frecuencia-kb';
+import type { NoNegociableGuardado } from '@/types/frecuencia';
+import type { DatosParaArmarSemana, DiaSemana, TareaParaPlan } from '@/lib/frecuencia/plan';
+
+const DIAS_VALIDOS = new Set(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']);
+
+/** Entradas legacy (string plano, del onboarding) quedan sin horario — se excluyen del armado hasta que alguien les asigne día y hora en la pantalla Semana. */
+export function normalizarNoNegociables(raw: unknown): NoNegociableGuardado[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item): NoNegociableGuardado => {
+    if (typeof item === 'string') return { texto: item, dia: null, horaInicio: null, horaFin: null };
+    const obj = item as Partial<NoNegociableGuardado>;
+    const dia = typeof obj.dia === 'string' && DIAS_VALIDOS.has(obj.dia) ? (obj.dia as DiaSemana) : null;
+    return {
+      texto: typeof obj.texto === 'string' ? obj.texto : '',
+      dia,
+      horaInicio: typeof obj.horaInicio === 'string' ? obj.horaInicio : null,
+      horaFin: typeof obj.horaFin === 'string' ? obj.horaFin : null,
+    };
+  });
+}
+
+export async function obtenerDatosParaArmarSemana(userId: string): Promise<{ datos: DatosParaArmarSemana } | { error: string }> {
+  const supabase = createSupabaseServerClient();
+
+  const { data: preferencias } = await (supabase as any)
+    .from('frecuencia_preferencias')
+    .select('hora_despertar')
+    .eq('user_id', userId)
+    .maybeSingle();
+  const horaDespertarCruda = preferencias?.hora_despertar as string | null | undefined;
+  if (!horaDespertarCruda) return { error: 'Falta la hora de despertar (se carga en el onboarding, paso Energía).' };
+  const horaDespertar = horaDespertarCruda.slice(0, 5); // "HH:MM:SS" -> "HH:MM"
+
+  const { data: identidad } = await (supabase as any)
+    .from('frecuencia_identidad')
+    .select('no_negociables')
+    .eq('user_id', userId)
+    .maybeSingle();
+  const noNegociables = normalizarNoNegociables(identidad?.no_negociables)
+    .filter((n): n is NoNegociableGuardado & { dia: DiaSemana; horaInicio: string; horaFin: string } => n.dia !== null && n.horaInicio !== null && n.horaFin !== null)
+    .map((n) => ({ texto: n.texto, dia: n.dia, horaInicio: n.horaInicio, horaFin: n.horaFin }));
+
+  const { data: areasData } = await (supabase as any)
+    .from('frecuencia_areas')
+    .select('area_key, es_manzana_podrida')
+    .eq('user_id', userId);
+  const areas = (areasData ?? []).map((a: any) => ({ areaKey: a.area_key as string, esManzanaPodrida: !!a.es_manzana_podrida }));
+
+  const { data: objetivosData } = await (supabase as any).from('frecuencia_objetivos').select('id, area_key').eq('user_id', userId);
+  const areaPorObjetivo = new Map<string, string | null>((objetivosData ?? []).map((o: any) => [o.id, o.area_key]));
+
+  const { data: tareasData } = await (supabase as any)
+    .from('frecuencia_tareas')
+    .select('id, titulo, tipo_energia, duracion_min, dosis_objetivo, desbloquea, objetivo_id')
+    .eq('user_id', userId);
+  const tareas: TareaParaPlan[] = (tareasData ?? []).map((t: any) => ({
+    id: t.id,
+    titulo: t.titulo,
+    tipoEnergia: t.tipo_energia,
+    duracionMin: t.duracion_min ?? 30,
+    dosisObjetivo: t.dosis_objetivo,
+    vecesDesbloquea: Array.isArray(t.desbloquea) ? t.desbloquea.length : 0,
+    areaKey: t.objetivo_id ? areaPorObjetivo.get(t.objetivo_id) ?? null : null,
+    objetivoId: t.objetivo_id,
+  }));
+
+  const reglasPlan = await getReglasPlan();
+  const reglasDecision = await getReglasDecision();
+  if (!reglasPlan || typeof reglasPlan.imprevistos_porcentaje_dia !== 'number') {
+    return { error: 'Falta reglas_plan.imprevistos_porcentaje_dia en frecuencia_knowledge_blocks.' };
+  }
+  if (!reglasDecision?.umbral_fatiga || typeof reglasDecision.umbral_fatiga.horas_desde_despertar !== 'number') {
+    return { error: 'Falta reglas_decision.umbral_fatiga.horas_desde_despertar en frecuencia_knowledge_blocks.' };
+  }
+
+  return {
+    datos: {
+      horaDespertar,
+      noNegociables,
+      areas,
+      tareas,
+      reglas: {
+        imprevistosPorcentajeDia: reglasPlan.imprevistos_porcentaje_dia,
+        umbralFatigaHorasDesdeDespertar: reglasDecision.umbral_fatiga.horas_desde_despertar,
+      },
+    },
+  };
+}

@@ -18,6 +18,16 @@
   }
 }
 
+/* Variante ancha: pantallas de grilla (Semana) que no caben en 720px. */
+.pantallaAncha {
+  composes: pantalla;
+}
+@media (min-width: 1024px) {
+  .pantallaAncha {
+    max-width: none;
+  }
+}
+
 /* ── Kicker con línea animada ─────────────────────────────────────── */
 
 .kicker {

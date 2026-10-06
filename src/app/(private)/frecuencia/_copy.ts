@@ -9,6 +9,7 @@
 export const copy = {
   dock: {
     hoy: 'Hoy',
+    semana: 'Semana',
     dial: 'Dial',
     areas: 'Áreas',
     espejo: 'Espejo',
@@ -131,5 +132,40 @@ export const copy = {
     editarTarea: 'Editar tarea',
     vacio: 'Este objetivo todavía no tiene tareas.',
     confirmarBorrar: '¿Borrar esta tarea? Las que desbloquea quedan sin esa dependencia.',
+  },
+
+  semana: {
+    kicker: 'Semana',
+    titulo: 'Tu semana',
+    subtitulo: 'El día se diseña la noche anterior; la semana se arma en bloques.',
+    armar: 'Armar mi semana',
+    armando: 'Armando…',
+    vacia: 'Todavía no armaste esta semana. Empezá por "Armar mi semana".',
+    propuestaTitulo: 'Propuesta — revisá antes de guardar',
+    confirmarPropuesta: 'Guardar esta semana',
+    descartarPropuesta: 'Descartar',
+    errorSinDatos: 'Faltan datos para armar la semana.',
+    confirmarBorrarBloque: '¿Borrar este bloque?',
+    diasLabel: {
+      lunes: 'Lunes',
+      martes: 'Martes',
+      miercoles: 'Miércoles',
+      jueves: 'Jueves',
+      viernes: 'Viernes',
+      sabado: 'Sábado',
+      domingo: 'Domingo',
+    },
+    tipoLabel: {
+      NO_NEGOCIABLE: 'No negociable',
+      EJECUTAR: 'Ejecutar',
+      ORQUESTAR: 'Orquestar',
+      IMPREVISTOS: 'Imprevistos',
+    },
+    noNegociablesTitulo: 'No negociables de la semana',
+    noNegociablesAyuda: 'Asignales día y horario para que entren en el armado.',
+    sinAgendar: 'Sin día ni horario — no entra en "Armar mi semana" hasta que le pongas uno.',
+    agregarNoNegociable: 'Agregar no negociable',
+    nuevoNoNegociablePlaceholder: 'Ej: Entrenar',
+    guardarNoNegociables: 'Guardar no negociables',
   },
 } as const;

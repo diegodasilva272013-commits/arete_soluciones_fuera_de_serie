@@ -150,6 +150,23 @@ export interface ReglasPlanKB {
   ejecutar_vs_orquestar: string;
   imprevistos: string;
   prioridad: string;
+  imprevistos_porcentaje_dia: number;
+}
+
+export interface ReglasDecisionKB {
+  decisiones_importantes: string;
+  decisiones_dificiles: string;
+  umbral_fatiga: { horas_desde_despertar: number };
+}
+
+// Entrada de frecuencia_identidad.no_negociables: legacy (string plano,
+// sin horario — viene del onboarding) o ya agendado desde la pantalla
+// Semana. Se normaliza siempre con normalizarNoNegociables().
+export interface NoNegociableGuardado {
+  texto: string;
+  dia: 'lunes' | 'martes' | 'miercoles' | 'jueves' | 'viernes' | 'sabado' | 'domingo' | null;
+  horaInicio: string | null;
+  horaFin: string | null;
 }
 
 export interface PreguntaConClave {

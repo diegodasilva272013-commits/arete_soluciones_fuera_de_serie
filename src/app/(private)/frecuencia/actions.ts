@@ -9,8 +9,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
-import { fechaLocal, momentoDelDia } from '@/lib/frecuencia-fecha';
-import type { FrecuenciaFranja } from '@/types/frecuencia';
+import { fechaLocal, momentoDelDia, lunesDeLaSemana, fechaMasDias, horaEnTimezoneAUtc } from '@/lib/frecuencia-fecha';
+import { obtenerDatosParaArmarSemana } from '@/lib/frecuencia-semana';
+import { armarSemana, DIAS_SEMANA, type BloquePropuesto } from '@/lib/frecuencia/plan';
+import type { FrecuenciaFranja, NoNegociableGuardado } from '@/types/frecuencia';
 
 export type AccionState = { error?: string; ok?: boolean };
 
@@ -310,5 +312,84 @@ export async function borrarTarea(tareaId: string, objetivoId: string): Promise<
 
   if (error) return { error: error.message };
   revalidatePath(`/frecuencia/objetivos/${objetivoId}`);
+  return { ok: true };
+}
+
+// ── 9. No negociables con día y horario (pantalla Semana) ────────────
+// Mismo campo jsonb que ya usa el onboarding (frecuencia_identidad.no_
+// negociables) — sin migración. Acá se guarda la lista completa, ya
+// normalizada (ver normalizarNoNegociables en frecuencia-semana.ts).
+
+export async function guardarNoNegociablesConHorario(items: NoNegociableGuardado[]): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const { error } = await (supabase as any)
+    .from('frecuencia_identidad')
+    .upsert({ user_id: user.id, no_negociables: items }, { onConflict: 'user_id' });
+
+  if (error) return { error: error.message };
+  revalidatePath('/frecuencia/semana');
+  return { ok: true };
+}
+
+// ── 10. Motor de la semana: proponer y confirmar ─────────────────────
+
+export async function proponerSemana(): Promise<{ bloques: BloquePropuesto[]; error?: string }> {
+  const { user } = await usuarioActual();
+  if (!user) return { bloques: [], error: 'No hay sesión.' };
+
+  const resultado = await obtenerDatosParaArmarSemana(user.id);
+  if ('error' in resultado) return { bloques: [], error: resultado.error };
+
+  return { bloques: armarSemana(resultado.datos) };
+}
+
+export async function confirmarSemana(bloques: BloquePropuesto[]): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const timezone = await timezoneDelUsuario(supabase, user.id);
+  const lunes = lunesDeLaSemana(timezone);
+
+  const filas = bloques.map((b) => {
+    const indiceDia = DIAS_SEMANA.indexOf(b.dia);
+    const fechaDelDia = fechaMasDias(lunes, indiceDia);
+    return {
+      user_id: user.id,
+      tarea_id: b.tareaId,
+      tipo: b.tipo,
+      inicio: horaEnTimezoneAUtc(fechaDelDia, b.horaInicio, timezone).toISOString(),
+      fin: horaEnTimezoneAUtc(fechaDelDia, b.horaFin, timezone).toISOString(),
+    };
+  });
+
+  const { error } = await (supabase as any).from('frecuencia_bloques').insert(filas);
+
+  if (error) return { error: error.message };
+  revalidatePath('/frecuencia/semana');
+  revalidatePath('/frecuencia/hoy');
+  return { ok: true };
+}
+
+export async function actualizarBloque(bloqueId: string, cambios: { inicio?: string; fin?: string; estado?: string }): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const { error } = await (supabase as any).from('frecuencia_bloques').update(cambios).eq('id', bloqueId).eq('user_id', user.id);
+
+  if (error) return { error: error.message };
+  revalidatePath('/frecuencia/semana');
+  return { ok: true };
+}
+
+export async function borrarBloque(bloqueId: string): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const { error } = await (supabase as any).from('frecuencia_bloques').delete().eq('id', bloqueId).eq('user_id', user.id);
+
+  if (error) return { error: error.message };
+  revalidatePath('/frecuencia/semana');
   return { ok: true };
 }
