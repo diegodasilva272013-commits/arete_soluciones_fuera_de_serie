@@ -140,7 +140,7 @@ export function HoyCliente({
       ) : (
         <div className={s.linea}>
           {items.map((item) =>
-            item.esActual && esTareable(item.tipo) && item.estado !== 'CUMPLIDO' && item.estado !== 'NO_SALIO' ? (
+            item.esActual && esTareable(item.tipo) && item.estado === 'PROGRAMADO' ? (
               <motion.div key={item.id} className={s.itemActual} layoutId="bloque-en-foco">
                 <div className={s.itemActualCabecera}>
                   <span className={s.itemActualBadge}>{copy.hoy.bloqueActualLabel}</span>
