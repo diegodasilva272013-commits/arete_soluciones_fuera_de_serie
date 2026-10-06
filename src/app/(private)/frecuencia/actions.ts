@@ -166,9 +166,10 @@ export async function guardarEnergia(input: {
 // ── 6. Espejo ─────────────────────────────────────────────────────────
 
 export async function guardarEspejo(input: {
-  comoMeVeo: string;
-  comoMePercibo: string;
-  comoMeSiento: string;
+  comoMeVeo?: string;
+  comoMePercibo?: string;
+  comoMeSiento?: string;
+  vestimentaManana?: string;
 }): Promise<AccionState> {
   const { supabase, user } = await usuarioActual();
   if (!user) return { error: 'No hay sesión.' };
@@ -177,17 +178,17 @@ export async function guardarEspejo(input: {
   const fecha = fechaLocal(timezone);
   const momento = momentoDelDia(timezone);
 
-  const { error } = await (supabase as any).from('frecuencia_espejo').insert({
-    user_id: user.id,
-    fecha,
-    momento,
-    como_me_veo: input.comoMeVeo,
-    como_me_percibo: input.comoMePercibo,
-    como_me_siento: input.comoMeSiento,
-  });
+  const payload: Record<string, unknown> = { user_id: user.id, fecha, momento };
+  if (input.comoMeVeo !== undefined) payload.como_me_veo = input.comoMeVeo;
+  if (input.comoMePercibo !== undefined) payload.como_me_percibo = input.comoMePercibo;
+  if (input.comoMeSiento !== undefined) payload.como_me_siento = input.comoMeSiento;
+  if (input.vestimentaManana !== undefined) payload.vestimenta_manana = input.vestimentaManana;
+
+  const { error } = await (supabase as any).from('frecuencia_espejo').insert(payload);
 
   if (error) return { error: error.message };
   revalidatePath('/frecuencia/onboarding');
+  revalidatePath('/frecuencia/cierre');
   return { ok: true };
 }
 
@@ -528,6 +529,48 @@ export async function terminarBloque(bloqueId: string, cumplido: boolean): Promi
 
   revalidatePath('/frecuencia/hoy');
   revalidatePath('/frecuencia/semana');
+  return { ok: true };
+}
+
+// ── 13. Cierre del día ────────────────────────────────────────────────
+
+export async function agregarEvidenciaManual(texto: string): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+  if (!texto.trim()) return { error: 'Vacío.' };
+
+  const timezone = await timezoneDelUsuario(supabase, user.id);
+  const fecha = fechaLocal(timezone);
+
+  const { error } = await (supabase as any).from('frecuencia_evidencia').insert({
+    user_id: user.id,
+    bloque_id: null,
+    fecha,
+    texto: texto.trim(),
+    tipo: 'MANUAL',
+  });
+  if (error) return { error: error.message };
+  revalidatePath('/frecuencia/cierre');
+  return { ok: true };
+}
+
+export async function guardarReflexionFalla(paso: number, nombre: string, texto: string): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+  if (!texto.trim()) return { error: 'Vacío.' };
+
+  const timezone = await timezoneDelUsuario(supabase, user.id);
+  const fecha = fechaLocal(timezone);
+
+  const { error } = await (supabase as any).from('frecuencia_evidencia').insert({
+    user_id: user.id,
+    bloque_id: null,
+    fecha,
+    texto: `Paso ${paso} (${nombre}): ${texto.trim()}`,
+    tipo: 'PASOS_ANTE_FALLA',
+  });
+  if (error) return { error: error.message };
+  revalidatePath('/frecuencia/cierre');
   return { ok: true };
 }
 

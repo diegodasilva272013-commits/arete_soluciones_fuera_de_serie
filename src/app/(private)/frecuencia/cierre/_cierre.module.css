@@ -1,0 +1,79 @@
+.paso {
+  margin-top: 28px;
+}
+
+.evidenciaLista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+.evidenciaItem {
+  padding: 12px 16px;
+  border: 1px solid var(--linea);
+  background: var(--negro-2);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.evidenciaTexto {
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 14px;
+  color: var(--hueso);
+  margin: 0;
+}
+.evidenciaTipo {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--f-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+
+.bloquesManana {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+.bloqueManana {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--linea);
+  background: var(--negro-2);
+}
+.bloqueMananaHora {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  color: var(--ceniza);
+  white-space: nowrap;
+}
+.bloqueMananaTitulo {
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 14px;
+  color: var(--hueso);
+}
+
+.pasoFallaNumero {
+  font-family: var(--f-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+  margin: 0 0 6px;
+}
+.pasoFallaDescripcion {
+  margin-top: 12px;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ceniza);
+}
+
+.completoWrap {
+  margin-top: 60px;
+  text-align: center;
+}

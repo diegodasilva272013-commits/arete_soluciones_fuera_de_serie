@@ -194,6 +194,12 @@ export function HoyCliente({
         </div>
         {ideaGuardada && <p className={s.ideaOk}>{copy.hoy.ideaEstacionada}</p>}
       </div>
+
+      <div className={base.filaBotones}>
+        <Link href="/frecuencia/cierre" className={base.btnSec}>
+          {copy.cierre.cerrarElDia}
+        </Link>
+      </div>
     </div>
   );
 }

@@ -198,4 +198,48 @@ export const copy = {
     errorConflicto: (titulo: string) => `Ya tenés "${titulo}" al aire. Terminalo antes de salir con otro bloque.`,
     irAlQueEstaEnCurso: 'Ir a ese bloque',
   },
+
+  cierre: {
+    kicker: 'Cierre del día',
+    titulo: 'Cerrar la emisión',
+    pasoDe: (actual: number, total: number) => `Paso ${actual} de ${total}`,
+
+    registro: {
+      nombrePaso: 'Registro de emisión',
+      subtitulo: 'Lo que salió al aire de verdad hoy.',
+      vacio: 'Hoy no quedó ningún bloque cumplido o abandonado todavía.',
+      cargarManual: 'Agregar algo que no quedó registrado',
+      placeholderManual: 'Qué más pasó hoy',
+      agregar: 'Agregar',
+      agregado: 'Agregado.',
+    },
+
+    dialNoche: {
+      nombrePaso: 'Dial de la noche',
+      subtitulo: 'Tu frecuencia cerrando el día.',
+    },
+
+    disenarManana: {
+      nombrePaso: 'Diseñar mañana',
+      subtitulo: 'Los bloques que ya tenés armados para mañana.',
+      vacioBloques: 'Todavía no armaste bloques para mañana — podés hacerlo desde Semana.',
+      vestimentaLabel: 'Qué te vas a poner',
+      vestimentaPlaceholder: 'Elegí la ropa de mañana, hoy',
+    },
+
+    pasosAnteFalla: {
+      nombrePaso: 'Si hoy no salió',
+      subtitulo: 'Hubo al menos un bloque que no se cumplió — un momento para mirarlo, no para juzgarlo.',
+      placeholder: 'Escribí tu respuesta',
+      omitirPaso: 'Vengo bien, seguir',
+    },
+
+    completo: {
+      titulo: 'Día cerrado.',
+      subtitulo: 'Mañana ya está diseñado. Nos encontramos en el aire.',
+      irAHoy: 'Ir a Hoy',
+    },
+
+    cerrarElDia: 'Cerrar el día',
+  },
 } as const;
