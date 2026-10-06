@@ -199,21 +199,44 @@ export interface NoNegociableGuardado {
   horaFin: string | null;
 }
 
-export interface PreguntaConClave {
-  key: string;
-  pregunta: string;
+/**
+ * Texto del onboarding (frecuencia_knowledge_blocks['onboarding_copy']).
+ * Todos los campos son opcionales menos `gancho`: si un campo no viene,
+ * ese bloque simplemente no se muestra.
+ */
+export interface PantallaCopy {
+  kicker?: string;
+  gancho: string;
+  razon?: string;
+  pregunta?: string;
+  ejemplo?: string;
+  placeholder?: string;
+  ayuda?: string;
+  cta?: string;
 }
 
-export interface PreguntasOnboarding {
-  dial: { pregunta: string };
-  identidad: PreguntaConClave[];
-  no_negociables: { pregunta: string; ayuda: string };
-  estandar_minimo: { pregunta: string; ayuda: string };
-  ecualizador: { pregunta: string; palanca: string; manzana_podrida: string };
-  energia: PreguntaConClave[];
-  espejo: PreguntaConClave[];
-  objetivo: PreguntaConClave[];
-  sin_proposito: { pregunta: string };
+export interface PreguntaCopy {
+  key: string;
+  pregunta: string;
+  ejemplo?: string;
+  ayuda?: string;
+  placeholder?: string;
+}
+
+export interface OnboardingCopy {
+  intro: PantallaCopy[];
+  pasos: {
+    dial: PantallaCopy;
+    identidad: (PantallaCopy & { key: string })[];
+    no_negociables: PantallaCopy;
+    estandar_minimo: PantallaCopy;
+    ecualizador: PantallaCopy & { palanca?: string; manzana_podrida?: string };
+    energia: PantallaCopy & { sin_saber?: string; preguntas: PreguntaCopy[] };
+    espejo: PantallaCopy & { preguntas: PreguntaCopy[] };
+    objetivo: PantallaCopy & { preguntas: PreguntaCopy[] };
+    sin_proposito: PantallaCopy;
+    cierre: PantallaCopy;
+  };
 }
 
 export type PasoOnboarding =

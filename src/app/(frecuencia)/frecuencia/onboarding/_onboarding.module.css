@@ -1,0 +1,447 @@
+/* Onboarding de Frecuencia: una idea por pantalla, a pantalla completa.
+   Tokens de src/app/globals.css. Radio 0, chanfles, nada de cajas. */
+
+/* ── Pantalla ─────────────────────────────────────────────────────── */
+
+.pantalla {
+  position: relative;
+  min-height: calc(100dvh - 56px - env(safe-area-inset-top, 0px));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 32px 20px 48px;
+  max-width: 820px;
+  margin: 0 auto;
+}
+@media (min-width: 1024px) {
+  .pantalla {
+    padding: 56px 64px 64px;
+  }
+}
+
+/* Número del paso, gigante y en contorno, detrás del contenido. */
+.marca {
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-58%);
+  z-index: -1;
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: clamp(160px, 34vw, 420px);
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(var(--azul-rgb), 0.22);
+  text-shadow: 0 0 60px rgba(var(--azul-rgb), 0.12);
+  pointer-events: none;
+  user-select: none;
+  animation: marcaEntra 1.2s cubic-bezier(0.16, 0.84, 0.28, 1) both;
+}
+@keyframes marcaEntra {
+  from { opacity: 0; transform: translateY(-50%) scale(1.06); }
+  to { opacity: 1; transform: translateY(-58%) scale(1); }
+}
+@media (max-width: 640px) {
+  .marca {
+    top: 12%;
+    transform: none;
+    font-size: 190px;
+    -webkit-text-stroke-color: rgba(var(--azul-rgb), 0.16);
+    animation: none;
+  }
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+/* Segmentos tipo LED: en qué pregunta del paso estás. */
+.segmentos {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 28px;
+}
+.segmentos i {
+  display: block;
+  width: 22px;
+  height: 4px;
+  background: rgba(242, 239, 233, 0.12);
+  clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+.segmentos i.segmentoOn {
+  background: var(--azul-luz);
+  box-shadow: 0 0 10px rgba(var(--azul-rgb), 0.9);
+}
+
+.cuerpo {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cascada de entrada de cada bloque de la pregunta. */
+.etapa {
+  animation: etapa 0.7s cubic-bezier(0.16, 0.84, 0.28, 1) both;
+}
+.cuerpo > .etapa:nth-child(1) { animation-delay: 0.04s; }
+.cuerpo > .etapa:nth-child(2) { animation-delay: 0.14s; }
+.cuerpo > .etapa:nth-child(3) { animation-delay: 0.26s; }
+.cuerpo > .etapa:nth-child(4) { animation-delay: 0.36s; }
+.cuerpo > .etapa:nth-child(n + 5) { animation-delay: 0.44s; }
+@keyframes etapa {
+  from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+.gancho {
+  font-family: var(--f-display), Montserrat, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(32px, 6.4vw, 60px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: var(--hueso);
+  text-wrap: balance;
+  max-width: 18ch;
+}
+
+.razon {
+  margin-top: 22px;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-style: italic;
+  font-size: clamp(17px, 2.2vw, 21px);
+  line-height: 1.55;
+  color: rgba(242, 239, 233, 0.82);
+  max-width: 52ch;
+  text-wrap: pretty;
+}
+
+.bloqueCampo {
+  margin-top: 40px;
+}
+
+.pregunta {
+  font-family: var(--f-display), Montserrat, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(16px, 2vw, 19px);
+  line-height: 1.45;
+  color: var(--hueso);
+  max-width: 56ch;
+  margin-bottom: 18px;
+}
+
+.ejemplo {
+  margin-top: 16px;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ceniza);
+  max-width: 60ch;
+}
+.ejemploEtiqueta {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(var(--azul-rgb), 0.9);
+  margin-right: 6px;
+}
+
+.nota {
+  margin-top: 14px;
+  padding-left: 14px;
+  border-left: 1px solid rgba(var(--azul-rgb), 0.6);
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(242, 239, 233, 0.75);
+  max-width: 56ch;
+}
+
+.error {
+  margin-top: 14px;
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #ff8a8a;
+}
+
+/* ── Línea de transmisión ─────────────────────────────────────────── */
+
+.linea {
+  position: relative;
+  padding-bottom: 14px;
+}
+.lineaCampo {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  resize: none;
+  overflow: hidden;
+  padding: 6px 0;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: clamp(21px, 3vw, 28px);
+  line-height: 1.4;
+  color: var(--hueso);
+  caret-color: var(--azul-luz);
+}
+.lineaCampo::placeholder {
+  color: rgba(242, 239, 233, 0.32);
+  font-style: italic;
+}
+.lineaCampoMono {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: clamp(28px, 5vw, 44px);
+  letter-spacing: 0.04em;
+  color-scheme: dark;
+  max-width: 340px;
+}
+
+/* Línea base gris + trazo azul que se dibuja desde la izquierda. */
+.lineaBase {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 1px;
+  background: rgba(242, 239, 233, 0.2);
+}
+.lineaBase::after {
+  content: '';
+  position: absolute;
+  inset: -0.5px 0;
+  background: var(--azul-luz);
+  box-shadow: 0 0 10px rgba(var(--azul-rgb), 0.95), 0 0 24px rgba(var(--azul-rgb), 0.5);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.7s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+.lineaActiva .lineaBase::after {
+  transform: scaleX(1);
+}
+.lineaConTexto:not(.lineaActiva) .lineaBase::after {
+  transform: scaleX(1);
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+/* "● Transmitiendo" mientras el campo está enfocado. */
+.lineaSenal {
+  position: absolute;
+  right: 0;
+  bottom: -14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.lineaSenal i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff4d4d;
+  box-shadow: 0 0 8px #ff4d4d;
+  animation: pulso 1.2s ease-in-out infinite;
+}
+.lineaActiva .lineaSenal {
+  opacity: 1;
+  transform: none;
+}
+@keyframes pulso {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+/* ── Listas (no negociables / estándar mínimo) ────────────────────── */
+
+.registro {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+}
+.registroItem {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(242, 239, 233, 0.08);
+  animation: etapa 0.45s cubic-bezier(0.16, 0.84, 0.28, 1) both;
+}
+.registroNumero {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--azul-luz);
+  text-shadow: 0 0 10px rgba(var(--azul-rgb), 0.7);
+}
+.registroTexto {
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 19px;
+  color: var(--hueso);
+}
+.registroQuitar {
+  border: none;
+  background: transparent;
+  color: var(--ceniza);
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.registroQuitar:hover {
+  color: var(--hueso);
+}
+.registroAyuda {
+  margin-top: 8px;
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+}
+
+/* ── Elegir un área (objetivo) ─────────────────────────────────────── */
+
+.frecuencias {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+@media (min-width: 720px) {
+  .frecuencias {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+.frecuencia {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 12px;
+  border: none;
+  background: rgba(242, 239, 233, 0.04);
+  color: var(--ceniza);
+  text-align: left;
+  cursor: pointer;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.frecuencia:hover {
+  background: rgba(242, 239, 233, 0.08);
+  color: var(--hueso);
+}
+.frecuenciaNumero {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+}
+.frecuenciaNombre {
+  font-family: var(--f-display), Montserrat, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.25;
+}
+.frecuenciaElegida {
+  background: rgba(var(--azul-rgb), 0.18);
+  color: var(--hueso);
+  box-shadow: inset 0 0 0 1px rgba(92, 154, 255, 0.7), inset 0 0 24px rgba(var(--azul-rgb), 0.35);
+}
+.frecuenciaElegida .frecuenciaNumero {
+  color: var(--azul-luz);
+  text-shadow: 0 0 10px rgba(var(--azul-rgb), 0.9);
+}
+
+/* ── Dial automático (intro y cierre) ──────────────────────────────── */
+
+.dialAuto {
+  position: relative;
+  width: 100%;
+  margin-top: 8px;
+}
+.dialAutoDisplay {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.dialAutoValor {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: clamp(44px, 8vw, 80px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  min-width: 4.2ch;
+  transition: color 0.4s ease, text-shadow 0.4s ease;
+}
+.dialAutoValorAlto {
+  color: var(--azul-luz);
+  text-shadow: 0 0 18px rgba(var(--azul-rgb), 0.9), 0 0 40px rgba(var(--azul-rgb), 0.45);
+}
+.dialAutoValorBajo {
+  color: #9a9a9a;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.15);
+}
+.dialAutoEstacion {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(242, 239, 233, 0.75);
+}
+.dialAutoSvg {
+  display: block;
+  width: 100%;
+  height: 150px;
+  overflow: visible;
+}
+.dialAutoEscala {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  color: rgba(242, 239, 233, 0.5);
+}
+
+/* ── Intro ─────────────────────────────────────────────────────────── */
+
+.introContador {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: var(--ceniza);
+  margin-left: auto;
+}
+.introDial {
+  margin-top: 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marca,
+  .etapa,
+  .registroItem {
+    animation: none;
+  }
+  .lineaBase::after,
+  .lineaSenal,
+  .segmentos i,
+  .dialAutoValor {
+    transition: none;
+  }
+  .lineaSenal i {
+    animation: none;
+  }
+}

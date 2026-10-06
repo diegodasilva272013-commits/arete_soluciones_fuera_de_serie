@@ -1,44 +1,50 @@
 'use client';
 
 /**
- * Nota de reuso: el pedido decía elegir el área "con ArcFlowCarousel,
- * reusar". Ese componente es una galería de imágenes arrastrable (cada
- * item necesita `src`) sin onSelect/activeIndex — no tiene forma de
- * "elegir una opción" y las áreas no tienen imagen. Forzarlo hubiera
- * significado inventarle imágenes a las áreas o reescribir su interior
- * (compartido con /empresa/equipo, no lo quise arriesgar). Se eligió
- * con chips seleccionables, mismo patrón visual que el Ecualizador.
+ * Tu objetivo: imagen mental → fecha → área → identidad. Si la persona no
+ * tiene un objetivo claro, la rama "sin propósito" (onboarding_copy) la
+ * lleva a hacer excelente lo que ya hace. Las áreas se eligen como
+ * frecuencias numeradas del dial (01…10), no como chips sueltos.
  */
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { PreguntaUnica } from '../_pregunta-unica';
+import { PantallaPregunta } from '../_pantalla-pregunta';
+import { LineaTransmision, inicioDeFrase, tieneRespuesta } from '../_linea-transmision';
+import { BotonAtras } from '../_boton-atras';
 import { guardarObjetivo } from '../../actions';
 import { siguienteRuta } from '../_navegacion';
 import { copy } from '../../_copy';
 import base from '../../frecuencia.module.css';
-import type { AreaVida, PreguntaConClave } from '@/types/frecuencia';
+import s from '../_onboarding.module.css';
+import type { AreaVida, OnboardingCopy, PantallaCopy } from '@/types/frecuencia';
 import { BarraPasos } from '../../_barra-pasos';
 
 export function PasoObjetivo({
-  preguntas,
-  preguntaSinProposito,
+  c,
+  sinPropositoCopy,
   areas,
+  paso,
 }: {
-  preguntas: PreguntaConClave[]; // imagen_mental, fecha_limite, area_key, identidad_que_expresa
-  preguntaSinProposito: string;
+  c: OnboardingCopy['pasos']['objetivo'];
+  sinPropositoCopy: PantallaCopy;
   areas: AreaVida[];
+  paso: { actual: number; total: number };
 }) {
   const router = useRouter();
+  const preguntas = c.preguntas;
+  const placeholderDe = (key: string) => preguntas.find((p) => p.key === key)?.placeholder;
+
   const [sinProposito, setSinProposito] = useState(false);
   const [indice, setIndice] = useState(0);
-  const [imagenMental, setImagenMental] = useState('');
+  const [imagenMental, setImagenMental] = useState(() => inicioDeFrase(placeholderDe('imagen_mental')));
   const [fechaLimite, setFechaLimite] = useState('');
   const [areaKey, setAreaKey] = useState<string | null>(null);
-  const [identidadQueExpresa, setIdentidadQueExpresa] = useState('');
-  const [respuestaSinProposito, setRespuestaSinProposito] = useState('');
+  const [identidadQueExpresa, setIdentidadQueExpresa] = useState(() => inicioDeFrase(placeholderDe('identidad_que_expresa')));
+  const [respuestaSinProposito, setRespuestaSinProposito] = useState(() => inicioDeFrase(sinPropositoCopy.placeholder));
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const marca = String(paso.actual).padStart(2, '0');
 
   async function guardarYContinuar(input: Parameters<typeof guardarObjetivo>[0]) {
     setGuardando(true);
@@ -54,20 +60,23 @@ export function PasoObjetivo({
 
   if (sinProposito) {
     return (
-      <div>
-        <PreguntaUnica claveAnimacion="sin_proposito" pregunta={preguntaSinProposito}>
-          <textarea
-            className={base.textarea}
-            value={respuestaSinProposito}
-            onChange={(e) => setRespuestaSinProposito(e.target.value)}
-            autoFocus
-          />
-        </PreguntaUnica>
-
-        {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginTop: 12 }}>{error}</p>}
+      <>
+        <PantallaPregunta
+          claveAnimacion="sin_proposito"
+          kicker={sinPropositoCopy.kicker}
+          gancho={sinPropositoCopy.gancho}
+          razon={sinPropositoCopy.razon}
+          pregunta={sinPropositoCopy.pregunta}
+          ejemplo={sinPropositoCopy.ejemplo}
+          paso={paso}
+          marca={marca}
+        >
+          <LineaTransmision key="sin_proposito" valor={respuestaSinProposito} onCambiar={setRespuestaSinProposito} etiqueta={sinPropositoCopy.pregunta} autoFocus />
+          {error && <p className={s.error}>{error}</p>}
+        </PantallaPregunta>
 
         <BarraPasos>
-          <button type="button" className={base.btnGhost} onClick={() => setSinProposito(false)}>
+          <button type="button" className={base.btnSec} onClick={() => { setError(null); setSinProposito(false); }}>
             {copy.botones.volverAlObjetivo}
           </button>
           <button
@@ -75,33 +84,29 @@ export function PasoObjetivo({
             className={base.btn}
             disabled={guardando}
             onClick={() => {
-              if (!respuestaSinProposito.trim()) {
+              if (!tieneRespuesta(respuestaSinProposito, sinPropositoCopy.placeholder)) {
                 setError(copy.estados.campoRequerido);
                 return;
               }
-              guardarYContinuar({
-                imagenMental: respuestaSinProposito,
-                fechaLimite: null,
-                areaKey: null,
-                identidadQueExpresa: null,
-              });
+              guardarYContinuar({ imagenMental: respuestaSinProposito.trim(), fechaLimite: null, areaKey: null, identidadQueExpresa: null });
             }}
           >
             {guardando ? copy.botones.guardando : copy.botones.continuar}
           </button>
         </BarraPasos>
-      </div>
+      </>
     );
   }
 
   const actual = preguntas[indice];
   const esUltima = indice === preguntas.length - 1;
+  const primera = indice === 0;
 
   function validarPasoActual(): boolean {
-    if (actual.key === 'imagen_mental') return imagenMental.trim().length > 0;
+    if (actual.key === 'imagen_mental') return tieneRespuesta(imagenMental, actual.placeholder);
     if (actual.key === 'fecha_limite') return fechaLimite.trim().length > 0;
     if (actual.key === 'area_key') return !!areaKey;
-    if (actual.key === 'identidad_que_expresa') return identidadQueExpresa.trim().length > 0;
+    if (actual.key === 'identidad_que_expresa') return tieneRespuesta(identidadQueExpresa, actual.placeholder);
     return true;
   }
 
@@ -118,66 +123,67 @@ export function PasoObjetivo({
     }
 
     await guardarYContinuar({
-      imagenMental,
+      imagenMental: imagenMental.trim(),
       fechaLimite: fechaLimite || null,
       areaKey,
-      identidadQueExpresa: identidadQueExpresa || null,
+      identidadQueExpresa: tieneRespuesta(identidadQueExpresa, placeholderDe('identidad_que_expresa')) ? identidadQueExpresa.trim() : null,
     });
   }
 
   return (
-    <div>
-      <PreguntaUnica claveAnimacion={actual.key} pregunta={actual.pregunta}>
+    <>
+      <PantallaPregunta
+        claveAnimacion={actual.key}
+        kicker={c.kicker}
+        gancho={primera ? c.gancho : actual.pregunta}
+        razon={primera ? c.razon : undefined}
+        pregunta={primera ? actual.pregunta : undefined}
+        ejemplo={actual.ejemplo}
+        notas={[actual.ayuda]}
+        paso={paso}
+        subPaso={{ actual: indice + 1, total: preguntas.length }}
+        marca={marca}
+      >
         {actual.key === 'imagen_mental' && (
-          <textarea className={base.textarea} value={imagenMental} onChange={(e) => setImagenMental(e.target.value)} autoFocus />
+          <LineaTransmision key="imagen_mental" valor={imagenMental} onCambiar={setImagenMental} etiqueta={actual.pregunta} autoFocus />
         )}
         {actual.key === 'fecha_limite' && (
-          <input type="date" className={base.input} value={fechaLimite} onChange={(e) => setFechaLimite(e.target.value)} autoFocus />
+          <LineaTransmision key="fecha" tipo="fecha" valor={fechaLimite} onCambiar={setFechaLimite} etiqueta={actual.pregunta} autoFocus />
         )}
         {actual.key === 'area_key' && (
-          <div className={base.areasFila}>
-            {areas.map((a) => (
+          <div className={s.frecuencias} role="radiogroup" aria-label={actual.pregunta}>
+            {areas.map((a, i) => (
               <button
                 key={a.key}
                 type="button"
-                className={`${base.areaChip} ${areaKey === a.key ? base.areaChipElegido : ''}`}
+                role="radio"
+                aria-checked={areaKey === a.key}
+                className={`${s.frecuencia} ${areaKey === a.key ? s.frecuenciaElegida : ''}`}
                 onClick={() => setAreaKey(a.key)}
               >
-                {a.nombre}
+                <span className={s.frecuenciaNumero}>{String(i + 1).padStart(2, '0')}</span>
+                <span className={s.frecuenciaNombre}>{a.nombre}</span>
               </button>
             ))}
           </div>
         )}
         {actual.key === 'identidad_que_expresa' && (
-          <textarea
-            className={base.textarea}
-            value={identidadQueExpresa}
-            onChange={(e) => setIdentidadQueExpresa(e.target.value)}
-            autoFocus
-          />
+          <LineaTransmision key="identidad" valor={identidadQueExpresa} onCambiar={setIdentidadQueExpresa} etiqueta={actual.pregunta} autoFocus />
         )}
-      </PreguntaUnica>
-
-      {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginTop: 12 }}>{error}</p>}
-
-      <BarraPasos>
-        {indice > 0 && (
-          <button type="button" className={base.btnSec} onClick={() => setIndice((i) => i - 1)}>
-            {copy.botones.atras}
+        {error && <p className={s.error}>{error}</p>}
+        {primera && (
+          <button type="button" className={base.btnGhost} style={{ marginTop: 28 }} onClick={() => { setError(null); setSinProposito(true); }}>
+            {copy.botones.noTengoObjetivoClaro}
           </button>
         )}
+      </PantallaPregunta>
+
+      <BarraPasos>
+        <BotonAtras paso="objetivo" indice={indice} onAnterior={() => { setError(null); setIndice((i) => i - 1); }} />
         <button type="button" className={base.btn} onClick={siguiente} disabled={guardando}>
           {guardando ? copy.botones.guardando : esUltima ? copy.botones.terminar : copy.botones.siguiente}
         </button>
       </BarraPasos>
-
-      {indice === 0 && (
-        <div style={{ marginTop: 16 }}>
-          <button type="button" className={base.btnGhost} onClick={() => setSinProposito(true)}>
-            {copy.botones.noTengoObjetivoClaro}
-          </button>
-        </div>
-      )}
-    </div>
+    </>
   );
 }

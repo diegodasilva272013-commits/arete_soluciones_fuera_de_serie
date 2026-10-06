@@ -16,5 +16,6 @@ export default async function FrecuenciaPage() {
   const paso = await primerPasoIncompleto(ctx.userId, areas.length);
 
   if (paso === 'completo') redirect('/frecuencia/dial');
-  redirect(`/frecuencia/onboarding/${paso}`);
+  // Quien todavía no arrancó ve antes la intro de las dos radios.
+  redirect(paso === 'dial' ? '/frecuencia/onboarding/intro' : `/frecuencia/onboarding/${paso}`);
 }

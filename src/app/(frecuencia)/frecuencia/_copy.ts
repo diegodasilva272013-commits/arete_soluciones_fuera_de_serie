@@ -45,23 +45,16 @@ export const copy = {
   },
 
   onboarding: {
-    kicker: 'Calibrar la estación',
     pasoDe: (actual: number, total: number) => `Paso ${actual} de ${total}`,
-    progresoLabel: 'Sintonizando…',
-    nombresPaso: {
-      dial: 'El dial',
-      identidad: 'Identidad',
-      no_negociables: 'No negociables',
-      ecualizador: 'Ecualizador',
-      energia: 'Energía',
-      espejo: 'Espejo',
-      objetivo: 'Primer objetivo',
-    } as const,
-    cierre: {
-      titulo: 'Estación calibrada.',
-      subtitulo: 'A partir de ahora, Frecuencia es tuya. Empezá por el dial.',
-    },
+    // Debajo de cada campo, antes del ejemplo que viene de onboarding_copy.
+    porEjemplo: 'Por ejemplo:',
+    // Aparece junto a la línea mientras el usuario escribe.
+    transmitiendo: 'Transmitiendo',
+    sumarItem: 'Enter para sumarlo',
+    preguntaDe: (actual: number, total: number) => `${actual} de ${total}`,
+    introDe: (actual: number, total: number) => `${String(actual).padStart(2, '0')} / ${String(total).padStart(2, '0')}`,
   },
+
 
   dial: {
     kicker: 'El dial',
@@ -81,30 +74,6 @@ export const copy = {
     elegirManzana: 'Elegí tu manzana podrida',
     palancaLabel: 'Palanca',
     manzanaLabel: 'Manzana podrida',
-  },
-
-  identidad: {
-    kicker: 'Identidad',
-  },
-
-  noNegociables: {
-    kicker: 'No negociables',
-    placeholderItem: 'Escribí uno y presioná Enter',
-  },
-
-  energia: {
-    kicker: 'Energía',
-    horaDespertarLabel: 'Hora en la que te despertás',
-  },
-
-  espejo: {
-    kicker: 'Espejo',
-  },
-
-  objetivo: {
-    kicker: 'Primer objetivo',
-    fechaLimiteLabel: 'Fecha límite',
-    areaLabel: 'Área de tu vida',
   },
 
   objetivos: {

@@ -1,0 +1,173 @@
+{
+  "marcas": [
+    {
+      "t": "00:09",
+      "captura": "01-intro-1-desktop-reducido.png",
+      "nota": "Intro 1: dos radios, Dial moviéndose solo",
+      "url": "/frecuencia/onboarding/intro"
+    },
+    {
+      "t": "00:11",
+      "captura": "01b-intro-1-dial-en-otro-punto-desktop-reducido.png",
+      "nota": "Intro 1: el Dial ya se movió y el fondo sintonizó",
+      "url": "/frecuencia/onboarding/intro"
+    },
+    {
+      "t": "00:12",
+      "captura": "02-intro-2-desktop-reducido.png",
+      "nota": "Intro 2",
+      "url": "/frecuencia/onboarding/intro"
+    },
+    {
+      "t": "00:14",
+      "captura": "03-intro-3-desktop-reducido.png",
+      "nota": "Intro 3 con el botón de onboarding_copy",
+      "url": "/frecuencia/onboarding/intro"
+    },
+    {
+      "t": "00:15",
+      "captura": "04-paso1-dial-desktop-reducido.png",
+      "nota": "Paso 1: Dial con gancho, razón y pregunta nuevos",
+      "url": "/frecuencia/onboarding/dial"
+    },
+    {
+      "t": "00:21",
+      "captura": "05-identidad-1-desktop-reducido.png",
+      "nota": "Identidad 1/4 (campo arranca con el comienzo de frase)",
+      "url": "/frecuencia/onboarding/identidad"
+    },
+    {
+      "t": "00:23",
+      "captura": "05-identidad-1-escribiendo-desktop-reducido.png",
+      "nota": "Línea de transmisión enfocada: trazo azul + \"Transmitiendo\"",
+      "url": "/frecuencia/onboarding/identidad"
+    },
+    {
+      "t": "00:25",
+      "captura": "05-identidad-2-desktop-reducido.png",
+      "nota": "Identidad 2/4 (campo arranca con el comienzo de frase)",
+      "url": "/frecuencia/onboarding/identidad"
+    },
+    {
+      "t": "00:27",
+      "captura": "05-identidad-3-desktop-reducido.png",
+      "nota": "Identidad 3/4 (campo arranca con el comienzo de frase)",
+      "url": "/frecuencia/onboarding/identidad"
+    },
+    {
+      "t": "00:28",
+      "captura": "05-identidad-4-desktop-reducido.png",
+      "nota": "Identidad 4/4 (campo arranca con el comienzo de frase)",
+      "url": "/frecuencia/onboarding/identidad"
+    },
+    {
+      "t": "00:32",
+      "captura": "06-no-negociables-desktop-reducido.png",
+      "nota": "No negociables",
+      "url": "/frecuencia/onboarding/no_negociables"
+    },
+    {
+      "t": "00:34",
+      "captura": "06b-no-negociables-registro-desktop-reducido.png",
+      "nota": "Registro numerado de no negociables",
+      "url": "/frecuencia/onboarding/no_negociables"
+    },
+    {
+      "t": "00:35",
+      "captura": "07-estandar-minimo-desktop-reducido.png",
+      "nota": "Estándar mínimo",
+      "url": "/frecuencia/onboarding/no_negociables"
+    },
+    {
+      "t": "00:39",
+      "captura": "08-ecualizador-desktop-reducido.png",
+      "nota": "Ecualizador con gancho, razón y pregunta arriba de las bandas",
+      "url": "/frecuencia/onboarding/ecualizador"
+    },
+    {
+      "t": "00:41",
+      "captura": "08b-ecualizador-palanca-manzana-desktop-reducido.png",
+      "nota": "Preguntas de palanca y manzana podrida (de onboarding_copy) al elegirlas",
+      "url": "/frecuencia/onboarding/ecualizador"
+    },
+    {
+      "t": "00:44",
+      "captura": "09-energia-1-desktop-reducido.png",
+      "nota": "Energía: hora de despertar",
+      "url": "/frecuencia/onboarding/energia"
+    },
+    {
+      "t": "00:46",
+      "captura": "09-energia-2-desktop-reducido.png",
+      "nota": "Energía 2/4 (con \"si no lo sabés\")",
+      "url": "/frecuencia/onboarding/energia"
+    },
+    {
+      "t": "00:48",
+      "captura": "09-energia-3-desktop-reducido.png",
+      "nota": "Energía 3/4 (con \"si no lo sabés\")",
+      "url": "/frecuencia/onboarding/energia"
+    },
+    {
+      "t": "00:49",
+      "captura": "09-energia-4-desktop-reducido.png",
+      "nota": "Energía 4/4 (con \"si no lo sabés\")",
+      "url": "/frecuencia/onboarding/energia"
+    },
+    {
+      "t": "00:54",
+      "captura": "10-espejo-1-desktop-reducido.png",
+      "nota": "Espejo 1/3",
+      "url": "/frecuencia/onboarding/espejo"
+    },
+    {
+      "t": "00:56",
+      "captura": "10-espejo-2-desktop-reducido.png",
+      "nota": "Espejo 2/3",
+      "url": "/frecuencia/onboarding/espejo"
+    },
+    {
+      "t": "00:57",
+      "captura": "10-espejo-3-desktop-reducido.png",
+      "nota": "Espejo 3/3",
+      "url": "/frecuencia/onboarding/espejo"
+    },
+    {
+      "t": "01:01",
+      "captura": "11-objetivo-1-desktop-reducido.png",
+      "nota": "Objetivo: imagen mental",
+      "url": "/frecuencia/onboarding/objetivo"
+    },
+    {
+      "t": "01:03",
+      "captura": "11-objetivo-2-desktop-reducido.png",
+      "nota": "Objetivo: fecha",
+      "url": "/frecuencia/onboarding/objetivo"
+    },
+    {
+      "t": "01:04",
+      "captura": "11-objetivo-3-desktop-reducido.png",
+      "nota": "Objetivo: área como frecuencias numeradas",
+      "url": "/frecuencia/onboarding/objetivo"
+    },
+    {
+      "t": "01:06",
+      "captura": "11-objetivo-4-desktop-reducido.png",
+      "nota": "Objetivo: identidad",
+      "url": "/frecuencia/onboarding/objetivo"
+    },
+    {
+      "t": "01:09",
+      "captura": "12-cierre-desktop-reducido.png",
+      "nota": "Cierre: el Dial se sintoniza solo hasta +100",
+      "url": "/frecuencia/onboarding/completo"
+    },
+    {
+      "t": "01:11",
+      "captura": "13-despues-del-cierre-desktop-reducido.png",
+      "nota": "El cta del cierre lleva al Dial",
+      "url": "/frecuencia/dial"
+    }
+  ],
+  "errores": []
+}

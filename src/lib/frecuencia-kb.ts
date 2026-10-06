@@ -10,7 +10,7 @@ import type {
   AreasReglas,
   EnergiaEscasez,
   MapaEnergiaDefault,
-  PreguntasOnboarding,
+  OnboardingCopy,
   ReglasPlanKB,
   ReglasDecisionKB,
   ReglasDosisKB,
@@ -37,7 +37,7 @@ export const getAreasReglas = () => leerBloque<AreasReglas>('areas_reglas');
 export const getEnergiasEscasez = () => leerBloque<EnergiaEscasez[]>('energias_escasez');
 export const getAccionesSubida = () => leerBloque<string[]>('acciones_subida');
 export const getMapaEnergiaDefault = () => leerBloque<MapaEnergiaDefault>('mapa_energia_default');
-export const getPreguntasOnboarding = () => leerBloque<PreguntasOnboarding>('preguntas_onboarding');
+export const getOnboardingCopy = () => leerBloque<OnboardingCopy>('onboarding_copy');
 export const getReglasPlan = () => leerBloque<ReglasPlanKB>('reglas_plan');
 export const getReglasDecision = () => leerBloque<ReglasDecisionKB>('reglas_decision');
 export const getReglasDosis = () => leerBloque<ReglasDosisKB>('reglas_dosis');

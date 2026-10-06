@@ -61,6 +61,12 @@ function useBaldosaDeRuido(): string | null {
 export function FondoVivo({ frecuencia, gradienteActivo = true }: { frecuencia: number | null; gradienteActivo?: boolean }) {
   const reducido = useReducedMotion();
   const ruido = useBaldosaDeRuido();
+  // useReducedMotion da null en el servidor pero ya false/true en el primer
+  // render del navegador: si el shader se decidiera con eso, servidor y
+  // navegador renderizarían distinto (error de hidratación #418 en todas
+  // las pantallas). Se decide recién después de montar.
+  const [montado, setMontado] = useState(false);
+  useEffect(() => setMontado(true), []);
   const t = sintoniaDe(frecuencia);
 
   const estilos = useMemo(
@@ -80,9 +86,9 @@ export function FondoVivo({ frecuencia, gradienteActivo = true }: { frecuencia: 
     <div className={s.fondo} aria-hidden data-sintonia={t.toFixed(2)}>
       <div className={s.fondoBase} />
       <div className={s.fondoHalo} style={estilos.halo} />
-      {/* reducido es null en el primer render: se espera a saber que NO pidió
-          movimiento reducido antes de bajar el chunk del shader. */}
-      {reducido === false && gradienteActivo && (
+      {/* Recién montado y sabiendo que NO pidió movimiento reducido se baja
+          el chunk del shader. */}
+      {montado && reducido === false && gradienteActivo && (
         <div className={s.fondoGradiente} style={estilos.gradiente}>
           <AnimatedGradient config={PRISM} style={ESTILO_GRADIENTE} />
         </div>
