@@ -13,11 +13,17 @@ export function PasoEcualizador({
   areas,
   reglas,
   paso,
+  nivelesIniciales,
+  palancaInicial,
+  manzanaInicial,
 }: {
   c: OnboardingCopy['pasos']['ecualizador'];
   areas: AreaVida[];
   reglas: AreasReglas | null;
   paso: { actual: number; total: number };
+  nivelesIniciales: Record<string, number>;
+  palancaInicial: string | null;
+  manzanaInicial: string | null;
 }) {
   const router = useRouter();
   const atras = anteriorRuta('ecualizador');
@@ -33,6 +39,10 @@ export function PasoEcualizador({
         onAtras={atras ? () => router.push(atras) : undefined}
         preguntaPalanca={c.palanca}
         preguntaManzana={c.manzana_podrida}
+        nivelesIniciales={nivelesIniciales}
+        palancaInicial={palancaInicial}
+        manzanaInicial={manzanaInicial}
+        exigirSeleccion
       />
     </PantallaPregunta>
   );

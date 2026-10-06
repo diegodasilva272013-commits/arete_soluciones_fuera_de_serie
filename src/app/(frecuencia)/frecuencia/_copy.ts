@@ -78,6 +78,10 @@ export const copy = {
     elegirManzana: 'Elegí tu manzana podrida',
     palancaLabel: 'Palanca',
     manzanaLabel: 'Manzana podrida',
+    faltaPalancaYManzana: 'Para seguir, elegí tu área más fuerte y tu área más débil (las dos listas de abajo).',
+    faltaPalanca: 'Te falta elegir tu área más fuerte.',
+    faltaManzana: 'Te falta elegir tu área más débil.',
+    mismaArea: 'La más fuerte y la más débil tienen que ser áreas distintas.',
   },
 
   objetivos: {
