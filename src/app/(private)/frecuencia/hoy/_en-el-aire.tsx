@@ -60,16 +60,22 @@ export function EnElAire({
 }: EnElAireProps) {
   const prefiereReducido = useReducedMotion();
   const fondoAnimado = useFondoAnimado(prefiereReducido);
-  const [ahora, setAhora] = useState(() => Date.now());
+  // null en el primer render (servidor Y cliente, antes de hidratar) a
+  // propósito: Date.now() da un valor distinto en cada uno y rompe la
+  // hidratación de React (el bloque puede llegar ya EN_EL_AIRE desde el
+  // servidor). El valor real se pisa recién en el useEffect, que solo
+  // corre en el cliente, después de hidratar.
+  const [ahora, setAhora] = useState<number | null>(null);
   const [interrupciones, setInterrupciones] = useState(interrupcionesIniciales);
   const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
+    setAhora(Date.now());
     const id = setInterval(() => setAhora(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  const segundosTranscurridos = Math.max(0, Math.floor((ahora - new Date(inicioReal).getTime()) / 1000));
+  const segundosTranscurridos = ahora === null ? 0 : Math.max(0, Math.floor((ahora - new Date(inicioReal).getTime()) / 1000));
 
   async function meInterrumpieron() {
     setInterrupciones((n) => n + 1);

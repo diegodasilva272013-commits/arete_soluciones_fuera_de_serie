@@ -11,6 +11,15 @@
 .fondoAnimado {
   position: absolute;
   inset: 0;
+  /* VolumetricStudio no deja pointer-events:none en su <canvas> interno
+     (react-three-fiber lo necesita para su propio raycasting) — sin
+     esto, el canvas tapa los botones de .acciones aunque esté más
+     abajo en el DOM. Forzado con !important porque gana a un posible
+     estilo inline del canvas, que si no tendría más especificidad. */
+  pointer-events: none !important;
+}
+.fondoAnimado * {
+  pointer-events: none !important;
 }
 
 .fondoEstatico {
