@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
 import { registrarInterrupcion, terminarBloque } from '../actions';
 import { copy } from '../_copy';
+import { useOcultarDock } from '../_shell';
 import s from './_en-el-aire.module.css';
 
 const VolumetricStudio = dynamic(() => import('@/components/ui/volumetric-studio').then((m) => m.VolumetricStudio), { ssr: false });
@@ -58,6 +59,8 @@ export function EnElAire({
   textoDosMinutos,
   onTerminar,
 }: EnElAireProps) {
+  // Flujo de pantalla completa: sin dock mientras el bloque está al aire.
+  useOcultarDock(true);
   const prefiereReducido = useReducedMotion();
   const fondoAnimado = useFondoAnimado(prefiereReducido);
   // null en el primer render (servidor Y cliente, antes de hidratar) a

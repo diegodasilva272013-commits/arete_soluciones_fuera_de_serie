@@ -21,11 +21,11 @@ import {
   motion,
   useMotionValue,
   useScroll,
-  useSpring,
   useTransform,
   type MotionValue,
 } from 'framer-motion';
 import { ArrowUpRight, Play, X } from 'lucide-react';
+import { useDistanciaAlCursor, useMagnificacion } from '@/components/ui/use-magnificacion';
 import c from '@/app/empresa/corp.module.css';
 import s from './t1.module.css';
 import { RegistroForm } from './_registro';
@@ -357,14 +357,9 @@ function ReservaFlotante({ oculto }: { oculto: boolean }) {
 
 function DockEpisodio({ ep, mouseX, onOpen, onFoco }: { ep: Episodio; mouseX: MotionValue<number>; onOpen: (ep: Episodio, el: HTMLElement) => void; onFoco: (ep: Episodio) => void }) {
   const ref = useRef<HTMLButtonElement>(null);
-  const distancia = useTransform(mouseX, (x) => {
-    const r = ref.current?.getBoundingClientRect();
-    return r ? x - (r.left + r.width / 2) : Infinity;
-  });
-  const anchoT = useTransform(distancia, [-230, 0, 230], [100, 210, 100]);
-  const altoT = useTransform(distancia, [-230, 0, 230], [180, 300, 180]);
-  const width = useSpring(anchoT, { mass: 0.1, stiffness: 160, damping: 15 });
-  const height = useSpring(altoT, { mass: 0.1, stiffness: 160, damping: 15 });
+  const distancia = useDistanciaAlCursor(ref, mouseX);
+  const width = useMagnificacion(distancia, { rango: 230, desde: 100, hasta: 210 });
+  const height = useMagnificacion(distancia, { rango: 230, desde: 180, hasta: 300 });
   const detalle = useTransform(width, [150, 205], [0, 1]);
   const finale = ep.n === 9;
 

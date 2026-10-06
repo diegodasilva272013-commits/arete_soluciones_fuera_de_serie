@@ -1,0 +1,339 @@
+/* Shell inmersivo de Frecuencia: fondo vivo, header propio y dock.
+   Tokens de color de src/app/globals.css (--azul, --azul-luz, --hueso,
+   --negro, --ceniza, --linea, --azul-rgb). Radio 0, esquinas chanfleadas. */
+
+.raiz {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  background: var(--negro);
+  color: var(--hueso);
+}
+
+/* ── Fondo vivo ───────────────────────────────────────────────────── */
+
+.fondo {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--negro);
+}
+
+.fondoGradiente {
+  position: absolute;
+  inset: 0;
+  opacity: var(--fv-gradiente, 0.3);
+  filter: saturate(var(--fv-saturacion, 0.6));
+  transition: opacity 1.4s ease, filter 1.4s ease;
+}
+
+/* El shader se dibuja en un contenedor de la mitad del tamaño y se
+   escala x2: 1/4 de los píxeles, mismo degradé. */
+.fondoGradienteReducido {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  transform: scale(2);
+  transform-origin: 0 0;
+}
+
+.fondoGradienteEstatico {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 75% 20%, rgba(102, 179, 255, 0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 15% 85%, rgba(var(--azul-rgb), 0.45) 0%, transparent 65%),
+    var(--negro);
+}
+
+.fondoGrano {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: screen;
+  opacity: var(--fv-grano, 0.12);
+  transition: opacity 1.4s ease;
+}
+
+/* Calma el centro (donde va el texto) y deja los bordes vivos; arriba y
+   abajo un poco más oscuro, donde están el header y el dock. */
+.fondoVineta {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 46% 70% at 50% 45%, rgba(5, 5, 5, 0.42) 0%, rgba(5, 5, 5, 0.15) 60%, transparent 100%),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.4) 0%, transparent 20%, transparent 78%, rgba(5, 5, 5, 0.6) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fondoGradiente,
+  .fondoGrano {
+    transition: none;
+  }
+}
+
+/* ── Header ───────────────────────────────────────────────────────── */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 45;
+  height: calc(56px + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(180deg, rgba(5, 5, 5, 0.92) 0%, rgba(5, 5, 5, 0.6) 60%, transparent 100%);
+}
+@media (min-width: 1024px) {
+  .header {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--hueso);
+  text-decoration: none;
+}
+.marcaNombre {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+
+/* Tres barras de señal que "respiran" desfasadas. */
+.marcaSenal {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+.marcaSenal i {
+  display: block;
+  width: 3px;
+  background: var(--azul-luz);
+  box-shadow: 0 0 8px rgba(var(--azul-rgb), 0.8);
+  animation: senal 1.6s ease-in-out infinite;
+}
+.marcaSenal i:nth-child(1) { height: 6px; animation-delay: 0s; }
+.marcaSenal i:nth-child(2) { height: 10px; animation-delay: 0.2s; }
+.marcaSenal i:nth-child(3) { height: 14px; animation-delay: 0.4s; }
+@keyframes senal {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.salir {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  color: var(--hueso);
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: rgba(10, 10, 11, 0.55);
+  border: 1px solid var(--linea-2);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.salir:hover {
+  color: var(--azul-luz);
+  border-color: rgba(var(--azul-rgb), 0.6);
+  background: rgba(var(--azul-rgb), 0.08);
+}
+.salir:focus-visible,
+.marca:focus-visible {
+  outline: 1px solid var(--azul-luz);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marcaSenal i {
+    animation: none;
+  }
+  .salir {
+    transition: none;
+  }
+}
+
+/* ── Contenido ────────────────────────────────────────────────────── */
+
+.contenido {
+  position: relative;
+  padding-top: calc(56px + env(safe-area-inset-top, 0px));
+}
+
+/* ── Dock ─────────────────────────────────────────────────────────── */
+
+.dockWrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding: 12px 12px calc(14px + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
+
+/* Borde de 1px con chanfle: el contenedor pinta la línea y el ::before
+   (1px adentro, mismo chanfle) pinta el vidrio. */
+.dock {
+  --chanfle: 14px;
+  position: relative;
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 8px 10px 6px;
+  background: rgba(242, 239, 233, 0.14);
+  clip-path: polygon(var(--chanfle) 0, 100% 0, 100% calc(100% - var(--chanfle)), calc(100% - var(--chanfle)) 100%, 0 100%, 0 var(--chanfle));
+}
+.dock::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: rgba(8, 8, 10, 0.72);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  clip-path: polygon(calc(var(--chanfle) - 0.5px) 0, 100% 0, 100% calc(100% - var(--chanfle) + 0.5px), calc(100% - var(--chanfle) + 0.5px) 100%, 0 100%, 0 calc(var(--chanfle) - 0.5px));
+}
+.dock { isolation: isolate; }
+
+.dockItemCelda {
+  display: flex;
+}
+
+.dockItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 58px;
+  color: var(--ceniza);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.dockItem:hover {
+  color: var(--hueso);
+}
+.dockItem:focus-visible {
+  outline: 1px solid var(--azul-luz);
+  outline-offset: 2px;
+}
+
+.dockIcono {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  transition: transform 0.15s ease;
+}
+.dockItem:active .dockIcono {
+  transform: scale(0.94);
+}
+.dockIcono svg {
+  position: relative;
+  z-index: 1;
+}
+
+.dockActivoGlow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--azul-rgb), 0.55) 0%, rgba(var(--azul-rgb), 0.12) 70%),
+    rgba(var(--azul-rgb), 0.1);
+  box-shadow: inset 0 0 0 1px rgba(92, 154, 255, 0.55), inset 0 0 18px rgba(92, 154, 255, 0.45);
+}
+
+.dockItemActivo {
+  color: var(--hueso);
+}
+.dockItemActivo svg {
+  filter: drop-shadow(0 0 6px rgba(92, 154, 255, 0.95));
+}
+.dockItemActivo .dockLabel {
+  color: var(--azul-luz);
+  text-shadow: 0 0 10px rgba(var(--azul-rgb), 0.9);
+}
+
+.dockLabel {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.dockItemDeshabilitado {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+.dockItemDeshabilitado:hover {
+  color: var(--ceniza);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dockItem,
+  .dockIcono {
+    transition: none;
+  }
+}
+
+/* ── Transición entre pantallas (template.tsx) ───────────────────── */
+
+.barridoSintonia {
+  position: fixed;
+  top: calc(56px + env(safe-area-inset-top, 0px));
+  left: 0;
+  right: 0;
+  z-index: 44;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--azul-luz) 50%, transparent 100%);
+  box-shadow: 0 0 12px rgba(var(--azul-rgb), 0.9);
+  transform-origin: 0 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: barrido 0.9s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+@keyframes barrido {
+  0% { transform: scaleX(0); opacity: 1; }
+  60% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+
+.entradaPantalla {
+  animation: entradaSenal 0.55s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+@keyframes entradaSenal {
+  from { opacity: 0; transform: translateY(14px); filter: blur(8px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barridoSintonia,
+  .entradaPantalla {
+    animation: none;
+  }
+}

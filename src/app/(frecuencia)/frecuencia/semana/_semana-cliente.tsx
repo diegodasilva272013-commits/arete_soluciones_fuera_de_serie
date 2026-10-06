@@ -13,6 +13,7 @@ import { DIAS_SEMANA, type BloquePropuesto, type DiaSemana, type TipoBloque } fr
 import { proponerSemana, confirmarSemana, borrarBloque, guardarNoNegociablesConHorario } from '../actions';
 import type { NoNegociableGuardado } from '@/types/frecuencia';
 import { copy } from '../_copy';
+import { useOcultarDock } from '../_shell';
 import base from '../frecuencia.module.css';
 import s from './_semana.module.css';
 
@@ -74,6 +75,8 @@ export function SemanaCliente({
   const [guardandoNoNeg, setGuardandoNoNeg] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nuevoTexto, setNuevoTexto] = useState('');
+  // Revisar la semana armada es un flujo: sin dock hasta confirmar o descartar.
+  useOcultarDock(propuesta !== null);
 
   const horas = Array.from({ length: HORA_FIN_GRILLA - HORA_INICIO_GRILLA }, (_, i) => HORA_INICIO_GRILLA + i);
   const hoyIndex = NOMBRE_DIA_A_INDICE[new Intl.DateTimeFormat('en-US', { timeZone: timezone, weekday: 'long' }).format(new Date())];

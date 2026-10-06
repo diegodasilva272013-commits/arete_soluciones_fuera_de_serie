@@ -7,6 +7,13 @@
  */
 
 export const copy = {
+  shell: {
+    marca: 'Frecuencia',
+    irAlInicio: 'Frecuencia, ir al inicio',
+    salir: 'Salir a la plataforma',
+    navegacion: 'Navegación de Frecuencia',
+  },
+
   dock: {
     hoy: 'Hoy',
     semana: 'Semana',

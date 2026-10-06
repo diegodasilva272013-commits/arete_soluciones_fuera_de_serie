@@ -18,6 +18,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useMotionValue, useReducedMotion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { copy } from './_copy';
+import { useDialDelShell } from './_shell';
 import type { EnergiaEscasez } from '@/types/frecuencia';
 import s from './_dial.module.css';
 import base from './frecuencia.module.css';
@@ -52,6 +53,7 @@ export function Dial({
   onDespuesDeGuardar?: () => void;
 }) {
   const prefiereReducido = useReducedMotion();
+  const { marcarDialGuardado } = useDialDelShell();
   const pistaRef = useRef<HTMLDivElement>(null);
 
   const [valor, setValor] = useState(clamp(Math.round(valorInicial), -100, 100));
@@ -122,6 +124,8 @@ export function Dial({
       setError(copy.estados.error);
       return;
     }
+    // El fondo vivo cambia de mezcla ya, sin esperar a recargar.
+    marcarDialGuardado(valor);
     onDespuesDeGuardar?.();
   }
 
