@@ -7,6 +7,8 @@
  */
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { getReglasPlan, getReglasDecision } from '@/lib/frecuencia-kb';
+import { diaYHoraLocal } from '@/lib/frecuencia-fecha';
+import { copy } from '@/app/(private)/frecuencia/_copy';
 import type { NoNegociableGuardado } from '@/types/frecuencia';
 import type { DatosParaArmarSemana, DiaSemana, TareaParaPlan } from '@/lib/frecuencia/plan';
 
@@ -26,6 +28,49 @@ export function normalizarNoNegociables(raw: unknown): NoNegociableGuardado[] {
       horaFin: typeof obj.horaFin === 'string' ? obj.horaFin : null,
     };
   });
+}
+
+/**
+ * Título a mostrar de un bloque ya guardado. frecuencia_bloques no
+ * tiene columna de texto propia: para EJECUTAR/ORQUESTAR sale de la
+ * tarea (join); para NO_NEGOCIABLE no hay tarea que joinear, así que se
+ * reconstruye matcheando día+hora contra frecuencia_identidad.no_
+ * negociables (misma fuente que armarSemana() usó para crearlo) en vez
+ * de agregar una columna solo para esto. Una sola función para que
+ * Semana y Hoy no puedan desalinearse (bug real: antes cada pantalla
+ * tenía su propia versión y una de las dos devolvía "Imprevistos" para
+ * los no negociables).
+ */
+export async function resolverTitulosDeBloques(
+  userId: string,
+  bloques: Array<{ id: string; tarea_id: string | null; tipo: string; inicio: string }>,
+  timezone: string
+): Promise<Map<string, string>> {
+  const supabase = createSupabaseServerClient();
+
+  const idsTareas = [...new Set(bloques.map((b) => b.tarea_id).filter((id): id is string => !!id))];
+  let titulosPorTarea = new Map<string, string>();
+  if (idsTareas.length > 0) {
+    const { data } = await (supabase as any).from('frecuencia_tareas').select('id, titulo').in('id', idsTareas);
+    titulosPorTarea = new Map((data ?? []).map((t: any) => [t.id, t.titulo]));
+  }
+
+  const { data: identidad } = await (supabase as any).from('frecuencia_identidad').select('no_negociables').eq('user_id', userId).maybeSingle();
+  const noNegociables = normalizarNoNegociables(identidad?.no_negociables);
+  const textoPorDiaHora = new Map(noNegociables.filter((n) => n.dia && n.horaInicio).map((n) => [`${n.dia}|${n.horaInicio}`, n.texto]));
+
+  const resultado = new Map<string, string>();
+  for (const b of bloques) {
+    if (b.tarea_id) {
+      resultado.set(b.id, titulosPorTarea.get(b.tarea_id) ?? '—');
+    } else if (b.tipo === 'NO_NEGOCIABLE') {
+      const { dia, hora } = diaYHoraLocal(b.inicio, timezone);
+      resultado.set(b.id, textoPorDiaHora.get(`${dia}|${hora}`) ?? copy.semana.tipoLabel.NO_NEGOCIABLE);
+    } else {
+      resultado.set(b.id, copy.semana.tipoLabel.IMPREVISTOS);
+    }
+  }
+  return resultado;
 }
 
 export async function obtenerDatosParaArmarSemana(userId: string): Promise<{ datos: DatosParaArmarSemana } | { error: string }> {

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUserContext } from '@/lib/current-user';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { fechaLocal, horaEnTimezoneAUtc, fechaMasDias } from '@/lib/frecuencia-fecha';
+import { resolverTitulosDeBloques } from '@/lib/frecuencia-semana';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import { HoyCliente, type ItemLinea } from './_hoy-cliente';
@@ -38,20 +39,14 @@ export default async function HoyPage() {
     .lt('inicio', finHoyUtc)
     .order('inicio', { ascending: true });
 
-  const idsTareas = [...new Set((bloquesData ?? []).map((b: any) => b.tarea_id).filter(Boolean))];
-  let titulosPorTarea = new Map<string, string>();
-  if (idsTareas.length > 0) {
-    const { data: tareasData } = await (supabase as any).from('frecuencia_tareas').select('id, titulo').in('id', idsTareas);
-    titulosPorTarea = new Map((tareasData ?? []).map((t: any) => [t.id, t.titulo]));
-  }
-
+  const titulos = await resolverTitulosDeBloques(ctx.userId, bloquesData ?? [], timezone);
   const items: ItemLinea[] = (bloquesData ?? []).map((b: any) => ({
     id: b.id,
     tipo: b.tipo,
     inicio: b.inicio,
     fin: b.fin,
     estado: b.estado,
-    titulo: b.tarea_id ? titulosPorTarea.get(b.tarea_id) ?? '—' : copy.semana.tipoLabel.IMPREVISTOS,
+    titulo: titulos.get(b.id) ?? '—',
     esActual: ahoraUtc >= b.inicio && ahoraUtc < b.fin,
   }));
 

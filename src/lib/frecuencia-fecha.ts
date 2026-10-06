@@ -87,3 +87,24 @@ export function horaEnTimezoneAUtc(fechaISO: string, horaHHMM: string, timezone:
   const diferencia = candidatoUtc - comoSiFueraUtc;
   return new Date(candidatoUtc + diferencia);
 }
+
+const NOMBRE_DIA_A_CLAVE: Record<string, string> = {
+  Monday: 'lunes',
+  Tuesday: 'martes',
+  Wednesday: 'miercoles',
+  Thursday: 'jueves',
+  Friday: 'viernes',
+  Saturday: 'sabado',
+  Sunday: 'domingo',
+};
+
+/** Inverso de horaEnTimezoneAUtc: de un instante UTC a día de semana + "HH:MM" de pared en la timezone del usuario. */
+export function diaYHoraLocal(fechaIso: string, timezone: string | null | undefined): { dia: string; hora: string } {
+  const tz = timezone || TIMEZONE_DEFAULT;
+  const formateador = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long', hour: '2-digit', minute: '2-digit', hour12: false });
+  const partes = formateador.formatToParts(new Date(fechaIso));
+  const weekday = partes.find((p) => p.type === 'weekday')!.value;
+  const hora = (Number(partes.find((p) => p.type === 'hour')!.value) % 24).toString().padStart(2, '0');
+  const minuto = partes.find((p) => p.type === 'minute')!.value;
+  return { dia: NOMBRE_DIA_A_CLAVE[weekday], hora: `${hora}:${minuto}` };
+}

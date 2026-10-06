@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUserContext } from '@/lib/current-user';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { lunesDeLaSemana, fechaMasDias, horaEnTimezoneAUtc } from '@/lib/frecuencia-fecha';
-import { normalizarNoNegociables } from '@/lib/frecuencia-semana';
+import { normalizarNoNegociables, resolverTitulosDeBloques } from '@/lib/frecuencia-semana';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import { SemanaCliente, type BloqueDeSemana } from './_semana-cliente';
@@ -33,13 +33,7 @@ export default async function SemanaPage() {
     .lt('inicio', finSemanaUtc)
     .order('inicio', { ascending: true });
 
-  const idsTareas = [...new Set((bloquesData ?? []).map((b: any) => b.tarea_id).filter(Boolean))];
-  let titulosPorTarea = new Map<string, string>();
-  if (idsTareas.length > 0) {
-    const { data: tareasData } = await (supabase as any).from('frecuencia_tareas').select('id, titulo').in('id', idsTareas);
-    titulosPorTarea = new Map((tareasData ?? []).map((t: any) => [t.id, t.titulo]));
-  }
-
+  const titulos = await resolverTitulosDeBloques(ctx.userId, bloquesData ?? [], timezone);
   const bloques: BloqueDeSemana[] = (bloquesData ?? []).map((b: any) => ({
     id: b.id,
     tareaId: b.tarea_id,
@@ -47,7 +41,7 @@ export default async function SemanaPage() {
     inicio: b.inicio,
     fin: b.fin,
     estado: b.estado,
-    titulo: b.tarea_id ? titulosPorTarea.get(b.tarea_id) ?? '—' : copy.semana.tipoLabel.IMPREVISTOS,
+    titulo: titulos.get(b.id) ?? '—',
   }));
 
   const { data: identidad } = await (supabase as any)
