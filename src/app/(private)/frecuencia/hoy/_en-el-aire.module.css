@@ -1,0 +1,223 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.fondoAnimado {
+  position: absolute;
+  inset: 0;
+}
+
+.fondoEstatico {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 30%, rgba(var(--azul-rgb), 0.12) 0%, transparent 70%), #050505;
+}
+
+.contenido {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 20px calc(28px + env(safe-area-inset-bottom, 0px));
+  pointer-events: auto;
+}
+
+.onAir {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 70, 70, 0.4);
+  background: rgba(255, 70, 70, 0.08);
+}
+.onAirPunto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff4646;
+  animation: pulsoOnAir 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .onAirPunto {
+    animation: none;
+  }
+}
+@keyframes pulsoOnAir {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(255, 70, 70, 0.6);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 0 6px rgba(255, 70, 70, 0);
+  }
+}
+.onAirLabel {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: #ff6b6b;
+}
+
+.dosMinutos {
+  margin-top: 18px;
+  padding: 10px 16px;
+  border: 1px solid var(--azul-luz);
+  background: rgba(var(--azul-rgb), 0.08);
+  max-width: 46ch;
+  text-align: center;
+}
+.dosMinutosLabel {
+  font-family: var(--f-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+  margin: 0 0 4px;
+}
+.dosMinutosTexto {
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--hueso);
+  margin: 0;
+}
+
+.cronometro {
+  margin-top: 28px;
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 600;
+  font-size: clamp(56px, 16vw, 128px);
+  letter-spacing: 0.02em;
+  color: var(--hueso);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.tareaTitulo {
+  margin-top: 20px;
+  font-family: var(--f-display), Montserrat, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(20px, 5vw, 30px);
+  color: var(--hueso);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.protocolo {
+  margin-top: 24px;
+  width: 100%;
+  max-width: 420px;
+}
+.protocoloPaso {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--linea);
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 14px;
+  color: var(--hueso);
+}
+.protocoloNumero {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  color: var(--azul-luz);
+  flex-shrink: 0;
+}
+
+.reglasFoco {
+  margin-top: 28px;
+  width: 100%;
+  max-width: 420px;
+  padding: 16px 18px;
+  border: 1px solid var(--linea);
+  background: rgba(255, 255, 255, 0.02);
+}
+.reglasFocoTitulo {
+  font-family: var(--f-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+  margin: 0 0 10px;
+}
+.reglaFoco {
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ceniza);
+  margin: 0 0 8px;
+  padding-left: 14px;
+  position: relative;
+}
+.reglaFoco::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--linea-2);
+}
+
+.interrupciones {
+  margin-top: 18px;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  color: var(--ceniza);
+}
+
+.acciones {
+  margin-top: auto;
+  padding-top: 32px;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btnTermine {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 16px 24px;
+  border: 1px solid var(--azul);
+  background: var(--azul);
+  color: var(--negro);
+  font-weight: 700;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  cursor: pointer;
+}
+.btnTermine:hover {
+  background: var(--azul-luz);
+}
+.filaSecundaria {
+  display: flex;
+  gap: 10px;
+}
+.btnInterrupcion,
+.btnSalir {
+  flex: 1;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid var(--linea-2);
+  color: var(--ceniza);
+  cursor: pointer;
+}
+.btnInterrupcion:hover,
+.btnSalir:hover {
+  color: var(--hueso);
+  border-color: var(--hueso);
+}

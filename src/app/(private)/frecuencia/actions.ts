@@ -10,7 +10,7 @@
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { fechaLocal, momentoDelDia, lunesDeLaSemana, fechaMasDias, horaEnTimezoneAUtc } from '@/lib/frecuencia-fecha';
-import { obtenerDatosParaArmarSemana } from '@/lib/frecuencia-semana';
+import { obtenerDatosParaArmarSemana, obtenerDatosEnElAire, type DatosEnElAire } from '@/lib/frecuencia-semana';
 import { armarSemana, DIAS_SEMANA, type BloquePropuesto } from '@/lib/frecuencia/plan';
 import type { FrecuenciaFranja, NoNegociableGuardado } from '@/types/frecuencia';
 
@@ -395,6 +395,141 @@ export async function borrarBloque(bloqueId: string): Promise<AccionState> {
 }
 
 // ── 11. Bandeja de ideas (pantalla Hoy) ───────────────────────────────
+
+// ── 12. EN EL AIRE: salir, interrupciones, terminar ──────────────────
+
+export type SalirAlAireResultado =
+  | ({ ok: true } & DatosEnElAire)
+  | { ok: false; conflicto: true; bloqueEnCursoId: string; bloqueEnCursoTitulo: string }
+  | { ok: false; error: string };
+
+export async function salirAlAire(bloqueId: string): Promise<SalirAlAireResultado> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { ok: false, error: 'No hay sesión.' };
+
+  const { data: actual } = await (supabase as any)
+    .from('frecuencia_bloques')
+    .select('estado, inicio_real, tarea_id')
+    .eq('id', bloqueId)
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (!actual) return { ok: false, error: 'Bloque inexistente.' };
+  if (!actual.tarea_id) return { ok: false, error: 'Este bloque no tiene una tarea asociada.' };
+
+  // Idempotente: si ESTE bloque ya está EN_EL_AIRE (reload o cambio de
+  // dispositivo), no tocar nada — solo devolver sus datos reales.
+  if (actual.estado !== 'EN_EL_AIRE') {
+    const ahora = new Date().toISOString();
+    const { error } = await (supabase as any)
+      .from('frecuencia_bloques')
+      .update({ estado: 'EN_EL_AIRE', inicio_real: ahora })
+      .eq('id', bloqueId)
+      .eq('user_id', user.id)
+      .eq('estado', 'PROGRAMADO');
+
+    if (error) {
+      if (error.code === '23505') {
+        // idx_frecuencia_bloques_un_solo_en_el_aire: ya hay otro bloque en curso.
+        const { data: enCurso } = await (supabase as any)
+          .from('frecuencia_bloques')
+          .select('id, tarea_id')
+          .eq('user_id', user.id)
+          .eq('estado', 'EN_EL_AIRE')
+          .maybeSingle();
+        let titulo = 'otro bloque';
+        if (enCurso?.tarea_id) {
+          const { data: tarea } = await (supabase as any).from('frecuencia_tareas').select('titulo').eq('id', enCurso.tarea_id).maybeSingle();
+          titulo = tarea?.titulo ?? titulo;
+        }
+        return { ok: false, conflicto: true, bloqueEnCursoId: enCurso?.id ?? '', bloqueEnCursoTitulo: titulo };
+      }
+      return { ok: false, error: error.message };
+    }
+  }
+
+  const datos = await obtenerDatosEnElAire(user.id, bloqueId);
+  if (!datos) return { ok: false, error: 'No se pudo cargar el bloque.' };
+  revalidatePath('/frecuencia/hoy');
+  return { ok: true, ...datos };
+}
+
+/** Para el botón "Ir a ese bloque" del mensaje de conflicto: trae los datos del bloque EN_EL_AIRE actual del usuario, sea cual sea. */
+export async function obtenerBloqueEnCurso(): Promise<DatosEnElAire | null> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return null;
+  const { data } = await (supabase as any).from('frecuencia_bloques').select('id').eq('user_id', user.id).eq('estado', 'EN_EL_AIRE').maybeSingle();
+  if (!data) return null;
+  return obtenerDatosEnElAire(user.id, data.id);
+}
+
+export async function registrarInterrupcion(bloqueId: string): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const { data } = await (supabase as any).from('frecuencia_bloques').select('interrupciones').eq('id', bloqueId).eq('user_id', user.id).maybeSingle();
+  if (!data) return { error: 'Bloque inexistente.' };
+
+  const { error } = await (supabase as any)
+    .from('frecuencia_bloques')
+    .update({ interrupciones: data.interrupciones + 1 })
+    .eq('id', bloqueId)
+    .eq('user_id', user.id);
+  if (error) return { error: error.message };
+  return { ok: true };
+}
+
+export async function terminarBloque(bloqueId: string, cumplido: boolean): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const { data: bloque } = await (supabase as any)
+    .from('frecuencia_bloques')
+    .select('inicio_real, tarea_id, estado')
+    .eq('id', bloqueId)
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (!bloque) return { error: 'Bloque inexistente.' };
+  if (bloque.estado !== 'EN_EL_AIRE') return { error: 'Este bloque no está en curso.' };
+
+  const ahora = new Date();
+  const minutosReales = Math.max(0, Math.round((ahora.getTime() - new Date(bloque.inicio_real).getTime()) / 60000));
+
+  const { error } = await (supabase as any)
+    .from('frecuencia_bloques')
+    .update({ estado: cumplido ? 'CUMPLIDO' : 'NO_SALIO', fin_real: ahora.toISOString(), minutos_reales_foco: minutosReales })
+    .eq('id', bloqueId)
+    .eq('user_id', user.id);
+  if (error) return { error: error.message };
+
+  let tituloTarea = '';
+  if (bloque.tarea_id) {
+    const { data: tarea } = await (supabase as any).from('frecuencia_tareas').select('titulo, veces_postergada').eq('id', bloque.tarea_id).maybeSingle();
+    tituloTarea = tarea?.titulo ?? '';
+    if (!cumplido) {
+      await (supabase as any)
+        .from('frecuencia_tareas')
+        .update({ veces_postergada: (tarea?.veces_postergada ?? 0) + 1 })
+        .eq('id', bloque.tarea_id)
+        .eq('user_id', user.id);
+    }
+  }
+
+  if (cumplido) {
+    const timezone = await timezoneDelUsuario(supabase, user.id);
+    const fecha = fechaLocal(timezone);
+    await (supabase as any).from('frecuencia_evidencia').insert({
+      user_id: user.id,
+      bloque_id: bloqueId,
+      fecha,
+      texto: tituloTarea ? `${tituloTarea} — ${minutosReales} min de foco real.` : `${minutosReales} min de foco real.`,
+      tipo: 'ENTRENAMIENTO_CUMPLIDO',
+    });
+  }
+
+  revalidatePath('/frecuencia/hoy');
+  revalidatePath('/frecuencia/semana');
+  return { ok: true };
+}
 
 export async function estacionarIdea(texto: string): Promise<AccionState> {
   const { supabase, user } = await usuarioActual();

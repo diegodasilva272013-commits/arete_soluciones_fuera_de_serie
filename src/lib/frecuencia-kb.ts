@@ -13,6 +13,9 @@ import type {
   PreguntasOnboarding,
   ReglasPlanKB,
   ReglasDecisionKB,
+  ReglasDosisKB,
+  ReglasFocoKB,
+  PasoAnteFalla,
 } from '@/types/frecuencia';
 
 async function leerBloque<T>(clave: string): Promise<T | null> {
@@ -37,3 +40,6 @@ export const getMapaEnergiaDefault = () => leerBloque<MapaEnergiaDefault>('mapa_
 export const getPreguntasOnboarding = () => leerBloque<PreguntasOnboarding>('preguntas_onboarding');
 export const getReglasPlan = () => leerBloque<ReglasPlanKB>('reglas_plan');
 export const getReglasDecision = () => leerBloque<ReglasDecisionKB>('reglas_decision');
+export const getReglasDosis = () => leerBloque<ReglasDosisKB>('reglas_dosis');
+export const getReglasFoco = () => leerBloque<ReglasFocoKB>('reglas_foco');
+export const getPasosAnteFalla = () => leerBloque<PasoAnteFalla[]>('pasos_ante_falla');

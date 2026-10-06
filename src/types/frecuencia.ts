@@ -109,11 +109,23 @@ export interface FrecuenciaBloque {
   tipo: 'NO_NEGOCIABLE' | 'EJECUTAR' | 'ORQUESTAR' | 'IMPREVISTOS';
   inicio: string;
   fin: string;
-  estado: 'PROGRAMADO' | 'CUMPLIDO' | 'NO_SALIO';
+  estado: 'PROGRAMADO' | 'EN_EL_AIRE' | 'CUMPLIDO' | 'NO_SALIO';
+  inicio_real: string | null;
+  fin_real: string | null;
   interrupciones: number;
   minutos_reales_foco: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface FrecuenciaEvidencia {
+  id: string;
+  user_id: string;
+  bloque_id: string | null;
+  fecha: string;
+  texto: string;
+  tipo: string;
+  created_at: string;
 }
 
 // ── Formas de frecuencia_knowledge_blocks relevantes a esta fase ──────
@@ -157,6 +169,24 @@ export interface ReglasDecisionKB {
   decisiones_importantes: string;
   decisiones_dificiles: string;
   umbral_fatiga: { horas_desde_despertar: number };
+}
+
+export interface ReglasDosisKB {
+  dosis_completa: string;
+  habitos_en_oferta: string;
+  no_necesito_ser_primero: string;
+  dos_minutos_de_dolor: string;
+  postergaciones_para_dos_minutos: number;
+  umbral_subir_dosis: { semanas: number; cumplimiento_min: number };
+  umbral_bajar_dosis: { semanas: number; cumplimiento_max: number };
+}
+
+export type ReglasFocoKB = string[];
+
+export interface PasoAnteFalla {
+  paso: number;
+  nombre: string;
+  descripcion: string;
 }
 
 // Entrada de frecuencia_identidad.no_negociables: legacy (string plano,

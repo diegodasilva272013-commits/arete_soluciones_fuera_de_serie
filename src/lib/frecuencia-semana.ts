@@ -6,7 +6,7 @@
  * vive únicamente el puente entre la base y la función pura.
  */
 import { createSupabaseServerClient } from '@/lib/supabase-server';
-import { getReglasPlan, getReglasDecision } from '@/lib/frecuencia-kb';
+import { getReglasPlan, getReglasDecision, getReglasDosis, getReglasFoco } from '@/lib/frecuencia-kb';
 import { diaYHoraLocal } from '@/lib/frecuencia-fecha';
 import { copy } from '@/app/(private)/frecuencia/_copy';
 import type { NoNegociableGuardado } from '@/types/frecuencia';
@@ -71,6 +71,61 @@ export async function resolverTitulosDeBloques(
     }
   }
   return resultado;
+}
+
+export interface DatosEnElAire {
+  bloqueId: string;
+  titulo: string;
+  protocolo: string[];
+  reglasFoco: string[];
+  inicioReal: string;
+  interrupciones: number;
+  mostrarDosMinutos: boolean;
+  textoDosMinutos: string;
+}
+
+/**
+ * Todo lo que necesita el overlay de EN EL AIRE para un bloque —
+ * usado tanto por la server action salirAlAire() (bloque recién
+ * arrancado) como por hoy/page.tsx (resumir un bloque que ya estaba
+ * EN_EL_AIRE al cargar la página, en este dispositivo o en otro).
+ * Devuelve null si el bloque no tiene tarea asociada (no se puede
+ * "salir al aire" con un NO_NEGOCIABLE o un IMPREVISTOS) o no tiene
+ * inicio_real todavía.
+ */
+export async function obtenerDatosEnElAire(userId: string, bloqueId: string): Promise<DatosEnElAire | null> {
+  const supabase = createSupabaseServerClient();
+
+  const { data: bloque } = await (supabase as any)
+    .from('frecuencia_bloques')
+    .select('id, tarea_id, inicio_real, interrupciones')
+    .eq('id', bloqueId)
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (!bloque || !bloque.tarea_id || !bloque.inicio_real) return null;
+
+  const { data: tarea } = await (supabase as any)
+    .from('frecuencia_tareas')
+    .select('titulo, protocolo, veces_postergada')
+    .eq('id', bloque.tarea_id)
+    .maybeSingle();
+  if (!tarea) return null;
+
+  const reglasFoco = (await getReglasFoco()) ?? [];
+  const reglasDosis = await getReglasDosis();
+  const umbral = reglasDosis?.postergaciones_para_dos_minutos ?? null;
+  const mostrarDosMinutos = umbral !== null && tarea.veces_postergada >= umbral;
+
+  return {
+    bloqueId: bloque.id,
+    titulo: tarea.titulo,
+    protocolo: Array.isArray(tarea.protocolo) ? tarea.protocolo : [],
+    reglasFoco,
+    inicioReal: bloque.inicio_real,
+    interrupciones: bloque.interrupciones ?? 0,
+    mostrarDosMinutos,
+    textoDosMinutos: reglasDosis?.dos_minutos_de_dolor ?? '',
+  };
 }
 
 export async function obtenerDatosParaArmarSemana(userId: string): Promise<{ datos: DatosParaArmarSemana } | { error: string }> {

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUserContext } from '@/lib/current-user';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { fechaLocal, horaEnTimezoneAUtc, fechaMasDias } from '@/lib/frecuencia-fecha';
-import { resolverTitulosDeBloques } from '@/lib/frecuencia-semana';
+import { resolverTitulosDeBloques, obtenerDatosEnElAire } from '@/lib/frecuencia-semana';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import { HoyCliente, type ItemLinea } from './_hoy-cliente';
@@ -50,6 +50,17 @@ export default async function HoyPage() {
     esActual: ahoraUtc >= b.inicio && ahoraUtc < b.fin,
   }));
 
+  // ¿Hay un bloque EN_EL_AIRE? El índice único garantiza que es, a lo
+  // sumo, uno solo — puede haber arrancado desde este dispositivo o
+  // desde otro, por eso se busca acá y no se asume que esté en `items`.
+  const { data: bloqueEnCurso } = await (supabase as any)
+    .from('frecuencia_bloques')
+    .select('id')
+    .eq('user_id', ctx.userId)
+    .eq('estado', 'EN_EL_AIRE')
+    .maybeSingle();
+  const enElAireInicial = bloqueEnCurso ? await obtenerDatosEnElAire(ctx.userId, bloqueEnCurso.id) : null;
+
   return (
     <div className={base.pantalla}>
       <div className={base.kicker}>
@@ -58,7 +69,7 @@ export default async function HoyPage() {
       </div>
       <h1 className={base.titulo}>{copy.hoy.titulo}</h1>
 
-      <HoyCliente valorDialHoy={dialHoy?.frecuencia ?? null} items={items} timezone={timezone} />
+      <HoyCliente valorDialHoy={dialHoy?.frecuencia ?? null} items={items} timezone={timezone} enElAireInicial={enElAireInicial} />
     </div>
   );
 }

@@ -1,12 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import type { TipoBloque } from '@/lib/frecuencia/plan';
-import { estacionarIdea } from '../actions';
+import type { DatosEnElAire } from '@/lib/frecuencia-semana';
+import { estacionarIdea, salirAlAire, obtenerBloqueEnCurso } from '../actions';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import { DialMini } from './_dial-mini';
+import { EnElAire } from './_en-el-aire';
 import s from './_hoy.module.css';
 
 export interface ItemLinea {
@@ -23,10 +27,28 @@ function horaCorta(iso: string, timezone: string): string {
   return new Date(iso).toLocaleTimeString('es-AR', { timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
-export function HoyCliente({ valorDialHoy, items, timezone }: { valorDialHoy: number | null; items: ItemLinea[]; timezone: string }) {
+function esTareable(tipo: TipoBloque): boolean {
+  return tipo === 'EJECUTAR' || tipo === 'ORQUESTAR';
+}
+
+export function HoyCliente({
+  valorDialHoy,
+  items,
+  timezone,
+  enElAireInicial,
+}: {
+  valorDialHoy: number | null;
+  items: ItemLinea[];
+  timezone: string;
+  enElAireInicial: DatosEnElAire | null;
+}) {
+  const router = useRouter();
   const [textoIdea, setTextoIdea] = useState('');
   const [guardandoIdea, setGuardandoIdea] = useState(false);
   const [ideaGuardada, setIdeaGuardada] = useState(false);
+  const [enElAire, setEnElAire] = useState<DatosEnElAire | null>(enElAireInicial);
+  const [saliendo, setSaliendo] = useState<string | null>(null);
+  const [conflicto, setConflicto] = useState<{ bloqueEnCursoId: string; bloqueEnCursoTitulo: string } | null>(null);
 
   async function enviarIdea() {
     if (!textoIdea.trim()) return;
@@ -38,6 +60,46 @@ export function HoyCliente({ valorDialHoy, items, timezone }: { valorDialHoy: nu
       setTextoIdea('');
       setIdeaGuardada(true);
     }
+  }
+
+  async function handleSalirAlAire(bloqueId: string) {
+    setSaliendo(bloqueId);
+    setConflicto(null);
+    const r = await salirAlAire(bloqueId);
+    setSaliendo(null);
+    if (!r.ok) {
+      if ('conflicto' in r && r.conflicto) setConflicto({ bloqueEnCursoId: r.bloqueEnCursoId, bloqueEnCursoTitulo: r.bloqueEnCursoTitulo });
+      return;
+    }
+    const { ok, ...datos } = r;
+    setEnElAire(datos);
+  }
+
+  async function irAlBloqueEnCurso() {
+    const datos = await obtenerBloqueEnCurso();
+    setConflicto(null);
+    if (datos) setEnElAire(datos);
+  }
+
+  function handleTerminar() {
+    setEnElAire(null);
+    router.refresh();
+  }
+
+  if (enElAire) {
+    return (
+      <EnElAire
+        bloqueId={enElAire.bloqueId}
+        titulo={enElAire.titulo}
+        protocolo={enElAire.protocolo}
+        reglasFoco={enElAire.reglasFoco}
+        inicioReal={enElAire.inicioReal}
+        interrupcionesIniciales={enElAire.interrupciones}
+        mostrarDosMinutos={enElAire.mostrarDosMinutos}
+        textoDosMinutos={enElAire.textoDosMinutos}
+        onTerminar={handleTerminar}
+      />
+    );
   }
 
   return (
@@ -57,6 +119,15 @@ export function HoyCliente({ valorDialHoy, items, timezone }: { valorDialHoy: nu
         )}
       </div>
 
+      {conflicto && (
+        <div className={s.item} style={{ marginTop: 20, borderColor: 'var(--azul)' }}>
+          <p style={{ margin: 0, flex: 1 }}>{copy.enElAire.errorConflicto(conflicto.bloqueEnCursoTitulo)}</p>
+          <button type="button" className={base.btnGhost} onClick={irAlBloqueEnCurso}>
+            {copy.enElAire.irAlQueEstaEnCurso}
+          </button>
+        </div>
+      )}
+
       {items.length === 0 ? (
         <div style={{ marginTop: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <p className={base.ayuda} style={{ margin: 0 }}>
@@ -69,8 +140,8 @@ export function HoyCliente({ valorDialHoy, items, timezone }: { valorDialHoy: nu
       ) : (
         <div className={s.linea}>
           {items.map((item) =>
-            item.esActual ? (
-              <div key={item.id} className={s.itemActual}>
+            item.esActual && esTareable(item.tipo) && item.estado !== 'CUMPLIDO' && item.estado !== 'NO_SALIO' ? (
+              <motion.div key={item.id} className={s.itemActual} layoutId="bloque-en-foco">
                 <div className={s.itemActualCabecera}>
                   <span className={s.itemActualBadge}>{copy.hoy.bloqueActualLabel}</span>
                   <span className={s.itemHora}>
@@ -79,11 +150,11 @@ export function HoyCliente({ valorDialHoy, items, timezone }: { valorDialHoy: nu
                   <span className={s.itemTitulo}>{item.titulo}</span>
                 </div>
                 <div className={base.filaBotones} style={{ marginTop: 0 }}>
-                  <button type="button" className={base.btn} disabled title={copy.hoy.salirAlAireProximamente}>
-                    {copy.hoy.salirAlAire}
+                  <button type="button" className={base.btn} onClick={() => handleSalirAlAire(item.id)} disabled={saliendo === item.id}>
+                    {saliendo === item.id ? copy.botones.guardando : copy.hoy.salirAlAire}
                   </button>
                 </div>
-              </div>
+              </motion.div>
             ) : (
               <div key={item.id} className={s.item}>
                 <span className={s.itemHora}>
