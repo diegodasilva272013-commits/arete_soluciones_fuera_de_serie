@@ -57,6 +57,10 @@
 .dia {
   flex: 0 0 85%;
   scroll-snap-align: start;
+  /* La columna de horas es sticky (left:0) DENTRO de este mismo scroll
+     horizontal — sin este margen, el snap deja el borde izquierdo del
+     día (y el texto de sus bloques) tapado detrás del gutter. */
+  scroll-margin-left: 44px;
   border-right: 1px solid var(--linea);
   position: relative;
 }
