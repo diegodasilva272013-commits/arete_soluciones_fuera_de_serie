@@ -393,3 +393,17 @@ export async function borrarBloque(bloqueId: string): Promise<AccionState> {
   revalidatePath('/frecuencia/semana');
   return { ok: true };
 }
+
+// ── 11. Bandeja de ideas (pantalla Hoy) ───────────────────────────────
+
+export async function estacionarIdea(texto: string): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+  if (!texto.trim()) return { error: 'Vacío.' };
+
+  const { error } = await (supabase as any).from('frecuencia_ideas').insert({ user_id: user.id, texto: texto.trim(), estado: 'ESTACIONADA' });
+
+  if (error) return { error: error.message };
+  revalidatePath('/frecuencia/hoy');
+  return { ok: true };
+}

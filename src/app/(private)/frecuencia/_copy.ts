@@ -168,4 +168,23 @@ export const copy = {
     nuevoNoNegociablePlaceholder: 'Ej: Entrenar',
     guardarNoNegociables: 'Guardar no negociables',
   },
+
+  hoy: {
+    kicker: 'Hoy',
+    titulo: 'Al aire hoy',
+    sinDial: 'Todavía no marcaste tu frecuencia de hoy.',
+    irAlDial: 'Ir al dial',
+    sinBloques: 'Hoy no tenés bloques armados. Andá a Semana y armá uno.',
+    irASemana: 'Ir a Semana',
+    bloqueActualLabel: 'Ahora',
+    salirAlAire: 'Salir al aire',
+    salirAlAireProximamente: 'Esta pantalla llega en la próxima parte — todavía no está construida.',
+    sinBloqueActual: 'Ningún bloque corriendo ahora mismo.',
+    proximoBloque: 'Próximo',
+    ideasTitulo: 'Bandeja de ideas',
+    ideasAyuda: 'Estacioná lo que te distraiga, sin perder el foco de ahora.',
+    ideaPlaceholder: 'Qué se te cruzó',
+    estacionar: 'Estacionar',
+    ideaEstacionada: 'Estacionada.',
+  },
 } as const;

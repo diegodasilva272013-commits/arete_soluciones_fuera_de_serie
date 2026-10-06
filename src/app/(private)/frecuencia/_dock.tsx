@@ -1,12 +1,11 @@
 'use client';
 
 /**
- * Dock inferior de navegación de Frecuencia: Hoy · Dial · Áreas ·
- * Espejo. Se oculta durante el onboarding (no tiene sentido navegar a
- * destinos que todavía no se completaron) y en /frecuencia/onboarding
- * no se muestra. "Hoy" y "Espejo" están deshabilitados: sus pantallas
- * son de una fase posterior — se muestran sin link roto, no se
- * esconden, para que se entienda que van a existir.
+ * Dock inferior de navegación de Frecuencia: Hoy · Semana · Dial ·
+ * Áreas · Espejo. Se oculta en /frecuencia/onboarding (no tiene sentido
+ * navegar a destinos que todavía no se completaron). "Espejo" sigue
+ * deshabilitado: su pantalla es de una fase posterior — se muestra sin
+ * link roto, no se esconde, para que se entienda que va a existir.
  */
 
 import Link from 'next/link';
@@ -16,7 +15,7 @@ import { dockVisibleEnRuta } from './_dock-visibilidad';
 import s from './frecuencia.module.css';
 
 const ITEMS = [
-  { href: '/frecuencia/hoy', label: copy.dock.hoy, habilitado: false },
+  { href: '/frecuencia/hoy', label: copy.dock.hoy, habilitado: true },
   { href: '/frecuencia/semana', label: copy.dock.semana, habilitado: true },
   { href: '/frecuencia/dial', label: copy.dock.dial, habilitado: true },
   { href: '/frecuencia/areas', label: copy.dock.areas, habilitado: true },

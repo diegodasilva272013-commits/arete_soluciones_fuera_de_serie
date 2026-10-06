@@ -1,0 +1,103 @@
+.dialMiniWrap {
+  margin-top: 24px;
+  padding: 16px 18px;
+  border: 1px solid var(--linea);
+  background: rgba(255, 255, 255, 0.02);
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+}
+
+.linea {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--linea);
+  background: var(--negro-2);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.itemHora {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  color: var(--ceniza);
+  white-space: nowrap;
+}
+.itemTitulo {
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 14px;
+  color: var(--hueso);
+  flex: 1;
+}
+.itemTipo {
+  font-family: var(--f-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+
+/* ── Bloque actual: glow respirando (tokens Areté, chanfle, no radius) ── */
+.itemActual {
+  composes: item;
+  position: relative;
+  border-color: var(--azul);
+  background: rgba(var(--azul-rgb), 0.07);
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  animation: respirarGlow 3.2s ease-in-out infinite;
+}
+@keyframes respirarGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px rgba(var(--azul-rgb), 0.15), 0 14px 40px -18px rgba(var(--azul-rgb), 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(var(--azul-rgb), 0.3), 0 18px 54px -14px rgba(var(--azul-rgb), 0.7);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .itemActual {
+    animation: none;
+    box-shadow: 0 0 0 1px rgba(var(--azul-rgb), 0.25);
+  }
+}
+.itemActualCabecera {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.itemActualBadge {
+  font-family: var(--f-mono), monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--negro);
+  background: var(--azul);
+  padding: 3px 9px;
+}
+
+.ideasPanel {
+  margin-top: 32px;
+}
+.ideaForm {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+.ideaForm input {
+  flex: 1;
+}
+.ideaOk {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  color: var(--azul-luz);
+  margin-top: 8px;
+}
