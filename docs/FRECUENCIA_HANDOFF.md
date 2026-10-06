@@ -303,7 +303,7 @@ Esto estaba en el diseño original y todavía no existe. Va después de las tare
 - Más adelante: landing pública de Frecuencia como gancho comercial, registro externo y acceso de students. Está fuera de alcance hasta que Diego lo pida.
 - Los valores numéricos del plan son propuestas editables en knowledge_blocks; Diego puede ajustarlos.
 - **Los 4 componentes de 21st.dev de la Fase 5 NO están en el repo.** Diego los pega cuando arranque esa fase.
-- El documento de diseño original está en `docs/PSEUDOCODIGO_app_frecuencia.md`. Ante una contradicción, manda ESTE documento (es más nuevo).
+- Este documento es la única referencia del diseño de Frecuencia: ante cualquier duda o contradicción, manda lo que dice acá.
 
 ---
 
