@@ -8,7 +8,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { getReglasPlan, getReglasDecision, getReglasDosis, getReglasFoco } from '@/lib/frecuencia-kb';
 import { diaYHoraLocal } from '@/lib/frecuencia-fecha';
-import { copy } from '@/app/(private)/frecuencia/_copy';
+import { copy } from '@/app/(frecuencia)/frecuencia/_copy';
 import type { NoNegociableGuardado } from '@/types/frecuencia';
 import type { DatosParaArmarSemana, DiaSemana, TareaParaPlan } from '@/lib/frecuencia/plan';
 
