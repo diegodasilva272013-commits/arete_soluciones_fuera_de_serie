@@ -17,6 +17,7 @@ import s from './_cierre.module.css';
 import type { EnergiaEscasez, PasoAnteFalla } from '@/types/frecuencia';
 import type { TipoBloque } from '@/lib/frecuencia/plan';
 import { BarraPasos } from '../_barra-pasos';
+import { CapaFija } from '../_shell';
 
 export interface EvidenciaDelDia {
   id: string;
@@ -118,9 +119,11 @@ export function CierreCliente({
 
   return (
     <div>
-      <div className={base.progresoWrap}>
-        <div className={base.progresoBarra} style={{ width: `${((indice + 1) / pasos.length) * 100}%` }} />
-      </div>
+      <CapaFija>
+        <div className={base.progresoWrap}>
+          <div className={base.progresoBarra} style={{ width: `${((indice + 1) / pasos.length) * 100}%` }} />
+        </div>
+      </CapaFija>
       {paso !== 'completo' && <p className={base.ayuda}>{copy.cierre.pasoDe(indice + 1, pasos.length)}</p>}
 
       {paso === 'registro' && (

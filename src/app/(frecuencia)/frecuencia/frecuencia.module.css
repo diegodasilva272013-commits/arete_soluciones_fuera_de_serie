@@ -4,8 +4,10 @@
    --azul-rgb. Las fuentes (--f-display/--f-texto/--f-mono) se cargan
    en layout.tsx porque (private) no las trae por defecto. */
 
+/* Sin min-height propio: el contenedor del shell ya ocupa el alto de la
+   pantalla (descontando header y dock); con 100dvh acá toda pantalla
+   scrolleaba de más aunque fuera corta. */
 .pantalla {
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   padding: 24px 20px;
@@ -327,8 +329,16 @@
 .btnGhost::before,
 .btnGhost::after,
 .btnGhost:hover::before,
-.btnGhost:hover::after {
+.btnGhost:hover::after,
+.btnGhost:focus-visible::before,
+.btnGhost:focus-visible::after,
+.btnGhost:disabled::before,
+.btnGhost:disabled::after {
   background: transparent;
+}
+.btnGhost:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 .btnGhost:hover,
 .btnGhost:focus-visible {

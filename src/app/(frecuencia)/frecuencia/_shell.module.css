@@ -219,6 +219,11 @@
   color: var(--hueso);
   background: rgba(255, 255, 255, 0.04);
 }
+.dockItem:focus-visible {
+  outline: none;
+  /* inset: el clip-path del ítem recortaría un outline o un shadow de afuera */
+  box-shadow: inset 0 0 0 2px var(--azul-luz);
+}
 .dockItem:active {
   transform: scale(0.96);
 }
@@ -319,6 +324,17 @@
 
 .pushSobreDock :global(.fixed) {
   bottom: calc(104px + 12px + env(safe-area-inset-bottom, 0px)) !important;
+}
+.pushOculto {
+  display: none;
+}
+.soloLector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {

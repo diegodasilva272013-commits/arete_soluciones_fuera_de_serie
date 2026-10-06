@@ -58,7 +58,7 @@ function useBaldosaDeRuido(): string | null {
   return url;
 }
 
-export function FondoVivo({ frecuencia }: { frecuencia: number | null }) {
+export function FondoVivo({ frecuencia, gradienteActivo = true }: { frecuencia: number | null; gradienteActivo?: boolean }) {
   const reducido = useReducedMotion();
   const ruido = useBaldosaDeRuido();
   const t = sintoniaDe(frecuencia);
@@ -80,7 +80,9 @@ export function FondoVivo({ frecuencia }: { frecuencia: number | null }) {
     <div className={s.fondo} aria-hidden data-sintonia={t.toFixed(2)}>
       <div className={s.fondoBase} />
       <div className={s.fondoHalo} style={estilos.halo} />
-      {!reducido && (
+      {/* reducido es null en el primer render: se espera a saber que NO pidió
+          movimiento reducido antes de bajar el chunk del shader. */}
+      {reducido === false && gradienteActivo && (
         <div className={s.fondoGradiente} style={estilos.gradiente}>
           <AnimatedGradient config={PRISM} style={ESTILO_GRADIENTE} />
         </div>

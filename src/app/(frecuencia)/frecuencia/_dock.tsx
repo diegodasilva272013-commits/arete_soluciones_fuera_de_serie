@@ -107,8 +107,9 @@ function ItemDock({
           {cuerpo}
         </Link>
       ) : (
-        <span className={s.dockItemDeshabilitado} aria-disabled="true" title={copy.dock.proximamente}>
+        <span className={s.dockItemDeshabilitado} role="link" aria-disabled="true" title={copy.dock.proximamente}>
           {cuerpo}
+          <span className={s.soloLector}> ({copy.dock.proximamente})</span>
         </span>
       )}
     </motion.div>

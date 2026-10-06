@@ -269,14 +269,14 @@ export function SemanaCliente({
           />
         </div>
 
-        <BarraPasos>
+        <div className={base.filaBotones}>
           <button type="button" className={base.btnSec} onClick={agregarNoNegociable}>
             {copy.semana.agregarNoNegociable}
           </button>
           <button type="button" className={base.btn} onClick={guardarNoNegociables} disabled={guardandoNoNeg}>
             {guardandoNoNeg ? copy.botones.guardando : copy.semana.guardarNoNegociables}
           </button>
-        </BarraPasos>
+        </div>
       </div>
     </div>
   );

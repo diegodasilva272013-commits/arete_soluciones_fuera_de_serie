@@ -45,7 +45,7 @@ export default async function AreasPage() {
         manzanaInicial={manzana}
       />
 
-      <Link href="/frecuencia/objetivos" className={base.btnGhost} style={{ marginTop: 32, display: 'inline-block' }}>
+      <Link href="/frecuencia/objetivos" className={base.btnGhost} style={{ marginTop: 32 }}>
         {copy.objetivos.titulo} →
       </Link>
     </div>
