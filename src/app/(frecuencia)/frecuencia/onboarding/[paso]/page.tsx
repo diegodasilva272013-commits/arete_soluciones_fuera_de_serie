@@ -94,7 +94,30 @@ export default async function PasoOnboardingPage({ params }: { params: { paso: s
     }
     case 'ecualizador': {
       const reglas = await getAreasReglas();
-      contenido = <PasoEcualizador c={t.ecualizador} areas={areas} reglas={reglas} paso={numero} />;
+      // Lo ya guardado vuelve a aparecer: volver al paso no lo resetea.
+      const { data: filas } = await (supabase as any)
+        .from('frecuencia_areas')
+        .select('area_key, nivel_actual, es_palanca, es_manzana_podrida')
+        .eq('user_id', ctx.userId);
+      const niveles: Record<string, number> = {};
+      let palanca: string | null = null;
+      let manzana: string | null = null;
+      for (const f of (filas ?? []) as Array<{ area_key: string; nivel_actual: number; es_palanca: boolean; es_manzana_podrida: boolean }>) {
+        niveles[f.area_key] = f.nivel_actual;
+        if (f.es_palanca) palanca = f.area_key;
+        if (f.es_manzana_podrida) manzana = f.area_key;
+      }
+      contenido = (
+        <PasoEcualizador
+          c={t.ecualizador}
+          areas={areas}
+          reglas={reglas}
+          paso={numero}
+          nivelesIniciales={niveles}
+          palancaInicial={palanca}
+          manzanaInicial={manzana}
+        />
+      );
       break;
     }
     case 'energia': {

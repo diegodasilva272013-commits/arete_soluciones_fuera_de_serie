@@ -102,6 +102,7 @@ export function Ecualizador({
   onAtras,
   preguntaPalanca,
   preguntaManzana,
+  exigirSeleccion = false,
 }: {
   areas: AreaVida[];
   reglas: AreasReglas | null;
@@ -120,6 +121,12 @@ export function Ecualizador({
   /** En el onboarding, las preguntas de palanca y manzana vienen de onboarding_copy. */
   preguntaPalanca?: string;
   preguntaManzana?: string;
+  /**
+   * En el onboarding el paso solo cuenta como hecho con palanca Y manzana
+   * elegidas (frecuencia-progreso.ts): sin esto, se "guardaba", avanzaba y
+   * el onboarding lo devolvía al Ecualizador vacío una y otra vez.
+   */
+  exigirSeleccion?: boolean;
 }) {
   const [niveles, setNiveles] = useState<Record<string, number>>(() => {
     const base: Record<string, number> = {};
@@ -132,6 +139,14 @@ export function Ecualizador({
   const [error, setError] = useState<string | null>(null);
 
   async function handleGuardar() {
+    if (palanca && manzana && palanca === manzana) {
+      setError(copy.areas.mismaArea);
+      return;
+    }
+    if (exigirSeleccion && (!palanca || !manzana)) {
+      setError(!palanca && !manzana ? copy.areas.faltaPalancaYManzana : !palanca ? copy.areas.faltaPalanca : copy.areas.faltaManzana);
+      return;
+    }
     setGuardando(true);
     setError(null);
     const r = await onGuardar({ niveles, palancaKey: palanca, manzanaKey: manzana });
@@ -199,7 +214,16 @@ export function Ecualizador({
         </div>
       )}
 
-      {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginTop: 16 }}>{error}</p>}
+      {error && (
+        <p
+          role="alert"
+          // El aviso puede quedar fuera de vista (las bandas son altas): se lleva a la vista.
+          ref={(el) => el?.scrollIntoView({ block: 'center', behavior: 'smooth' })}
+          style={{ color: '#ff8a8a', fontSize: 14, marginTop: 16 }}
+        >
+          {error}
+        </p>
+      )}
 
       <BarraPasos>
         {onAtras && (
