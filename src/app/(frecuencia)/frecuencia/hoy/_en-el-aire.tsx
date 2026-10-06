@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
 import { registrarInterrupcion, terminarBloque } from '../actions';
 import { copy } from '../_copy';
+import { CapaFija } from '../_shell';
 import s from './_en-el-aire.module.css';
 
 const VolumetricStudio = dynamic(() => import('@/components/ui/volumetric-studio').then((m) => m.VolumetricStudio), { ssr: false });
@@ -90,63 +91,66 @@ export function EnElAire({
     if (!r.error) onTerminar(cumplido);
   }
 
+  // En la capa fija del shell: fuera de los contenedores animados (ver CapaFija).
   return (
-    <motion.div className={s.overlay} layoutId="bloque-en-foco" transition={prefiereReducido ? { duration: 0 } : undefined}>
-      {fondoAnimado ? <VolumetricStudio className={s.fondoAnimado} /> : <div className={s.fondoEstatico} />}
-      <div className={s.contenido}>
-        <div className={s.onAir}>
-          <span className={s.onAirPunto} />
-          <span className={s.onAirLabel}>{copy.enElAire.onAir}</span>
-        </div>
-
-        {mostrarDosMinutos && (
-          <div className={s.dosMinutos}>
-            <p className={s.dosMinutosLabel}>{copy.enElAire.dosMinutosLabel}</p>
-            <p className={s.dosMinutosTexto}>{textoDosMinutos}</p>
+    <CapaFija>
+      <motion.div className={s.overlay} layoutId="bloque-en-foco" transition={prefiereReducido ? { duration: 0 } : undefined}>
+        {fondoAnimado ? <VolumetricStudio className={s.fondoAnimado} /> : <div className={s.fondoEstatico} />}
+        <div className={s.contenido}>
+          <div className={s.onAir}>
+            <span className={s.onAirPunto} />
+            <span className={s.onAirLabel}>{copy.enElAire.onAir}</span>
           </div>
-        )}
 
-        <div className={s.cronometro}>{formatearDuracion(segundosTranscurridos)}</div>
-        <h1 className={s.tareaTitulo}>{titulo}</h1>
+          {mostrarDosMinutos && (
+            <div className={s.dosMinutos}>
+              <p className={s.dosMinutosLabel}>{copy.enElAire.dosMinutosLabel}</p>
+              <p className={s.dosMinutosTexto}>{textoDosMinutos}</p>
+            </div>
+          )}
 
-        {protocolo.length > 0 && (
-          <div className={s.protocolo}>
-            {protocolo.map((paso, i) => (
-              <div key={i} className={s.protocoloPaso}>
-                <span className={s.protocoloNumero}>{String(i + 1).padStart(2, '0')}</span>
-                <span>{paso}</span>
-              </div>
-            ))}
-          </div>
-        )}
+          <div className={s.cronometro}>{formatearDuracion(segundosTranscurridos)}</div>
+          <h1 className={s.tareaTitulo}>{titulo}</h1>
 
-        {reglasFoco.length > 0 && (
-          <div className={s.reglasFoco}>
-            <p className={s.reglasFocoTitulo}>{copy.enElAire.reglasFocoTitulo}</p>
-            {reglasFoco.map((regla, i) => (
-              <p key={i} className={s.reglaFoco}>
-                {regla}
-              </p>
-            ))}
-          </div>
-        )}
+          {protocolo.length > 0 && (
+            <div className={s.protocolo}>
+              {protocolo.map((paso, i) => (
+                <div key={i} className={s.protocoloPaso}>
+                  <span className={s.protocoloNumero}>{String(i + 1).padStart(2, '0')}</span>
+                  <span>{paso}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
-        <p className={s.interrupciones}>{copy.enElAire.interrupciones(interrupciones)}</p>
+          {reglasFoco.length > 0 && (
+            <div className={s.reglasFoco}>
+              <p className={s.reglasFocoTitulo}>{copy.enElAire.reglasFocoTitulo}</p>
+              {reglasFoco.map((regla, i) => (
+                <p key={i} className={s.reglaFoco}>
+                  {regla}
+                </p>
+              ))}
+            </div>
+          )}
 
-        <div className={s.acciones}>
-          <button type="button" className={s.btnTermine} onClick={() => terminar(true)} disabled={guardando}>
-            {copy.enElAire.termine}
-          </button>
-          <div className={s.filaSecundaria}>
-            <button type="button" className={s.btnInterrupcion} onClick={meInterrumpieron} disabled={guardando}>
-              {copy.enElAire.meInterrumpieron}
+          <p className={s.interrupciones}>{copy.enElAire.interrupciones(interrupciones)}</p>
+
+          <div className={s.acciones}>
+            <button type="button" className={s.btnTermine} onClick={() => terminar(true)} disabled={guardando}>
+              {copy.enElAire.termine}
             </button>
-            <button type="button" className={s.btnSalir} onClick={() => terminar(false)} disabled={guardando}>
-              {copy.enElAire.salir}
-            </button>
+            <div className={s.filaSecundaria}>
+              <button type="button" className={s.btnInterrupcion} onClick={meInterrumpieron} disabled={guardando}>
+                {copy.enElAire.meInterrumpieron}
+              </button>
+              <button type="button" className={s.btnSalir} onClick={() => terminar(false)} disabled={guardando}>
+                {copy.enElAire.salir}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </CapaFija>
   );
 }

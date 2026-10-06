@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { copy } from '../../_copy';
 import base from '../../frecuencia.module.css';
+import { BarraPasos } from '../../_barra-pasos';
 
 export default function OnboardingCompletoPage() {
   return (
@@ -13,11 +14,11 @@ export default function OnboardingCompletoPage() {
         {copy.onboarding.cierre.titulo.split('.')[0]}.{' '}
         <span className={base.tituloAcento}>{copy.onboarding.cierre.subtitulo}</span>
       </h1>
-      <div className={base.filaBotones}>
+      <BarraPasos>
         <Link href="/frecuencia/dial" className={base.btn}>
           {copy.dock.dial}
         </Link>
-      </div>
+      </BarraPasos>
     </div>
   );
 }

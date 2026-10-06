@@ -15,6 +15,8 @@ import type { NoNegociableGuardado } from '@/types/frecuencia';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import s from './_semana.module.css';
+import { BarraPasos } from '../_barra-pasos';
+import { useFlujoActivo } from '../_shell';
 
 export interface BloqueDeSemana {
   id: string;
@@ -74,6 +76,8 @@ export function SemanaCliente({
   const [guardandoNoNeg, setGuardandoNoNeg] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nuevoTexto, setNuevoTexto] = useState('');
+  // Revisar/confirmar la semana propuesta es un flujo: sin dock, barra fija abajo.
+  useFlujoActivo(propuesta !== null);
 
   const horas = Array.from({ length: HORA_FIN_GRILLA - HORA_INICIO_GRILLA }, (_, i) => HORA_INICIO_GRILLA + i);
   const hoyIndex = NOMBRE_DIA_A_INDICE[new Intl.DateTimeFormat('en-US', { timeZone: timezone, weekday: 'long' }).format(new Date())];
@@ -158,14 +162,14 @@ export function SemanaCliente({
               </div>
             ))}
           </div>
-          <div className={base.filaBotones}>
+          <BarraPasos>
             <button type="button" className={base.btn} onClick={confirmar} disabled={guardandoPropuesta}>
               {guardandoPropuesta ? copy.botones.guardando : copy.semana.confirmarPropuesta}
             </button>
             <button type="button" className={base.btnGhost} onClick={() => setPropuesta(null)}>
               {copy.semana.descartarPropuesta}
             </button>
-          </div>
+          </BarraPasos>
         </div>
       )}
 
@@ -265,14 +269,14 @@ export function SemanaCliente({
           />
         </div>
 
-        <div className={base.filaBotones}>
+        <BarraPasos>
           <button type="button" className={base.btnSec} onClick={agregarNoNegociable}>
             {copy.semana.agregarNoNegociable}
           </button>
           <button type="button" className={base.btn} onClick={guardarNoNegociables} disabled={guardandoNoNeg}>
             {guardandoNoNeg ? copy.botones.guardando : copy.semana.guardarNoNegociables}
           </button>
-        </div>
+        </BarraPasos>
       </div>
     </div>
   );

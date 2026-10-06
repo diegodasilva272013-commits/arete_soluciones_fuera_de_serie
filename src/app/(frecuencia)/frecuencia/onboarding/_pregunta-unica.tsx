@@ -4,7 +4,7 @@
  * Una pregunta por pantalla, dentro de una misma categoría del
  * onboarding (ej.: las 4 preguntas de identidad). Transición propia
  * con AnimatePresence — la transición "grande" entre categorías la da
- * el template.tsx de Frecuencia al cambiar de ruta.
+ * el shell de Frecuencia (_shell.tsx) al cambiar de ruta.
  */
 
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';

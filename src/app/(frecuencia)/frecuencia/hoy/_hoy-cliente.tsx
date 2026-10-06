@@ -8,6 +8,7 @@ import type { TipoBloque } from '@/lib/frecuencia/plan';
 import type { DatosEnElAire } from '@/lib/frecuencia-semana';
 import { estacionarIdea, salirAlAire, obtenerBloqueEnCurso } from '../actions';
 import { copy } from '../_copy';
+import { useFlujoActivo } from '../_shell';
 import base from '../frecuencia.module.css';
 import { DialMini } from './_dial-mini';
 import { EnElAire } from './_en-el-aire';
@@ -48,6 +49,8 @@ export function HoyCliente({
   const [ideaGuardada, setIdeaGuardada] = useState(false);
   const [enElAire, setEnElAire] = useState<DatosEnElAire | null>(enElAireInicial);
   const [saliendo, setSaliendo] = useState<string | null>(null);
+  // EN EL AIRE es un flujo a pantalla completa: sin dock mientras está abierto.
+  useFlujoActivo(enElAire !== null);
   const [conflicto, setConflicto] = useState<{ bloqueEnCursoId: string; bloqueEnCursoTitulo: string } | null>(null);
 
   async function enviarIdea() {

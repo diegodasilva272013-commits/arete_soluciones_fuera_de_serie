@@ -21,6 +21,8 @@ import { copy } from './_copy';
 import type { EnergiaEscasez } from '@/types/frecuencia';
 import s from './_dial.module.css';
 import base from './frecuencia.module.css';
+import { BarraPasos } from './_barra-pasos';
+import { useSintonia } from './_shell';
 
 const AnimatedGradient = dynamic(() => import('@/components/ui/animated-gradient'), { ssr: false });
 
@@ -38,6 +40,7 @@ export function Dial({
   textoCta,
   onGuardar,
   onDespuesDeGuardar,
+  onAtras,
 }: {
   valorInicial?: number;
   energiasDisponibles: EnergiaEscasez[];
@@ -50,8 +53,11 @@ export function Dial({
     accionesSubida: string[];
   }) => Promise<{ error?: string; ok?: boolean }>;
   onDespuesDeGuardar?: () => void;
+  /** Dentro de un flujo: el Atrás va en la misma barra que el CTA (una sola BarraPasos por pantalla). */
+  onAtras?: () => void;
 }) {
   const prefiereReducido = useReducedMotion();
+  const sintonizarFondo = useSintonia();
   const pistaRef = useRef<HTMLDivElement>(null);
 
   const [valor, setValor] = useState(clamp(Math.round(valorInicial), -100, 100));
@@ -122,6 +128,8 @@ export function Dial({
       setError(copy.estados.error);
       return;
     }
+    // El fondo vivo de toda la app sigue al dial recién guardado.
+    sintonizarFondo(valor);
     onDespuesDeGuardar?.();
   }
 
@@ -227,11 +235,16 @@ export function Dial({
 
       {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginTop: 16 }}>{error}</p>}
 
-      <div className={base.filaBotones}>
+      <BarraPasos>
+        {onAtras && (
+          <button type="button" className={base.btnSec} onClick={onAtras} disabled={guardando}>
+            {copy.botones.atras}
+          </button>
+        )}
         <button type="button" className={base.btn} onClick={handleGuardar} disabled={guardando}>
           {guardando ? copy.botones.guardando : textoCta}
         </button>
-      </div>
+      </BarraPasos>
     </div>
   );
 }

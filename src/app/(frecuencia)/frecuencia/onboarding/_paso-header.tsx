@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { copy } from '../_copy';
+import { CapaFija } from '../_shell';
 import base from '../frecuencia.module.css';
 import { indiceDe, anteriorRuta, PASOS_WIZARD } from './_navegacion';
 import type { PasoOnboarding } from '@/types/frecuencia';
@@ -11,9 +12,11 @@ export function PasoHeader({ paso }: { paso: Exclude<PasoOnboarding, 'completo'>
 
   return (
     <>
-      <div className={base.progresoWrap}>
-        <div className={base.progresoBarra} style={{ width: `${((indice + 1) / total) * 100}%` }} />
-      </div>
+      <CapaFija>
+        <div className={base.progresoWrap}>
+          <div className={base.progresoBarra} style={{ width: `${((indice + 1) / total) * 100}%` }} />
+        </div>
+      </CapaFija>
       <div className={base.kicker}>
         {atras && (
           <Link

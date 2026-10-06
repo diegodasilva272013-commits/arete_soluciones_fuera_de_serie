@@ -12,6 +12,7 @@ import { copy } from './_copy';
 import type { AreaVida, AreasReglas } from '@/types/frecuencia';
 import s from './_ecualizador.module.css';
 import base from './frecuencia.module.css';
+import { BarraPasos } from './_barra-pasos';
 
 function clamp(v: number, min: number, max: number) {
   return Math.min(max, Math.max(min, v));
@@ -98,6 +99,7 @@ export function Ecualizador({
   textoCta,
   onGuardar,
   onDespuesDeGuardar,
+  onAtras,
 }: {
   areas: AreaVida[];
   reglas: AreasReglas | null;
@@ -111,6 +113,8 @@ export function Ecualizador({
     manzanaKey: string | null;
   }) => Promise<{ error?: string; ok?: boolean }>;
   onDespuesDeGuardar?: () => void;
+  /** Dentro de un flujo: el Atrás va en la misma barra que el CTA (una sola BarraPasos por pantalla). */
+  onAtras?: () => void;
 }) {
   const [niveles, setNiveles] = useState<Record<string, number>>(() => {
     const base: Record<string, number> = {};
@@ -192,11 +196,16 @@ export function Ecualizador({
 
       {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginTop: 16 }}>{error}</p>}
 
-      <div className={base.filaBotones}>
+      <BarraPasos>
+        {onAtras && (
+          <button type="button" className={base.btnSec} onClick={onAtras} disabled={guardando}>
+            {copy.botones.atras}
+          </button>
+        )}
         <button type="button" className={base.btn} onClick={handleGuardar} disabled={guardando}>
           {guardando ? copy.botones.guardando : textoCta}
         </button>
-      </div>
+      </BarraPasos>
     </div>
   );
 }

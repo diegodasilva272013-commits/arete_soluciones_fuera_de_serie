@@ -8,6 +8,7 @@ import { siguienteRuta } from '../_navegacion';
 import { copy } from '../../_copy';
 import base from '../../frecuencia.module.css';
 import type { PreguntaConClave } from '@/types/frecuencia';
+import { BarraPasos } from '../../_barra-pasos';
 
 export function PasoEnergia({
   preguntas,
@@ -86,7 +87,7 @@ export function PasoEnergia({
 
       {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginTop: 12 }}>{error}</p>}
 
-      <div className={base.filaBotones}>
+      <BarraPasos>
         {indice > 0 && (
           <button type="button" className={base.btnSec} onClick={() => setIndice((i) => i - 1)}>
             {copy.botones.atras}
@@ -95,7 +96,7 @@ export function PasoEnergia({
         <button type="button" className={base.btn} onClick={siguiente} disabled={guardando}>
           {guardando ? copy.botones.guardando : esUltima ? copy.botones.continuar : copy.botones.siguiente}
         </button>
-      </div>
+      </BarraPasos>
     </div>
   );
 }

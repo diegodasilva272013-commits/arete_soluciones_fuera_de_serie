@@ -45,8 +45,16 @@
   transform-origin: left;
   transition: transform 0.6s cubic-bezier(0.16, 0.84, 0.28, 1) 0.1s;
 }
+/* Se dibuja al montar (antes .on ya venía puesto desde el primer render
+   y la transición nunca corría: la línea aparecía quieta). */
 .kickerLine.on {
   transform: scaleX(1);
+  animation: kickerDibuja 0.8s cubic-bezier(0.16, 0.84, 0.28, 1) 0.15s both;
+  box-shadow: 0 0 8px rgba(var(--azul-rgb), 0.8);
+}
+@keyframes kickerDibuja {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 .kickerLabel {
   font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
@@ -66,20 +74,27 @@
 
 /* ── Títulos ──────────────────────────────────────────────────────── */
 
+/* Patrón heroTitle de la web corporativa (corp.module.css): Montserrat
+   800 apretada; .tituloAcento es la SEGUNDA LÍNEA en Spectral itálica
+   azul con glow. */
 .titulo {
   font-family: var(--f-display), Montserrat, system-ui, sans-serif;
   font-weight: 800;
-  font-size: clamp(26px, 6vw, 38px);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  font-size: clamp(30px, 7vw, 52px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
   color: var(--hueso);
   text-wrap: balance;
 }
 .tituloAcento {
+  display: block;
+  margin-top: 0.06em;
   font-family: var(--f-texto), Spectral, Georgia, serif;
   font-style: italic;
   font-weight: 400;
+  letter-spacing: -0.01em;
   color: var(--azul-luz);
+  text-shadow: 0 0 24px rgba(var(--azul-rgb), 0.45);
 }
 .subtitulo {
   margin-top: 12px;
@@ -214,47 +229,111 @@
   gap: 12px;
   align-items: center;
 }
+/* Botones chanfleados. El chanfle va en ::before/::after y NO en el
+   botón: un clip-path en el propio elemento recorta también el glow
+   (box-shadow / drop-shadow). Así el glow del hover sigue la forma
+   chanfleada por fuera. Primario y secundario tienen el mismo alto. */
 .btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
   font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  text-decoration: none;
   padding: 14px 24px;
-  border: 1px solid var(--azul);
-  background: var(--azul);
+  border: none;
+  background: transparent;
   color: var(--negro);
   font-weight: 600;
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-  transition: background 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+  transition: filter 0.25s ease, transform 0.15s ease, opacity 0.2s ease, color 0.2s ease;
   cursor: pointer;
 }
-.btn:hover {
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--azul);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: background 0.2s ease;
+}
+.btn:hover::before,
+.btn:focus-visible::before {
   background: var(--azul-luz);
+}
+.btn:hover,
+.btn:focus-visible {
+  filter: drop-shadow(0 0 10px rgba(var(--azul-rgb), 0.75)) drop-shadow(0 0 22px rgba(var(--azul-rgb), 0.35));
+}
+.btn:focus-visible {
+  outline: none;
 }
 .btn:active {
   transform: scale(0.98);
 }
 .btn:disabled {
-  opacity: 0.35;
+  opacity: 0.4;
   cursor: not-allowed;
-  background: var(--negro-2);
   color: var(--ceniza);
-  border-color: var(--linea);
+  filter: none;
 }
+.btn:disabled::before {
+  background: var(--negro-3);
+}
+
+/* Secundario: contorno chanfleado (::before = borde, ::after = relleno
+   1px adentro), así el borde sigue también las diagonales. */
 .btnSec {
   composes: btn;
-  background: transparent;
   color: var(--ceniza);
-  border-color: var(--linea-2);
 }
-.btnSec:hover {
-  background: rgba(255, 255, 255, 0.03);
+.btnSec::before {
+  background: var(--linea-2);
+}
+.btnSec::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: rgba(10, 10, 11, 0.92);
+  clip-path: polygon(9.6px 0, 100% 0, 100% calc(100% - 9.6px), calc(100% - 9.6px) 100%, 0 100%, 0 9.6px);
+  transition: background 0.2s ease;
+}
+.btnSec:hover,
+.btnSec:focus-visible {
   color: var(--hueso);
+  filter: drop-shadow(0 0 8px rgba(var(--azul-rgb), 0.45));
+}
+.btnSec:hover::before,
+.btnSec:focus-visible::before {
+  background: rgba(var(--azul-rgb), 0.85);
+}
+.btnSec:hover::after,
+.btnSec:focus-visible::after {
+  background: rgba(14, 18, 28, 0.94);
+}
+.btnSec:disabled::before {
+  background: var(--linea);
 }
 .btnGhost {
   composes: btnSec;
-  border-color: transparent;
   padding: 10px 4px;
+}
+.btnGhost::before,
+.btnGhost::after,
+.btnGhost:hover::before,
+.btnGhost:hover::after {
+  background: transparent;
+}
+.btnGhost:hover,
+.btnGhost:focus-visible {
+  filter: none;
+  color: var(--azul-luz);
 }
 
 /* ── Barra de progreso "sintonizando" ─────────────────────────────── */
@@ -353,6 +432,37 @@
   .dockItem,
   .dockItemActivo,
   .dockItemDeshabilitado {
+    transition: none;
+  }
+}
+
+/* ── Cascada de entrada ───────────────────────────────────────────── */
+/* Cada bloque directo de una pantalla entra escalonado al montarla (la
+   pantalla se vuelve a montar en cada navegación — ver _shell.tsx). Para
+   lo que queda debajo del pliegue, las pantallas usan data-reveal +
+   .etapa de corp.module.css (RevealObserver, montado por el shell). */
+.pantalla > * {
+  animation: etapaEntra 0.6s cubic-bezier(0.16, 0.84, 0.28, 1) both;
+}
+.pantalla > :nth-child(1) { animation-delay: 0.05s; }
+.pantalla > :nth-child(2) { animation-delay: 0.12s; }
+.pantalla > :nth-child(3) { animation-delay: 0.19s; }
+.pantalla > :nth-child(4) { animation-delay: 0.26s; }
+.pantalla > :nth-child(5) { animation-delay: 0.33s; }
+.pantalla > :nth-child(n + 6) { animation-delay: 0.4s; }
+@keyframes etapaEntra {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kickerLine.on,
+  .pantalla > * {
+    animation: none;
+  }
+  .btn,
+  .btn::before,
+  .btnSec::after {
     transition: none;
   }
 }

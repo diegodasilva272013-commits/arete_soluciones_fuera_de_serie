@@ -18,6 +18,7 @@ import { siguienteRuta } from '../_navegacion';
 import { copy } from '../../_copy';
 import base from '../../frecuencia.module.css';
 import type { AreaVida, PreguntaConClave } from '@/types/frecuencia';
+import { BarraPasos } from '../../_barra-pasos';
 
 export function PasoObjetivo({
   preguntas,
@@ -65,7 +66,7 @@ export function PasoObjetivo({
 
         {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginTop: 12 }}>{error}</p>}
 
-        <div className={base.filaBotones}>
+        <BarraPasos>
           <button type="button" className={base.btnGhost} onClick={() => setSinProposito(false)}>
             {copy.botones.volverAlObjetivo}
           </button>
@@ -88,7 +89,7 @@ export function PasoObjetivo({
           >
             {guardando ? copy.botones.guardando : copy.botones.continuar}
           </button>
-        </div>
+        </BarraPasos>
       </div>
     );
   }
@@ -159,7 +160,7 @@ export function PasoObjetivo({
 
       {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginTop: 12 }}>{error}</p>}
 
-      <div className={base.filaBotones}>
+      <BarraPasos>
         {indice > 0 && (
           <button type="button" className={base.btnSec} onClick={() => setIndice((i) => i - 1)}>
             {copy.botones.atras}
@@ -168,7 +169,7 @@ export function PasoObjetivo({
         <button type="button" className={base.btn} onClick={siguiente} disabled={guardando}>
           {guardando ? copy.botones.guardando : esUltima ? copy.botones.terminar : copy.botones.siguiente}
         </button>
-      </div>
+      </BarraPasos>
 
       {indice === 0 && (
         <div style={{ marginTop: 16 }}>

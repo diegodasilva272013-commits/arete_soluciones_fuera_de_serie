@@ -8,6 +8,7 @@ import { siguienteRuta } from '../_navegacion';
 import { copy } from '../../_copy';
 import base from '../../frecuencia.module.css';
 import type { PreguntaConClave } from '@/types/frecuencia';
+import { BarraPasos } from '../../_barra-pasos';
 
 const CAMPO_POR_KEY: Record<string, 'quienCreiaSer' | 'quienSoy' | 'comoMeVen' | 'quienQuieroSer'> = {
   quien_creia_ser: 'quienCreiaSer',
@@ -71,7 +72,7 @@ export function PasoIdentidad({
 
       {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginTop: 12 }}>{error}</p>}
 
-      <div className={base.filaBotones}>
+      <BarraPasos>
         {indice > 0 && (
           <button type="button" className={base.btnSec} onClick={() => setIndice((i) => i - 1)}>
             {copy.botones.atras}
@@ -80,7 +81,7 @@ export function PasoIdentidad({
         <button type="button" className={base.btn} onClick={siguiente} disabled={guardando}>
           {guardando ? copy.botones.guardando : esUltima ? copy.botones.continuar : copy.botones.siguiente}
         </button>
-      </div>
+      </BarraPasos>
     </div>
   );
 }

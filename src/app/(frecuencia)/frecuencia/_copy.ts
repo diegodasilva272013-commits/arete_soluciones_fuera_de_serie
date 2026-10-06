@@ -14,6 +14,13 @@ export const copy = {
     areas: 'Áreas',
     espejo: 'Espejo',
     proximamente: 'Próximamente',
+    ariaNav: 'Navegación de Frecuencia',
+  },
+
+  shell: {
+    nombreApp: 'Frecuencia',
+    salirAPlataforma: 'Salir a la plataforma',
+    salirCorto: 'Salir',
   },
 
   botones: {

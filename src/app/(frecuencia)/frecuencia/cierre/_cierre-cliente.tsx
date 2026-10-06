@@ -16,6 +16,7 @@ import base from '../frecuencia.module.css';
 import s from './_cierre.module.css';
 import type { EnergiaEscasez, PasoAnteFalla } from '@/types/frecuencia';
 import type { TipoBloque } from '@/lib/frecuencia/plan';
+import { BarraPasos } from '../_barra-pasos';
 
 export interface EvidenciaDelDia {
   id: string;
@@ -156,14 +157,14 @@ export function CierreCliente({
               placeholder={copy.cierre.registro.placeholderManual}
             />
           </div>
-          <div className={base.filaBotones}>
+          <BarraPasos>
             <button type="button" className={base.btnSec} onClick={agregarManual} disabled={guardandoManual}>
               {guardandoManual ? copy.botones.guardando : copy.cierre.registro.agregar}
             </button>
             <button type="button" className={base.btn} onClick={avanzar}>
               {copy.botones.siguiente}
             </button>
-          </div>
+          </BarraPasos>
         </div>
       )}
 
@@ -178,12 +179,8 @@ export function CierreCliente({
             textoCta={copy.botones.continuar}
             onGuardar={guardarDial}
             onDespuesDeGuardar={avanzar}
+            onAtras={retroceder}
           />
-          <div className={base.filaBotones}>
-            <button type="button" className={base.btnSec} onClick={retroceder}>
-              {copy.botones.atras}
-            </button>
-          </div>
         </div>
       )}
 
@@ -218,14 +215,14 @@ export function CierreCliente({
             />
           </div>
 
-          <div className={base.filaBotones}>
+          <BarraPasos>
             <button type="button" className={base.btnSec} onClick={retroceder}>
               {copy.botones.atras}
             </button>
             <button type="button" className={base.btn} onClick={guardarVestimentaYAvanzar} disabled={guardandoVestimenta}>
               {guardandoVestimenta ? copy.botones.guardando : copy.botones.continuar}
             </button>
-          </div>
+          </BarraPasos>
         </div>
       )}
 
@@ -247,11 +244,11 @@ export function CierreCliente({
             />
           </div>
 
-          <div className={base.filaBotones}>
+          <BarraPasos>
             <button type="button" className={base.btn} onClick={responderPasoFalla} disabled={guardandoFalla}>
               {guardandoFalla ? copy.botones.guardando : copy.botones.continuar}
             </button>
-          </div>
+          </BarraPasos>
         </div>
       )}
 
@@ -261,11 +258,11 @@ export function CierreCliente({
           <p className={base.subtitulo} style={{ margin: '12px auto 0' }}>
             {copy.cierre.completo.subtitulo}
           </p>
-          <div className={base.filaBotones} style={{ justifyContent: 'center' }}>
+          <BarraPasos centrada>
             <Link href="/frecuencia/hoy" className={base.btn}>
               {copy.cierre.completo.irAHoy}
             </Link>
-          </div>
+          </BarraPasos>
         </div>
       )}
     </div>
