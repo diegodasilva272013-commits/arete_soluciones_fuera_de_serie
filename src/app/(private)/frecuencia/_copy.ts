@@ -98,4 +98,38 @@ export const copy = {
     fechaLimiteLabel: 'Fecha límite',
     areaLabel: 'Área de tu vida',
   },
+
+  objetivos: {
+    kicker: 'Objetivos',
+    titulo: 'Tus objetivos',
+    subtitulo: 'Cada objetivo vive de las tareas que lo empujan.',
+    vacio: 'Todavía no cargaste un objetivo. Empezá desde el onboarding.',
+    verTareas: 'Ver tareas',
+  },
+
+  tareas: {
+    kicker: 'Tareas del objetivo',
+    tituloLabel: 'Título',
+    tituloPlaceholder: 'Qué hay que hacer',
+    protocoloLabel: 'Protocolo — pasos para ejecutar sin pensar',
+    protocoloPlaceholder: 'Escribí un paso y presioná Enter',
+    tipoEnergiaLabel: 'Tipo de energía',
+    tipoEnergiaOpciones: {
+      profundo: 'Trabajo profundo',
+      decision: 'Decisión',
+      creativo: 'Creativo',
+    },
+    tipoEnergiaSinElegir: 'Sin definir',
+    duracionLabel: 'Duración (minutos)',
+    dosisActualLabel: 'Dosis actual',
+    dosisObjetivoLabel: 'Dosis objetivo (veces por semana)',
+    desbloqueaLabel: 'Qué otras tareas desbloquea',
+    desbloqueaVacio: 'No hay otras tareas en este objetivo todavía.',
+    prioridadLabel: 'Prioridad',
+    prioridadCero: 'Prioridad 0 — la que más desbloquea',
+    nuevaTarea: 'Nueva tarea',
+    editarTarea: 'Editar tarea',
+    vacio: 'Este objetivo todavía no tiene tareas.',
+    confirmarBorrar: '¿Borrar esta tarea? Las que desbloquea quedan sin esa dependencia.',
+  },
 } as const;

@@ -225,3 +225,90 @@ export async function guardarObjetivo(input: {
   revalidatePath('/frecuencia/onboarding');
   return { ok: true };
 }
+
+// ── 8. Tareas del objetivo ───────────────────────────────────────────
+// Por ahora se cargan a mano desde esta pantalla. La descomposición con
+// IA de la fase siguiente va a llamar a estas mismas funciones.
+
+export type TareaInput = {
+  objetivoId: string;
+  titulo: string;
+  protocolo: string[];
+  tipoEnergia: 'profundo' | 'decision' | 'creativo' | null;
+  duracionMin: number | null;
+  dosisActual: number;
+  dosisObjetivo: number | null;
+  desbloquea: string[];
+};
+
+export async function crearTarea(input: TareaInput): Promise<AccionState & { id?: string }> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const { data, error } = await (supabase as any)
+    .from('frecuencia_tareas')
+    .insert({
+      user_id: user.id,
+      objetivo_id: input.objetivoId,
+      titulo: input.titulo,
+      protocolo: input.protocolo,
+      tipo_energia: input.tipoEnergia,
+      duracion_min: input.duracionMin,
+      dosis_actual: input.dosisActual,
+      dosis_objetivo: input.dosisObjetivo,
+      desbloquea: input.desbloquea,
+    })
+    .select('id')
+    .single();
+
+  if (error) return { error: error.message };
+  revalidatePath(`/frecuencia/objetivos/${input.objetivoId}`);
+  return { ok: true, id: data.id };
+}
+
+export async function actualizarTarea(tareaId: string, input: TareaInput): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const { error } = await (supabase as any)
+    .from('frecuencia_tareas')
+    .update({
+      titulo: input.titulo,
+      protocolo: input.protocolo,
+      tipo_energia: input.tipoEnergia,
+      duracion_min: input.duracionMin,
+      dosis_actual: input.dosisActual,
+      dosis_objetivo: input.dosisObjetivo,
+      desbloquea: input.desbloquea,
+    })
+    .eq('id', tareaId)
+    .eq('user_id', user.id);
+
+  if (error) return { error: error.message };
+  revalidatePath(`/frecuencia/objetivos/${input.objetivoId}`);
+  return { ok: true };
+}
+
+export async function borrarTarea(tareaId: string, objetivoId: string): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  // Antes de borrar, sacar esta tarea de cualquier `desbloquea` de otra
+  // tarea que la referencie — si no, queda un uuid fantasma en el array.
+  const { data: queLaDesbloquean } = await (supabase as any)
+    .from('frecuencia_tareas')
+    .select('id, desbloquea')
+    .eq('user_id', user.id)
+    .contains('desbloquea', [tareaId]);
+
+  for (const fila of queLaDesbloquean ?? []) {
+    const nuevoDesbloquea = (fila.desbloquea as string[]).filter((id) => id !== tareaId);
+    await (supabase as any).from('frecuencia_tareas').update({ desbloquea: nuevoDesbloquea }).eq('id', fila.id).eq('user_id', user.id);
+  }
+
+  const { error } = await (supabase as any).from('frecuencia_tareas').delete().eq('id', tareaId).eq('user_id', user.id);
+
+  if (error) return { error: error.message };
+  revalidatePath(`/frecuencia/objetivos/${objetivoId}`);
+  return { ok: true };
+}

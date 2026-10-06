@@ -11,6 +11,7 @@ import type {
   EnergiaEscasez,
   MapaEnergiaDefault,
   PreguntasOnboarding,
+  ReglasPlanKB,
 } from '@/types/frecuencia';
 
 async function leerBloque<T>(clave: string): Promise<T | null> {
@@ -33,3 +34,4 @@ export const getEnergiasEscasez = () => leerBloque<EnergiaEscasez[]>('energias_e
 export const getAccionesSubida = () => leerBloque<string[]>('acciones_subida');
 export const getMapaEnergiaDefault = () => leerBloque<MapaEnergiaDefault>('mapa_energia_default');
 export const getPreguntasOnboarding = () => leerBloque<PreguntasOnboarding>('preguntas_onboarding');
+export const getReglasPlan = () => leerBloque<ReglasPlanKB>('reglas_plan');

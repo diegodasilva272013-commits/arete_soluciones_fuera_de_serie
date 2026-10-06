@@ -85,6 +85,37 @@ export interface FrecuenciaObjetivo {
   updated_at: string;
 }
 
+export interface FrecuenciaTarea {
+  id: string;
+  user_id: string;
+  objetivo_id: string | null;
+  titulo: string;
+  protocolo: string[];
+  depende_de: string[];
+  desbloquea: string[];
+  tipo_energia: 'profundo' | 'decision' | 'creativo' | null;
+  duracion_min: number | null;
+  dosis_actual: number;
+  dosis_objetivo: number | null;
+  veces_postergada: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FrecuenciaBloque {
+  id: string;
+  user_id: string;
+  tarea_id: string | null;
+  tipo: 'NO_NEGOCIABLE' | 'EJECUTAR' | 'ORQUESTAR' | 'IMPREVISTOS';
+  inicio: string;
+  fin: string;
+  estado: 'PROGRAMADO' | 'CUMPLIDO' | 'NO_SALIO';
+  interrupciones: number;
+  minutos_reales_foco: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // ── Formas de frecuencia_knowledge_blocks relevantes a esta fase ──────
 
 export interface AreaVida {
@@ -107,6 +138,18 @@ export interface MapaEnergiaDefault {
   regla: string;
   relativo_a: string;
   rediagnosticar: string;
+}
+
+// Jsonb crudo de frecuencia_knowledge_blocks.reglas_plan — no confundir
+// con ReglasPlan de src/lib/frecuencia/plan.ts (los números ya
+// derivados que recibe armarSemana).
+export interface ReglasPlanKB {
+  pre_diseno: string;
+  no_negociables_primero: string;
+  area_debil: string;
+  ejecutar_vs_orquestar: string;
+  imprevistos: string;
+  prioridad: string;
 }
 
 export interface PreguntaConClave {

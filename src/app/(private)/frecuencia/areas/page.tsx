@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentUserContext } from '@/lib/current-user';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
@@ -43,6 +44,10 @@ export default async function AreasPage() {
         palancaInicial={palanca}
         manzanaInicial={manzana}
       />
+
+      <Link href="/frecuencia/objetivos" className={base.btnGhost} style={{ marginTop: 32, display: 'inline-block' }}>
+        {copy.objetivos.titulo} →
+      </Link>
     </div>
   );
 }
