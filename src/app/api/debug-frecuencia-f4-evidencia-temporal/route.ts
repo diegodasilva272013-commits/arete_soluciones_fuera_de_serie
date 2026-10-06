@@ -84,6 +84,12 @@ export async function GET(req: NextRequest) {
   const userId = user.id;
   await limpiarTodo(a, userId); // idempotente: si ya existía con datos viejos, arranca limpio
 
+  // Saltar el gate de "presentación obligatoria" de la plataforma
+  // (middleware.ts: user_metadata.onboarding_done) — no es parte de
+  // Frecuencia, pero bloquea TODA ruta privada si falta.
+  const { error: metaErr } = await a.auth.admin.updateUserById(userId, { user_metadata: { onboarding_done: true } });
+  push('onboarding_done (saltar presentación obligatoria)', !metaErr, metaErr?.message);
+
   const { error: roleErr } = await a.from('profiles').update({ role: 'setter' }).eq('id', userId);
   push('rol setter', !roleErr, roleErr?.message);
 
