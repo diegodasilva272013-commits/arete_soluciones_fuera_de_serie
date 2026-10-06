@@ -1,0 +1,12 @@
+reposo IGUAL
+final IGUAL
+cursor ep1 IGUAL
+cursor ep2 IGUAL
+cursor ep3 IGUAL
+cursor ep4 IGUAL
+cursor ep5 IGUAL
+cursor ep6 IGUAL
+cursor ep7 IGUAL
+cursor ep8 IGUAL
+cursor ep9 IGUAL
+TOTAL: IDÉNTICO

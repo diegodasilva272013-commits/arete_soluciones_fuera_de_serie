@@ -1,0 +1,175 @@
+{
+  "video-1-acceso": [
+    {
+      "t": "00:01",
+      "texto": "PRUEBA 1 · sin sesión entro a /frecuencia",
+      "resultado": "OK (va al login)",
+      "url": "/login"
+    },
+    {
+      "t": "00:11",
+      "texto": "PRUEBA 2 · student entra a /frecuencia",
+      "resultado": "OK (rebota a /dashboard)",
+      "url": "/dashboard"
+    },
+    {
+      "t": "00:22",
+      "texto": "PRUEBA 3/4 · setter en /dashboard: clic en \"Frecuencia\" del sidebar",
+      "resultado": "",
+      "url": "/dashboard"
+    },
+    {
+      "t": "00:27",
+      "texto": "PRUEBA 3/4 · setter entra a Frecuencia por el sidebar",
+      "resultado": "OK (pantalla completa, sin sidebar ni barra)",
+      "url": "/frecuencia/onboarding/identidad"
+    },
+    {
+      "t": "00:36",
+      "texto": "PRUEBA 5 · clic en \"Salir a la plataforma\"",
+      "resultado": "",
+      "url": "/frecuencia/hoy"
+    },
+    {
+      "t": "00:40",
+      "texto": "PRUEBA 5 · \"Salir a la plataforma\"",
+      "resultado": "OK (vuelve a /dashboard)",
+      "url": "/dashboard"
+    },
+    {
+      "t": "00:42",
+      "texto": "PRUEBA 6 · dashboard con sidebar y barra de siempre",
+      "resultado": "",
+      "url": "/dashboard"
+    },
+    {
+      "t": "00:50",
+      "texto": "PRUEBA 6 · otra sección (/profile) igual que antes",
+      "resultado": "",
+      "url": "/profile"
+    }
+  ],
+  "video-2-shell-desktop": [
+    {
+      "t": "00:11",
+      "texto": "Shell inmersivo: header propio + fondo vivo (Prism + grano) + dock",
+      "resultado": "",
+      "url": "/frecuencia/hoy"
+    },
+    {
+      "t": "00:14",
+      "texto": "Dock: magnificación con el cursor + glow azul en el activo",
+      "resultado": "",
+      "url": "/frecuencia/hoy"
+    },
+    {
+      "t": "01:14",
+      "texto": "Transición entre pantallas (barrido de sintonía + entrada): Semana",
+      "resultado": "",
+      "url": "/frecuencia/semana"
+    },
+    {
+      "t": "01:17",
+      "texto": "Transición entre pantallas (barrido de sintonía + entrada): Áreas",
+      "resultado": "",
+      "url": "/frecuencia/areas"
+    },
+    {
+      "t": "01:21",
+      "texto": "Transición entre pantallas (barrido de sintonía + entrada): Dial",
+      "resultado": "",
+      "url": "/frecuencia/dial"
+    },
+    {
+      "t": "01:43",
+      "texto": "Guardo dial -80 (escasez) → fondo con más grano y desaturado, sin recargar",
+      "resultado": "",
+      "url": "/frecuencia/dial"
+    },
+    {
+      "t": "02:10",
+      "texto": "Guardo dial +80 (abundancia) → azul limpio, casi sin grano, sin recargar",
+      "resultado": "",
+      "url": "/frecuencia/dial"
+    },
+    {
+      "t": "02:23",
+      "texto": "Flujo \"armar semana\": revisando la propuesta",
+      "resultado": "OK (dock oculto)",
+      "url": "/frecuencia/semana"
+    },
+    {
+      "t": "02:28",
+      "texto": "Descarto la propuesta",
+      "resultado": "OK (vuelve el dock)",
+      "url": "/frecuencia/semana"
+    },
+    {
+      "t": "02:42",
+      "texto": "Flujo EN EL AIRE",
+      "resultado": "OK (dock oculto)",
+      "url": "/frecuencia/hoy"
+    },
+    {
+      "t": "02:51",
+      "texto": "Terminé el bloque",
+      "resultado": "OK (vuelve el dock)",
+      "url": "/frecuencia/hoy"
+    },
+    {
+      "t": "02:58",
+      "texto": "Flujo Cierre del día",
+      "resultado": "OK (dock oculto)",
+      "url": "/frecuencia/cierre"
+    },
+    {
+      "t": "03:10",
+      "texto": "Flujo Onboarding",
+      "resultado": "OK (dock oculto)",
+      "url": "/frecuencia/onboarding/dial"
+    }
+  ],
+  "video-3-shell-mobile": [
+    {
+      "t": "00:09",
+      "texto": "Mobile 390×844 · Hoy",
+      "resultado": "",
+      "url": "/frecuencia/hoy"
+    },
+    {
+      "t": "00:15",
+      "texto": "Mobile 390×844 · Semana",
+      "resultado": "",
+      "url": "/frecuencia/semana"
+    },
+    {
+      "t": "00:21",
+      "texto": "Mobile 390×844 · Dial",
+      "resultado": "",
+      "url": "/frecuencia/dial"
+    },
+    {
+      "t": "00:27",
+      "texto": "Mobile 390×844 · Áreas",
+      "resultado": "",
+      "url": "/frecuencia/areas"
+    },
+    {
+      "t": "00:34",
+      "texto": "Mobile · Cierre del día (sin dock)",
+      "resultado": "",
+      "url": "/frecuencia/cierre"
+    },
+    {
+      "t": "00:41",
+      "texto": "Mobile · Onboarding (sin dock)",
+      "resultado": "",
+      "url": "/frecuencia/onboarding/dial"
+    }
+  ],
+  "desktop": [],
+  "reduced-motion": {
+    "canvasWebgl": 1,
+    "animEntrada": "none"
+  }
+}
