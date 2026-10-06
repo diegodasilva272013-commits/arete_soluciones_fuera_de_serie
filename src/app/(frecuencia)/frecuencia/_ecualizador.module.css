@@ -97,6 +97,14 @@
   color: var(--ceniza);
   margin-bottom: 10px;
 }
+.seleccionNota {
+  font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  color: rgba(242, 239, 233, 0.75);
+  margin: 0 0 10px;
+}
 .chipsSeleccion {
   display: flex;
   flex-wrap: wrap;
