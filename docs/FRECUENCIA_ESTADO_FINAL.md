@@ -43,4 +43,4 @@ El método, las reglas de trabajo y el contexto del `FRECUENCIA_HANDOFF.md` sigu
 Modelos y prompts de la IA viven en `frecuencia_knowledge_blocks` (`modelos_ia`, `prompt_chat`, `prompt_descomposicion`, `prompt_imagen`, `limite_imagenes_diario`), no en el código.
 
 ## 6. Orden de merge
-Mergeá **solo el PR de integración** (todo junto, ya sin conflictos). Los PR #6–#27 quedan redundantes y se cierran sin mergear (siguen sirviendo como historial punto por punto, cada uno con su evidencia).
+Mergeá **solo el PR de integración** (todo junto, ya sin conflictos). Los PR #6–#10 y #12–#27 quedan redundantes y se cierran sin mergear (sirven de historial punto por punto, cada uno con su evidencia). Aparte quedan: #11 (propuesta de copy, espera tu aprobación) y #1 (sacar los `.env` del repo).
