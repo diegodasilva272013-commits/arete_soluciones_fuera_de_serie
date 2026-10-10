@@ -1,7 +1,7 @@
 {
   "marcas": [
     {
-      "t": "00:12",
+      "t": "00:13",
       "captura": "01-chat-vacio-desktop.png",
       "nota": "Chat del agente: acciones rápidas, caja que crece, selector de modelo"
     },
@@ -11,7 +11,7 @@
       "nota": "Objetivos tras \"Crear objetivo\": 2 (era 1)"
     },
     {
-      "t": "00:19",
+      "t": "00:20",
       "captura": "02-herramienta-crear-objetivo-desktop.png",
       "nota": "El agente usó la herramienta: chip \"Creó un objetivo\" (y quedó guardado en la base)"
     },
@@ -36,22 +36,22 @@
       "nota": "El modelo intentó guardar con un hash inventado: la compuerta lo bloqueó"
     },
     {
-      "t": "01:19",
+      "t": "01:18",
       "captura": "-",
       "nota": "Tras el \"Sí, guardala\" de la persona: bloques = 8"
     },
     {
-      "t": "01:21",
+      "t": "01:20",
       "captura": "05-semana-guardada-desktop.png",
       "nota": "Con el sí de la persona y el hash correcto, se guarda"
     },
     {
-      "t": "01:28",
+      "t": "01:27",
       "captura": "-",
       "nota": "Tras recargar se recuperan 10 mensajes (memoria en la base)"
     },
     {
-      "t": "01:30",
+      "t": "01:29",
       "captura": "06-memoria-tras-recargar-desktop.png",
       "nota": "Memoria: al volver, la conversación sigue"
     }

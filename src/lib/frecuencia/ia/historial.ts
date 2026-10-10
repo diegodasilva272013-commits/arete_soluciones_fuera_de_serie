@@ -25,6 +25,8 @@ export function codificarResultado(toolCallId: string, name: string, resultado: 
   return JSON.stringify({ tool_call_id: toolCallId, name, resultado });
 }
 
+const MAX_RESULTADO = 4000;
+
 function decodificar(f: FilaMensaje): MensajeChat | null {
   if (f.rol === 'user') return { role: 'user', content: f.contenido };
   if (f.rol === 'assistant') {
@@ -43,7 +45,7 @@ function decodificar(f: FilaMensaje): MensajeChat | null {
     try {
       const d = JSON.parse(f.contenido) as { tool_call_id: string; name: string; resultado: unknown };
       if (typeof d.tool_call_id !== 'string') return null;
-      return { role: 'tool', tool_call_id: d.tool_call_id, name: d.name, content: JSON.stringify(d.resultado) };
+      return { role: 'tool', tool_call_id: d.tool_call_id, name: d.name, content: JSON.stringify(d.resultado).slice(0, MAX_RESULTADO) };
     } catch {
       return null;
     }
@@ -59,24 +61,44 @@ function decodificar(f: FilaMensaje): MensajeChat | null {
 export function armarHistorial(filas: FilaMensaje[], max = 30): MensajeChat[] {
   const decod = filas.slice(-max).map(decodificar).filter((m): m is MensajeChat => !!m);
   const res: MensajeChat[] = [];
-  const idsPendientes = new Set<string>();
+  // Una llamada a herramientas es válida solo si TODAS sus llamadas tienen su resultado antes del
+  // siguiente mensaje que no sea de herramienta. Si un turno quedó a medias (error, corte), se
+  // descarta ese grupo entero: un historial inválido haría fallar cada mensaje siguiente.
+  let grupo: { llamada: MensajeChat; ids: Set<string>; resultados: MensajeChat[] } | null = null;
+  const cerrar = () => {
+    if (grupo && grupo.ids.size === 0) res.push(grupo.llamada, ...grupo.resultados);
+    grupo = null;
+  };
   for (const m of decod) {
-    if (!res.length && m.role !== 'user') continue; // el corte puede dejar respuestas sueltas al principio
-    if (m.role === 'assistant' && m.tool_calls) {
-      idsPendientes.clear();
-      m.tool_calls.forEach((c) => idsPendientes.add(c.id));
-      res.push(m);
-    } else if (m.role === 'tool') {
-      if (m.tool_call_id && idsPendientes.has(m.tool_call_id)) {
-        idsPendientes.delete(m.tool_call_id);
-        res.push(m);
+    if (m.role === 'tool') {
+      if (grupo && m.tool_call_id && grupo.ids.has(m.tool_call_id)) {
+        grupo.ids.delete(m.tool_call_id);
+        grupo.resultados.push(m);
       }
-    } else {
-      idsPendientes.clear();
-      res.push(m);
+      continue;
     }
+    cerrar();
+    if (!res.length && m.role !== 'user') continue; // el corte puede dejar respuestas sueltas al principio
+    if (m.role === 'assistant' && m.tool_calls) grupo = { llamada: m, ids: new Set(m.tool_calls.map((c) => c.id)), resultados: [] };
+    else res.push(m);
   }
+  cerrar();
   return res;
+}
+
+/** ¿El mensaje de la persona es un sí claro? (y no un "sí, pero cambiá…" ni un "no"). */
+export function esAfirmativo(texto: string): boolean {
+  const t = texto
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zñ\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!t || t.length > 60) return false;
+  const palabras = t.split(' ');
+  if (palabras.some((p) => ['no', 'cambia', 'cambiar', 'cambiemos', 'pero', 'mejor', 'todavia', 'espera', 'esperá'].includes(p))) return false;
+  return /^(si|sii|dale|ok|okey|listo|perfecto|confirmo|confirmado|guardala|guardalo|de una|va|vamos|genial|buenisimo)\b/.test(t) || /\bguardala\b/.test(t);
 }
 
 /** Hash de la última propuesta de semana que se le mostró a la persona, y si ella respondió después. */
@@ -96,7 +118,10 @@ export function estadoPropuestaSemana(filas: FilaMensaje[]): { hashMostrado: str
     }
   });
   if (indice < 0) return { hashMostrado: null, hayRespuestaPosterior: false };
-  return { hashMostrado: hash, hayRespuestaPosterior: filas.slice(indice + 1).some((f) => f.rol === 'user') };
+  // "Su sí": el ÚLTIMO mensaje de la persona después de la propuesta tiene que ser afirmativo.
+  const mensajesPosteriores = filas.slice(indice + 1).filter((f) => f.rol === 'user');
+  const ultimo = mensajesPosteriores[mensajesPosteriores.length - 1];
+  return { hashMostrado: hash, hayRespuestaPosterior: !!ultimo && esAfirmativo(ultimo.contenido) };
 }
 
 /** Lo que se le muestra a la persona: solo sus mensajes y las respuestas con texto (sin la mecánica de herramientas). */

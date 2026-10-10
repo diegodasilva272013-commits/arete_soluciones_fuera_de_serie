@@ -50,7 +50,13 @@ export function ChatCliente({
     a.style.height = `${Math.min(a.scrollHeight, 180)}px`;
   }, [texto]);
 
+  const primera = useRef(true);
   useEffect(() => {
+    // Al abrir no se salta al final: solo cuando llega algo nuevo.
+    if (primera.current) {
+      primera.current = false;
+      return;
+    }
     finRef.current?.scrollIntoView({ block: 'end', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }, [mensajes, enviando]);
 
@@ -78,12 +84,13 @@ export function ChatCliente({
       setError(copy.chat.errores.generico);
     } finally {
       setEnviando(false);
+      areaRef.current?.focus();
     }
   }
 
   return (
     <div className={s.wrap}>
-      <div className={s.hilo} role="log" aria-live="polite" aria-label={copy.chat.titulo}>
+      <div className={s.hilo} role="log" aria-label={copy.chat.titulo}>
         {mensajes.length === 0 && (
           <div className={s.arranque}>
             <p className={`${base.ayuda} ${s.vacio}`}>{copy.chat.vacio}</p>
@@ -138,7 +145,7 @@ export function ChatCliente({
           </article>
         ))}
         {enviando && (
-          <div className={s.mensajeAgente} role="status">
+          <div className={s.mensajeAgente}>
             <p className={s.etiqueta}>{copy.chat.etiquetaAgente}</p>
             <span className={s.onda} aria-hidden>
               <i />

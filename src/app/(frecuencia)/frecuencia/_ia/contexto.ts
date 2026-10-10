@@ -35,8 +35,8 @@ export async function construirContextoAgente(userId: string): Promise<{ sistema
     hoy,
     dial_de_hoy: dial ? { frecuencia: dial.frecuencia, momento: dial.momento } : null,
     bloque_al_aire: bloqueActual,
-    tareas_mas_postergadas: postergadas ?? [],
-    objetivos: objetivos ?? [],
+    tareas_mas_postergadas: (postergadas ?? []).map((t: { titulo: string; veces_postergada: number }) => ({ ...t, titulo: String(t.titulo ?? '').slice(0, 120) })),
+    objetivos: (objetivos ?? []).map((o: { id: string; titulo: string; area_key: string | null; fecha_limite: string | null }) => ({ ...o, titulo: String(o.titulo ?? '').slice(0, 120) })),
     estandar_minimo: Array.isArray(identidad?.estandar_minimo) ? identidad.estandar_minimo : [],
   };
   const metodo = { reglas_foco: await getReglasFoco(), reglas_plan: await getReglasPlan(), reglas_dosis: await getReglasDosis(), areas_reglas: await getAreasReglas() };

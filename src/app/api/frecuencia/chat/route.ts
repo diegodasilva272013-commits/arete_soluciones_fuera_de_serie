@@ -21,6 +21,11 @@ export const dynamic = 'force-dynamic';
 const MAX_MENSAJE = 2000;
 const MAX_POR_HORA = 60;
 const MAX_VUELTAS = 4;
+const MAX_CONVERSACIONES_POR_HORA = 10;
+
+// Un solo pedido a la vez por persona en esta instancia: frena dos envíos simultáneos (doble toque, dos pestañas)
+// que podrían duplicar lo que guardan las herramientas. (En varias instancias de servidor es mejor esfuerzo.)
+const enCurso = new Set<string>();
 
 function error(codigo: string, status: number) {
   return NextResponse.json({ error: codigo }, { status });
@@ -29,6 +34,19 @@ function error(codigo: string, status: number) {
 export async function POST(req: Request) {
   const ctx = await getCurrentUserContext();
   if (!ctx || !(await tieneAccesoFrecuencia(ctx.role))) return error('sin_acceso', 403);
+  if (enCurso.has(ctx.userId)) return error('ocupado', 409);
+  enCurso.add(ctx.userId);
+  try {
+    return await procesar(req, ctx.userId, ctx.role);
+  } catch {
+    return error('proveedor', 502);
+  } finally {
+    enCurso.delete(ctx.userId);
+  }
+}
+
+async function procesar(req: Request, userId: string, role: string): Promise<Response> {
+  const ctx = { userId, role };
 
   let cuerpo: { conversacionId?: string; mensaje?: string; modeloId?: string };
   try {
@@ -49,6 +67,10 @@ export async function POST(req: Request) {
     .eq('rol', 'user')
     .gte('created_at', new Date(Date.now() - 3600_000).toISOString());
   if ((recientes ?? 0) >= MAX_POR_HORA) return error('limite_por_hora', 429);
+  if (typeof cuerpo.conversacionId !== 'string') {
+    const { count: nuevas } = await (supabase as any).from('frecuencia_conversaciones').select('id', { count: 'exact', head: true }).eq('user_id', ctx.userId).gte('created_at', new Date(Date.now() - 3600_000).toISOString());
+    if ((nuevas ?? 0) >= MAX_CONVERSACIONES_POR_HORA) return error('limite_por_hora', 429);
+  }
 
   // Modelo: solo los que están en la base; si piden otro, se usa el de por defecto.
   const modelos = await getModelosIA();
@@ -68,7 +90,8 @@ export async function POST(req: Request) {
   }
 
   const guardar = async (rol: FilaMensaje['rol'], contenido: string, modeloId?: string) => {
-    await (supabase as any).from('frecuencia_mensajes').insert({ conversacion_id: conversacionId, user_id: ctx.userId, rol, contenido, modelo: modeloId ?? null });
+    const { error: e } = await (supabase as any).from('frecuencia_mensajes').insert({ conversacion_id: conversacionId, user_id: ctx.userId, rol, contenido, modelo: modeloId ?? null });
+    if (e) throw new Error('no_se_pudo_guardar');
   };
 
   // Historial ANTES del mensaje nuevo (para la compuerta de confirmación: "su sí" tiene que ser posterior a la propuesta).
@@ -89,10 +112,12 @@ export async function POST(req: Request) {
   try {
     for (let vuelta = 0; vuelta < MAX_VUELTAS; vuelta++) {
       const mensajes: MensajeChat[] = [{ role: 'system', content: contexto.sistema }, ...armarHistorial(filas)];
-      const r = await chatCompletion({ modelo: modelo.id, mensajes, herramientas: DEFINICIONES });
+      // En la última vuelta se pide la respuesta SIN herramientas, así siempre se explica lo que se hizo.
+      const ultima = vuelta === MAX_VUELTAS - 1;
+      const r = await chatCompletion({ modelo: modelo.id, mensajes, herramientas: ultima ? undefined : DEFINICIONES });
       if (!r.tool_calls?.length) {
-        respuesta = r.content?.trim() || '';
-        await guardar('assistant', respuesta || '…', modelo.id);
+        respuesta = r.content?.trim() || 'Listo.';
+        await guardar('assistant', respuesta, modelo.id);
         filas.push({ rol: 'assistant', contenido: respuesta });
         break;
       }
@@ -105,7 +130,13 @@ export async function POST(req: Request) {
       for (const llamada of llamadas) {
         // Una propuesta de ESTE mismo turno no cuenta como confirmada: hace falta un mensaje de la persona después.
         const estado = estadoPropuestaSemana(filas);
-        const resultado = await ejecutarHerramienta(llamada.function.name, llamada.function.arguments, { hashSemanaMostrada: estado.hashMostrado, hayRespuestaPosterior: estado.hayRespuestaPosterior });
+        // Siempre queda un resultado guardado, aunque la herramienta falle: un turno a medias rompería el historial.
+        let resultado: Awaited<ReturnType<typeof ejecutarHerramienta>>;
+        try {
+          resultado = await ejecutarHerramienta(llamada.function.name, llamada.function.arguments, { hashSemanaMostrada: estado.hashMostrado, hayRespuestaPosterior: estado.hayRespuestaPosterior });
+        } catch {
+          resultado = { ok: false, error: 'No se pudo hacer eso. Probá de nuevo.' };
+        }
         const contenido = codificarResultado(llamada.id, llamada.function.name, resultado);
         await guardar('tool', contenido);
         filas.push({ rol: 'tool', contenido });
@@ -122,6 +153,7 @@ export async function POST(req: Request) {
       await guardar('assistant', respuesta, modelo.id);
     }
   } catch (e) {
+    if (e instanceof Error && e.message === 'no_se_pudo_guardar') return NextResponse.json({ error: 'proveedor', conversacionId }, { status: 500 });
     const codigo = e instanceof ErrorIA ? e.codigo : 'proveedor';
     return NextResponse.json({ error: codigo, conversacionId }, { status: codigo === 'limite' ? 429 : 502 });
   }
