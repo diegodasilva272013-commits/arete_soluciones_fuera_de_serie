@@ -1,0 +1,30 @@
+{
+  "marcas": [
+    {
+      "t": "00:12",
+      "captura": "-",
+      "nota": "Borrar una tarea delegada → Esa tarea está delegada. Quitá la delegación (en Delegaciones) antes de borrarla."
+    },
+    {
+      "t": "00:13",
+      "captura": "07-no-borra-delegada-desktop.png",
+      "nota": "No se puede borrar una tarea delegada: explica qué hacer"
+    },
+    {
+      "t": "00:16",
+      "captura": "-",
+      "nota": "La tarea sigue existiendo: true"
+    },
+    {
+      "t": "00:27",
+      "captura": "08-delegacion-quitada-desktop.png",
+      "nota": "Delegación quitada"
+    },
+    {
+      "t": "00:29",
+      "captura": "-",
+      "nota": "La otra persona ya no ve la tarea: filas = 0"
+    }
+  ],
+  "errores": []
+}

@@ -1,0 +1,11 @@
+{
+  "avanceEnBase": 70,
+  "coEditaTextoDirecto": 0,
+  "coEditaAvanceDirecto": 0,
+  "coAvanceViaFuncion": "ok",
+  "ajenoLee": 0,
+  "ajenoAvanceViaFuncion": "No autorizado o compromiso inexistente",
+  "coInsertaEnNombreDeOtro": "42501",
+  "comparteEquipoConAjeno": false,
+  "comparteEquipoConMiembra": true
+}

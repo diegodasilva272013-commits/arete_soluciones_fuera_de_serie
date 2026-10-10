@@ -1,0 +1,15 @@
+{
+  "marcas": [
+    {
+      "t": "00:10",
+      "captura": "04-co-conductor-mobile.png",
+      "nota": "El co-conductor ve el compromiso de la otra persona y su avance (40%)"
+    },
+    {
+      "t": "00:15",
+      "captura": "05-co-actualiza-mobile.png",
+      "nota": "El co-conductor actualiza el avance a 70%"
+    }
+  ],
+  "errores": []
+}
