@@ -1,0 +1,20 @@
+{
+  "marcas": [
+    {
+      "t": "00:09",
+      "captura": "01-vista-lider-desktop-reducido.png",
+      "nota": "Vista del líder: bloques, evidencia, compromiso y delegaciones de la persona del equipo"
+    },
+    {
+      "t": "00:10",
+      "captura": "-",
+      "nota": "Texto sensible o de otra persona que aparece en la página: ninguno"
+    },
+    {
+      "t": "00:10",
+      "captura": "-",
+      "nota": "Evidencia de trabajo visible: true · APRENDIZAJE oculto: true"
+    }
+  ],
+  "errores": []
+}
