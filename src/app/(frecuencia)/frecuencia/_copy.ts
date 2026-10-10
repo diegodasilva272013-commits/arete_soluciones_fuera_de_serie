@@ -157,6 +157,18 @@ export const copy = {
     guardarNoNegociables: 'Guardar no negociables',
   },
 
+  escasez: {
+    // Sin juicio: se ofrece, nunca se corrige.
+    oferta: (nombres: string[]) =>
+      `Se coló un poco de ${nombres.length === 1 ? nombres[0].toLowerCase() : nombres.map((n) => n.toLowerCase()).join(' y ')} en lo que escribiste. Pasa. ¿Querés cambiar de dial?`,
+    cta: 'Ir al dial',
+  },
+
+  estandar: {
+    titulo: 'Tu mínimo',
+    bajada: 'Por debajo de esto no negociás. Lo escribiste vos.',
+  },
+
   hoy: {
     kicker: 'Hoy',
     titulo: 'Al aire hoy',

@@ -3,7 +3,7 @@ import { getCurrentUserContext } from '@/lib/current-user';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { fechaLocal, fechaMasDias, horaEnTimezoneAUtc, momentoDelDia } from '@/lib/frecuencia-fecha';
 import { resolverTitulosDeBloques } from '@/lib/frecuencia-semana';
-import { getEnergiasEscasez, getAccionesSubida, getPasosAnteFalla } from '@/lib/frecuencia-kb';
+import { getEnergiasEscasez, getAccionesSubida, getPasosAnteFalla, getPalabrasEscasez } from '@/lib/frecuencia-kb';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import { CierreCliente, type BloqueDelDia, type EvidenciaDelDia } from './_cierre-cliente';
@@ -93,6 +93,7 @@ export default async function CierrePage() {
         dialValorInicial={dialNoche?.frecuencia ?? 0}
         energiasGuardadasIniciales={dialNoche?.energias_escasez ?? {}}
         energiasDisponibles={energiasDisponibles}
+        palabrasEscasez={await getPalabrasEscasez()}
         accionesSubida={accionesSubida}
         timezone={timezone}
       />

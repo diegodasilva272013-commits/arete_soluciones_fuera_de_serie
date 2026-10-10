@@ -35,6 +35,8 @@ async function leerBloque<T>(clave: string): Promise<T | null> {
 export const getAreasVida = () => leerBloque<AreaVida[]>('areas_vida');
 export const getAreasReglas = () => leerBloque<AreasReglas>('areas_reglas');
 export const getEnergiasEscasez = () => leerBloque<EnergiaEscasez[]>('energias_escasez');
+/** Palabras y frases de escasez por energía (7.6). Si la clave no existe todavía, la detección queda apagada. */
+export const getPalabrasEscasez = () => leerBloque<Record<string, string[]>>('palabras_escasez');
 export const getAccionesSubida = () => leerBloque<string[]>('acciones_subida');
 export const getMapaEnergiaDefault = () => leerBloque<MapaEnergiaDefault>('mapa_energia_default');
 /**
