@@ -1,12 +1,12 @@
 {
   "marcas": [
     {
-      "t": "00:09",
+      "t": "00:10",
       "captura": "01-semana-con-ahora-desktop-reducido.png",
       "nota": "Semana con el bloque de hoy y la línea AHORA azul"
     },
     {
-      "t": "00:14",
+      "t": "00:15",
       "captura": "02-propuesta-vista-previa-desktop-reducido.png",
       "nota": "Propuesta: bloques punteados en la grilla + lista para revisar"
     },
@@ -16,7 +16,7 @@
       "nota": "Confirmó la semana"
     },
     {
-      "t": "00:19",
+      "t": "00:20",
       "captura": "03-semana-confirmada-desktop-reducido.png",
       "nota": "Semana confirmada: los bloques entran en cascada"
     }

@@ -8,7 +8,7 @@
  * _semana.module.css) — efecto nuevo, solo en esta pantalla.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { DIAS_SEMANA, type BloquePropuesto, type DiaSemana, type TipoBloque } from '@/lib/frecuencia/plan';
 import { proponerSemana, confirmarSemana, borrarBloque, guardarNoNegociablesConHorario } from '../actions';
@@ -80,12 +80,16 @@ export function SemanaCliente({
 }) {
   const router = useRouter();
   const [bloques, setBloques] = useState(bloquesIniciales);
-  useEffect(() => setBloques(bloquesIniciales), [bloquesIniciales]);
+  useEffect(() => {
+    setBloques(bloquesIniciales);
+    setPropuesta(null);
+  }, [bloquesIniciales]);
   const grillaRef = useRef<HTMLDivElement>(null);
   const [ahoraMin, setAhoraMin] = useState<number | null>(null);
   const [noNegociables, setNoNegociables] = useState(noNegociablesIniciales);
   const [propuesta, setPropuesta] = useState<BloquePropuesto[] | null>(null);
   const [armando, setArmando] = useState(false);
+  const [refrescando, iniciarRefresco] = useTransition();
   const [guardandoPropuesta, setGuardandoPropuesta] = useState(false);
   const [guardandoNoNeg, setGuardandoNoNeg] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -122,7 +126,8 @@ export function SemanaCliente({
     const ahoraY = el.getBoundingClientRect().top + window.scrollY;
     // Primero se ve el encabezado de la grilla; si AHORA queda muy abajo, se baja hasta él.
     const y = ahoraY - base > window.innerHeight * 0.65 ? ahoraY - window.innerHeight * 0.55 : base - 72;
-    if (y > window.scrollY + 40) window.scrollTo({ top: y, behavior: 'smooth' });
+    const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (y > window.scrollY + 40) window.scrollTo({ top: y, behavior: reducido ? 'auto' : 'smooth' });
   }, [ahoraMin]);
 
   async function armar() {
@@ -135,6 +140,11 @@ export function SemanaCliente({
       return;
     }
     setPropuesta(r.bloques);
+    // En celular se ve un día por vez: se lleva la grilla al primer día de la propuesta.
+    const primero = DIAS_SEMANA.findIndex((d) => r.bloques.some((b) => b.dia === d));
+    const cont = grillaRef.current;
+    const col = cont?.querySelectorAll<HTMLElement>('[data-dia]')[primero];
+    if (cont && col && cont.scrollWidth > cont.clientWidth) cont.scrollLeft = col.offsetLeft - 44;
   }
 
   async function confirmar() {
@@ -146,8 +156,10 @@ export function SemanaCliente({
       setError(copy.estados.error);
       return;
     }
-    setPropuesta(null);
-    router.refresh();
+    // La vista previa se queda hasta que llegan los bloques reales (sin parpadeo).
+    iniciarRefresco(() => {
+      router.refresh();
+    });
   }
 
   async function eliminarBloque(id: string) {
@@ -188,7 +200,7 @@ export function SemanaCliente({
 
       <ul className={s.leyenda} aria-label={copy.semana.leyenda}>
         {(['NO_NEGOCIABLE', 'EJECUTAR', 'ORQUESTAR', 'IMPREVISTOS'] as TipoBloque[]).map((t) => (
-          <li key={t} className={`${s.leyendaItem} ${claseBloque(t)} ${s.leyendaChip}`}>
+          <li key={t} className={`${claseBloque(t)} ${s.leyendaChip}`}>
             {copy.semana.tipoLabel[t]}
           </li>
         ))}
@@ -214,8 +226,8 @@ export function SemanaCliente({
             ))}
           </div>
           <BarraPasos>
-            <button type="button" className={base.btn} onClick={confirmar} disabled={guardandoPropuesta}>
-              {guardandoPropuesta ? copy.botones.guardando : copy.semana.confirmarPropuesta}
+            <button type="button" className={base.btn} onClick={confirmar} disabled={guardandoPropuesta || refrescando}>
+              {guardandoPropuesta || refrescando ? copy.botones.guardando : copy.semana.confirmarPropuesta}
             </button>
             <button type="button" className={base.btnGhost} onClick={() => setPropuesta(null)}>
               {copy.semana.descartarPropuesta}
@@ -241,7 +253,7 @@ export function SemanaCliente({
         </div>
 
         {DIAS_SEMANA.map((dia, diaIndex) => (
-          <div key={dia} className={`${s.dia} ${diaIndex === hoyIndex ? s.diaHoy : ''}`} data-hoy={diaIndex === hoyIndex}>
+          <div key={dia} className={`${s.dia} ${diaIndex === hoyIndex ? s.diaHoy : ''}`} data-hoy={diaIndex === hoyIndex} data-dia={dia}>
             <div className={diaIndex === hoyIndex ? s.diaNombreHoy : s.diaNombre}>{copy.semana.diasLabel[dia]}</div>
             <div className={s.diaCuerpo} style={{ height: horas.length * ALTURA_HORA_PX }}>
               {diaIndex === hoyIndex && ahoraMin !== null && ahoraMin >= HORA_INICIO_GRILLA * 60 && ahoraMin <= HORA_FIN_GRILLA * 60 && (

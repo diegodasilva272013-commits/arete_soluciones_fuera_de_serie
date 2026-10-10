@@ -13,3 +13,7 @@ Build local de `claude/frecuencia-semana-visual` contra Supabase real, cuenta `s
 | prefers-reduced-motion: sin cascada, sin pulso | media query | `_semana.module.css` | `*-reducido.png` |
 
 Textos nuevos en `_copy.ts`: `semana.ahora`, `semana.leyenda`, `semana.vistaPrevia`. Sin cambios en acciones ni datos.
+
+## Revisor independiente
+Bloqueantes: ninguno. Corregido: la vista previa no se veía en celular (la grilla ahora se lleva al primer día de la propuesta), parpadeo al confirmar (la vista previa queda hasta que llegan los bloques reales, con `useTransition`), el scroll automático respeta reduced-motion, clase `undefined` en la leyenda, color a token.
+Anotado sin cambiar: `hoyIndex` se calcula en render (ya estaba así antes; solo podría diferir justo a medianoche); la etiqueta AHORA queda cortada si la hora cae pegada a las 05:00.
