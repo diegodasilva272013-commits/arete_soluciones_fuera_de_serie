@@ -6,6 +6,7 @@ import { mensajesVisibles, type FilaMensaje } from '@/lib/frecuencia/ia/historia
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import { ChatCliente } from './_chat-cliente';
+import { AgenteVoz } from './_agente-voz';
 
 export default async function ChatPage() {
   const ctx = await getCurrentUserContext();
@@ -29,6 +30,8 @@ export default async function ChatPage() {
       </div>
       <h1 className={base.titulo}>{copy.chat.titulo}</h1>
       <p className={base.subtitulo}>{copy.chat.subtitulo}</p>
+
+      <AgenteVoz agentId={process.env.NEXT_PUBLIC_FRECUENCIA_AGENT_ID || null} />
 
       <ChatCliente
         conversacionInicial={conv?.id ?? null}

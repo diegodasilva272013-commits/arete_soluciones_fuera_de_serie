@@ -1,0 +1,15 @@
+{
+  "marcas": [
+    {
+      "t": "00:12",
+      "captura": "01-chat-con-voz-desktop.png",
+      "nota": "Chat con la sección de voz (estado: sin agente)"
+    },
+    {
+      "t": "00:23",
+      "captura": "-",
+      "nota": "Endpoints: {\"contexto\":{\"status\":200,\"claves\":[\"variables\"]},\"desconocida\":{\"status\":400,\"ok\":false,\"error\":\"Herramienta desconocida.\",\"claves\":[\"ok\",\"error\"]},\"crearObj\":{\"status\":200,\"ok\":true,\"claves\":[\"ok\",\"objetivo_id\",\"titulo\"]},\"crearTarea\":{\"status\":200,\"ok\":true,\"claves\":[\"ok\",\"tarea_id\",\"titulo\"]},\"propuesta\":{\"status\":200,\"ok\":true,\"claves\":[\"ok\",\"estado\",\"propuesta_hash\",\"bloques\",\"mensaje\"]},\"sinAfirmar\":{\"status\":200,\"ok\":false,\"error\":\"Todavía no respondió: esperá su sí antes de guardar.\",\"claves\":[\"ok\",\"error\"]},\"hashFalso\":{\"status\":200,\"ok\":false,\"error\":\"Esa no es la propuesta que se le mostró.\",\"claves\":[\"ok\",\"error\"]},\"confirmada\":{\"status\":200,\"ok\":true,\"claves\":[\"ok\",\"estado\",\"bloques\"]},\"evidencia\":{\"status\":200,\"ok\":true,\"claves\":[\"ok\"]}}"
+    }
+  ],
+  "errores": []
+}
