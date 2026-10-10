@@ -1,0 +1,20 @@
+{
+  "marcas": [
+    {
+      "t": "00:11",
+      "captura": "01-vacio-desktop.png",
+      "nota": "Compromiso del mes sin escribir; elegir co-conductor entre compañeros de equipo"
+    },
+    {
+      "t": "00:18",
+      "captura": "02-guardado-desktop.png",
+      "nota": "Compromiso guardado con co-conductor; aparece el avance"
+    },
+    {
+      "t": "00:24",
+      "captura": "03-avance-40-desktop.png",
+      "nota": "Avance 40% guardado"
+    }
+  ],
+  "errores": []
+}
