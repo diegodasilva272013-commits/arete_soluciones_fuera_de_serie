@@ -46,6 +46,8 @@ ALTER TABLE public.frecuencia_preferencias
   ADD COLUMN horario_entradas_inicio time,
   ADD COLUMN horario_entradas_fin    time;
 
+-- b) FUNCIONES: ninguna nueva (se reusan las de 0078).
+
 -- c) RLS -------------------------------------------------------------
 
 ALTER TABLE public.frecuencia_guardarropa ENABLE ROW LEVEL SECURITY;
@@ -69,6 +71,5 @@ CREATE TRIGGER trg_frecuencia_entradas_updated_at
   FOR EACH ROW EXECUTE FUNCTION public.frecuencia_set_updated_at();
 
 CREATE INDEX idx_frecuencia_guardarropa_user ON public.frecuencia_guardarropa(user_id);
-CREATE INDEX idx_frecuencia_entradas_user_fecha ON public.frecuencia_entradas(user_id, fecha DESC);
 
 COMMIT;
