@@ -44,8 +44,10 @@
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  border: 1px solid rgba(255, 70, 70, 0.4);
-  background: rgba(255, 70, 70, 0.08);
+  border: 1px solid rgba(255, 70, 70, 0.5);
+  background: rgba(255, 70, 70, 0.1);
+  box-shadow: 0 0 26px rgba(255, 70, 70, 0.25);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
 .onAirPunto {
   width: 7px;
@@ -111,6 +113,19 @@
   color: var(--hueso);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  text-shadow: 0 0 40px rgba(var(--azul-rgb), 0.45);
+}
+.dosPuntos {
+  display: inline-block;
+  padding: 0 0.04em;
+  animation: parpadeo 1s steps(1) infinite;
+}
+@keyframes parpadeo {
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dosPuntos { animation: none; }
 }
 
 .tareaTitulo {

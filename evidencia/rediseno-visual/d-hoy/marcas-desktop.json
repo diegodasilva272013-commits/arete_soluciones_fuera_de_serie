@@ -1,0 +1,30 @@
+{
+  "marcas": [
+    {
+      "t": "00:28",
+      "captura": "-",
+      "nota": "Guardó dial +70"
+    },
+    {
+      "t": "00:34",
+      "captura": "01-hoy-linea-del-dia-desktop.png",
+      "nota": "Hoy: dial como display, línea vertical con AHORA y bloque actual con glow"
+    },
+    {
+      "t": "00:41",
+      "captura": "02-bandeja-de-ideas-desktop.png",
+      "nota": "Cajón de ideas abierto con una idea estacionada"
+    },
+    {
+      "t": "01:10",
+      "captura": "03-en-el-aire-desktop.png",
+      "nota": "EN EL AIRE: ON AIR rojo, cronómetro gigante, estudio 3D"
+    },
+    {
+      "t": "01:20",
+      "captura": "04-despues-de-terminar-desktop.png",
+      "nota": "Vuelve a Hoy con el bloque cumplido"
+    }
+  ],
+  "errores": []
+}
