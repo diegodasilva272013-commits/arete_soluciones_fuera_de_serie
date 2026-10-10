@@ -5,6 +5,8 @@ import { lunesDeLaSemana, fechaMasDias, horaEnTimezoneAUtc } from '@/lib/frecuen
 import { normalizarNoNegociables, resolverTitulosDeBloques } from '@/lib/frecuencia-semana';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
+import { obtenerAjustesDosis } from '@/lib/frecuencia-dosis';
+import { AjustesDosis } from './_ajustes-dosis';
 import { SemanaCliente, type BloqueDeSemana } from './_semana-cliente';
 
 export default async function SemanaPage() {
@@ -51,6 +53,8 @@ export default async function SemanaPage() {
     .maybeSingle();
   const noNegociables = normalizarNoNegociables(identidad?.no_negociables);
 
+  const ajustesDosis = await obtenerAjustesDosis(ctx.userId, timezone);
+
   return (
     <div className={base.pantallaAncha}>
       <div className={base.kicker}>
@@ -59,6 +63,8 @@ export default async function SemanaPage() {
       </div>
       <h1 className={base.titulo}>{copy.semana.titulo}</h1>
       <p className={base.subtitulo}>{copy.semana.subtitulo}</p>
+
+      <AjustesDosis propuestas={ajustesDosis} semanaClave={lunes} />
 
       <SemanaCliente bloquesIniciales={bloques} noNegociablesIniciales={noNegociables} lunesSemana={lunes} timezone={timezone} />
     </div>

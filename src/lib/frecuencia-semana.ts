@@ -160,14 +160,15 @@ export async function obtenerDatosParaArmarSemana(userId: string): Promise<{ dat
 
   const { data: tareasData } = await (supabase as any)
     .from('frecuencia_tareas')
-    .select('id, titulo, tipo_energia, duracion_min, dosis_objetivo, desbloquea, objetivo_id')
+    .select('id, titulo, tipo_energia, duracion_min, dosis_actual, dosis_objetivo, desbloquea, objetivo_id')
     .eq('user_id', userId);
   const tareas: TareaParaPlan[] = (tareasData ?? []).map((t: any) => ({
     id: t.id,
     titulo: t.titulo,
     tipoEnergia: t.tipo_energia,
     duracionMin: t.duracion_min ?? 30,
-    dosisObjetivo: t.dosis_objetivo,
+    // Se agenda la dosis ACTUAL (veces por semana): arranca chica y crece con el escalado (7.3) hasta la dosis objetivo.
+    dosisObjetivo: t.dosis_actual ?? t.dosis_objetivo,
     vecesDesbloquea: Array.isArray(t.desbloquea) ? t.desbloquea.length : 0,
     areaKey: t.objetivo_id ? areaPorObjetivo.get(t.objetivo_id) ?? null : null,
     objetivoId: t.objetivo_id,

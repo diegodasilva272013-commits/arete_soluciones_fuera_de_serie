@@ -157,6 +157,20 @@ export const copy = {
     guardarNoNegociables: 'Guardar no negociables',
   },
 
+  dosis: {
+    titulo: 'Ajustes que te proponemos',
+    ayuda: 'Miramos cómo te fue las últimas semanas. Vos decidís: no cambia nada hasta que aceptes.',
+    // Subir: premio al ritmo sostenido, sin presión.
+    subir: (titulo: string, semanas: number, de: number, a: number) =>
+      `Venís sosteniendo "${titulo}" hace ${semanas} semanas. ¿Lo subimos de ${de} a ${a} veces por semana?`,
+    // Bajar: cero culpa; el hecho no es de la persona.
+    bajar: (titulo: string, semanas: number, de: number, a: number) =>
+      `"${titulo}" venía pesado estas ${semanas} semanas. Esto era un esfuerzo heroico y lo vamos a hacer sostenible: ¿lo bajamos de ${de} a ${a} veces por semana?`,
+    aceptar: 'Aceptar el cambio',
+    dejarlo: 'Dejarlo como está',
+    cumplimiento: (pct: number) => `${pct}% cumplido`,
+  },
+
   hoy: {
     kicker: 'Hoy',
     titulo: 'Al aire hoy',

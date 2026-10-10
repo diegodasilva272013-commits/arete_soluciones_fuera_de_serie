@@ -1,0 +1,25 @@
+{
+  "marcas": [
+    {
+      "t": "00:10",
+      "captura": "01-propuestas-de-dosis-desktop-reducido.png",
+      "nota": "Semana con dos propuestas: subir \"Entrenar\" (2→3) y bajar \"Escribir el informe\" (3→2), sin culpa"
+    },
+    {
+      "t": "00:14",
+      "captura": "02-tras-aceptar-desktop-reducido.png",
+      "nota": "Aceptó la suba: esa propuesta desaparece"
+    },
+    {
+      "t": "00:16",
+      "captura": "03-tras-dejarlo-desktop-reducido.png",
+      "nota": "Dejó la otra como está: el panel se oculta"
+    },
+    {
+      "t": "00:17",
+      "captura": "-",
+      "nota": "Base tras aceptar/dejar: [{\"titulo\":\"Entrenar\",\"dosis_actual\":3},{\"titulo\":\"Escribir el informe\",\"dosis_actual\":3}]"
+    }
+  ],
+  "errores": []
+}
