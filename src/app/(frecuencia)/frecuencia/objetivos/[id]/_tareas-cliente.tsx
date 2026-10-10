@@ -8,6 +8,7 @@
  * implementaciones que puedan desalinearse.
  */
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { calcularPrioridad, type TareaParaPlan, type TipoEnergia } from '@/lib/frecuencia/plan';
 import { crearTarea, actualizarTarea, borrarTarea, type TareaInput } from '../../actions';
@@ -32,7 +33,7 @@ function formVacio(): TareaInput {
   return { objetivoId: '', titulo: '', protocolo: [], tipoEnergia: null, duracionMin: null, dosisActual: 1, dosisObjetivo: null, desbloquea: [] };
 }
 
-export function TareasCliente({ objetivoId, tareasIniciales, imagenesPorTarea = {} }: { objetivoId: string; tareasIniciales: TareaDeObjetivo[]; imagenesPorTarea?: Record<string, ImagenGuardada[]> }) {
+export function TareasCliente({ objetivoId, tareasIniciales, imagenesPorTarea = {}, puedeDelegar = false }: { objetivoId: string; tareasIniciales: TareaDeObjetivo[]; imagenesPorTarea?: Record<string, ImagenGuardada[]>; puedeDelegar?: boolean }) {
   const [tareas, setTareas] = useState(tareasIniciales);
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [form, setForm] = useState<TareaInput>({ ...formVacio(), objetivoId });
@@ -159,6 +160,11 @@ export function TareasCliente({ objetivoId, tareasIniciales, imagenesPorTarea = 
                 <button type="button" className={base.btnSec} onClick={() => empezarEdicion(t)}>
                   {copy.tareas.editarTarea}
                 </button>
+                {puedeDelegar && (
+                  <Link href={`/frecuencia/delegaciones/nueva?tarea=${t.id}`} className={base.btnGhost}>
+                    {copy.delegaciones.accionDelegar}
+                  </Link>
+                )}
                 <button type="button" className={base.btnGhost} onClick={() => borrar(t.id)}>
                   {copy.botones.quitar}
                 </button>
