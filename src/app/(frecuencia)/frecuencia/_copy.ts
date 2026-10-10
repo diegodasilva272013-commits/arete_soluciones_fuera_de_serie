@@ -171,6 +171,11 @@ export const copy = {
     ideaPlaceholder: 'Qué se te cruzó',
     estacionar: 'Estacionar',
     ideaEstacionada: 'Estacionada.',
+    entreLasDos: 'Entre las dos radios',
+    abrirIdeas: 'Abrir la bandeja de ideas',
+    cerrarIdeas: 'Cerrar la bandeja',
+    lineaDelDia: 'Tu día, hora por hora',
+    estadoLabel: { PROGRAMADO: '', EN_EL_AIRE: 'Al aire', CUMPLIDO: 'Cumplido', NO_SALIO: 'No salió' } as Record<string, string>,
   },
 
   enElAire: {

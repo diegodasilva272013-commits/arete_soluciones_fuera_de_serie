@@ -1,45 +1,95 @@
 .wrap {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 24px;
 }
-.lectura {
+.display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.digitos {
+  position: relative;
+  display: inline-block;
+  white-space: pre;
   font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 22px;
-  font-weight: 600;
-  min-width: 52px;
+  font-size: 48px;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
-.lecturaAbundancia {
-  color: var(--azul-luz);
+.apagado {
+  color: rgba(242, 239, 233, 0.035);
+  user-select: none;
 }
-.lecturaEscasez {
+.encendido {
+  position: absolute;
+  inset: 0;
+  text-align: right;
+  color: var(--hueso);
+}
+.bajo .encendido {
   color: var(--ceniza);
 }
-.barra {
-  position: relative;
-  flex: 1;
-  height: 4px;
-  background: var(--negro-2);
-  border: 1px solid var(--linea);
-}
-.barraRelleno {
-  position: absolute;
-  top: -1px;
-  bottom: -1px;
-  background: var(--azul);
-}
-.marcaCero {
-  position: absolute;
-  top: -4px;
-  bottom: -4px;
-  left: 50%;
-  width: 1px;
-  background: var(--linea-2);
+.alto .encendido {
+  color: var(--azul-luz);
+  text-shadow: 0 0 14px rgba(var(--azul-rgb), 0.75), 0 0 40px rgba(var(--azul-rgb), 0.4);
 }
 .estacion {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--f-mono), monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ceniza);
+}
+.alto .estacion {
+  color: var(--azul-luz);
+}
+.led {
+  width: 6px;
+  height: 6px;
+  background: var(--ceniza);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+.alto .led {
+  background: var(--azul-luz);
+  box-shadow: 0 0 8px rgba(var(--azul-rgb), 0.9);
+}
+/* Regla con una marca por cada 5, y la aguja en la frecuencia de hoy. */
+.regla {
+  position: relative;
+  flex: 1;
+  height: 36px;
+  background: repeating-linear-gradient(90deg, rgba(242, 239, 233, 0.28) 0 1px, transparent 1px 10px) bottom / 100% 10px no-repeat,
+    repeating-linear-gradient(90deg, rgba(242, 239, 233, 0.55) 0 1px, transparent 1px 50px) bottom / 100% 18px no-repeat;
+  border-bottom: 1px solid var(--linea);
+}
+.aguja {
+  position: absolute;
+  top: -6px;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--hueso);
+  box-shadow: 0 0 10px rgba(var(--azul-rgb), 0.8);
+  transition: left 0.6s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+@media (max-width: 520px) {
+  .wrap {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .digitos {
+    font-size: 56px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aguja {
+    transition: none;
+  }
 }
