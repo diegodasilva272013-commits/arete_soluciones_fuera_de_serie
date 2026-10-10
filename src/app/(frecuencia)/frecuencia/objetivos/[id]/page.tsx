@@ -7,6 +7,7 @@ import { Descomposicion } from './_descomposicion';
 import { GeneradorImagen, type ImagenGuardada } from './_generador-imagen';
 import { TareasCliente, type TareaDeObjetivo } from './_tareas-cliente';
 import { copy } from '../../_copy';
+import { perteneceAUnEquipo } from '../../equipo/_datos';
 import base from '../../frecuencia.module.css';
 
 export default async function ObjetivoDetallePage({ params }: { params: { id: string } }) {
@@ -68,7 +69,7 @@ export default async function ObjetivoDetallePage({ params }: { params: { id: st
 
       <GeneradorImagen objetivoId={objetivo.id} imagenes={imagenesObjetivo} titulo={copy.imagenes.imagenMentalTitulo} ayuda={copy.imagenes.imagenMentalAyuda} botonGenerar={copy.imagenes.generar} />
 
-      <TareasCliente imagenesPorTarea={imagenesPorTarea} key={(tareasData ?? []).length} objetivoId={objetivo.id} tareasIniciales={(tareasData ?? []) as TareaDeObjetivo[]} />
+      <TareasCliente puedeDelegar={await perteneceAUnEquipo(ctx.userId)} imagenesPorTarea={imagenesPorTarea} key={(tareasData ?? []).length} objetivoId={objetivo.id} tareasIniciales={(tareasData ?? []) as TareaDeObjetivo[]} />
     </div>
   );
 }

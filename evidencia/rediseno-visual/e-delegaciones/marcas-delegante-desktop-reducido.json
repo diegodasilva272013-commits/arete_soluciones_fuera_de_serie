@@ -1,0 +1,45 @@
+{
+  "marcas": [
+    {
+      "t": "00:09",
+      "captura": "01-tarea-con-delegar-desktop-reducido.png",
+      "nota": "La tarea muestra \"Delegar\" porque la persona integra un equipo"
+    },
+    {
+      "t": "00:12",
+      "captura": "-",
+      "nota": "Delegar sin elegir persona ni criterio → Elegí la tarea, la persona y el criterio."
+    },
+    {
+      "t": "00:13",
+      "captura": "02-sin-criterio-desktop-reducido.png",
+      "nota": "Sin criterio no se delega: aviso, no se crea nada"
+    },
+    {
+      "t": "00:14",
+      "captura": "03-formulario-listo-desktop-reducido.png",
+      "nota": "Tarea (ya elegida), persona y criterio obligatorio"
+    },
+    {
+      "t": "00:18",
+      "captura": "04-delegada-desktop-reducido.png",
+      "nota": "Delegada: \"En sus manos\", resultado del test del líder"
+    },
+    {
+      "t": "00:18",
+      "captura": "-",
+      "nota": "Resultado: Volvieron 0 de 1"
+    },
+    {
+      "t": "00:21",
+      "captura": "05-volvio-desktop-reducido.png",
+      "nota": "Quien delegó marca que volvió → el test del líder lo cuenta"
+    },
+    {
+      "t": "00:21",
+      "captura": "-",
+      "nota": "Resultado tras volver: Volvieron 1 de 1"
+    }
+  ],
+  "errores": []
+}

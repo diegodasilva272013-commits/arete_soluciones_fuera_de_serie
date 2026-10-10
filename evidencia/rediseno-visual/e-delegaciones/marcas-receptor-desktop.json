@@ -1,0 +1,15 @@
+{
+  "marcas": [
+    {
+      "t": "00:11",
+      "captura": "06-receptor-desktop.png",
+      "nota": "Quien recibe ve la tarea con sus pasos y el criterio completo; sin botón de \"volvió\""
+    },
+    {
+      "t": "00:13",
+      "captura": "-",
+      "nota": "Botones \"Marcar que volvió\" visibles para el receptor: 0"
+    }
+  ],
+  "errores": []
+}

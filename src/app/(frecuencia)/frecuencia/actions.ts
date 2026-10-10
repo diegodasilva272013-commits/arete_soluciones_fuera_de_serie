@@ -429,6 +429,10 @@ export async function borrarTarea(tareaId: string, objetivoId: string): Promise<
   const { supabase, user } = await usuarioActual();
   if (!user) return { error: 'No hay sesión.' };
 
+  // Una tarea delegada no se borra en silencio: la otra persona perdería la tarea y vos el historial de "volvió".
+  const { data: delegadas } = await (supabase as any).from('frecuencia_delegaciones').select('id').eq('tarea_id', tareaId).eq('de_user_id', user.id).limit(1);
+  if ((delegadas ?? []).length > 0) return { error: 'Esa tarea está delegada. Quitá la delegación antes de borrarla.' };
+
   // Antes de borrar, sacar esta tarea de cualquier `desbloquea` de otra
   // tarea que la referencie — si no, queda un uuid fantasma en el array.
   const { data: queLaDesbloquean } = await (supabase as any)
