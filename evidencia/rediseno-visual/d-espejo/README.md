@@ -14,3 +14,7 @@ Build local de `claude/frecuencia-espejo` contra Supabase real; cuenta `setter` 
 ## Lo que NO está (y por qué)
 **Guardarropa mínimo** necesita una tabla nueva (`frecuencia_guardarropa`). Siguiendo la sección 9 del traspaso, el SQL va aparte (PR de SQL) para que lo corras vos; hasta que confirmes la verificación, la pantalla muestra un recuadro "llega en la próxima actualización". La interfaz del guardarropa se construye después de tu confirmación.
 Nota: el efecto original sugería reusar `scroll-locked-video-hero.tsx`; ese componente es de video con scroll anclado y no encaja con un carrusel de tarjetas, así que el coverflow es propio (CSS 3D + scroll-snap, sin librerías nuevas).
+
+## Revisor independiente
+Bloqueantes: ninguno (subida de foto, rutas y RLS revisadas: sin fuga entre usuarios). Corregido: centrado del coverflow (faltaba `position: relative`, las tarjetas laterales se inclinaban asimétricas), botón trabado si la acción lanza (try/finally), el campo de archivo no se reseteaba al quitar/guardar, una sola llamada para firmar todas las fotos + imagen oculta si la URL vencida falla, semántica de lista (ul/li), contraste de las tarjetas laterales, la ropa de anoche se pide aparte (no depende de las últimas 40 filas), reduced-motion declarado en CSS.
+Decisión de producto anotada: se pueden hacer varios check-ins el mismo día (no hay UNIQUE).

@@ -96,6 +96,8 @@
 
 /* Historial: coverflow con scroll-snap; las tarjetas se inclinan según su distancia al centro. */
 .coverflow {
+  position: relative;
+  list-style: none;
   display: flex;
   gap: 18px;
   overflow-x: auto;
@@ -171,4 +173,13 @@
 }
 .guardarropa .etiqueta {
   margin-bottom: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarjeta {
+    will-change: auto;
+  }
+  .coverflow {
+    scroll-behavior: auto;
+  }
 }

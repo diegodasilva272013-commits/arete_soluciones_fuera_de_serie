@@ -16,37 +16,45 @@ export default async function EspejoPage() {
   const hoy = fechaLocal(timezone);
   const ayer = fechaMasDias(hoy, -1);
 
-  // Íntimo: solo el dueño lo lee (RLS). Se piden las últimas 40 entradas.
+  // Íntimo: solo el dueño lo lee (RLS). Las últimas 40 entradas con algún texto.
   const { data: filas } = await (supabase as any)
     .from('frecuencia_espejo')
-    .select('id, fecha, momento, como_me_veo, como_me_percibo, como_me_siento, foto_storage_path, vestimenta_manana, created_at')
+    .select('id, fecha, momento, como_me_veo, como_me_percibo, como_me_siento, foto_storage_path, created_at')
     .eq('user_id', ctx.userId)
+    .or('como_me_veo.not.is.null,como_me_percibo.not.is.null,como_me_siento.not.is.null')
     .order('created_at', { ascending: false })
     .limit(40);
 
   const todas = (filas ?? []) as any[];
   // La ropa que se dejó elegida anoche (Cierre del día) o la de hoy.
-  const ropa = todas.find((f) => f.vestimenta_manana && (f.fecha === ayer || f.fecha === hoy))?.vestimenta_manana ?? null;
+  const { data: filaRopa } = await (supabase as any)
+    .from('frecuencia_espejo')
+    .select('vestimenta_manana')
+    .eq('user_id', ctx.userId)
+    .not('vestimenta_manana', 'is', null)
+    .in('fecha', [ayer, hoy])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const ropa: string | null = filaRopa?.vestimenta_manana ?? null;
 
   const conTexto = todas.filter((f) => f.como_me_veo || f.como_me_percibo || f.como_me_siento);
-  const entradas: EntradaEspejo[] = await Promise.all(
-    conTexto.map(async (f) => {
-      let fotoUrl: string | null = null;
-      if (f.foto_storage_path) {
-        const { data } = await supabase.storage.from('frecuencia-imagenes').createSignedUrl(f.foto_storage_path, 3600);
-        fotoUrl = data?.signedUrl ?? null;
-      }
-      return {
-        id: f.id,
-        fecha: f.fecha,
-        momento: f.momento,
-        comoMeVeo: f.como_me_veo,
-        comoMePercibo: f.como_me_percibo,
-        comoMeSiento: f.como_me_siento,
-        fotoUrl,
-      };
-    })
-  );
+  // Una sola llamada para firmar todas las fotos (válidas 1 h).
+  const rutas = conTexto.map((f) => f.foto_storage_path).filter(Boolean) as string[];
+  const firmadas = new Map<string, string>();
+  if (rutas.length) {
+    const { data } = await supabase.storage.from('frecuencia-imagenes').createSignedUrls(rutas, 3600);
+    for (const f of data ?? []) if (f.path && f.signedUrl) firmadas.set(f.path, f.signedUrl);
+  }
+  const entradas: EntradaEspejo[] = conTexto.map((f) => ({
+    id: f.id,
+    fecha: f.fecha,
+    momento: f.momento,
+    comoMeVeo: f.como_me_veo,
+    comoMePercibo: f.como_me_percibo,
+    comoMeSiento: f.como_me_siento,
+    fotoUrl: f.foto_storage_path ? firmadas.get(f.foto_storage_path) ?? null : null,
+  }));
 
   return (
     <div className={base.pantalla}>

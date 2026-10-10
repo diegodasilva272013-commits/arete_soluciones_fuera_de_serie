@@ -30,7 +30,7 @@ function fechaLinda(iso: string): string {
 }
 
 function Coverflow({ entradas }: { entradas: EntradaEspejo[] }) {
-  const contRef = useRef<HTMLDivElement>(null);
+  const contRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     const cont = contRef.current;
@@ -46,7 +46,7 @@ function Coverflow({ entradas }: { entradas: EntradaEspejo[] }) {
         const c = Math.max(-2, Math.min(2, d));
         el.style.setProperty('--d', String(c));
         el.style.transform = reducido ? '' : `rotateY(${-c * 38}deg) translateZ(${-Math.abs(c) * 60}px) scale(${1 - Math.min(Math.abs(c), 2) * 0.08})`;
-        el.style.opacity = String(1 - Math.min(Math.abs(c), 2) * 0.28);
+        el.style.opacity = String(1 - Math.min(Math.abs(c), 2) * 0.2);
       });
     };
     const alMover = () => {
@@ -63,13 +63,13 @@ function Coverflow({ entradas }: { entradas: EntradaEspejo[] }) {
   }, [entradas.length]);
 
   return (
-    <div ref={contRef} className={s.coverflow} tabIndex={0} role="list" aria-label={copy.espejo.historialTitulo}>
+    <ul ref={contRef} className={s.coverflow} tabIndex={0} aria-label={copy.espejo.historialTitulo}>
       {entradas.map((e) => (
-        <article key={e.id} data-tarjeta className={s.tarjeta} role="listitem">
+        <li key={e.id} data-tarjeta className={s.tarjeta}>
           <div className={s.tarjetaFoto}>
             {e.fotoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={e.fotoUrl} alt="" className={s.tarjetaImg} />
+              <img src={e.fotoUrl} alt="" className={s.tarjetaImg} onError={(ev) => ((ev.currentTarget as HTMLImageElement).style.display = 'none')} />
             ) : (
               <span className={s.sinFoto}>{copy.espejo.sinFoto}</span>
             )}
@@ -82,9 +82,9 @@ function Coverflow({ entradas }: { entradas: EntradaEspejo[] }) {
             {e.comoMePercibo && <p className={s.tarjetaTexto}>{e.comoMePercibo}</p>}
             {e.comoMeSiento && <p className={s.tarjetaTexto}>{e.comoMeSiento}</p>}
           </div>
-        </article>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
@@ -96,6 +96,7 @@ export function EspejoCliente({ ropa, entradas }: { ropa: string | null; entrada
   const [foto, setFoto] = useState<File | null>(null);
   const [vista, setVista] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
+  const [claveArchivo, setClaveArchivo] = useState(0);
   const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
 
   useEffect(() => {
@@ -111,6 +112,7 @@ export function EspejoCliente({ ropa, entradas }: { ropa: string | null; entrada
   function elegirFoto(f: File | null) {
     if (f && (!['image/png', 'image/jpeg', 'image/webp'].includes(f.type) || f.size > 5 * 1024 * 1024)) {
       setFoto(null);
+      setClaveArchivo((k) => k + 1);
       setMensaje({ tipo: 'error', texto: copy.espejo.fotoInvalida });
       return;
     }
@@ -130,8 +132,14 @@ export function EspejoCliente({ ropa, entradas }: { ropa: string | null; entrada
     fd.set('como_me_percibo', percibo);
     fd.set('como_me_siento', siento);
     if (foto) fd.set('foto', foto);
-    const r = await guardarCheckinEspejo(fd);
-    setGuardando(false);
+    let r: { error?: string; ok?: boolean };
+    try {
+      r = await guardarCheckinEspejo(fd);
+    } catch {
+      r = { error: 'red' };
+    } finally {
+      setGuardando(false);
+    }
     if (r.error) {
       setMensaje({ tipo: 'error', texto: copy.estados.error });
       return;
@@ -140,6 +148,7 @@ export function EspejoCliente({ ropa, entradas }: { ropa: string | null; entrada
     setPercibo('');
     setSiento('');
     setFoto(null);
+    setClaveArchivo((k) => k + 1);
     setMensaje({ tipo: 'ok', texto: copy.espejo.guardado });
     router.refresh();
   }
@@ -169,13 +178,18 @@ export function EspejoCliente({ ropa, entradas }: { ropa: string | null; entrada
         <div className={s.fotoFila}>
           <label className={`${base.btnGhost} ${s.fotoBoton}`}>
             {copy.espejo.foto}
-            <input type="file" accept="image/png,image/jpeg,image/webp" className={s.fotoInput} onChange={(e) => elegirFoto(e.target.files?.[0] ?? null)} />
+            <input key={claveArchivo} type="file" accept="image/png,image/jpeg,image/webp" className={s.fotoInput} onChange={(e) => elegirFoto(e.target.files?.[0] ?? null)} />
           </label>
           {vista && (
             <span className={s.vistaPrevia}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={vista} alt="" className={s.vistaImg} />
-              <button type="button" className={s.quitarFoto} onClick={() => setFoto(null)}>{copy.espejo.quitarFoto}</button>
+              <button type="button" className={s.quitarFoto} onClick={() => {
+                  setFoto(null);
+                  setClaveArchivo((k) => k + 1);
+                }}
+              >
+                {copy.espejo.quitarFoto}</button>
             </span>
           )}
         </div>
