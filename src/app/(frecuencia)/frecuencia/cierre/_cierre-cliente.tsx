@@ -18,6 +18,8 @@ import type { EnergiaEscasez, PasoAnteFalla } from '@/types/frecuencia';
 import type { TipoBloque } from '@/lib/frecuencia/plan';
 import { BarraPasos } from '../_barra-pasos';
 import { CapaFija } from '../_shell';
+import { OfertaDial } from '../_oferta-dial';
+import type { PalabrasEscasez } from '@/lib/frecuencia/escasez';
 
 export interface EvidenciaDelDia {
   id: string;
@@ -49,6 +51,7 @@ export function CierreCliente({
   dialValorInicial,
   energiasGuardadasIniciales,
   energiasDisponibles,
+  palabrasEscasez,
   accionesSubida,
   timezone,
 }: {
@@ -60,6 +63,7 @@ export function CierreCliente({
   dialValorInicial: number;
   energiasGuardadasIniciales: Record<string, number>;
   energiasDisponibles: EnergiaEscasez[];
+  palabrasEscasez: PalabrasEscasez | null;
   accionesSubida: string[];
   timezone: string;
 }) {
@@ -185,6 +189,7 @@ export function CierreCliente({
               }}
               placeholder={copy.cierre.registro.placeholderManual}
             />
+            <OfertaDial texto={textoManual} palabras={palabrasEscasez} energias={energiasDisponibles} />
           </div>
           <BarraPasos>
             <button type="button" className={base.btnSec} onClick={agregarManual} disabled={guardandoManual}>
@@ -226,6 +231,7 @@ export function CierreCliente({
               maxLength={500}
               rows={5}
             />
+            <OfertaDial texto={textoAprendizaje} palabras={palabrasEscasez} energias={energiasDisponibles} />
             {errorAprendizaje && <p className={s.error} role="alert">{copy.estados.error}</p>}
           </div>
           <BarraPasos>

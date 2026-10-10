@@ -6,6 +6,8 @@ import { resolverTitulosDeBloques, obtenerDatosEnElAire } from '@/lib/frecuencia
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import Link from 'next/link';
+import { getEnergiasEscasez, getPalabrasEscasez } from '@/lib/frecuencia-kb';
+import { EstandarMinimo } from './_estandar-minimo';
 import { HoyCliente, type ItemLinea } from './_hoy-cliente';
 
 export default async function HoyPage() {
@@ -63,6 +65,13 @@ export default async function HoyPage() {
     .maybeSingle();
   const enElAireInicial = bloqueEnCurso ? await obtenerDatosEnElAire(ctx.userId, bloqueEnCurso.id) : null;
 
+  const { data: identidad } = await (supabase as any).from('frecuencia_identidad').select('estandar_minimo').eq('user_id', ctx.userId).maybeSingle();
+  const estandarMinimo = (Array.isArray(identidad?.estandar_minimo) ? identidad.estandar_minimo : [])
+    .map((x: unknown) => (typeof x === 'string' ? x : (x as { texto?: string })?.texto ?? ''))
+    .filter((x: string) => x.trim());
+  const palabrasEscasez = await getPalabrasEscasez();
+  const energias = (await getEnergiasEscasez()) ?? [];
+
   return (
     <div className={base.pantalla}>
       <div className={base.kicker}>
@@ -71,11 +80,13 @@ export default async function HoyPage() {
       </div>
       <h1 className={base.titulo}>{copy.hoy.titulo}</h1>
 
+      <EstandarMinimo items={estandarMinimo} />
+
       <Link href="/frecuencia/revision" className={base.btnGhost}>
         {esDomingo ? copy.revision.entrada : copy.revision.entradaOtroDia}
       </Link>
 
-      <HoyCliente valorDialHoy={dialHoy?.frecuencia ?? null} items={items} timezone={timezone} enElAireInicial={enElAireInicial} />
+      <HoyCliente valorDialHoy={dialHoy?.frecuencia ?? null} items={items} timezone={timezone} enElAireInicial={enElAireInicial} palabrasEscasez={palabrasEscasez} energias={energias} />
     </div>
   );
 }

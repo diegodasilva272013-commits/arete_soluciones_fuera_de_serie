@@ -12,6 +12,9 @@ import { useFlujoActivo } from '../_shell';
 import base from '../frecuencia.module.css';
 import { DialMini } from './_dial-mini';
 import { EnElAire } from './_en-el-aire';
+import { OfertaDial } from '../_oferta-dial';
+import type { PalabrasEscasez } from '@/lib/frecuencia/escasez';
+import type { EnergiaEscasez } from '@/types/frecuencia';
 import s from './_hoy.module.css';
 
 export interface ItemLinea {
@@ -37,11 +40,15 @@ export function HoyCliente({
   items,
   timezone,
   enElAireInicial,
+  palabrasEscasez,
+  energias,
 }: {
   valorDialHoy: number | null;
   items: ItemLinea[];
   timezone: string;
   enElAireInicial: DatosEnElAire | null;
+  palabrasEscasez: PalabrasEscasez | null;
+  energias: EnergiaEscasez[];
 }) {
   const router = useRouter();
   const reducido = useReducedMotion();
@@ -212,6 +219,7 @@ export function HoyCliente({
                 {guardandoIdea ? copy.botones.guardando : copy.hoy.estacionar}
               </button>
             </div>
+            <OfertaDial texto={textoIdea} palabras={palabrasEscasez} energias={energias} />
             {ideaGuardada && <p className={s.ideaOk}>{copy.hoy.ideaEstacionada}</p>}
           </div>
         </div>
