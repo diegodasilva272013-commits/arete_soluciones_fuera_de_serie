@@ -168,6 +168,25 @@ export const copy = {
     },
   },
 
+  imagenes: {
+    imagenMentalTitulo: 'La imagen de tu objetivo',
+    imagenMentalAyuda: 'Verlo cumplido ayuda a que pase: la mesa se crea dos veces, primero en la mente. Se genera una sola imagen por pedido.',
+    anclaTitulo: 'Ancla visual',
+    generar: 'Generar la imagen',
+    generarAncla: 'Generar el ancla',
+    descripcionPlaceholder: 'Cómo se ve (opcional)',
+    estados: { pendiente: 'En cola…', generando: 'Generando tu imagen…', lista: 'Lista', error: 'No salió' } as Record<string, string>,
+    reintentar: 'Probar de nuevo',
+    restantes: (n: number) => (n === 1 ? 'Te queda 1 imagen hoy.' : `Te quedan ${n} imágenes hoy.`),
+    errores: {
+      limite_diario: 'Ya llegaste al límite de imágenes de hoy. Mañana se puede de nuevo.',
+      sin_configuracion: 'La generación de imágenes todavía no está configurada. Avisale a quien administra Frecuencia.',
+      sin_destino: 'No encontramos ese objetivo o esa tarea.',
+      generico: 'No se pudo generar la imagen. Probá de nuevo.',
+    } as Record<string, string>,
+    alt: 'Imagen generada para tu objetivo',
+  },
+
   descomposicion: {
     boton: 'Proponeme las tareas con IA',
     titulo: 'Bajarlo a tierra',
@@ -208,6 +227,7 @@ export const copy = {
     accionesRapidas: [
       { etiqueta: 'Crear objetivo', mensaje: 'Quiero crear un objetivo nuevo.' },
       { etiqueta: 'Escribir criterio', mensaje: 'Quiero escribir un criterio para poder delegar una decisión.' },
+      { etiqueta: 'Generar imagen', mensaje: 'Quiero generar la imagen de mi objetivo.' },
       { etiqueta: 'Armar mi semana', mensaje: 'Armá mi semana, por favor.' },
     ],
     propuestaTitulo: 'Propuesta de semana',
@@ -222,6 +242,7 @@ export const copy = {
       iniciar_bloque: 'Empezó un bloque',
       registrar_evidencia: 'Anotó lo que hiciste',
       escribir_criterio: 'Escribió un criterio',
+      generar_imagen: 'Generó una imagen',
     } as Record<string, string>,
     herramientaFallo: 'No se pudo',
     errores: {

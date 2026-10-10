@@ -8,7 +8,7 @@
 
 import type { DefinicionHerramienta } from './nvidia';
 
-export const NOMBRES_HERRAMIENTAS = ['crear_objetivo', 'crear_tarea', 'armar_semana', 'iniciar_bloque', 'registrar_evidencia', 'escribir_criterio'] as const;
+export const NOMBRES_HERRAMIENTAS = ['crear_objetivo', 'crear_tarea', 'armar_semana', 'iniciar_bloque', 'registrar_evidencia', 'escribir_criterio', 'generar_imagen'] as const;
 export type NombreHerramienta = (typeof NOMBRES_HERRAMIENTAS)[number];
 
 const TIPOS_ENERGIA = ['profundo', 'decision', 'creativo'] as const;
@@ -38,6 +38,11 @@ export const DEFINICIONES: DefinicionHerramienta[] = [
     propuesta_hash: { type: 'string', description: 'El propuesta_hash de la propuesta que se le mostró (obligatorio con confirmar=true).' },
   }, []),
   fn('iniciar_bloque', 'Sale al aire con un bloque programado.', { bloque_id: { type: 'string' } }, ['bloque_id']),
+  fn('generar_imagen', 'Genera UNA imagen (sin variantes): la imagen mental de un objetivo o el ancla visual de una tarea. Hay un límite diario.', {
+    objetivo_id: { type: 'string', description: 'Id del objetivo (imagen mental). Usá objetivo_id O tarea_id, no los dos.' },
+    tarea_id: { type: 'string', description: 'Id de la tarea (ancla visual).' },
+    descripcion: { type: 'string', description: 'Cómo se ve (opcional; si falta se usa lo que la persona ya escribió).' },
+  }, []),
   fn('registrar_evidencia', 'Anota algo que la persona hizo hoy.', { texto: { type: 'string' } }, ['texto']),
   fn('escribir_criterio', 'Escribe un criterio (los 4 puntos). Si no está escrito, no es criterio.', {
     titulo: { type: 'string' },
@@ -136,6 +141,16 @@ export function fechaCalendarioValida(f: unknown): f is string {
   if (typeof f !== 'string' || !FECHA.test(f)) return false;
   const d = new Date(`${f}T00:00:00Z`);
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === f;
+}
+
+export function validarGenerarImagen(a: unknown): Validacion<{ objetivoId?: string; tareaId?: string; descripcion?: string }> {
+  const o = objeto(a);
+  const ob = o?.objetivo_id == null ? undefined : typeof o.objetivo_id === 'string' && UUID.test(o.objetivo_id) ? o.objetivo_id : null;
+  const ta = o?.tarea_id == null ? undefined : typeof o.tarea_id === 'string' && UUID.test(o.tarea_id) ? o.tarea_id : null;
+  if (ob === null || ta === null) return { ok: false, error: 'El id no es válido.' };
+  if (!!ob === !!ta) return { ok: false, error: 'Hay que indicar el objetivo_id (imagen mental) o la tarea_id (ancla visual), uno solo.' };
+  const descripcion = texto(o?.descripcion, 400) ?? undefined;
+  return { ok: true, datos: { objetivoId: ob, tareaId: ta, descripcion } };
 }
 
 export function validarIniciarBloque(a: unknown): Validacion<{ bloqueId: string }> {

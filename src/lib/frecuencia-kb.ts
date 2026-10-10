@@ -34,6 +34,8 @@ async function leerBloque<T>(clave: string): Promise<T | null> {
   return data.valor as T;
 }
 
+/** Lectura genérica de un bloque (para claves sueltas como limite_imagenes_diario o prompt_imagen). */
+export const leerBloqueGenerico = <T,>(clave: string) => leerBloque<T>(clave);
 export const getAreasVida = () => leerBloque<AreaVida[]>('areas_vida');
 export const getAreasReglas = () => leerBloque<AreasReglas>('areas_reglas');
 export const getEnergiasEscasez = () => leerBloque<EnergiaEscasez[]>('energias_escasez');

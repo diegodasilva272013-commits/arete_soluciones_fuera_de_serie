@@ -95,3 +95,44 @@ describe('chatCompletion', () => {
     expect(f.mock.calls[0][0]).toBe('http://localhost:9999/v1/chat/completions');
   });
 });
+
+import { endpointImagenSeguro, generarImagen, tipoDeImagen } from './nvidia';
+
+describe('imágenes', () => {
+  const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3]).toString('base64');
+  beforeEach(() => {
+    delete process.env.FRECUENCIA_IA_MODO_PRUEBA;
+    delete process.env.NVIDIA_IMAGES_BASE_URL;
+  });
+
+  it('solo acepta https y el host de NVIDIA para imágenes (el endpoint viene de la base)', () => {
+    expect(endpointImagenSeguro('https://ai.api.nvidia.com/v1/genai/black-forest-labs/flux.1-schnell')).toContain('ai.api.nvidia.com');
+    expect(endpointImagenSeguro('http://ai.api.nvidia.com/x')).toBeNull();
+    expect(endpointImagenSeguro('https://evil.example/x')).toBeNull();
+    expect(endpointImagenSeguro('https://ai.api.nvidia.com.evil.example/x')).toBeNull();
+    expect(endpointImagenSeguro('no es url')).toBeNull();
+  });
+
+  it('reconoce el tipo por la cabecera real', () => {
+    expect(tipoDeImagen(new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0, 0, 0, 0, 0]))?.ext).toBe('png');
+    expect(tipoDeImagen(new Uint8Array([0xff, 0xd8, 0xff, 0xe0]))?.ext).toBe('jpg');
+    expect(tipoDeImagen(new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9]))).toBeNull();
+  });
+
+  it('devuelve los bytes de la imagen y rechaza respuestas que no son imagen', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(respuesta({ artifacts: [{ base64: png, finishReason: 'SUCCESS' }] })));
+    const r = await generarImagen({ endpoint: 'https://ai.api.nvidia.com/v1/genai/black-forest-labs/flux.1-schnell', prompt: 'una mesa', modeloId: 'i1' });
+    expect(r.ext).toBe('png');
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(respuesta({ artifacts: [{ base64: Buffer.from('texto plano').toString('base64'), finishReason: 'SUCCESS' }] })));
+    await expect(generarImagen({ endpoint: 'https://ai.api.nvidia.com/v1/x', prompt: 'p', modeloId: 'i2' })).rejects.toMatchObject({ codigo: 'respuesta_invalida' });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(respuesta({ artifacts: [{ base64: png, finishReason: 'CONTENT_FILTERED' }] })));
+    await expect(generarImagen({ endpoint: 'https://ai.api.nvidia.com/v1/x', prompt: 'p', modeloId: 'i3' })).rejects.toMatchObject({ codigo: 'respuesta_invalida' });
+  });
+
+  it('con endpoint inválido no llama a la red', async () => {
+    const f = vi.fn();
+    vi.stubGlobal('fetch', f);
+    await expect(generarImagen({ endpoint: 'https://evil.example/x', prompt: 'p', modeloId: 'i4' })).rejects.toMatchObject({ codigo: 'proveedor' });
+    expect(f).not.toHaveBeenCalled();
+  });
+});

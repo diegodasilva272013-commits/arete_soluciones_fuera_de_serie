@@ -1,0 +1,88 @@
+.caja {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid var(--linea-2);
+  background: rgba(10, 10, 12, 0.6);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.titulo {
+  margin: 0 0 6px;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+.ayuda {
+  margin: 0 0 14px;
+}
+.marco {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  margin: 12px 0;
+  overflow: hidden;
+}
+.marco[data-estado='pendiente'],
+.marco[data-estado='generando'] {
+  min-height: 220px;
+  background: radial-gradient(ellipse at 30% 20%, rgba(var(--azul-rgb), 0.2), transparent 70%), #0b0b0d;
+  border: 1px solid rgba(var(--azul-rgb), 0.35);
+}
+.imagen {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+}
+/* La imagen se revela cuando el estado REAL pasa a "lista": de borroso y a oscuras a nítido. */
+.revelada {
+  animation: revelar 1.6s cubic-bezier(0.16, 0.84, 0.28, 1) both;
+}
+@keyframes revelar {
+  from { filter: blur(28px) brightness(0.3); clip-path: inset(0 100% 0 0); transform: scale(1.06); }
+  to { filter: none; clip-path: inset(0 0 0 0); transform: none; }
+}
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-style: italic;
+  color: var(--hueso);
+}
+.onda {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 36px;
+}
+.onda i {
+  display: block;
+  width: 6px;
+  height: 100%;
+  background: var(--azul-luz);
+  box-shadow: 0 0 12px rgba(var(--azul-rgb), 0.8);
+  transform-origin: bottom;
+  animation: onda 1s ease-in-out infinite;
+}
+.onda i:nth-child(2) { animation-delay: 0.12s; }
+.onda i:nth-child(3) { animation-delay: 0.24s; }
+.onda i:nth-child(4) { animation-delay: 0.36s; }
+.onda i:nth-child(5) { animation-delay: 0.48s; }
+@keyframes onda {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+.error {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: #ff8a8a;
+}
+@media (prefers-reduced-motion: reduce) {
+  .revelada { animation: none; }
+  .onda i { animation: none; transform: scaleY(0.6); }
+}

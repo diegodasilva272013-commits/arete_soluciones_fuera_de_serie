@@ -7,6 +7,7 @@
 
 import { lunesDeLaSemana, horaEnTimezoneAUtc, fechaMasDias } from '@/lib/frecuencia-fecha';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { crearImagen, procesarImagen } from './imagenes';
 import { agregarEvidenciaManual, confirmarSemana, crearObjetivoNuevo, crearTarea, guardarCriterio, proponerSemana, salirAlAire } from '../actions';
 import {
   parsearArgumentos,
@@ -15,6 +16,7 @@ import {
   validarCrearTarea,
   validarEscribirCriterio,
   validarIniciarBloque,
+  validarGenerarImagen,
   hashPropuesta,
   puedeConfirmarSemana,
   validarRegistrarEvidencia,
@@ -101,6 +103,17 @@ export async function ejecutarHerramienta(nombre: string, argumentosCrudos: stri
       if (!v.ok) return v;
       const r = await agregarEvidenciaManual(v.datos.texto);
       return r.error ? sinAcceso() : { ok: true };
+    }
+    case 'generar_imagen': {
+      const v = validarGenerarImagen(args);
+      if (!v.ok) return v;
+      const c = await crearImagen(v.datos);
+      if (!c.ok) {
+        const mensajes: Record<string, string> = { limite_diario: 'Ya se alcanzó el límite de imágenes de hoy. Mañana se puede de nuevo.', sin_configuracion: 'La generación de imágenes todavía no está configurada.', sin_destino: 'No encontré ese objetivo o esa tarea.' };
+        return { ok: false, error: mensajes[c.codigo] ?? 'No se pudo generar la imagen.' };
+      }
+      const r = await procesarImagen(c.id);
+      return r.estado === 'lista' ? { ok: true, imagen_id: c.id, estado: 'lista', titulo: 'imagen generada' } : { ok: false, error: 'La imagen no se pudo generar. Se puede probar de nuevo.' };
     }
     case 'escribir_criterio': {
       const v = validarEscribirCriterio(args);
