@@ -21,3 +21,11 @@ Guía para crear el agente: `docs/AGENTE_VOZ_FRECUENCIA.md` (+ `_conocimiento.md
 La conversación real por voz: falta el `agentId` de ElevenLabs (lo crea Diego con la guía) y la clave de NVIDIA. Cuando estén, se prueba hablar → crea tarea → arma semana.
 
 Capturas: desktop / mobile / reduced-motion. Video: `video-voz-*.webm`.
+
+## Revisión independiente (arreglado)
+Doble click / desmontar / "Cortar" durante la conexión (sesión y micrófono quedaban vivos), micrófono sin liberar tras pedir permiso, fetch caído sin manejar, fallo de contexto silencioso, mensaje distinto sin micrófono, panel de propuesta que no se limpiaba al guardar, texto libre en variables (saltos de línea/llaves). La semana ahora también se confirma con el botón "Sí, guardala" (no depende del reconocimiento de voz). Se agregaron variables `objetivos_con_id` y `bloques_con_id` para que el agente pueda usar ids reales.
+
+## ⚠️ Riesgos que quedan (decisión de Diego)
+- El agentId es público (como en cualquier widget de ElevenLabs): alguien sin cuenta podría gastar minutos. Mitigación: "Allowed hosts" = aretesoluciones.space y tope de gasto en ElevenLabs. Opción más fuerte (URL firmada por servidor) queda para cuando haya agentId.
+- La voz se manda a ElevenLabs (tercero): conviene avisarlo en la política de privacidad.
+- La compuerta de la semana protege contra el modelo, no contra el propio usuario (guardar su propia semana no le da permisos extra).

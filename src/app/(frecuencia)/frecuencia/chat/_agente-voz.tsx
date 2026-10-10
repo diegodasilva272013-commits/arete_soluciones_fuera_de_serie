@@ -29,20 +29,33 @@ export function AgenteVoz({ agentId }: { agentId: string | null }) {
   const barrasRef = useRef<HTMLSpanElement[]>([]);
   const rafRef = useRef(0);
   // Estado de la confirmación de la semana: lo mostrado y si la persona dijo que sí DESPUÉS.
+  const iniciandoRef = useRef(false);
+  const montadoRef = useRef(true);
+  const canceladoRef = useRef(false);
   const hashMostrado = useRef<string | null>(null);
   const confirmado = useRef(false);
 
   const llamar = useCallback(async (nombre: string, argumentos: unknown): Promise<string> => {
-    const r = await fetch('/api/frecuencia/voz/herramientas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre, argumentos, hashMostrado: hashMostrado.current, confirmadoPorPersona: confirmado.current }),
-    });
+    let r: Response;
+    try {
+      r = await fetch('/api/frecuencia/voz/herramientas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, argumentos, hashMostrado: hashMostrado.current, confirmadoPorPersona: confirmado.current }),
+      });
+    } catch {
+      return JSON.stringify({ ok: false, error: 'No hay conexión con la app.' });
+    }
     const d = (await r.json().catch(() => ({ ok: false, error: 'error' }))) as { ok: boolean; estado?: string; propuesta_hash?: string; bloques?: { dia: string; horaInicio: string; horaFin: string; titulo: string }[] };
     if (nombre === 'armar_semana' && d.ok && d.estado === 'propuesta' && d.propuesta_hash) {
       hashMostrado.current = d.propuesta_hash;
       confirmado.current = false; // hace falta un sí NUEVO después de esta propuesta
       setPropuesta({ hash: d.propuesta_hash, bloques: d.bloques ?? [] });
+    }
+    if (nombre === 'armar_semana' && d.ok && d.estado === 'guardada') {
+      hashMostrado.current = null;
+      confirmado.current = false;
+      setPropuesta(null);
     }
     return JSON.stringify(d);
   }, []);
@@ -65,49 +78,92 @@ export function AgenteVoz({ agentId }: { agentId: string | null }) {
     return () => cancelAnimationFrame(rafRef.current);
   }, [estado, modo]);
 
-  useEffect(() => () => void convRef.current?.endSession(), []);
+  useEffect(() => {
+    montadoRef.current = true;
+    return () => {
+      montadoRef.current = false;
+      canceladoRef.current = true;
+      void convRef.current?.endSession();
+    };
+  }, []);
 
   async function iniciar() {
-    if (!agentId || estado !== 'disconnected') return;
+    if (!agentId || iniciandoRef.current || estado !== 'disconnected') return;
+    iniciandoRef.current = true;
+    canceladoRef.current = false;
+    setEstado('connecting');
     setError(null);
     setLineas([]);
     setPropuesta(null);
     hashMostrado.current = null;
     confirmado.current = false;
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch {
-      setError(copy.voz.permisoMicrofono);
-      return;
-    }
-    try {
-      const ctx = await fetch('/api/frecuencia/voz/contexto').then((r) => (r.ok ? r.json() : { variables: {} }));
+      // Solo para pedir el permiso: se suelta enseguida (la librería abre su propio micrófono).
+      try {
+        const st = await navigator.mediaDevices.getUserMedia({ audio: true });
+        st.getTracks().forEach((t) => t.stop());
+      } catch (e) {
+        setError((e as Error).name === 'NotFoundError' ? copy.voz.sinMicrofono : copy.voz.permisoMicrofono);
+        setEstado('disconnected');
+        return;
+      }
+      if (canceladoRef.current) return;
+      const resp = await fetch('/api/frecuencia/voz/contexto').catch(() => null);
+      if (!resp || !resp.ok) {
+        setError(copy.voz.errorGenerico);
+        setEstado('disconnected');
+        return;
+      }
+      const ctx = (await resp.json()) as { variables: Record<string, string> };
+      if (canceladoRef.current) {
+        setEstado('disconnected');
+        return;
+      }
       const clientTools = Object.fromEntries(NOMBRES_HERRAMIENTAS.map((n) => [n, (params: unknown) => llamar(n, params)]));
-      convRef.current = await Conversation.startSession({
+      const conv = await Conversation.startSession({
         agentId,
         connectionType: 'websocket',
         dynamicVariables: ctx.variables,
         clientTools,
-        onStatusChange: ({ status }) => setEstado(status),
-        onModeChange: ({ mode }) => setModo(mode),
+        onStatusChange: ({ status }) => montadoRef.current && setEstado(status),
+        onModeChange: ({ mode }) => montadoRef.current && setModo(mode),
         onMessage: ({ message, source }) => {
+          if (!montadoRef.current) return;
           setLineas((l) => [...l.slice(-30), { quien: source, texto: message }]);
           // "Su sí": la última frase de la PERSONA después de la propuesta tiene que ser afirmativa.
           if (source === 'user' && hashMostrado.current) confirmado.current = esAfirmativo(message);
         },
         onDisconnect: () => {
           convRef.current = null;
-          setEstado('disconnected');
+          if (montadoRef.current) setEstado('disconnected');
         },
-        onError: () => setError(copy.voz.errorGenerico),
+        onError: () => montadoRef.current && setError(copy.voz.errorGenerico),
       });
+      // Si la persona cortó o se fue de la pantalla mientras se conectaba, se cierra la sesión que recién abrió.
+      if (canceladoRef.current || !montadoRef.current) {
+        await conv.endSession();
+        return;
+      }
+      convRef.current = conv;
     } catch {
-      setError(copy.voz.errorGenerico);
-      setEstado('disconnected');
+      if (montadoRef.current) {
+        setError(copy.voz.errorGenerico);
+        setEstado('disconnected');
+      }
+    } finally {
+      iniciandoRef.current = false;
     }
   }
 
+  // El botón "Sí, guardala" es la confirmación explícita (no depende de que el micrófono entienda bien el "sí").
+  function confirmarConBoton() {
+    if (!hashMostrado.current) return;
+    confirmado.current = true;
+    convRef.current?.sendUserMessage(copy.voz.propuestaSi);
+  }
+
   async function cortar() {
+    canceladoRef.current = true;
     await convRef.current?.endSession();
     convRef.current = null;
     setEstado('disconnected');
@@ -165,6 +221,11 @@ export function AgenteVoz({ agentId }: { agentId: string | null }) {
               </li>
             ))}
           </ul>
+          <div className={base.filaBotones}>
+            <button type="button" className={base.btn} onClick={confirmarConBoton} disabled={estado !== 'connected'}>
+              {copy.voz.propuestaSi}
+            </button>
+          </div>
         </div>
       )}
       {lineas.length > 0 && (

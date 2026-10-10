@@ -144,6 +144,7 @@ export const copy = {
     hablando: 'Hablando',
     permisoMicrofono: 'Necesito el micrófono para escucharte. Permitilo en el navegador y probá de nuevo.',
     errorGenerico: 'No se pudo conectar la voz. Probá de nuevo en un momento.',
+    sinMicrofono: 'No encuentro un micrófono en este dispositivo.',
     transcripcion: 'Lo que se dijo',
     propuesta: 'Propuesta de semana',
     propuestaSi: 'Sí, guardala',
