@@ -15,6 +15,8 @@ import {
   validarCrearTarea,
   validarEscribirCriterio,
   validarIniciarBloque,
+  hashPropuesta,
+  puedeConfirmarSemana,
   validarRegistrarEvidencia,
   NOMBRES_HERRAMIENTAS,
 } from '@/lib/frecuencia/ia/herramientas-def';
@@ -22,8 +24,10 @@ import {
 export type ResultadoHerramienta = { ok: true; [clave: string]: unknown } | { ok: false; error: string };
 
 export interface ContextoHerramientas {
-  /** ¿En esta conversación ya se le MOSTRÓ a la persona una propuesta de semana? Sin eso no se puede confirmar. */
-  semanaPropuestaEnConversacion: boolean;
+  /** Hash de la última propuesta de semana que se le MOSTRÓ a la persona en esta conversación (null si no hubo). */
+  hashSemanaMostrada: string | null;
+  /** ¿Hubo un mensaje de la persona después de esa propuesta? */
+  hayRespuestaPosterior: boolean;
 }
 
 const sinAcceso = (msg = 'No se pudo hacer eso. Probá de nuevo.'): ResultadoHerramienta => ({ ok: false, error: msg });
@@ -65,12 +69,13 @@ export async function ejecutarHerramienta(nombre: string, argumentosCrudos: stri
       const propuesta = await proponerSemana();
       if (propuesta.error) return { ok: false, error: propuesta.error };
       if (!v.datos.confirmar) {
-        return { ok: true, estado: 'propuesta', bloques: propuesta.bloques, mensaje: 'Mostrale esta propuesta a la persona y esperá su sí antes de guardar.' };
+        return { ok: true, estado: 'propuesta', propuesta_hash: hashPropuesta(propuesta.bloques), bloques: propuesta.bloques, mensaje: 'Mostrale esta propuesta a la persona y esperá su sí en un mensaje posterior antes de guardar.' };
       }
-      if (!ctx.semanaPropuestaEnConversacion) return { ok: false, error: 'Primero hay que proponerle la semana a la persona y esperar su sí.' };
+      const puede = puedeConfirmarSemana({ hashMostrado: ctx.hashSemanaMostrada, hayRespuestaPosterior: ctx.hayRespuestaPosterior, hashActual: hashPropuesta(propuesta.bloques), hashSolicitado: v.datos.propuestaHash });
+      if (!puede.ok) return puede;
       // Idempotente: si la semana ya tiene bloques de tareas, no se duplican.
       const supabase = createSupabaseServerClient();
-      const { data: pref } = await (supabase as any).from('frecuencia_preferencias').select('timezone').maybeSingle();
+      const { data: pref } = await (supabase as any).from('frecuencia_preferencias').select('timezone').eq('user_id', (await supabase.auth.getUser()).data.user?.id ?? '').maybeSingle();
       const tz = (pref?.timezone as string | undefined) ?? 'America/Argentina/Buenos_Aires';
       const lunes = lunesDeLaSemana(tz);
       const { count } = await (supabase as any)

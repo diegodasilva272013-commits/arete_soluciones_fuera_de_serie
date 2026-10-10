@@ -7,8 +7,10 @@
  * instancia; el 429 del proveedor también se traduce a un error legible).
  * Los modelos disponibles vienen de frecuencia_knowledge_blocks['modelos_ia'].
  *
- * Para pruebas locales se pueden apuntar los hosts con NVIDIA_CHAT_BASE_URL
- * y NVIDIA_IMAGES_BASE_URL (un servidor falso); en producción no se usan.
+ * Para pruebas locales se puede apuntar a un servidor falso con
+ * NVIDIA_CHAT_BASE_URL / NVIDIA_IMAGES_BASE_URL, pero SOLO si además está
+ * FRECUENCIA_IA_MODO_PRUEBA=1; sin eso se ignoran (así una variable mal
+ * puesta nunca manda la clave a otro host). Los hosts reales son https.
  */
 
 export type CodigoErrorIA = 'sin_clave' | 'limite' | 'proveedor' | 'timeout' | 'respuesta_invalida';
@@ -60,6 +62,11 @@ export function reiniciarLimitesParaPruebas() {
   pedidos.clear();
 }
 
+/** Host base: el real, salvo modo de prueba explícito. */
+export function baseUrl(real: string, override: string | undefined): string {
+  return process.env.FRECUENCIA_IA_MODO_PRUEBA === '1' && override ? override : real;
+}
+
 function clave(): string {
   const k = process.env.NVIDIA_API_KEY;
   if (!k) throw new ErrorIA('sin_clave', 'Falta NVIDIA_API_KEY en el entorno.');
@@ -75,6 +82,7 @@ async function pedir(url: string, cuerpo: unknown): Promise<unknown> {
       headers: { Authorization: `Bearer ${clave()}`, 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify(cuerpo),
       signal: control.signal,
+      redirect: 'error',
     });
     if (r.status === 429) throw new ErrorIA('limite', 'El proveedor de IA pidió esperar un momento.');
     if (!r.ok) throw new ErrorIA('proveedor', `El proveedor de IA respondió ${r.status}.`);
@@ -98,7 +106,7 @@ export async function chatCompletion(args: {
   json?: boolean;
 }): Promise<MensajeChat> {
   if (!reservarPedido(args.modelo)) throw new ErrorIA('limite', 'Se alcanzó el límite de pedidos por minuto de este modelo.');
-  const base = process.env.NVIDIA_CHAT_BASE_URL ?? 'https://integrate.api.nvidia.com/v1';
+  const base = baseUrl('https://integrate.api.nvidia.com/v1', process.env.NVIDIA_CHAT_BASE_URL);
   const cuerpo: Record<string, unknown> = {
     model: args.modelo,
     messages: args.mensajes,
@@ -115,5 +123,7 @@ export async function chatCompletion(args: {
   const r = (await pedir(`${base}/chat/completions`, cuerpo)) as { choices?: { message?: MensajeChat }[] };
   const m = r?.choices?.[0]?.message;
   if (!m || (m.content == null && !m.tool_calls?.length)) throw new ErrorIA('respuesta_invalida', 'La respuesta del proveedor no tiene el formato esperado.');
-  return { role: 'assistant', content: m.content ?? null, tool_calls: m.tool_calls };
+  // Las llamadas a herramientas se tratan como no confiables: solo pasan las bien formadas.
+  const llamadas = (m.tool_calls ?? []).filter((c) => !!c && typeof c.id === 'string' && c.type === 'function' && typeof c.function?.name === 'string' && (typeof c.function.arguments === 'string' || c.function.arguments == null)).map((c) => ({ ...c, function: { name: c.function.name, arguments: c.function.arguments ?? '' } }));
+  return { role: 'assistant', content: m.content ?? null, tool_calls: llamadas.length ? llamadas : undefined };
 }

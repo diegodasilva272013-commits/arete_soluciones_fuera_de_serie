@@ -11,6 +11,7 @@ import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { fechaLocal, momentoDelDia, lunesDeLaSemana, fechaMasDias, horaEnTimezoneAUtc } from '@/lib/frecuencia-fecha';
 import { obtenerDatosParaArmarSemana, obtenerDatosEnElAire, type DatosEnElAire } from '@/lib/frecuencia-semana';
+import { fechaCalendarioValida } from '@/lib/frecuencia/ia/herramientas-def';
 import { armarSemana, DIAS_SEMANA, type BloquePropuesto } from '@/lib/frecuencia/plan';
 import type { FrecuenciaFranja, NoNegociableGuardado } from '@/types/frecuencia';
 
@@ -278,6 +279,9 @@ export async function crearObjetivoNuevo(input: {
 }): Promise<AccionState & { id?: string }> {
   const { supabase, user } = await usuarioActual();
   if (!user) return { error: 'No hay sesión.' };
+  // Las acciones son endpoints públicos: la validación vive acá, no solo en quien las llama.
+  if (!input.titulo?.trim() || input.titulo.length > 200 || (input.imagenMental?.length ?? 0) > 600 || (input.identidadQueExpresa?.length ?? 0) > 300) return { error: 'Datos inválidos.' };
+  if (input.fechaLimite !== null && !fechaCalendarioValida(input.fechaLimite)) return { error: 'Datos inválidos.' };
 
   const { data, error } = await (supabase as any)
     .from('frecuencia_objetivos')
@@ -315,6 +319,13 @@ export async function guardarCriterio(input: {
   // "Si no está escrito, no es criterio": los 4 puntos son obligatorios.
   const completos = [input.titulo, input.queSeDecide, input.queEntra, input.queNoEntra, input.costoSiSaleMal].every((x) => typeof x === 'string' && x.trim());
   if (!completos) return { error: 'Faltan puntos del criterio.' };
+  if ([input.titulo, input.queSeDecide, input.queEntra, input.queNoEntra, input.costoSiSaleMal].some((x) => x.length > 400)) return { error: 'Datos inválidos.' };
+  // Un criterio de equipo solo cuelga de un equipo del que la persona es miembro (lo lee quien recibe una delegación).
+  if (input.ambito === 'equipo') {
+    if (!input.equipoId) return { error: 'Falta el equipo.' };
+    const { data: miembro } = await (supabase as any).from('frecuencia_equipo_miembros').select('equipo_id').eq('equipo_id', input.equipoId).eq('user_id', user.id).maybeSingle();
+    if (!miembro) return { error: 'No sos parte de ese equipo.' };
+  }
   if (input.reversible && !input.tiempoReversibilidad?.trim()) return { error: 'Falta el tiempo de reversibilidad.' };
 
   const fila = {
@@ -328,7 +339,7 @@ export async function guardarCriterio(input: {
     costo_si_sale_mal: input.costoSiSaleMal.trim(),
     reversible: input.reversible,
     tiempo_reversibilidad: input.reversible ? input.tiempoReversibilidad!.trim() : null,
-    quien_asume_responsabilidad: input.quienAsumeResponsabilidad?.trim() || null,
+    ...(input.quienAsumeResponsabilidad !== undefined ? { quien_asume_responsabilidad: input.quienAsumeResponsabilidad?.trim() || null } : {}),
   };
 
   if (input.id) {
