@@ -14,3 +14,8 @@
 | Residuo | 0 (se borran criterios, equipo y cuentas de prueba) |
 
 Capturas desktop / mobile / reduced-motion + videos en esta carpeta.
+
+## Revisión independiente (arreglado)
+- Editar un id ajeno/borrado ya no devuelve éxito falso (el servidor verifica que tocó una fila).
+- Servidor valida tipos, `ambito`, UUID y largos (tiempo 120, responsable 160).
+- Un criterio de un equipo que ya no integrás se edita como personal (no queda atrapado); sin doble envío; el aviso de error se limpia al cambiar ámbito/equipo.

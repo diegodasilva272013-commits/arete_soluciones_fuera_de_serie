@@ -22,16 +22,21 @@ export function CriterioFormulario({ inicial, equipos, guia }: { inicial?: Crite
   const [reversible, setReversible] = useState<boolean | null>(inicial ? inicial.reversible : null);
   const [tiempo, setTiempo] = useState(inicial?.tiempo_reversibilidad ?? '');
   const [responsable, setResponsable] = useState(inicial?.quien_asume_responsabilidad ?? '');
-  const [ambito, setAmbito] = useState<'personal' | 'equipo'>(inicial?.ambito ?? 'personal');
-  const [equipoId, setEquipoId] = useState(inicial?.equipo_id ?? equipos[0]?.id ?? '');
+  // Si el criterio era de un equipo del que ya no sos parte, se edita como personal (no queda atrapado).
+  const equipoVigente = !!inicial?.equipo_id && equipos.some((e) => e.id === inicial.equipo_id);
+  const [ambito, setAmbito] = useState<'personal' | 'equipo'>(inicial?.ambito === 'equipo' && equipoVigente ? 'equipo' : 'personal');
+  const [equipoId, setEquipoId] = useState(equipoVigente ? inicial!.equipo_id! : equipos[0]?.id ?? '');
+  const [enviado, setEnviado] = useState(false);
 
   // El aviso de "faltan puntos" no queda pegado: se va en cuanto la persona sigue escribiendo.
-  useEffect(() => setError(null), [titulo, queSeDecide, queEntra, queNoEntra, costo, reversible, tiempo]);
+  useEffect(() => setError(null), [titulo, queSeDecide, queEntra, queNoEntra, costo, reversible, tiempo, ambito, equipoId]);
 
   function guardar() {
     const completo = [titulo, queSeDecide, queEntra, queNoEntra, costo].every((x) => x.trim()) && reversible !== null && (!reversible || tiempo.trim());
     if (!completo) return setError(t.faltan);
+    if (enviado) return;
     setError(null);
+    setEnviado(true);
     empezar(async () => {
       const r = await guardarCriterio({
         id: inicial?.id,
@@ -46,7 +51,10 @@ export function CriterioFormulario({ inicial, equipos, guia }: { inicial?: Crite
         tiempoReversibilidad: reversible ? tiempo : null,
         quienAsumeResponsabilidad: responsable,
       });
-      if (r.error) return setError(r.error === 'Faltan puntos del criterio.' ? t.faltan : t.errorGuardar);
+      if (r.error) {
+        setEnviado(false);
+        return setError(r.error === 'Faltan puntos del criterio.' ? t.faltan : t.errorGuardar);
+      }
       router.push('/frecuencia/criterios');
       router.refresh();
     });
@@ -72,7 +80,7 @@ export function CriterioFormulario({ inicial, equipos, guia }: { inicial?: Crite
         {guia.noDelegable.length > 0 && (
           <>
             <p className={s.test}>{copy.criterios.noDelegable}:</p>
-            <ul className={s.noDelegable}>{guia.noDelegable.map((x) => <li key={x}>{x}</li>)}</ul>
+            <ul className={s.noDelegable}>{guia.noDelegable.map((x, i) => <li key={i}>{x}</li>)}</ul>
           </>
         )}
       </div>
@@ -123,7 +131,7 @@ export function CriterioFormulario({ inicial, equipos, guia }: { inicial?: Crite
       {error && <p className={s.error} role="alert">{error}</p>}
       <div className={base.filaBotones}>
         <button type="button" className={base.btnSec} onClick={() => router.push('/frecuencia/criterios')} disabled={pendiente}>{t.cancelar}</button>
-        <button type="button" className={base.btn} onClick={guardar} disabled={pendiente}>{pendiente ? t.guardando : t.guardar}</button>
+        <button type="button" className={base.btn} onClick={guardar} disabled={pendiente || enviado}>{pendiente || enviado ? t.guardando : t.guardar}</button>
       </div>
     </div>
   );
