@@ -200,6 +200,21 @@ export const copy = {
       placeholderManual: 'Qué más pasó hoy',
       agregar: 'Agregar',
       agregado: 'Agregado.',
+      tipoLabel: {
+        ENTRENAMIENTO_CUMPLIDO: 'Bloque cumplido',
+        MANUAL: 'Anotado a mano',
+        PASOS_ANTE_FALLA: 'Mirada a lo que no salió',
+      } as Record<string, string>,
+      tipoDesconocido: 'Registro',
+    },
+
+    aprendiste: {
+      nombrePaso: 'Lo que aprendiste hoy',
+      subtitulo: 'Una cosa que hoy te enseñó algo. Aparte de lo que hiciste: esto es lo que te llevás.',
+      label: 'Qué aprendiste',
+      placeholder: 'Hoy aprendí que…',
+      agregar: 'Guardar aprendizaje',
+      vacio: 'Todavía no anotaste ningún aprendizaje de hoy.',
     },
 
     dialNoche: {
@@ -226,6 +241,7 @@ export const copy = {
       titulo: 'Día cerrado.',
       subtitulo: 'Mañana ya está diseñado. Nos encontramos en el aire.',
       irAHoy: 'Ir a Hoy',
+      finTransmision: 'Fin de la transmisión',
     },
 
     cerrarElDia: 'Cerrar el día',

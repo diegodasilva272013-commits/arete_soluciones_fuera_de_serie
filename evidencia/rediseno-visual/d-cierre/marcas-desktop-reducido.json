@@ -1,0 +1,45 @@
+{
+  "marcas": [
+    {
+      "t": "00:17",
+      "captura": "-",
+      "nota": "Cumplió un bloque (evidencia automática)"
+    },
+    {
+      "t": "00:21",
+      "captura": "01-registro-bitacora-desktop-reducido.png",
+      "nota": "Registro de emisión como bitácora: hora, nodo y texto; tipo traducido"
+    },
+    {
+      "t": "00:24",
+      "captura": "01b-registro-con-manual-desktop-reducido.png",
+      "nota": "Entrada manual agregada a la bitácora"
+    },
+    {
+      "t": "00:25",
+      "captura": "02-aprendiste-hoy-desktop-reducido.png",
+      "nota": "Lo que aprendiste hoy: paso aparte del registro"
+    },
+    {
+      "t": "00:28",
+      "captura": "02b-aprendizaje-guardado-desktop-reducido.png",
+      "nota": "Aprendizaje guardado como frase destacada"
+    },
+    {
+      "t": "00:29",
+      "captura": "03-dial-de-la-noche-desktop-reducido.png",
+      "nota": "Dial de la noche (radio)"
+    },
+    {
+      "t": "00:30",
+      "captura": "04-disenar-manana-desktop-reducido.png",
+      "nota": "Diseñar mañana"
+    },
+    {
+      "t": "00:32",
+      "captura": "05-fin-de-la-transmision-desktop-reducido.png",
+      "nota": "Fin de la transmisión: la pantalla se apaga y aparece el cierre"
+    }
+  ],
+  "errores": []
+}
