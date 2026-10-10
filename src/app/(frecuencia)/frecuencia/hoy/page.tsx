@@ -83,7 +83,7 @@ export default async function HoyPage() {
 
       <EstandarMinimo items={estandarMinimo} />
 
-      <Link href="/frecuencia/revision" className={base.btnGhost}>
+      <Link href="/frecuencia/revision" className={base.btnGhost} style={{ alignSelf: 'flex-start' }}>
         {esDomingo ? copy.revision.entrada : copy.revision.entradaOtroDia}
       </Link>
 
