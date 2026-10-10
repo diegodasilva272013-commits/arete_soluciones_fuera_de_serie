@@ -28,7 +28,7 @@ const ITEMS: { href: string; label: string; icono: Icono; habilitado: boolean }[
   { href: '/frecuencia/semana', label: copy.dock.semana, icono: 'semana', habilitado: true },
   { href: '/frecuencia/dial', label: copy.dock.dial, icono: 'dial', habilitado: true },
   { href: '/frecuencia/areas', label: copy.dock.areas, icono: 'areas', habilitado: true },
-  { href: '/frecuencia/espejo', label: copy.dock.espejo, icono: 'espejo', habilitado: false },
+  { href: '/frecuencia/espejo', label: copy.dock.espejo, icono: 'espejo', habilitado: true },
 ];
 
 /** Íconos de línea propios (1.5px, 24×24) — no de librería, para que hablen el idioma de la radio. */

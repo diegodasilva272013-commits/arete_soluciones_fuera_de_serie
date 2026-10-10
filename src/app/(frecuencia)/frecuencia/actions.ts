@@ -192,6 +192,46 @@ export async function guardarEspejo(input: {
   return { ok: true };
 }
 
+export async function guardarCheckinEspejo(formData: FormData): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const comoMeVeo = String(formData.get('como_me_veo') ?? '').trim().slice(0, 600);
+  const comoMePercibo = String(formData.get('como_me_percibo') ?? '').trim().slice(0, 600);
+  const comoMeSiento = String(formData.get('como_me_siento') ?? '').trim().slice(0, 600);
+  if (!comoMeVeo && !comoMePercibo && !comoMeSiento) return { error: 'Vacío.' };
+
+  let fotoPath: string | null = null;
+  const foto = formData.get('foto');
+  if (foto instanceof File && foto.size > 0) {
+    const ext = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[foto.type];
+    if (!ext || foto.size > 5 * 1024 * 1024) return { error: 'Foto inválida.' };
+    // <user_id>/espejo/<uuid>.<ext>: nunca se pisa un archivo (el bucket no tiene UPDATE).
+    const ruta = `${user.id}/espejo/${crypto.randomUUID()}.${ext}`;
+    const { error: errSubida } = await supabase.storage.from('frecuencia-imagenes').upload(ruta, foto, { contentType: foto.type, upsert: false });
+    if (errSubida) return { error: 'No se pudo subir la foto.' };
+    fotoPath = ruta;
+  }
+
+  const timezone = await timezoneDelUsuario(supabase, user.id);
+  const { error } = await (supabase as any).from('frecuencia_espejo').insert({
+    user_id: user.id,
+    fecha: fechaLocal(timezone),
+    momento: momentoDelDia(timezone),
+    como_me_veo: comoMeVeo || null,
+    como_me_percibo: comoMePercibo || null,
+    como_me_siento: comoMeSiento || null,
+    foto_storage_path: fotoPath,
+  });
+  if (error) {
+    // Si la fila no se pudo guardar, la foto subida no queda huérfana.
+    if (fotoPath) await supabase.storage.from('frecuencia-imagenes').remove([fotoPath]);
+    return { error: 'No se pudo guardar.' };
+  }
+  revalidatePath('/frecuencia/espejo');
+  return { ok: true };
+}
+
 // ── 7. Primer objetivo ────────────────────────────────────────────────
 
 export async function guardarObjetivo(input: {

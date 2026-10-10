@@ -1,0 +1,30 @@
+{
+  "marcas": [
+    {
+      "t": "00:13",
+      "captura": "01-espejo-vacio-desktop-reducido.png",
+      "nota": "Espejo sin check-ins: ropa, formulario, historial vacío"
+    },
+    {
+      "t": "00:14",
+      "captura": "02-checkin-con-foto-desktop-reducido.png",
+      "nota": "Check-in escrito con foto elegida (vista previa)"
+    },
+    {
+      "t": "00:19",
+      "captura": "03-checkin-guardado-desktop-reducido.png",
+      "nota": "Check-in guardado: aparece en el historial"
+    },
+    {
+      "t": "00:28",
+      "captura": "04-historial-coverflow-desktop-reducido.png",
+      "nota": "Historial coverflow con 3 entradas con foto"
+    },
+    {
+      "t": "00:30",
+      "captura": "05-coverflow-desplazado-desktop-reducido.png",
+      "nota": "Coverflow desplazado: las tarjetas se inclinan"
+    }
+  ],
+  "errores": []
+}
