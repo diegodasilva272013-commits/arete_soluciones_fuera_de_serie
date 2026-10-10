@@ -26,3 +26,9 @@ Detalle crudo: `rls-delegaciones.json`. Capturas desktop / mobile / reduced-moti
 2. Quien delega no puede reasignar la delegación a alguien de otro equipo.
 3. Una tarea no puede estar delegada dos veces a la misma persona mientras siga en sus manos (índice único).
 Sin correr 0083 todo funciona igual, solo quedan abiertos esos tres huecos.
+
+### Pruebas extra tras la revisión (capturas 07 y 08)
+| Prueba | Resultado |
+|---|---|
+| Borrar una tarea delegada | no la borra; explica "Quitá la delegación antes de borrarla"; la tarea sigue existiendo |
+| "Quitar delegación" | la lista queda vacía y la otra persona deja de ver la tarea (0 filas) |

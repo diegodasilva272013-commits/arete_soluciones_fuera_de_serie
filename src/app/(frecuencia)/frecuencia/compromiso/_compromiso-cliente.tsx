@@ -9,7 +9,7 @@ import { actualizarAvance, guardarCompromiso } from './_actions';
 
 const t = copy.compromiso;
 
-function Avance({ id, inicial }: { id: string; inicial: number }) {
+function Avance({ id, inicial, nombre }: { id: string; inicial: number; nombre?: string }) {
   const router = useRouter();
   const [valor, setValor] = useState(inicial);
   const [estado, setEstado] = useState<'quieto' | 'guardando' | 'ok' | 'error'>('quieto');
@@ -32,17 +32,17 @@ function Avance({ id, inicial }: { id: string; inicial: number }) {
 
   return (
     <div>
-      <label className={base.campoLabel} htmlFor={`av-${id}`}>{t.avanceLabel}</label>
+      <label className={base.campoLabel} htmlFor={`av-${id}`}>{t.avanceLabel}{nombre ? ` · ${nombre}` : ''}</label>
       <div className={s.avanceFila}>
-        <span className={s.valor} aria-live="polite">{valor}%</span>
-        <input id={`av-${id}`} className={s.rango} type="range" min={0} max={100} step={5} value={valor} onChange={(e) => { setValor(Number(e.target.value)); setEstado('quieto'); }} />
+        <span className={s.valor}>{valor}%</span>
+        <input id={`av-${id}`} className={s.rango} type="range" min={0} max={100} step={5} value={valor} aria-valuetext={`${valor}%`} onChange={(e) => { setValor(Number(e.target.value)); setEstado('quieto'); }} />
       </div>
       <div className={s.barra} aria-hidden><div className={s.relleno} style={{ width: `${valor}%` }} /></div>
       <div className={base.filaBotones}>
         <button type="button" className={base.btnSec} onClick={guardar} disabled={estado === 'guardando' || valor === inicial}>{t.guardarAvance}</button>
       </div>
-      {estado === 'ok' && <p className={s.ok} role="status">{t.guardado}</p>}
-      {estado === 'error' && <p className={s.error} role="alert">{t.errorGuardar}</p>}
+      <p className={s.ok} role="status">{estado === 'ok' ? t.guardado : ''}</p>
+      <p className={s.error} role="alert">{estado === 'error' ? t.errorGuardar : ''}</p>
     </div>
   );
 }
@@ -52,7 +52,7 @@ export function CompromisoAjeno({ id, de, texto, avance }: { id: string; de: str
     <article className={s.tarjeta}>
       <p className={s.meta}>{t.de} {de}</p>
       <p className={s.texto}>{texto}</p>
-      <Avance id={id} inicial={avance} />
+      <Avance key={`${id}-${avance}`} id={id} inicial={avance} nombre={de} />
     </article>
   );
 }
@@ -106,14 +106,14 @@ export function MiCompromiso({ mes, inicial, companeros }: { mes: string; inicia
           </select>
         )}
       </div>
-      {error && <p className={s.error} role="alert">{error}</p>}
-      {ok && <p className={s.ok} role="status">{t.guardado}</p>}
+      <p className={s.error} role="alert">{error ?? ''}</p>
+      <p className={s.ok} role="status">{ok ? t.guardado : ''}</p>
       <div className={base.filaBotones}>
         <button type="button" className={base.btn} onClick={guardar} disabled={ocupado}>{ocupado ? t.guardando : t.guardar}</button>
       </div>
       {inicial && (
         <div style={{ marginTop: 28 }}>
-          <Avance id={inicial.id} inicial={inicial.avance} />
+          <Avance key={`${inicial.id}-${inicial.avance}`} id={inicial.id} inicial={inicial.avance} />
         </div>
       )}
     </section>

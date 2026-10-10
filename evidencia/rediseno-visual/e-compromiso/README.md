@@ -17,3 +17,7 @@
 
 Detalle crudo: `rls-compromiso.json`. Capturas desktop / mobile / reduced-motion y videos (dueña, co-conductora).
 Nota: la base no limita el avance a 0–100; la acción del servidor sí (rechaza otros valores).
+
+## Revisión independiente (arreglado)
+**En la app:** si dos pedidos crean el compromiso a la vez, se reintenta como actualización; el co-conductor ve una sola fila por persona; si el co-conductor elegido ya no está en el equipo, el formulario lo deja "sin elegir" y el mensaje de error lo explica; errores de lectura ya no se muestran como "no hay nada"; `mesActual` salió del archivo `'use server'`; el slider se resincroniza con el avance nuevo; avisos accesibles y etiqueta con el nombre de la persona.
+**En la base (migración nueva `0084_frecuencia_compromisos_integridad*.sql`, la corrés vos: chequeo → SQL → verificación):** un solo compromiso por persona y mes (índice único), avance 0–100 (restricción + función), y el co-conductor solo lee y mueve el avance mientras siga en el equipo. Sin correr 0084 todo funciona igual; quedan abiertos esos tres huecos.

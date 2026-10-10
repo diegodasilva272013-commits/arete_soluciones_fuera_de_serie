@@ -128,7 +128,7 @@ export function TareasCliente({ objetivoId, tareasIniciales, imagenesPorTarea = 
     if (!window.confirm(copy.tareas.confirmarBorrar)) return;
     const r = await borrarTarea(tareaId, objetivoId);
     if (r.error) {
-      setError(copy.estados.error);
+      setError(r.error.includes('delegada') ? copy.delegaciones.noSePuedeBorrar : copy.estados.error);
       return;
     }
     setTareas((prev) => prev.filter((t) => t.id !== tareaId).map((t) => ({ ...t, desbloquea: t.desbloquea.filter((id) => id !== tareaId) })));

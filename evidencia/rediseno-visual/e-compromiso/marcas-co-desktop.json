@@ -1,12 +1,12 @@
 {
   "marcas": [
     {
-      "t": "00:12",
+      "t": "00:11",
       "captura": "04-co-conductor-desktop.png",
       "nota": "El co-conductor ve el compromiso de la otra persona y su avance (40%)"
     },
     {
-      "t": "00:19",
+      "t": "00:17",
       "captura": "05-co-actualiza-desktop.png",
       "nota": "El co-conductor actualiza el avance a 70%"
     }
