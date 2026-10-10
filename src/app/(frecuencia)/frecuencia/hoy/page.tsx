@@ -3,7 +3,9 @@ import { getCurrentUserContext } from '@/lib/current-user';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { fechaLocal, horaEnTimezoneAUtc, fechaMasDias } from '@/lib/frecuencia-fecha';
 import { resolverTitulosDeBloques, obtenerDatosEnElAire } from '@/lib/frecuencia-semana';
+import Link from 'next/link';
 import { copy } from '../_copy';
+import { perteneceAUnEquipo } from '../equipo/_datos';
 import base from '../frecuencia.module.css';
 import { HoyCliente, type ItemLinea } from './_hoy-cliente';
 
@@ -69,6 +71,11 @@ export default async function HoyPage() {
       </div>
       <h1 className={base.titulo}>{copy.hoy.titulo}</h1>
 
+      {(ctx.isAdmin || (await perteneceAUnEquipo(ctx.userId))) && (
+        <Link href="/frecuencia/equipo" className={base.btnGhost} style={{ alignSelf: 'flex-start', marginBottom: 16 }}>
+          {copy.equipo.kicker} →
+        </Link>
+      )}
       <HoyCliente valorDialHoy={dialHoy?.frecuencia ?? null} items={items} timezone={timezone} enElAireInicial={enElAireInicial} />
     </div>
   );
