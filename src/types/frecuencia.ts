@@ -259,3 +259,17 @@ export const ORDEN_PASOS: PasoOnboarding[] = [
   'objetivo',
   'completo',
 ];
+
+// ── IA (Fase 5): contenido que vive en frecuencia_knowledge_blocks ──
+export interface ModeloIA {
+  id: string;
+  nombre: string;
+  licencia: string;
+  /** Solo imágenes: endpoint completo del modelo. */
+  endpoint?: string;
+  por_defecto?: boolean;
+}
+export interface ModelosIAKB {
+  chat: ModeloIA[];
+  imagenes: ModeloIA[];
+}
