@@ -10,7 +10,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Dial } from '../_dial';
-import { agregarEvidenciaManual, guardarDial, guardarEspejo, guardarReflexionFalla } from '../actions';
+import { agregarEvidenciaManual, guardarAprendizaje, guardarDial, guardarEspejo, guardarReflexionFalla } from '../actions';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import s from './_cierre.module.css';
@@ -23,6 +23,7 @@ export interface EvidenciaDelDia {
   id: string;
   texto: string;
   tipo: string;
+  creadoEn: string;
 }
 
 export interface BloqueDelDia {
@@ -33,7 +34,7 @@ export interface BloqueDelDia {
   titulo: string;
 }
 
-type Paso = 'registro' | 'dial_noche' | 'disenar_manana' | 'pasos_falla' | 'completo';
+type Paso = 'registro' | 'aprendiste' | 'dial_noche' | 'disenar_manana' | 'pasos_falla' | 'completo';
 
 function horaCorta(iso: string, timezone: string): string {
   return new Date(iso).toLocaleTimeString('es-AR', { timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false });
@@ -41,6 +42,7 @@ function horaCorta(iso: string, timezone: string): string {
 
 export function CierreCliente({
   evidencia: evidenciaInicial,
+  aprendizajes: aprendizajesIniciales,
   bloquesManana,
   huboFalla,
   pasosAnteFalla,
@@ -51,6 +53,7 @@ export function CierreCliente({
   timezone,
 }: {
   evidencia: EvidenciaDelDia[];
+  aprendizajes: EvidenciaDelDia[];
   bloquesManana: BloqueDelDia[];
   huboFalla: boolean;
   pasosAnteFalla: PasoAnteFalla[];
@@ -60,11 +63,15 @@ export function CierreCliente({
   accionesSubida: string[];
   timezone: string;
 }) {
-  const pasos: Paso[] = ['registro', 'dial_noche', 'disenar_manana', ...(huboFalla ? (['pasos_falla'] as const) : []), 'completo'];
+  const pasos: Paso[] = ['registro', 'aprendiste', 'dial_noche', 'disenar_manana', ...(huboFalla ? (['pasos_falla'] as const) : []), 'completo'];
   const [indice, setIndice] = useState(0);
   const paso = pasos[indice];
 
   const [evidencia, setEvidencia] = useState(evidenciaInicial);
+  const [aprendizajes, setAprendizajes] = useState(aprendizajesIniciales);
+  const [textoAprendizaje, setTextoAprendizaje] = useState('');
+  const [guardandoAprendizaje, setGuardandoAprendizaje] = useState(false);
+  const [errorAprendizaje, setErrorAprendizaje] = useState(false);
   const [textoManual, setTextoManual] = useState('');
   const [guardandoManual, setGuardandoManual] = useState(false);
 
@@ -82,13 +89,29 @@ export function CierreCliente({
     setIndice((i) => Math.max(i - 1, 0));
   }
 
+  async function agregarAprendizaje(): Promise<boolean> {
+    const texto = textoAprendizaje.trim();
+    if (!texto) return true;
+    setGuardandoAprendizaje(true);
+    setErrorAprendizaje(false);
+    const r = await guardarAprendizaje(texto);
+    setGuardandoAprendizaje(false);
+    if (r.error) {
+      setErrorAprendizaje(true);
+      return false;
+    }
+    setAprendizajes((prev) => [...prev, { id: `local-${crypto.randomUUID()}`, texto, tipo: 'APRENDIZAJE', creadoEn: new Date().toISOString() }]);
+    setTextoAprendizaje('');
+    return true;
+  }
+
   async function agregarManual() {
     if (!textoManual.trim()) return;
     setGuardandoManual(true);
     const r = await agregarEvidenciaManual(textoManual);
     setGuardandoManual(false);
     if (!r.error) {
-      setEvidencia((prev) => [...prev, { id: `local-${prev.length}`, texto: textoManual.trim(), tipo: 'MANUAL' }]);
+      setEvidencia((prev) => [...prev, { id: `local-${crypto.randomUUID()}`, texto: textoManual.trim(), tipo: 'MANUAL', creadoEn: new Date().toISOString() }]);
       setTextoManual('');
     }
   }
@@ -131,23 +154,26 @@ export function CierreCliente({
           <p className={base.subtitulo}>{copy.cierre.registro.subtitulo}</p>
 
           {evidencia.length === 0 ? (
-            <p className={base.ayuda} style={{ marginTop: 20 }}>
-              {copy.cierre.registro.vacio}
-            </p>
+            <p className={`${base.ayuda} ${s.vacio}`}>{copy.cierre.registro.vacio}</p>
           ) : (
-            <div className={s.evidenciaLista}>
-              {evidencia.map((e) => (
-                <div key={e.id} className={s.evidenciaItem}>
-                  <p className={s.evidenciaTexto}>{e.texto}</p>
-                  <span className={s.evidenciaTipo}>{e.tipo}</span>
-                </div>
+            <ol className={s.bitacora}>
+              {evidencia.map((e, i) => (
+                <li key={e.id} className={s.bitacoraFila} style={{ ['--i' as string]: i }}>
+                  <span className={s.bitacoraHora}>{horaCorta(e.creadoEn, timezone)}</span>
+                  <span className={s.bitacoraNodo} aria-hidden />
+                  <div className={s.bitacoraCuerpo}>
+                    <p className={s.evidenciaTexto}>{e.texto}</p>
+                    <span className={s.evidenciaTipo}>{copy.cierre.registro.tipoLabel[e.tipo] ?? copy.cierre.registro.tipoDesconocido}</span>
+                  </div>
+                </li>
               ))}
-            </div>
+            </ol>
           )}
 
           <div className={base.campo}>
-            <label className={base.campoLabel}>{copy.cierre.registro.cargarManual}</label>
+            <label className={base.campoLabel} htmlFor="evidencia-manual">{copy.cierre.registro.cargarManual}</label>
             <input
+              id="evidencia-manual"
               className={base.input}
               value={textoManual}
               onChange={(ev) => setTextoManual(ev.target.value)}
@@ -166,6 +192,55 @@ export function CierreCliente({
             </button>
             <button type="button" className={base.btn} onClick={avanzar}>
               {copy.botones.siguiente}
+            </button>
+          </BarraPasos>
+        </div>
+      )}
+
+      {paso === 'aprendiste' && (
+        <div className={s.paso}>
+          <p className={base.subtitulo}>{copy.cierre.aprendiste.subtitulo}</p>
+
+          {aprendizajes.length === 0 ? (
+            <p className={`${base.ayuda} ${s.vacio}`}>{copy.cierre.aprendiste.vacio}</p>
+          ) : (
+            <ul className={s.aprendizajes}>
+              {aprendizajes.map((a, i) => (
+                <li key={a.id} className={s.aprendizaje} style={{ ['--i' as string]: i }}>
+                  {a.texto}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className={base.campo}>
+            <label className={base.campoLabel} htmlFor="aprendizaje">
+              {copy.cierre.aprendiste.label}
+            </label>
+            <textarea
+              id="aprendizaje"
+              className={base.textarea}
+              value={textoAprendizaje}
+              onChange={(ev) => setTextoAprendizaje(ev.target.value)}
+              placeholder={copy.cierre.aprendiste.placeholder}
+              maxLength={500}
+              rows={5}
+            />
+            {errorAprendizaje && <p className={s.error} role="alert">{copy.estados.error}</p>}
+          </div>
+          <BarraPasos>
+            <button type="button" className={base.btnSec} onClick={retroceder}>
+              {copy.botones.atras}
+            </button>
+            <button
+              type="button"
+              className={base.btn}
+              disabled={guardandoAprendizaje}
+              onClick={async () => {
+                if (await agregarAprendizaje()) avanzar();
+              }}
+            >
+              {guardandoAprendizaje ? copy.botones.guardando : copy.botones.siguiente}
             </button>
           </BarraPasos>
         </div>
@@ -192,7 +267,7 @@ export function CierreCliente({
           <p className={base.subtitulo}>{copy.cierre.disenarManana.subtitulo}</p>
 
           {bloquesManana.length === 0 ? (
-            <p className={base.ayuda} style={{ marginTop: 20 }}>
+            <p className={`${base.ayuda} ${s.vacio}`}>
               {copy.cierre.disenarManana.vacioBloques}
             </p>
           ) : (
@@ -257,8 +332,14 @@ export function CierreCliente({
 
       {paso === 'completo' && (
         <div className={s.completoWrap}>
+          <CapaFija>
+            <div className={s.apagon} aria-hidden>
+              <span className={s.apagonLinea} />
+            </div>
+          </CapaFija>
+          <p className={s.finEtiqueta}>{copy.cierre.completo.finTransmision}</p>
           <h2 className={base.titulo}>{copy.cierre.completo.titulo}</h2>
-          <p className={base.subtitulo} style={{ margin: '12px auto 0' }}>
+          <p className={`${base.subtitulo} ${s.completoSub}`}>
             {copy.cierre.completo.subtitulo}
           </p>
           <BarraPasos centrada>

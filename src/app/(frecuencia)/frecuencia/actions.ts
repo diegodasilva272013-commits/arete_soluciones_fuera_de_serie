@@ -554,6 +554,29 @@ export async function agregarEvidenciaManual(texto: string): Promise<AccionState
   return { ok: true };
 }
 
+export async function guardarAprendizaje(texto: string): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+  if (!texto.trim()) return { error: 'Vacío.' };
+  if (texto.length > 500) return { error: 'Demasiado largo.' };
+
+  const timezone = await timezoneDelUsuario(supabase, user.id);
+  const fecha = fechaLocal(timezone);
+
+  // Mismo almacén que el registro (frecuencia_evidencia.tipo es texto libre),
+  // con un tipo propio: así el cierre los muestra aparte y no hace falta tocar la base.
+  const { error } = await (supabase as any).from('frecuencia_evidencia').insert({
+    user_id: user.id,
+    bloque_id: null,
+    fecha,
+    texto: texto.trim(),
+    tipo: 'APRENDIZAJE',
+  });
+  if (error) return { error: 'No se pudo guardar.' };
+  revalidatePath('/frecuencia/cierre');
+  return { ok: true };
+}
+
 export async function guardarReflexionFalla(paso: number, nombre: string, texto: string): Promise<AccionState> {
   const { supabase, user } = await usuarioActual();
   if (!user) return { error: 'No hay sesión.' };
