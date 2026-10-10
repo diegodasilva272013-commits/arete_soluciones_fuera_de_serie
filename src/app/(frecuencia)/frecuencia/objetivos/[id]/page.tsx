@@ -3,6 +3,7 @@ import { getCurrentUserContext } from '@/lib/current-user';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { getReglasPlan } from '@/lib/frecuencia-kb';
 import type { FrecuenciaObjetivo } from '@/types/frecuencia';
+import { Descomposicion } from './_descomposicion';
 import { TareasCliente, type TareaDeObjetivo } from './_tareas-cliente';
 import { copy } from '../../_copy';
 import base from '../../frecuencia.module.css';
@@ -40,7 +41,9 @@ export default async function ObjetivoDetallePage({ params }: { params: { id: st
       <h1 className={base.titulo}>{(objetivo as FrecuenciaObjetivo).titulo}</h1>
       {reglasPlan?.prioridad && <p className={base.subtitulo}>{reglasPlan.prioridad}</p>}
 
-      <TareasCliente objetivoId={objetivo.id} tareasIniciales={(tareasData ?? []) as TareaDeObjetivo[]} />
+      <Descomposicion objetivoId={objetivo.id} />
+
+      <TareasCliente key={(tareasData ?? []).length} objetivoId={objetivo.id} tareasIniciales={(tareasData ?? []) as TareaDeObjetivo[]} />
     </div>
   );
 }
