@@ -158,6 +158,9 @@ export const copy = {
     agregarNoNegociable: 'Agregar no negociable',
     nuevoNoNegociablePlaceholder: 'Ej: Entrenar',
     guardarNoNegociables: 'Guardar no negociables',
+    ahora: 'Ahora',
+    leyenda: 'Tipos de bloque',
+    vistaPrevia: 'Así queda tu semana',
   },
 
   hoy: {
