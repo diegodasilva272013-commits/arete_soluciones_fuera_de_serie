@@ -21,7 +21,7 @@ import { useMagnificacion } from '@/components/ui/use-magnificacion';
 import { copy } from './_copy';
 import s from './_shell.module.css';
 
-type Icono = 'hoy' | 'semana' | 'dial' | 'areas' | 'espejo';
+type Icono = 'hoy' | 'semana' | 'dial' | 'areas' | 'espejo' | 'agente';
 
 const ITEMS: { href: string; label: string; icono: Icono; habilitado: boolean }[] = [
   { href: '/frecuencia/hoy', label: copy.dock.hoy, icono: 'hoy', habilitado: true },
@@ -29,6 +29,7 @@ const ITEMS: { href: string; label: string; icono: Icono; habilitado: boolean }[
   { href: '/frecuencia/dial', label: copy.dock.dial, icono: 'dial', habilitado: true },
   { href: '/frecuencia/areas', label: copy.dock.areas, icono: 'areas', habilitado: true },
   { href: '/frecuencia/espejo', label: copy.dock.espejo, icono: 'espejo', habilitado: false },
+  { href: '/frecuencia/chat', label: copy.dock.agente, icono: 'agente', habilitado: true },
 ];
 
 /** Íconos de línea propios (1.5px, 24×24) — no de librería, para que hablen el idioma de la radio. */
@@ -61,6 +62,12 @@ function IconoDock({ tipo }: { tipo: Icono }) {
           <circle {...p} cx="9" cy="10" r="5" />
           <circle {...p} cx="15" cy="10" r="5" />
           <circle {...p} cx="12" cy="15" r="5" />
+        </>
+      )}
+      {tipo === 'agente' && (
+        <>
+          <path {...p} d="M4 5h16v11H10l-4 4v-4H4z" />
+          <path {...p} d="M8 9h8M8 12h5" />
         </>
       )}
       {tipo === 'espejo' && (
