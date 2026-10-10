@@ -12,7 +12,7 @@ import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { getAreasReglas, getModelosIA, getPromptDescomposicion, getReglasDosis, getReglasPlan } from '@/lib/frecuencia-kb';
 import { chatCompletion, ErrorIA } from '@/lib/frecuencia/ia/nvidia';
-import { desbloqueaPorIndice, normalizarPropuesta, type PropuestaDescomposicion } from '@/lib/frecuencia/ia/descomposicion';
+import { desbloqueaPorIndice, normalizarPropuesta, revalidarPropuesta, type PropuestaDescomposicion } from '@/lib/frecuencia/ia/descomposicion';
 
 export type ResultadoPropuesta =
   | { ok: true; propuesta: PropuestaDescomposicion }
@@ -66,7 +66,7 @@ export async function guardarDescomposicion(objetivoId: string, propuestaCruda: 
   if (!user) return { ok: false, error: 'sesion' };
 
   // Nunca se confía en lo que manda el cliente: se vuelve a validar y acotar.
-  const n = normalizarPropuesta(propuestaCruda);
+  const n = revalidarPropuesta(propuestaCruda);
   if (!n.ok) return { ok: false, error: 'invalida' };
   const { metas, tareas } = n.propuesta;
 

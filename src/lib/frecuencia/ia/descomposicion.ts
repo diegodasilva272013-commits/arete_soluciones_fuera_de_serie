@@ -116,3 +116,42 @@ export function desbloqueaPorIndice(tareas: TareaPropuesta[]): number[][] {
   tareas.forEach((t, i) => t.dependeDe.forEach((d) => res[d].push(i)));
   return res;
 }
+
+/**
+ * Re-valida una propuesta que YA está normalizada (la que el navegador
+ * devuelve al confirmar): nunca se confía en lo que llega del cliente, se
+ * vuelve a acotar todo con las mismas reglas. Forma camelCase (la de
+ * PropuestaDescomposicion), distinta de la forma cruda que escribe la IA.
+ */
+export function revalidarPropuesta(entrada: unknown): ResultadoPropuesta {
+  if (!entrada || typeof entrada !== 'object') return { ok: false, error: 'Propuesta inválida.' };
+  const r = entrada as Record<string, unknown>;
+  const tareasCrudas = Array.isArray(r.tareas) ? r.tareas.slice(0, MAX_TAREAS) : [];
+  const originales: number[] = [];
+  let tareas: TareaPropuesta[] = [];
+  tareasCrudas.forEach((t, i) => {
+    const x = (t && typeof t === 'object' ? t : {}) as Record<string, unknown>;
+    const titulo = texto(x.titulo, 200);
+    if (!titulo) return;
+    originales.push(i);
+    tareas.push({
+      titulo,
+      protocolo: Array.isArray(x.protocolo) ? x.protocolo.map((p) => texto(p, 200)).filter(Boolean).slice(0, 12) : [],
+      tipoEnergia: (TIPOS as unknown[]).includes(x.tipoEnergia) ? (x.tipoEnergia as TipoEnergiaIA) : 'profundo',
+      duracionMin: acotar(x.duracionMin, 15, 120, 50),
+      dosisObjetivo: acotar(x.dosisObjetivo, 1, 5, 2),
+      dependeDe: Array.isArray(x.dependeDe) ? x.dependeDe.filter((d): d is number => typeof d === 'number') : [],
+    });
+  });
+  if (!tareas.length) return { ok: false, error: 'Propuesta sin tareas.' };
+  const nuevo = new Map(originales.map((orig, n) => [orig, n]));
+  tareas = sinCiclos(tareas.map((t) => ({ ...t, dependeDe: t.dependeDe.map((d) => nuevo.get(d)).filter((d): d is number => d !== undefined) })));
+  const metas: MetaPropuesta[] = (Array.isArray(r.metas) ? r.metas : [])
+    .map((m) => {
+      const x = (m && typeof m === 'object' ? m : {}) as Record<string, unknown>;
+      return { periodo: texto(x.periodo, 60), meta: texto(x.meta, 300) };
+    })
+    .filter((m) => m.periodo && m.meta)
+    .slice(0, 8);
+  return { ok: true, propuesta: { metas, tareas } };
+}

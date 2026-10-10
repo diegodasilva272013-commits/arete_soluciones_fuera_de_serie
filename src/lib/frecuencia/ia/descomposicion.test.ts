@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { desbloqueaPorIndice, extraerJSON, normalizarPropuesta, sinCiclos, type TareaPropuesta } from './descomposicion';
+import { desbloqueaPorIndice, extraerJSON, normalizarPropuesta, revalidarPropuesta, sinCiclos, type TareaPropuesta } from './descomposicion';
 
 const t = (titulo: string, dependeDe: number[] = []): TareaPropuesta => ({ titulo, protocolo: [], tipoEnergia: 'profundo', duracionMin: 50, dosisObjetivo: 2, dependeDe });
 
@@ -66,5 +66,26 @@ describe('sinCiclos', () => {
 describe('desbloqueaPorIndice', () => {
   it('es el inverso de depende_de', () => {
     expect(desbloqueaPorIndice([t('A'), t('B', [0]), t('C', [0, 1])])).toEqual([[1, 2], [2], []]);
+  });
+});
+
+describe('revalidarPropuesta (lo que vuelve del navegador)', () => {
+  it('conserva la propuesta ya normalizada: dosis, tipo, duración, dependencias y metas', () => {
+    const original = normalizarPropuesta({ metas_por_periodo: [{ periodo: 'Mes 1', meta: 'M' }], tareas: [{ titulo: 'A', tipo_energia: 'creativo', duracion_min: 40, dosis_objetivo: 4 }, { titulo: 'B', depende_de: [0], dosis_objetivo: 1 }] });
+    expect(original.ok).toBe(true);
+    if (!original.ok) return;
+    const r = revalidarPropuesta(original.propuesta);
+    expect(r).toEqual(original);
+  });
+  it('vuelve a acotar lo que manipule el cliente y descarta ciclos', () => {
+    const r = revalidarPropuesta({ metas: [], tareas: [{ titulo: 'A', duracionMin: 99999, dosisObjetivo: -3, dependeDe: [1] }, { titulo: 'B', dependeDe: [0] }] });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.propuesta.tareas[0]).toMatchObject({ duracionMin: 120, dosisObjetivo: 1 });
+    expect(r.propuesta.tareas.flatMap((x) => x.dependeDe).length).toBe(1);
+  });
+  it('rechaza basura', () => {
+    expect(revalidarPropuesta(null).ok).toBe(false);
+    expect(revalidarPropuesta({ tareas: [] }).ok).toBe(false);
   });
 });
