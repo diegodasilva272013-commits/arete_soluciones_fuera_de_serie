@@ -46,12 +46,20 @@ export async function buscarPersonas(texto: string): Promise<Persona[]> {
   }));
 }
 
+/** Solo se suman personas con un rol habilitado en Frecuencia (lo mismo que filtra el buscador). */
+async function puedeIntegrar(supabase: any, userId: string): Promise<boolean> {
+  const roles = (await getFrecuenciaRolesHabilitados()) ?? ['admin'];
+  const { data } = await supabase.from('profiles').select('role').eq('id', userId).maybeSingle();
+  return !!data && roles.includes(data.role);
+}
+
 export async function crearEquipo(input: { nombre: string; liderId: string }): Promise<Resultado> {
   const a = await soloAdmin();
   if (!a) return { error: copy.equipo.admin.noEsAdmin };
   const nombre = String(input.nombre ?? '').trim();
   if (!nombre || nombre.length > 80) return { error: copy.equipo.admin.faltaNombre };
   if (!UUID.test(input.liderId ?? '')) return { error: copy.equipo.admin.faltaLider };
+  if (!(await puedeIntegrar(a.supabase, input.liderId))) return { error: copy.equipo.admin.errorGeneral };
   const { data, error } = await a.supabase.from('frecuencia_equipos').insert({ nombre, lider_id: input.liderId }).select('id').single();
   if (error || !data) return { error: copy.equipo.admin.errorGeneral };
   revalidatePath('/frecuencia/equipo/admin');
@@ -62,6 +70,7 @@ export async function agregarMiembro(input: { equipoId: string; userId: string }
   const a = await soloAdmin();
   if (!a) return { error: copy.equipo.admin.noEsAdmin };
   if (!UUID.test(input.equipoId ?? '') || !UUID.test(input.userId ?? '')) return { error: copy.equipo.admin.errorGeneral };
+  if (!(await puedeIntegrar(a.supabase, input.userId))) return { error: copy.equipo.admin.errorGeneral };
   const { error } = await a.supabase.from('frecuencia_equipo_miembros').insert({ equipo_id: input.equipoId, user_id: input.userId });
   // Ya era miembro (clave primaria repetida): el resultado que se quería ya está.
   if (error && error.code !== '23505') return { error: copy.equipo.admin.errorGeneral };
@@ -78,6 +87,10 @@ export async function sacarMiembro(input: { equipoId: string; userId: string }):
   if (!eq || eq.lider_id === input.userId) return { error: copy.equipo.admin.errorGeneral };
   const { error } = await a.supabase.from('frecuencia_equipo_miembros').delete().eq('equipo_id', input.equipoId).eq('user_id', input.userId);
   if (error) return { error: copy.equipo.admin.errorGeneral };
+  // Si justo entre la lectura y el borrado otra persona lo hizo líder, se le devuelve su fila de miembro:
+  // un líder fuera de la tabla de miembros perdería sus permisos.
+  const { data: despues } = await a.supabase.from('frecuencia_equipos').select('lider_id').eq('id', input.equipoId).maybeSingle();
+  if (despues?.lider_id === input.userId) await a.supabase.from('frecuencia_equipo_miembros').insert({ equipo_id: input.equipoId, user_id: input.userId });
   revalidatePath('/frecuencia/equipo/admin');
   return { ok: true };
 }
@@ -86,6 +99,7 @@ export async function cambiarLider(input: { equipoId: string; userId: string }):
   const a = await soloAdmin();
   if (!a) return { error: copy.equipo.admin.noEsAdmin };
   if (!UUID.test(input.equipoId ?? '') || !UUID.test(input.userId ?? '')) return { error: copy.equipo.admin.errorGeneral };
+  if (!(await puedeIntegrar(a.supabase, input.userId))) return { error: copy.equipo.admin.errorGeneral };
   const { error } = await a.supabase.from('frecuencia_equipos').update({ lider_id: input.userId }).eq('id', input.equipoId);
   if (error) return { error: copy.equipo.admin.errorGeneral };
   revalidatePath('/frecuencia/equipo/admin');

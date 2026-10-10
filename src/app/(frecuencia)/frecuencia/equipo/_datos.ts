@@ -9,7 +9,7 @@ export async function nombresDePersonas(ids: string[]): Promise<Map<string, stri
   const unicos = Array.from(new Set(ids));
   if (!unicos.length) return new Map();
   const { data } = await supabase.from('profiles').select('id, full_name, email').in('id', unicos);
-  return new Map(((data ?? []) as { id: string; full_name: string | null; email: string | null }[]).map((p) => [p.id, p.full_name?.trim() || p.email || 'Sin nombre']));
+  return new Map(((data ?? []) as { id: string; full_name: string | null; email: string | null }[]).map((p) => [p.id, p.full_name?.trim() || p.email?.split('@')[0] || 'Sin nombre']));
 }
 
 /** Los equipos que la RLS deja ver (admin: todos; el resto: los suyos), con miembros y nombres. */

@@ -374,6 +374,8 @@ export const copy = {
       faltaNombre: 'Poné un nombre al equipo.',
       faltaLider: 'Elegí quién lidera.',
       noEsAdmin: 'Esto es solo para quien administra.',
+      confirmarLider: 'Dar la conducción del equipo a',
+      confirmarSacar: 'Sacar del equipo a',
     },
   },
   criterios: {

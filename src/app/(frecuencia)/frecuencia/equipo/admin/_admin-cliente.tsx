@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { copy } from '../../_copy';
 import base from '../../frecuencia.module.css';
@@ -11,7 +11,7 @@ import { agregarMiembro, buscarPersonas, cambiarLider, crearEquipo, sacarMiembro
 const t = copy.equipo.admin;
 
 /** Buscador de personas: escribe, ve resultados reales, elige una. */
-function BuscadorPersona({ onElegir, excluir = [], etiqueta }: { onElegir: (p: Persona) => void; excluir?: string[]; etiqueta: string }) {
+function BuscadorPersona({ onElegir, excluir = [], etiqueta, deshabilitado = false }: { onElegir: (p: Persona) => void; excluir?: string[]; etiqueta: string; deshabilitado?: boolean }) {
   const [q, setQ] = useState('');
   const [res, setRes] = useState<Persona[] | null>(null);
   useEffect(() => {
@@ -21,7 +21,12 @@ function BuscadorPersona({ onElegir, excluir = [], etiqueta }: { onElegir: (p: P
     }
     let vigente = true;
     const id = setTimeout(async () => {
-      const r = await buscarPersonas(q);
+      let r: Persona[] = [];
+      try {
+        r = await buscarPersonas(q);
+      } catch {
+        r = [];
+      }
       if (vigente) setRes(r.filter((p) => !excluir.includes(p.id)));
     }, 250);
     return () => {
@@ -33,13 +38,14 @@ function BuscadorPersona({ onElegir, excluir = [], etiqueta }: { onElegir: (p: P
     <div className={s.buscador}>
       <input className={base.input} value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.buscarPlaceholder} aria-label={etiqueta} maxLength={60} />
       {res && (
-        <div className={s.resultados} role="listbox">
+        <div className={s.resultados} aria-live="polite">
           {res.length === 0 && <p className={base.ayuda} style={{ padding: 12 }}>{t.sinResultados}</p>}
           {res.map((p) => (
             <button
               key={p.id}
               type="button"
               className={s.resultado}
+              disabled={deshabilitado}
               onClick={() => {
                 onElegir(p);
                 setQ('');
@@ -60,22 +66,34 @@ function BuscadorPersona({ onElegir, excluir = [], etiqueta }: { onElegir: (p: P
 
 export function AdminEquipos({ equipos }: { equipos: EquipoConMiembros[] }) {
   const router = useRouter();
-  const [pendiente, empezar] = useTransition();
+  const [pendiente, setPendiente] = useState(false);
+  const ocupado = useRef(false);
   const [nombre, setNombre] = useState('');
   const [lider, setLider] = useState<Persona | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // Un error por lugar (el de "equipo nuevo" y uno por cada equipo), para que se vea al lado de lo que se hizo.
+  const [errores, setErrores] = useState<Record<string, string | null>>({});
+  const error = errores.nuevo ?? null;
+  const setError = (m: string | null) => setErrores((e) => ({ ...e, nuevo: m }));
 
-  function ejecutar(fn: () => Promise<{ ok?: boolean; error?: string }>, alTerminar?: () => void) {
-    setError(null);
-    empezar(async () => {
+  async function ejecutar(donde: string, fn: () => Promise<{ ok?: boolean; error?: string }>, alTerminar?: () => void) {
+    if (ocupado.current) return;
+    ocupado.current = true;
+    setPendiente(true);
+    setErrores((e) => ({ ...e, [donde]: null }));
+    try {
       const r = await fn();
       if (r.error) {
-        setError(r.error);
+        setErrores((e) => ({ ...e, [donde]: r.error ?? t.errorGeneral }));
         return;
       }
       alTerminar?.();
       router.refresh();
-    });
+    } catch {
+      setErrores((e) => ({ ...e, [donde]: t.errorGeneral }));
+    } finally {
+      ocupado.current = false;
+      setPendiente(false);
+    }
   }
 
   return (
@@ -84,7 +102,7 @@ export function AdminEquipos({ equipos }: { equipos: EquipoConMiembros[] }) {
         <p className={s.etiqueta}>{t.nuevoTitulo}</p>
         <div className={base.campo} style={{ marginTop: 14 }}>
           <label className={base.campoLabel} htmlFor="eq-nombre">{t.nombreLabel}</label>
-          <input id="eq-nombre" className={base.input} value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder={t.nombrePlaceholder} maxLength={80} />
+          <input id="eq-nombre" className={base.input} value={nombre} onChange={(e) => { setNombre(e.target.value); setError(null); }} placeholder={t.nombrePlaceholder} maxLength={80} />
         </div>
         <div className={base.campo}>
           <span className={base.campoLabel}>{t.liderLabel}</span>
@@ -94,7 +112,7 @@ export function AdminEquipos({ equipos }: { equipos: EquipoConMiembros[] }) {
               <button type="button" className={s.mini} onClick={() => setLider(null)}>{t.quitarEleccion}</button>
             </div>
           ) : (
-            <BuscadorPersona etiqueta={t.liderLabel} onElegir={setLider} />
+            <BuscadorPersona etiqueta={t.liderLabel} onElegir={(p) => { setLider(p); setError(null); }} />
           )}
         </div>
         <div className={base.filaBotones}>
@@ -105,7 +123,7 @@ export function AdminEquipos({ equipos }: { equipos: EquipoConMiembros[] }) {
             onClick={() => {
               if (!nombre.trim()) return setError(t.faltaNombre);
               if (!lider) return setError(t.faltaLider);
-              ejecutar(() => crearEquipo({ nombre, liderId: lider.id }), () => {
+              ejecutar('nuevo', () => crearEquipo({ nombre, liderId: lider.id }), () => {
                 setNombre('');
                 setLider(null);
               });
@@ -132,10 +150,10 @@ export function AdminEquipos({ equipos }: { equipos: EquipoConMiembros[] }) {
                     </span>
                     {!m.esLider && (
                       <span className={s.acciones}>
-                        <button type="button" className={s.mini} disabled={pendiente} onClick={() => ejecutar(() => cambiarLider({ equipoId: e.id, userId: m.userId }))}>
+                        <button type="button" className={s.mini} disabled={pendiente} aria-label={`${t.hacerLider}: ${m.nombre}`} onClick={() => confirm(`${t.confirmarLider} ${m.nombre}?`) && ejecutar(e.id, () => cambiarLider({ equipoId: e.id, userId: m.userId }))}>
                           {t.hacerLider}
                         </button>
-                        <button type="button" className={s.mini} disabled={pendiente} onClick={() => ejecutar(() => sacarMiembro({ equipoId: e.id, userId: m.userId }))}>
+                        <button type="button" className={s.mini} disabled={pendiente} aria-label={`${t.sacar}: ${m.nombre}`} onClick={() => confirm(`${t.confirmarSacar} ${m.nombre}?`) && ejecutar(e.id, () => sacarMiembro({ equipoId: e.id, userId: m.userId }))}>
                           {t.sacar}
                         </button>
                       </span>
@@ -148,8 +166,12 @@ export function AdminEquipos({ equipos }: { equipos: EquipoConMiembros[] }) {
                 <BuscadorPersona
                   etiqueta={`${t.agregarMiembro} · ${e.nombre}`}
                   excluir={e.miembros.map((m) => m.userId)}
-                  onElegir={(p) => ejecutar(() => agregarMiembro({ equipoId: e.id, userId: p.id }))}
+                  deshabilitado={pendiente}
+                  deshabilitado={pendiente}
+                  onElegir={(p) => ejecutar(e.id, () => agregarMiembro({ equipoId: e.id, userId: p.id }))}
                 />
+                {errores[e.id] && <p className={s.error} role="alert">{errores[e.id]}</p>}
+                {errores[e.id] && <p className={s.error} role="alert">{errores[e.id]}</p>}
               </div>
             </section>
           ))}

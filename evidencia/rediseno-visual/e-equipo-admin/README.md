@@ -16,3 +16,13 @@ Los accesos Criterios / Delegaciones / Compromiso / Vista del líder del hub se 
 | Residuo | 0 (se borra el equipo de prueba y las cuentas) |
 
 Capturas desktop / mobile / reduced-motion + videos en esta carpeta.
+
+## Revisión independiente (arreglado)
+- Se valida en el servidor que quien entra o lidera tenga un rol habilitado en Frecuencia.
+- Un error por tarjeta (se ve donde se hizo la acción), sin doble envío (candado) y con `try/catch`; confirmación antes de "Sacar" y "Hacer líder"; botones con nombre accesible por persona; sin `role="listbox"` inválido.
+- Si el líder cambia justo mientras se saca a alguien, el servidor le devuelve su fila de miembro.
+- Nadie ve emails de sus compañeros: sin nombre completo se muestra la parte previa a la `@`.
+
+## ⚠️ Queda
+- Un trigger en la base que impida borrar al líder de `frecuencia_equipo_miembros` sería más fuerte que la guarda de la app (requiere SQL; no lo hice para no sumarte pasos: decime si lo querés).
+- Los enlaces Criterios/Delegaciones/Compromiso/Vista del líder del hub llevan a páginas que llegan en los PR siguientes (mergear en orden).
