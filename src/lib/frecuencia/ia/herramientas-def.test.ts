@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fechaCalendarioValida, hashPropuesta, puedeConfirmarSemana, DEFINICIONES, NOMBRES_HERRAMIENTAS, parsearArgumentos, validarArmarSemana, validarCrearObjetivo, validarCrearTarea, validarEscribirCriterio, validarIniciarBloque, validarRegistrarEvidencia } from './herramientas-def';
+import { validarGenerarImagen, fechaCalendarioValida, hashPropuesta, puedeConfirmarSemana, DEFINICIONES, NOMBRES_HERRAMIENTAS, parsearArgumentos, validarArmarSemana, validarCrearObjetivo, validarCrearTarea, validarEscribirCriterio, validarIniciarBloque, validarRegistrarEvidencia } from './herramientas-def';
 
 const ID = '3f2b8c1e-5a4d-4e8b-9c1a-2b7d6e5f4a3c';
 
@@ -95,5 +95,15 @@ describe('fechaCalendarioValida', () => {
     expect(fechaCalendarioValida('2026-99-99')).toBe(false);
     expect(fechaCalendarioValida('31/03/2026')).toBe(false);
     expect(fechaCalendarioValida(20260331)).toBe(false);
+  });
+});
+
+describe('validarGenerarImagen', () => {
+  it('exige exactamente un destino válido', () => {
+    expect(validarGenerarImagen({ objetivo_id: ID }).ok).toBe(true);
+    expect(validarGenerarImagen({ tarea_id: ID, descripcion: ' una mesa ' })).toMatchObject({ ok: true, datos: { tareaId: ID, descripcion: 'una mesa' } });
+    expect(validarGenerarImagen({}).ok).toBe(false);
+    expect(validarGenerarImagen({ objetivo_id: ID, tarea_id: ID }).ok).toBe(false);
+    expect(validarGenerarImagen({ objetivo_id: 'no-uuid' }).ok).toBe(false);
   });
 });
