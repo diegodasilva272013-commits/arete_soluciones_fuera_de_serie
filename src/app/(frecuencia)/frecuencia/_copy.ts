@@ -157,6 +157,18 @@ export const copy = {
     guardarNoNegociables: 'Guardar no negociables',
   },
 
+  escasez: {
+    // Sin juicio: se ofrece, nunca se corrige.
+    oferta: (nombres: string[]) =>
+      `Se coló un poco de ${nombres.length === 1 ? nombres[0].toLowerCase() : nombres.map((n) => n.toLowerCase()).join(' y ')} en lo que escribiste. Pasa. ¿Querés cambiar de dial?`,
+    cta: 'Ir al dial',
+  },
+
+  estandar: {
+    titulo: 'Tu mínimo',
+    bajada: 'Por debajo de esto no negociás. Lo escribiste vos.',
+  },
+
   hoy: {
     kicker: 'Hoy',
     titulo: 'Al aire hoy',
@@ -171,6 +183,11 @@ export const copy = {
     ideaPlaceholder: 'Qué se te cruzó',
     estacionar: 'Estacionar',
     ideaEstacionada: 'Estacionada.',
+    entreLasDos: 'Entre las dos radios',
+    abrirIdeas: 'Abrir la bandeja de ideas',
+    cerrarIdeas: 'Cerrar la bandeja',
+    lineaDelDia: 'Tu día, hora por hora',
+    estadoLabel: { PROGRAMADO: '', EN_EL_AIRE: 'Al aire', CUMPLIDO: 'Cumplido', NO_SALIO: 'No salió' } as Record<string, string>,
   },
 
   enElAire: {
@@ -200,6 +217,21 @@ export const copy = {
       placeholderManual: 'Qué más pasó hoy',
       agregar: 'Agregar',
       agregado: 'Agregado.',
+      tipoLabel: {
+        ENTRENAMIENTO_CUMPLIDO: 'Bloque cumplido',
+        MANUAL: 'Anotado a mano',
+        PASOS_ANTE_FALLA: 'Mirada a lo que no salió',
+      } as Record<string, string>,
+      tipoDesconocido: 'Registro',
+    },
+
+    aprendiste: {
+      nombrePaso: 'Lo que aprendiste hoy',
+      subtitulo: 'Una cosa que hoy te enseñó algo. Aparte de lo que hiciste: esto es lo que te llevás.',
+      label: 'Qué aprendiste',
+      placeholder: 'Hoy aprendí que…',
+      agregar: 'Guardar aprendizaje',
+      vacio: 'Todavía no anotaste ningún aprendizaje de hoy.',
     },
 
     dialNoche: {
@@ -226,6 +258,7 @@ export const copy = {
       titulo: 'Día cerrado.',
       subtitulo: 'Mañana ya está diseñado. Nos encontramos en el aire.',
       irAHoy: 'Ir a Hoy',
+      finTransmision: 'Fin de la transmisión',
     },
 
     cerrarElDia: 'Cerrar el día',

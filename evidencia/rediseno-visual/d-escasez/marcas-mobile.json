@@ -1,0 +1,30 @@
+{
+  "marcas": [
+    {
+      "t": "00:11",
+      "captura": "01-estandar-minimo-en-hoy-mobile.png",
+      "nota": "Hoy con \"Tu mínimo\": lo que la persona escribió que no negocia"
+    },
+    {
+      "t": "00:13",
+      "captura": "-",
+      "nota": "Texto neutro: ofertas visibles = 0"
+    },
+    {
+      "t": "00:15",
+      "captura": "02-oferta-de-cambiar-de-dial-mobile.png",
+      "nota": "Texto con queja: se ofrece cambiar de dial, sin juicio"
+    },
+    {
+      "t": "00:16",
+      "captura": "-",
+      "nota": "El enlace lleva al Dial: http://localhost:3100/frecuencia/dial"
+    },
+    {
+      "t": "00:18",
+      "captura": "03-llega-al-dial-mobile.png",
+      "nota": "El enlace lleva al Dial"
+    }
+  ],
+  "errores": []
+}

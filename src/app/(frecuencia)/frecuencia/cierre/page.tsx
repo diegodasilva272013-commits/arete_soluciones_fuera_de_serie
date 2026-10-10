@@ -3,7 +3,7 @@ import { getCurrentUserContext } from '@/lib/current-user';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { fechaLocal, fechaMasDias, horaEnTimezoneAUtc, momentoDelDia } from '@/lib/frecuencia-fecha';
 import { resolverTitulosDeBloques } from '@/lib/frecuencia-semana';
-import { getEnergiasEscasez, getAccionesSubida, getPasosAnteFalla } from '@/lib/frecuencia-kb';
+import { getEnergiasEscasez, getAccionesSubida, getPasosAnteFalla, getPalabrasEscasez } from '@/lib/frecuencia-kb';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import { CierreCliente, type BloqueDelDia, type EvidenciaDelDia } from './_cierre-cliente';
@@ -40,7 +40,10 @@ export default async function CierrePage() {
     .eq('user_id', ctx.userId)
     .eq('fecha', hoyISO)
     .order('created_at', { ascending: true });
-  const evidencia: EvidenciaDelDia[] = (evidenciaData ?? []).map((e: any) => ({ id: e.id, texto: e.texto, tipo: e.tipo }));
+  const filas: EvidenciaDelDia[] = (evidenciaData ?? []).map((e: any) => ({ id: e.id, texto: e.texto, tipo: e.tipo, creadoEn: e.created_at }));
+  // Lo que aprendiste hoy se muestra aparte del registro de emisión.
+  const evidencia = filas.filter((e) => e.tipo !== 'APRENDIZAJE');
+  const aprendizajes = filas.filter((e) => e.tipo === 'APRENDIZAJE');
 
   // ── Bloques de mañana (para "diseñar mañana") ──
   const { data: bloquesMananaData } = await (supabase as any)
@@ -83,12 +86,14 @@ export default async function CierrePage() {
 
       <CierreCliente
         evidencia={evidencia}
+        aprendizajes={aprendizajes}
         bloquesManana={bloquesManana}
         huboFalla={huboFalla}
         pasosAnteFalla={pasosAnteFalla}
         dialValorInicial={dialNoche?.frecuencia ?? 0}
         energiasGuardadasIniciales={dialNoche?.energias_escasez ?? {}}
         energiasDisponibles={energiasDisponibles}
+        palabrasEscasez={await getPalabrasEscasez()}
         accionesSubida={accionesSubida}
         timezone={timezone}
       />
