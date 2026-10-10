@@ -1,0 +1,26 @@
+{
+  "permitido": {
+    "frecuencia_bloques": 4,
+    "frecuencia_evidencia": 2,
+    "frecuencia_compromisos": 1,
+    "frecuencia_delegaciones": 1
+  },
+  "prohibido": {
+    "frecuencia_dial": 0,
+    "frecuencia_espejo": 0,
+    "frecuencia_identidad": 0,
+    "frecuencia_mapa_energia": 0,
+    "frecuencia_areas": 0,
+    "frecuencia_ideas": 0,
+    "frecuencia_preferencias": 0,
+    "frecuencia_objetivos": 0,
+    "frecuencia_tareas": 0,
+    "frecuencia_revisiones": 0,
+    "frecuencia_imagenes": 0,
+    "frecuencia_conversaciones": 0,
+    "frecuencia_criterios": 0,
+    "tareas_por_id": 0,
+    "storage_espejo": 0
+  },
+  "ajenoNoApareceEnVistaDelLider": 0
+}
