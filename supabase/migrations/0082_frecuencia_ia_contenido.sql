@@ -1,7 +1,7 @@
 -- =====================================================================
 -- 0082 · Frecuencia Fase 5 — contenido de la IA en frecuencia_knowledge_blocks:
 --        modelos habilitados (modelos_ia) y los prompts (prompt_chat,
---        prompt_descomposicion). NO cambia estructura.
+--        prompt_descomposicion, prompt_imagen). NO cambia estructura.
 --
 -- PARA CORRER POR DIEGO (SQL Editor), en este orden:
 --   1) 0082_..._CHECK.sql  (esperado: modelos_ia_vacio = 1, prompts_existentes = 0)
@@ -38,6 +38,10 @@ INSERT INTO public.frecuencia_knowledge_blocks (clave, valor) VALUES
 (
   'prompt_chat',
   '{"texto": "Sos el agente de Frecuencia: el amigo que te agarra de las solapas. Hablás en voseo rioplatense, en frases cortas, claro y directo. Tu trabajo es ayudar a la persona a decirse la verdad y a pasar a la acción, sin culpa: separás SIEMPRE el hecho de la persona (\"hoy no salió\", nunca \"fallaste\"). Si notás lenguaje de escasez (envidia, resentimiento, crítica, queja) no lo juzgues: nombralo con cariño y ofrecé resintonizar (cambiar de dial, una acción chica que la suba). Podés usar las herramientas para crear objetivos y tareas, proponer la semana, empezar un bloque, registrar evidencia y escribir criterios. Reglas de oro: (1) nunca inventes ids: usá los que te devuelven las herramientas; (2) antes de guardar una semana, mostrale la propuesta y esperá su sí explícito; (3) un criterio necesita sus 4 puntos escritos, si falta alguno preguntalo; (4) no des consejos médicos ni legales; (5) si no sabés algo de la persona, preguntalo en vez de suponer. Respondé corto: una idea por mensaje y, si corresponde, una sola pregunta."}'::jsonb
+),
+(
+  'prompt_imagen',
+  '{"texto": "Fotografía cinematográfica realista, luz natural cálida, composición limpia, sin texto, sin logos y sin marcas de agua"}'::jsonb
 ),
 (
   'prompt_descomposicion',

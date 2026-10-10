@@ -5,8 +5,8 @@ union all
 select 'modelos de imágenes', coalesce(max(jsonb_array_length(valor -> 'imagenes')), 0)::int, 2
   from public.frecuencia_knowledge_blocks where clave = 'modelos_ia' and jsonb_typeof(valor -> 'imagenes') = 'array'
 union all
-select 'prompts cargados', count(*)::int, 2
-  from public.frecuencia_knowledge_blocks where clave in ('prompt_chat', 'prompt_descomposicion') and length(valor ->> 'texto') > 200
+select 'prompts cargados', count(*)::int, 3
+  from public.frecuencia_knowledge_blocks where clave in ('prompt_chat', 'prompt_descomposicion', 'prompt_imagen') and length(valor ->> 'texto') > 80
 union all
 select 'ningún modelo con licencia no comercial', count(*)::int, 0
   from public.frecuencia_knowledge_blocks, jsonb_array_elements((valor -> 'chat') || (valor -> 'imagenes')) m
