@@ -1,0 +1,174 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  margin-top: 28px;
+  padding-bottom: 128px;
+}
+.etiqueta {
+  margin: 0 0 12px;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+
+.ropa {
+  padding: 18px 20px;
+  border: 1px solid var(--linea);
+  background: rgba(10, 10, 12, 0.6);
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+}
+.ropa .etiqueta {
+  margin-bottom: 8px;
+}
+.ropaTexto {
+  margin: 0;
+  font-family: var(--f-display), Montserrat, sans-serif;
+  font-weight: 700;
+  font-size: clamp(20px, 4vw, 26px);
+  color: var(--hueso);
+}
+.ropaVacia {
+  margin: 0;
+}
+
+.fotoFila {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 8px 0 4px;
+}
+.fotoBoton {
+  position: relative;
+  cursor: pointer;
+}
+.fotoInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.vistaPrevia {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.vistaImg {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border: 1px solid var(--linea-2);
+}
+.quitarFoto {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--f-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+  text-decoration: underline;
+}
+.ok {
+  margin: 12px 0 0;
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  color: var(--azul-luz);
+}
+.error {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: #ff8a8a;
+}
+.privado {
+  margin: 12px 0 0;
+  font-family: var(--f-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+}
+
+/* Historial: coverflow con scroll-snap; las tarjetas se inclinan según su distancia al centro. */
+.coverflow {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  perspective: 1100px;
+  padding: 24px max(24px, calc(50% - 130px));
+  margin: 0 -20px;
+  outline: none;
+  scrollbar-width: none;
+}
+.coverflow::-webkit-scrollbar {
+  display: none;
+}
+.coverflow:focus-visible {
+  box-shadow: inset 0 0 0 1px rgba(var(--azul-rgb), 0.6);
+}
+.tarjeta {
+  flex: 0 0 260px;
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--linea-2);
+  background: rgba(10, 10, 12, 0.85);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  will-change: transform;
+}
+.tarjetaFoto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  background: radial-gradient(ellipse at 30% 20%, rgba(var(--azul-rgb), 0.18), transparent 70%), #0b0b0d;
+  overflow: hidden;
+}
+.tarjetaImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sinFoto {
+  font-family: var(--f-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+}
+.tarjetaCuerpo {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tarjetaFecha {
+  margin: 0;
+  font-family: var(--f-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+.tarjetaTexto {
+  margin: 0;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--hueso);
+}
+
+.guardarropa {
+  padding: 18px 20px;
+  border: 1px dashed var(--linea-2);
+}
+.guardarropa .etiqueta {
+  margin-bottom: 8px;
+}
