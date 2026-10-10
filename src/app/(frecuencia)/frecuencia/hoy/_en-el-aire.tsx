@@ -109,7 +109,16 @@ export function EnElAire({
             </div>
           )}
 
-          <div className={s.cronometro}>{formatearDuracion(segundosTranscurridos)}</div>
+          <div className={s.cronometro} role="timer" aria-label={formatearDuracion(segundosTranscurridos)}>
+            {formatearDuracion(segundosTranscurridos)
+              .split(':')
+              .map((parte, i) => (
+                <span key={i} aria-hidden>
+                  {i > 0 && <span className={s.dosPuntos}>:</span>}
+                  {parte}
+                </span>
+              ))}
+          </div>
           <h1 className={s.tareaTitulo}>{titulo}</h1>
 
           {protocolo.length > 0 && (
