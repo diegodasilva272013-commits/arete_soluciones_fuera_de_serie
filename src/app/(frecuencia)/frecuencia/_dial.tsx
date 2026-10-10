@@ -1,35 +1,59 @@
 'use client';
 
 /**
- * El Dial — pieza central de Frecuencia. Banda de sintonía de -100 a
- * +100 con aguja arrastrable (inercia nativa de Framer Motion, mouse y
- * touch). Por debajo de 0, estática/grano desaturado; por encima,
- * AnimatedGradient Prism + una onda de señal.
- *
- * Nota de reuso: el pedido original decía reusar "SvgPathDrawing" para
- * la onda, pero ese componente (SvgPathDrawingTextAnimation) solo
- * anima TEXTO, no un trazo arbitrario — no sirve para una onda. Acá se
- * dibuja la onda con un <motion.path> + pathLength, que es la pieza
- * nativa de Framer para este caso (mismo efecto de "trazo", aplicado a
- * una forma en vez de a letras).
+ * El Dial — pieza central de Frecuencia. Tiene que parecer una RADIO, no
+ * un gráfico:
+ *  - Display de radio: el valor en dígitos luminosos grandes (con los
+ *    "8" apagados detrás, como un display real) y la estación sintonizada.
+ *  - La señal: detrás de la banda, estática real (canvas de ruido) que
+ *    crece cuanto más baja la aguja, y una onda que se dibuja (trazo con
+ *    pathLength) y se vuelve azul, limpia y con glow cuanto más sube.
+ *    Sigue la aguja en tiempo real, cuadro a cuadro.
+ *  - La banda de sintonía a todo el ancho: una marca por unidad, más
+ *    larga cada 5, número cada 25. Aguja vertical fina, hueso con glow
+ *    azul. Se arrastra desde cualquier punto de la banda, con inercia al
+ *    soltar y un "clic" visual (y háptico en celular) al pasar por cada 25.
+ *  - Energías de escasez: 4 medidores tipo VU de LEDs chanfleados; cada
+ *    toque prende un LED.
+ * Mientras movés la aguja, el fondo vivo de toda la app sintoniza en vivo;
+ * si te vas sin guardar, vuelve al dial guardado de hoy.
+ * Con prefers-reduced-motion: sin inercia, ruido quieto y onda sin animar.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { motion, useMotionValue, useReducedMotion } from 'framer-motion';
-import dynamic from 'next/dynamic';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { animate, motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from 'framer-motion';
 import { copy } from './_copy';
 import type { EnergiaEscasez } from '@/types/frecuencia';
 import s from './_dial.module.css';
 import base from './frecuencia.module.css';
 import { BarraPasos } from './_barra-pasos';
-import { useSintonia } from './_shell';
+import { useRestaurarSintonia, useSintonia } from './_shell';
 
-const AnimatedGradient = dynamic(() => import('@/components/ui/animated-gradient'), { ssr: false });
-
-const MARCAS = [-100, -50, 0, 50, 100];
+const LEDS_POR_MEDIDOR = 10;
+const ANCHO = 1000;
+const ALTO_SENAL = 160;
 
 function clamp(v: number, min: number, max: number) {
   return Math.min(max, Math.max(min, v));
+}
+
+/** Semilla fija por punto: el ruido de la onda tiembla pero no salta caótico. */
+const SEMILLAS = Array.from({ length: 121 }, (_, i) => {
+  const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453;
+  return x - Math.floor(x);
+});
+
+function caminoSenal(valorCrudo: number, fase: number): string {
+  const t = (clamp(valorCrudo, -100, 100) + 100) / 200; // 0 escasez … 1 abundancia
+  const sucio = Math.pow(1 - t, 1.4);
+  const puntos: string[] = [];
+  for (let i = 0; i <= 120; i++) {
+    const x = (i / 120) * ANCHO;
+    const onda = Math.sin(i * 0.26 + fase) * (10 + 34 * t);
+    const temblor = (SEMILLAS[(i * 7 + Math.floor(fase * 9)) % SEMILLAS.length] - 0.5) * 90 * sucio;
+    puntos.push(`${x.toFixed(1)},${(ALTO_SENAL / 2 + onda + temblor).toFixed(1)}`);
+  }
+  return `M${puntos.join(' L')}`;
 }
 
 export function Dial({
@@ -41,6 +65,7 @@ export function Dial({
   onGuardar,
   onDespuesDeGuardar,
   onAtras,
+  sinInstruccion,
 }: {
   valorInicial?: number;
   energiasDisponibles: EnergiaEscasez[];
@@ -55,68 +80,192 @@ export function Dial({
   onDespuesDeGuardar?: () => void;
   /** Dentro de un flujo: el Atrás va en la misma barra que el CTA (una sola BarraPasos por pantalla). */
   onAtras?: () => void;
+  /** La pantalla que lo contiene ya explica cómo se usa (onboarding). */
+  sinInstruccion?: boolean;
 }) {
-  const prefiereReducido = useReducedMotion();
+  const reducido = useReducedMotion();
   const sintonizarFondo = useSintonia();
-  const pistaRef = useRef<HTMLDivElement>(null);
+  const restaurarFondo = useRestaurarSintonia();
 
-  const [valor, setValor] = useState(clamp(Math.round(valorInicial), -100, 100));
+  const inicial = clamp(Math.round(valorInicial), -100, 100);
+  // Valor continuo de la aguja (para la inercia) y su lectura entera.
+  const aguja = useMotionValue(inicial);
+  const [valor, setValor] = useState(inicial);
   const [energias, setEnergias] = useState<Record<string, number>>(energiasGuardadasIniciales ?? {});
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [clic, setClic] = useState<number | null>(null);
 
-  // x del handle en px, 0 = extremo izquierdo de la pista.
-  const x = useMotionValue(0);
-  const [anchoPista, setAnchoPista] = useState(0);
-  const arrastrandoRef = useRef(false);
+  const bandaRef = useRef<HTMLDivElement>(null);
+  const caminoRef = useRef<SVGPathElement>(null);
+  const ruidoRef = useRef<HTMLCanvasElement>(null);
+  const ultimoFondo = useRef<number | null>(null);
+  const guardado = useRef(false);
+  const arrastre = useRef<{ activo: boolean; ultimoX: number; ultimoT: number; velocidad: number }>({
+    activo: false,
+    ultimoX: 0,
+    ultimoT: 0,
+    velocidad: 0,
+  });
 
+  const izquierda = useTransform(aguja, (v) => `${((clamp(v, -100, 100) + 100) / 200) * 100}%`);
+  const idGlow = `dialGlow${useId().replace(/:/g, '')}`;
+  const inercia = useRef<{ stop: () => void } | null>(null);
+
+  // Lectura entera + "clic" al cruzar cada 25 + fondo vivo en vivo (de a 10).
+  const valorPrevio = useRef(inicial);
+  useMotionValueEvent(aguja, 'change', (v) => {
+    const entero = clamp(Math.round(v), -100, 100);
+    const prev = valorPrevio.current;
+    if (entero === prev) return;
+    valorPrevio.current = entero;
+    setValor(entero);
+    // "Clic" al cruzar (o caer justo en) una marca de 25.
+    const cruzo = Math.floor((prev + 100) / 25) !== Math.floor((entero + 100) / 25) || entero % 25 === 0;
+    if (cruzo) {
+      setClic(Math.round(entero / 25) * 25);
+      if (typeof navigator !== 'undefined') navigator.vibrate?.(6);
+    }
+    const paso = Math.round(entero / 10) * 10;
+    if (paso !== ultimoFondo.current) {
+      ultimoFondo.current = paso;
+      sintonizarFondo(paso);
+    }
+  });
+
+  // Si se va sin guardar, el fondo vuelve al dial real de hoy.
+  useEffect(() => () => {
+    inercia.current?.stop();
+    if (!guardado.current) restaurarFondo();
+  }, [restaurarFondo]);
+
+  // El "clic" de la marca de 25 dura un instante.
   useEffect(() => {
-    const el = pistaRef.current;
-    if (!el) return;
-    const medir = () => setAnchoPista(el.getBoundingClientRect().width);
-    medir();
-    const ro = new ResizeObserver(medir);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+    if (clic === null) return;
+    const id = setTimeout(() => setClic(null), 260);
+    return () => clearTimeout(id);
+  }, [clic]);
 
-  // Posiciona el handle según `valor` cuando cambia el ancho medido o
-  // al montar. Nunca mientras se está arrastrando: si el ancho de la
-  // pista se recalcula en pleno arrastre (por ejemplo, un reflow al
-  // terminar de cargar una fuente web), este efecto no debe pelearse
-  // con el puntero y tirar la aguja de vuelta a su posición vieja.
+  // ── Señal en tiempo real: onda + estática, sin re-render por cuadro ──
   useEffect(() => {
-    if (anchoPista <= 0 || arrastrandoRef.current) return;
-    const px = ((valor + 100) / 200) * anchoPista;
-    x.set(px);
-  }, [anchoPista]); // eslint-disable-line react-hooks/exhaustive-deps
+    const canvas = ruidoRef.current;
+    const ctx = canvas?.getContext('2d');
+    const LADO_X = 240;
+    const LADO_Y = 48;
+    if (canvas) {
+      canvas.width = LADO_X;
+      canvas.height = LADO_Y;
+    }
+    const img = ctx?.createImageData(LADO_X, LADO_Y);
+    const pintarRuido = () => {
+      if (!ctx || !img) return;
+      const d = img.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const g = (Math.random() * 255) | 0;
+        d[i] = g;
+        d[i + 1] = g;
+        d[i + 2] = g;
+        d[i + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+    };
+    const pintarOnda = (fase: number) => {
+      caminoRef.current?.setAttribute('d', caminoSenal(aguja.get(), fase));
+    };
 
-  const actualizarValorDesdeX = useCallback(
-    (px: number) => {
-      if (anchoPista <= 0) return;
-      const v = Math.round((clamp(px, 0, anchoPista) / anchoPista) * 200 - 100);
-      setValor(v);
-    },
-    [anchoPista]
-  );
+    pintarRuido();
+    pintarOnda(0);
+    if (reducido) {
+      const off = aguja.on('change', () => pintarOnda(0));
+      return () => off();
+    }
 
-  const enAbundancia = valor >= 0;
-  // Piso de 0.25 para que la escena nunca quede vacía justo en el
-  // límite (valor = 0) — sin esto, las dos capas daban opacity 0 ahí.
-  const abundancia = enAbundancia ? 0.25 + 0.75 * clamp(valor / 100, 0, 1) : 0;
-  const escasez = !enAbundancia ? 0.25 + 0.75 * clamp(-valor / 100, 0, 1) : 0;
+    let raf = 0;
+    let ultimoRuido = 0;
+    const t0 = performance.now();
+    const loop = (ahora: number) => {
+      pintarOnda((ahora - t0) / 420);
+      // La estática solo se repinta si se ve (escasez), ~16 cuadros/s.
+      if (aguja.get() < 20 && ahora - ultimoRuido > 60) {
+        pintarRuido();
+        ultimoRuido = ahora;
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [aguja, reducido]);
 
-  const energiasOrdenPath = useMemo(() => {
-    // Onda simple, semilla fija (no aleatoria en cada render).
-    const puntos = [0, 15, 30, 45, 60, 75, 90, 100].map((px, i) => {
-      const y = 50 + Math.sin(i * 1.3) * 22;
-      return `${(px / 100) * 400},${y}`;
+  const t = (valor + 100) / 200;
+  const enAbundancia = valor > 0;
+  const enEscasez = valor < 0;
+
+  // ── Arrastre en cualquier punto de la banda, con inercia ──
+  const valorDesdeX = useCallback((clientX: number) => {
+    const r = bandaRef.current?.getBoundingClientRect();
+    if (!r || r.width === 0) return aguja.get();
+    return clamp(((clientX - r.left) / r.width) * 200 - 100, -100, 100);
+  }, [aguja]);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    if (e.button !== 0) return;
+    inercia.current?.stop();
+    aguja.stop();
+    guardado.current = false;
+    arrastre.current = { activo: true, ultimoX: e.clientX, ultimoT: performance.now(), velocidad: 0 };
+    aguja.set(valorDesdeX(e.clientX));
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const a = arrastre.current;
+    if (!a.activo) return;
+    const ahora = performance.now();
+    const r = bandaRef.current?.getBoundingClientRect();
+    const dt = Math.max(1, ahora - a.ultimoT);
+    if (r && r.width) a.velocidad = (((e.clientX - a.ultimoX) / r.width) * 200 * 1000) / dt; // unidades/s
+    a.ultimoX = e.clientX;
+    a.ultimoT = ahora;
+    aguja.set(valorDesdeX(e.clientX));
+  };
+  const onPointerUp = () => {
+    const a = arrastre.current;
+    if (!a.activo) return;
+    a.activo = false;
+    if (reducido || Math.abs(a.velocidad) < 20) return;
+    // Inercia: la aguja sigue un poco con la velocidad que traía.
+    inercia.current = animate(aguja, aguja.get(), {
+      type: 'inertia',
+      velocity: a.velocidad,
+      power: 0.25,
+      timeConstant: 260,
+      min: -100,
+      max: 100,
+      bounceStiffness: 400,
+      bounceDamping: 40,
     });
-    return `M${puntos.join(' L')}`;
-  }, []);
+  };
 
-  async function tocarEnergia(key: string) {
-    setEnergias((prev) => ({ ...prev, [key]: (prev[key] ?? 0) + 1 }));
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const salto = e.shiftKey ? 10 : 1;
+    let nuevo: number | null = null;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') nuevo = valor - salto;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') nuevo = valor + salto;
+    if (e.key === 'PageDown') nuevo = valor - 10;
+    if (e.key === 'PageUp') nuevo = valor + 10;
+    if (e.key === 'Home') nuevo = -100;
+    if (e.key === 'End') nuevo = 100;
+    if (nuevo === null) return;
+    e.preventDefault();
+    inercia.current?.stop();
+    aguja.stop();
+    guardado.current = false;
+    aguja.set(clamp(nuevo, -100, 100));
+  };
+
+  const marcas = useMemo(() => Array.from({ length: 201 }, (_, i) => i - 100), []);
+
+  function sumarEnergia(key: string, delta: number) {
+    setEnergias((prev) => ({ ...prev, [key]: Math.max(0, (prev[key] ?? 0) + delta) }));
   }
 
   async function handleGuardar() {
@@ -128,99 +277,142 @@ export function Dial({
       setError(copy.estados.error);
       return;
     }
-    // El fondo vivo de toda la app sigue al dial recién guardado.
+    guardado.current = true;
     sintonizarFondo(valor);
     onDespuesDeGuardar?.();
   }
 
+  const textoValor = valor > 0 ? `+${valor}` : `${valor}`;
+
   return (
     <div className={s.wrap}>
-      <p className={base.subtitulo}>{copy.dial.instruccionArrastre}</p>
+      {!sinInstruccion && <p className={base.subtitulo}>{copy.dial.instruccionArrastre}</p>}
 
-      <div className={s.lectura}>
-        <span className={`${s.lecturaValor} ${enAbundancia ? s.lecturaValorAbundancia : s.lecturaValorEscasez}`}>
-          {valor > 0 ? `+${valor}` : valor}
+      {/* ── Display de radio ── */}
+      <div className={`${s.display} ${enAbundancia ? s.displayAlto : enEscasez ? s.displayBajo : ''}`} aria-atomic>
+        <span className={s.displayDigitos}>
+          <span className={s.displayApagado} aria-hidden>
+            -888
+          </span>
+          <span className={s.displayEncendido}>{textoValor.padStart(4, ' ')}</span>
         </span>
-        <span className={s.lecturaEstacion}>{enAbundancia ? copy.dial.abundanciaFm : copy.dial.escasezFm}</span>
+        <span className={s.displayEstacion} aria-live="polite">
+          <i className={s.displayLed} aria-hidden />
+          {enAbundancia ? copy.dial.abundanciaFm : enEscasez ? copy.dial.escasezFm : copy.dial.entreLasDos}
+        </span>
       </div>
 
-      <div className={s.escena}>
-        <div className={s.capa} style={{ opacity: escasez }}>
-          <div className={`${s.capa} ${s.ruido}`} />
-        </div>
-        <div className={s.capa} style={{ opacity: abundancia, isolation: 'isolate', position: 'relative' }}>
-          {abundancia > 0.02 && (
-            <AnimatedGradient
-              config={{ preset: 'custom', color1: '#050505', color2: '#2F7BF6', color3: '#5C9AFF', rotation: -50, proportion: 1, scale: 0.012, speed: prefiereReducido ? 0 : 18, distortion: 0, swirl: 40, swirlIterations: 14, softness: 50, offset: -299, shape: 'Checks', shapeSize: 45 }}
-            />
-          )}
-          <svg viewBox="0 0 400 100" preserveAspectRatio="none" className={s.ondaSvg}>
+      {/* ── La señal + la banda de sintonía ── */}
+      <div className={s.radio}>
+        <div className={s.senal} aria-hidden>
+          <canvas ref={ruidoRef} className={s.estatica} style={{ opacity: Math.pow(1 - t, 1.3) * 0.85 }} />
+          <svg className={s.ondaSvg} viewBox={`0 0 ${ANCHO} ${ALTO_SENAL}`} preserveAspectRatio="none">
+            <defs>
+              <filter id={idGlow} filterUnits="userSpaceOnUse" x="-20" y="-40" width={ANCHO + 40} height={ALTO_SENAL + 80}>
+                <feGaussianBlur stdDeviation={3 + 4 * t} result="b" />
+                <feMerge>
+                  <feMergeNode in="b" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
             <motion.path
-              d={energiasOrdenPath}
-              className={s.ondaPath}
-              initial={false}
-              animate={prefiereReducido ? { pathLength: 1 } : { pathLength: [0, 1] }}
-              transition={prefiereReducido ? undefined : { duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+              ref={caminoRef}
+              d={caminoSenal(inicial, 0)}
+              fill="none"
+              stroke={`rgba(${Math.round(150 - 58 * t)}, ${Math.round(150 + 4 * t)}, ${Math.round(150 + 105 * t)}, ${0.35 + 0.65 * t})`}
+              strokeWidth={1.2 + 1.6 * t}
+              vectorEffect="non-scaling-stroke"
+              filter={t > 0.45 ? `url(#${idGlow})` : undefined}
+              initial={reducido === false ? { pathLength: 0 } : false}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 1.6, ease: [0.16, 0.84, 0.28, 1] }}
             />
           </svg>
         </div>
-      </div>
 
-      <div className={s.banda}>
-        <div className={s.marcas}>
-          {MARCAS.map((m) => (
-            <div key={m} className={`${s.marca} ${m === 0 ? s.marcaCero : ''}`}>
-              <span className={s.marcaLinea} />
-              <span className={s.marcaLabel}>{m > 0 ? `+${m}` : m}</span>
-            </div>
-          ))}
-        </div>
-        <div className={s.pista} ref={pistaRef} />
-        <motion.div
-          className={`${s.aguja} ${enAbundancia ? s.agujaAbundancia : ''}`}
-          style={{ x }}
-          drag="x"
-          dragConstraints={pistaRef}
-          dragElastic={0.04}
-          dragMomentum={!prefiereReducido}
-          dragTransition={{ power: 0.1, timeConstant: 300, bounceStiffness: 500, bounceDamping: 50 }}
-          onDragStart={() => { arrastrandoRef.current = true; }}
-          onDrag={() => actualizarValorDesdeX(x.get())}
-          onDragEnd={() => {
-            // Deja que la inercia termine y vuelve a leer la posición final.
-            const id = setInterval(() => actualizarValorDesdeX(x.get()), 16);
-            setTimeout(() => {
-              clearInterval(id);
-              arrastrandoRef.current = false;
-            }, 900);
-          }}
+        <div
+          ref={bandaRef}
+          className={s.banda}
           role="slider"
           aria-label={copy.dial.kicker}
+          aria-orientation="horizontal"
           aria-valuemin={-100}
           aria-valuemax={100}
           aria-valuenow={valor}
+          aria-valuetext={`${textoValor} · ${enAbundancia ? copy.dial.abundanciaFm : enEscasez ? copy.dial.escasezFm : copy.dial.entreLasDos}`}
           tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'ArrowLeft') setValor((v) => clamp(v - 1, -100, 100));
-            if (e.key === 'ArrowRight') setValor((v) => clamp(v + 1, -100, 100));
-          }}
-        />
-      </div>
-
-      <div className={s.energias}>
-        <p className={base.campoLabel}>{copy.dial.energiasTitulo}</p>
-        <p className={s.lecturaEstacion}>{copy.dial.energiasInstruccion}</p>
-        <div className={s.energiasGrid}>
-          {energiasDisponibles.map((en) => (
-            <button key={en.key} type="button" className={s.energia} onClick={() => tocarEnergia(en.key)}>
-              <span className={s.energiaNombre}>{en.nombre}</span>
-              <span className={s.energiaContador}>{energias[en.key] ?? 0}</span>
-            </button>
-          ))}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          onKeyDown={onKeyDown}
+        >
+          <div className={s.marcas} aria-hidden>
+            {marcas.map((m) => (
+              <span
+                key={m}
+                className={`${s.marca} ${m % 25 === 0 ? s.marca25 : m % 5 === 0 ? s.marca5 : ''} ${clic === m ? s.marcaClic : ''}`}
+                style={{ left: `${((m + 100) / 200) * 100}%` }}
+              />
+            ))}
+          </div>
+          <div className={s.numeros} aria-hidden>
+            {[-100, -75, -50, -25, 0, 25, 50, 75, 100].map((m) => (
+              <span key={m} className={`${s.numero} ${clic === m ? s.numeroClic : ''}`} style={{ left: `${((m + 100) / 200) * 100}%` }}>
+                {m > 0 ? `+${m}` : m}
+              </span>
+            ))}
+          </div>
+          <motion.div className={`${s.aguja} ${enAbundancia ? s.agujaAlta : ''}`} style={{ left: izquierda }} aria-hidden>
+            <span className={s.agujaCabeza} />
+          </motion.div>
+        </div>
+        <div className={s.extremos} aria-hidden>
+          <span>{copy.dial.escasezFm}</span>
+          <span>{copy.dial.abundanciaFm}</span>
         </div>
       </div>
 
-      {valor < 0 && (
+      {/* ── Energías de escasez: medidores VU ── */}
+      <div className={s.energias}>
+        <p className={s.energiasTitulo}>{copy.dial.energiasTitulo}</p>
+        <p className={s.energiasAyuda}>{copy.dial.energiasInstruccion}</p>
+        <div className={s.medidores}>
+          {energiasDisponibles.map((en) => {
+            const n = energias[en.key] ?? 0;
+            return (
+              <div key={en.key} className={s.medidor}>
+                <button
+                  type="button"
+                  className={s.medidorLeds}
+                  onClick={() => sumarEnergia(en.key, 1)}
+                  aria-label={`${en.nombre}: ${n}. ${copy.dial.sumarEnergia}`}
+                >
+                  {Array.from({ length: LEDS_POR_MEDIDOR }, (_, i) => {
+                    const encendido = i < n;
+                    const zona = i >= 7 ? s.ledRojo : i >= 4 ? s.ledAmbar : s.ledVerde;
+                    return <i key={i} className={`${s.led} ${zona} ${encendido ? s.ledOn : ''}`} style={{ order: LEDS_POR_MEDIDOR - i }} />;
+                  })}
+                </button>
+                <span className={s.medidorNumero}>{String(n).padStart(2, '0')}</span>
+                <span className={s.medidorNombre}>{en.nombre}</span>
+                <button
+                  type="button"
+                  className={s.medidorRestar}
+                  onClick={() => sumarEnergia(en.key, -1)}
+                  disabled={n === 0}
+                  aria-label={`${copy.dial.restarEnergia}: ${en.nombre}`}
+                >
+                  −
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {enEscasez && accionesSubida.length > 0 && (
         <div className={s.panelCambio}>
           <p className={s.panelCambioTitulo}>{copy.botones.cambiarDeDial}</p>
           <div className={s.accionesLista}>
@@ -233,7 +425,11 @@ export function Dial({
         </div>
       )}
 
-      {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginTop: 16 }}>{error}</p>}
+      {error && (
+        <p className={s.error} role="alert">
+          {error}
+        </p>
+      )}
 
       <BarraPasos>
         {onAtras && (

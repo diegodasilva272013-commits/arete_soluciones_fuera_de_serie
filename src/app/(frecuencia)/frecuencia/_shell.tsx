@@ -14,7 +14,7 @@
  *    Atrás/Continuar (flujos de varios pasos).
  *
  * También expone el contexto que usan las pantallas:
- *  - useSintonia(): mover el fondo en vivo (el Dial, al guardar).
+ *  - useSintonia(): mover el fondo en vivo (el Dial, en vivo mientras se mueve la aguja).
  *  - useFlujoActivo(activo): declarar un flujo que no es una ruta propia
  *    (EN EL AIRE, armar semana) → se oculta el dock.
  *  - useEnFlujo(): lo lee la barra de pasos para fijarse abajo.
@@ -164,8 +164,8 @@ export function FrecuenciaShell({
   return (
     <Ctx.Provider value={valor}>
       {/* El shader se apaga donde algo más ocupa la GPU: EN EL AIRE (estudio
-          3D a pantalla completa) y el Dial, que tiene su propio gradiente. */}
-      <FondoVivo frecuencia={frecuencia} gradienteActivo={flujosManuales === 0 && !rutaMostrada?.startsWith('/frecuencia/dial')} />
+          3D a pantalla completa). */}
+      <FondoVivo frecuencia={frecuencia} gradienteActivo={flujosManuales === 0} />
 
       <header className={s.header}>
         <Link href="/frecuencia" className={s.marca}>
