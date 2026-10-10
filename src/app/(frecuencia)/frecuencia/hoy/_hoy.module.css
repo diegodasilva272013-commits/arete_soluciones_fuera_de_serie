@@ -219,13 +219,6 @@
 .ideasFlechaAbierta {
   transform: rotate(-135deg);
 }
-.soloLectores {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-}
 .ideasCajon {
   display: grid;
   grid-template-rows: 0fr;
@@ -237,12 +230,19 @@
 .ideasContenido {
   overflow: hidden;
   min-height: 0;
+  visibility: hidden;
+  transition: visibility 0s linear 0.35s;
+}
+.ideasCajonAbierto .ideasContenido {
+  visibility: visible;
+  transition-delay: 0s;
 }
 .ideasAyuda {
   margin: 0;
 }
 @media (prefers-reduced-motion: reduce) {
   .ideasCajon,
+  .ideasContenido,
   .ideasFlecha {
     transition: none;
   }

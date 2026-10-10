@@ -17,3 +17,6 @@ Build local de `claude/frecuencia-hoy-visual` contra Supabase real, cuenta `sett
 
 Textos nuevos en `_copy.ts` (bloque `hoy`): `lineaDelDia`, `abrirIdeas`, `cerrarIdeas`, `estadoLabel`, `entreLasDos`. Sin cambios en acciones ni datos.
 ⚠️ El estudio 3D no se pudo ver en este contenedor (sin GPU): se verá en un equipo real.
+
+## Revisor independiente
+Bloqueantes: ninguno. Corregido: la tarjeta "ahora" se recalcula en el cliente (al terminar un bloque y empezar otro se mueve sola), el cajón de ideas cerrado ya no está en el árbol de accesibilidad (`visibility`) y tiene `aria-controls` con un único nombre, `role="img"` en la lectura del DialMini, un bloque "No salió" ya no pinta el riel como hecho, la tarjeta respeta reduced-motion, colores a tokens.

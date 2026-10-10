@@ -30,7 +30,7 @@
   color: var(--hueso);
 }
 .bajo .encendido {
-  color: #8d8d8d;
+  color: var(--ceniza);
 }
 .alto .encendido {
   color: var(--azul-luz);

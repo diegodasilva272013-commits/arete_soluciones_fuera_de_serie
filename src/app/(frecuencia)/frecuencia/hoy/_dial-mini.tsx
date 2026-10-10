@@ -21,7 +21,7 @@ export function DialMini({ valor }: { valor: number }) {
           <span className={s.apagado} aria-hidden>
             -888
           </span>
-          <span className={s.encendido} aria-label={String(valor)}>
+          <span className={s.encendido} role="img" aria-label={String(valor)}>
             {`${signo}${String(Math.abs(valor)).padStart(3, ' ')}`}
           </span>
         </span>

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import type { TipoBloque } from '@/lib/frecuencia/plan';
 import type { DatosEnElAire } from '@/lib/frecuencia-semana';
 import { estacionarIdea, salirAlAire, obtenerBloqueEnCurso } from '../actions';
@@ -44,6 +44,7 @@ export function HoyCliente({
   enElAireInicial: DatosEnElAire | null;
 }) {
   const router = useRouter();
+  const reducido = useReducedMotion();
   const [textoIdea, setTextoIdea] = useState('');
   const [guardandoIdea, setGuardandoIdea] = useState(false);
   const [ideaGuardada, setIdeaGuardada] = useState(false);
@@ -148,14 +149,16 @@ export function HoyCliente({
           <p className={s.lineaTitulo}>{copy.hoy.lineaDelDia}</p>
           <ol className={s.linea}>
             {items.map((item) => {
-              const pasado = !item.esActual && (item.estado === 'CUMPLIDO' || item.estado === 'NO_SALIO' || (ahoraMs !== null && new Date(item.fin).getTime() < ahoraMs));
-              const actual = item.esActual && esTareable(item.tipo) && item.estado === 'PROGRAMADO';
+              // "Ahora" se recalcula en el cliente: al terminar un bloque y empezar el siguiente, la tarjeta se mueve sola.
+              const esAhora = ahoraMs === null ? item.esActual : new Date(item.inicio).getTime() <= ahoraMs && ahoraMs < new Date(item.fin).getTime();
+              const pasado = !esAhora && (item.estado === 'CUMPLIDO' || item.estado === 'NO_SALIO' || (ahoraMs !== null && new Date(item.fin).getTime() < ahoraMs));
+              const actual = esAhora && esTareable(item.tipo) && item.estado === 'PROGRAMADO';
               const estadoTexto = copy.hoy.estadoLabel[item.estado];
               return (
-                <li key={item.id} className={`${s.fila} ${pasado ? s.filaPasada : ''} ${item.esActual ? s.filaActual : ''}`}>
+                <li key={item.id} className={`${s.fila} ${pasado && item.estado !== 'NO_SALIO' ? s.filaPasada : ''} ${esAhora ? s.filaActual : ''}`}>
                   <span className={s.nodo} aria-hidden />
                   {actual ? (
-                    <motion.div className={s.itemActual} layoutId="bloque-en-foco">
+                    <motion.div className={s.itemActual} layoutId="bloque-en-foco" transition={reducido ? { duration: 0 } : undefined}>
                       <div className={s.itemActualCabecera}>
                         <span className={s.itemActualBadge}>{copy.hoy.bloqueActualLabel}</span>
                         <span className={s.itemHora}>
@@ -184,12 +187,11 @@ export function HoyCliente({
       )}
 
       <div className={s.ideasPanel}>
-        <button type="button" className={s.ideasBoton} aria-expanded={ideasAbiertas} onClick={() => setIdeasAbiertas((v) => !v)}>
+        <button type="button" className={s.ideasBoton} aria-expanded={ideasAbiertas} aria-controls="cajon-ideas" onClick={() => setIdeasAbiertas((v) => !v)}>
           <span className={s.ideasTitulo}>{copy.hoy.ideasTitulo}</span>
           <span className={`${s.ideasFlecha} ${ideasAbiertas ? s.ideasFlechaAbierta : ''}`} aria-hidden />
-          <span className={s.soloLectores}>{ideasAbiertas ? copy.hoy.cerrarIdeas : copy.hoy.abrirIdeas}</span>
         </button>
-        <div className={`${s.ideasCajon} ${ideasAbiertas ? s.ideasCajonAbierto : ''}`}>
+        <div id="cajon-ideas" className={`${s.ideasCajon} ${ideasAbiertas ? s.ideasCajonAbierto : ''}`}>
           <div className={s.ideasContenido}>
             <p className={`${base.ayuda} ${s.ideasAyuda}`}>{copy.hoy.ideasAyuda}</p>
             <div className={s.ideaForm}>
@@ -204,9 +206,9 @@ export function HoyCliente({
                   }
                 }}
                 placeholder={copy.hoy.ideaPlaceholder}
-                tabIndex={ideasAbiertas ? 0 : -1}
+               
               />
-              <button type="button" className={base.btn} onClick={enviarIdea} disabled={guardandoIdea} tabIndex={ideasAbiertas ? 0 : -1}>
+              <button type="button" className={base.btn} onClick={enviarIdea} disabled={guardandoIdea}>
                 {guardandoIdea ? copy.botones.guardando : copy.hoy.estacionar}
               </button>
             </div>
