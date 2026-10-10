@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { armarHistorial, codificarAsistenteConHerramientas, codificarResultado, estadoPropuestaSemana, mensajesVisibles, type FilaMensaje } from './historial';
+import { armarHistorial, esAfirmativo, codificarAsistenteConHerramientas, codificarResultado, estadoPropuestaSemana, mensajesVisibles, type FilaMensaje } from './historial';
 
 const llamada = (id: string) => ({ id, type: 'function' as const, function: { name: 'crear_objetivo', arguments: '{"titulo":"x"}' } });
 const user = (t: string): FilaMensaje => ({ rol: 'user', contenido: t });
@@ -25,6 +25,13 @@ describe('armarHistorial', () => {
     const h = armarHistorial([user('hola'), { rol: 'tool', contenido: 'no es json' }, conTools('c1'), resultado('otro'), resultado('c1')]);
     expect(h.filter((m) => m.role === 'tool')).toHaveLength(1);
   });
+  it('descarta un turno a medias: llamadas sin su resultado (error o corte) no pueden romper el historial', () => {
+    const h = armarHistorial([user('hola'), conTools('c1'), user('seguimos'), asistente('ok')]);
+    expect(h.map((m) => m.role)).toEqual(['user', 'user', 'assistant']);
+    const dos: FilaMensaje = { rol: 'assistant', contenido: codificarAsistenteConHerramientas(null, [llamada('a'), llamada('b')]) };
+    expect(armarHistorial([user('x'), dos, resultado('a'), user('y')]).map((m) => m.role)).toEqual(['user', 'user']);
+    expect(armarHistorial([user('x'), dos, resultado('a'), resultado('b'), user('y')]).map((m) => m.role)).toEqual(['user', 'assistant', 'tool', 'tool', 'user']);
+  });
   it('no mezcla: una respuesta normal limpia las llamadas pendientes', () => {
     const h = armarHistorial([user('a'), conTools('c1'), asistente('sin resultado'), resultado('c1')]);
     expect(h.filter((m) => m.role === 'tool')).toHaveLength(0);
@@ -40,8 +47,17 @@ describe('estadoPropuestaSemana (compuerta de confirmación)', () => {
     expect(estadoPropuestaSemana([user('armá mi semana'), conTools('p1'), propuesta('abc')])).toEqual({ hashMostrado: 'abc', hayRespuestaPosterior: false });
     expect(estadoPropuestaSemana([user('armá mi semana'), conTools('p1'), propuesta('abc'), asistente('¿Te gusta?')]).hayRespuestaPosterior).toBe(false);
   });
-  it('con un mensaje de la persona después de la propuesta, sí', () => {
+  it('con un sí de la persona después de la propuesta, sí', () => {
     expect(estadoPropuestaSemana([user('armá'), conTools('p1'), propuesta('abc'), asistente('¿Te gusta?'), user('sí')])).toEqual({ hashMostrado: 'abc', hayRespuestaPosterior: true });
+    expect(estadoPropuestaSemana([user('armá'), conTools('p1'), propuesta('abc'), user('Sí, guardala.')]).hayRespuestaPosterior).toBe(true);
+  });
+  it('un mensaje que no es un sí (cambiar, no, otra cosa) no habilita guardar', () => {
+    for (const t of ['cambiá el lunes', 'no', 'quiero cambiar algo de esa propuesta', 'sí, pero mové el jueves', 'qué hora es']) {
+      expect(estadoPropuestaSemana([propuesta('abc'), user(t)]).hayRespuestaPosterior).toBe(false);
+    }
+  });
+  it('vale el ÚLTIMO mensaje: un sí viejo seguido de un cambio no alcanza', () => {
+    expect(estadoPropuestaSemana([propuesta('abc'), user('sí'), user('mejor cambiá algo')]).hayRespuestaPosterior).toBe(false);
   });
   it('usa la última propuesta mostrada', () => {
     const r = estadoPropuestaSemana([propuesta('uno'), user('cambiá algo'), propuesta('dos')]);
@@ -56,5 +72,12 @@ describe('mensajesVisibles', () => {
   it('muestra solo lo que la persona debe ver', () => {
     const v = mensajesVisibles([user('hola'), conTools('c1', 'Dame un segundo'), resultado('c1'), conTools('c2'), asistente('Listo')]);
     expect(v).toEqual([{ rol: 'user', contenido: 'hola' }, { rol: 'assistant', contenido: 'Dame un segundo' }, { rol: 'assistant', contenido: 'Listo' }]);
+  });
+});
+
+describe('esAfirmativo', () => {
+  it('reconoce sí claros y rechaza dudas', () => {
+    for (const x of ['sí', 'Si!', 'dale', 'Sí, guardala.', 'ok', 'perfecto', 'guardala']) expect(esAfirmativo(x)).toBe(true);
+    for (const x of ['no', 'no sé', 'sí pero cambiá', '', 'mejor mañana', 'a'.repeat(100)]) expect(esAfirmativo(x)).toBe(false);
   });
 });

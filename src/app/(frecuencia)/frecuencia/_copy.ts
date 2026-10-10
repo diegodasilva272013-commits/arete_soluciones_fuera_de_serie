@@ -150,6 +150,7 @@ export const copy = {
       sin_clave: 'El agente todavía no está conectado. Avisale a quien administra Frecuencia.',
       limite: 'Hay mucha demanda en este momento. Probá de nuevo en un minuto.',
       limite_por_hora: 'Hablaste mucho en esta última hora. Hacé una pausa y volvé en un rato.',
+      ocupado: 'Todavía estoy respondiendo lo anterior. Esperá un segundo.',
       proveedor: 'No pudimos hablar con el agente. Probá de nuevo en un momento.',
       mensaje_invalido: 'El mensaje está vacío o es muy largo.',
       generico: 'Algo salió mal. Probá de nuevo.',
