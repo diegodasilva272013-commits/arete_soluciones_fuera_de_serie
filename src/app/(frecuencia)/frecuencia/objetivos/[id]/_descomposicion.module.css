@@ -1,0 +1,135 @@
+.caja {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid rgba(var(--azul-rgb), 0.35);
+  background: linear-gradient(135deg, rgba(var(--azul-rgb), 0.1), rgba(var(--azul-rgb), 0.02));
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.titulo {
+  margin: 0 0 6px;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+.ayuda {
+  margin: 0 0 14px;
+}
+.sub {
+  margin: 18px 0 8px;
+  font-family: var(--f-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+}
+.metas,
+.tareas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.meta {
+  display: flex;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--linea);
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 15px;
+  color: var(--hueso);
+}
+.periodo {
+  flex: 0 0 76px;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--azul-luz);
+}
+.tarea {
+  margin-bottom: 10px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--azul-luz);
+  background: rgba(10, 10, 12, 0.6);
+  animation: tareaEntra 0.5s cubic-bezier(0.16, 0.84, 0.28, 1) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+@keyframes tareaEntra {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: none; }
+}
+.tareaTitulo {
+  margin: 0 0 4px;
+  font-family: var(--f-display), Montserrat, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--hueso);
+}
+.tareaDatos {
+  margin: 0 0 8px;
+  font-family: var(--f-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+}
+.protocolo {
+  margin: 0;
+  padding-left: 18px;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--hueso);
+}
+.depende {
+  margin: 8px 0 0;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ceniza);
+}
+.error {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: #ff8a8a;
+}
+.pensando {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+}
+.pensandoTexto {
+  margin: 0;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-style: italic;
+  color: var(--hueso);
+}
+/* Ecualizador chico: se mueve mientras la IA piensa (estado real: dura lo que tarda el pedido). */
+.onda {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 28px;
+}
+.onda i {
+  display: block;
+  width: 5px;
+  height: 100%;
+  background: var(--azul-luz);
+  box-shadow: 0 0 10px rgba(var(--azul-rgb), 0.8);
+  transform-origin: bottom;
+  animation: onda 1s ease-in-out infinite;
+}
+.onda i:nth-child(2) { animation-delay: 0.12s; }
+.onda i:nth-child(3) { animation-delay: 0.24s; }
+.onda i:nth-child(4) { animation-delay: 0.36s; }
+.onda i:nth-child(5) { animation-delay: 0.48s; }
+@keyframes onda {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .onda i { animation: none; transform: scaleY(0.6); }
+  .tarea { animation: none; }
+}
