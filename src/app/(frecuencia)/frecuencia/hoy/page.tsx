@@ -5,6 +5,7 @@ import { fechaLocal, horaEnTimezoneAUtc, fechaMasDias } from '@/lib/frecuencia-f
 import { resolverTitulosDeBloques, obtenerDatosEnElAire } from '@/lib/frecuencia-semana';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
+import Link from 'next/link';
 import { HoyCliente, type ItemLinea } from './_hoy-cliente';
 
 export default async function HoyPage() {
@@ -21,6 +22,7 @@ export default async function HoyPage() {
   const inicioHoyUtc = horaEnTimezoneAUtc(hoyISO, '00:00', timezone).toISOString();
   const finHoyUtc = horaEnTimezoneAUtc(mananaISO, '00:00', timezone).toISOString();
   const ahoraUtc = new Date().toISOString();
+  const esDomingo = new Date(`${hoyISO}T12:00:00Z`).getUTCDay() === 0;
 
   const { data: dialHoy } = await (supabase as any)
     .from('frecuencia_dial')
@@ -68,6 +70,10 @@ export default async function HoyPage() {
         <span className={base.kickerLabel}>{copy.hoy.kicker}</span>
       </div>
       <h1 className={base.titulo}>{copy.hoy.titulo}</h1>
+
+      <Link href="/frecuencia/revision" className={base.btnGhost}>
+        {esDomingo ? copy.revision.entrada : copy.revision.entradaOtroDia}
+      </Link>
 
       <HoyCliente valorDialHoy={dialHoy?.frecuencia ?? null} items={items} timezone={timezone} enElAireInicial={enElAireInicial} />
     </div>
