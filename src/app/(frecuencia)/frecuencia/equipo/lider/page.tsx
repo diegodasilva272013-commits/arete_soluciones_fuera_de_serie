@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserContext } from '@/lib/current-user';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
-import { fechaMasDias, lunesDeLaSemana, diaYHoraLocal } from '@/lib/frecuencia-fecha';
+import { fechaMasDias, horaEnTimezoneAUtc, lunesDeLaSemana, diaYHoraLocal } from '@/lib/frecuencia-fecha';
 import { copy } from '../../_copy';
 import base from '../../frecuencia.module.css';
 import { equiposVisibles, nombresDePersonas } from '../_datos';
@@ -18,7 +18,8 @@ interface Deleg { de_user_id: string; a_user_id: string; volvio: boolean; fecha:
 /**
  * Vista del líder (6.5). SOLO lee: bloques, evidencia, compromisos y delegaciones de las personas de su equipo (lo que la
  * RLS le permite). No consulta dial, espejo, identidad, mapa de energía ni preferencias, y no hay forma de verlos desde acá.
- * De la evidencia no se muestran los aprendizajes del cierre del día: son reflexión personal.
+ * De la evidencia SOLO se muestran los tipos de trabajo hecho (lista blanca): lo cumplido y lo que la persona anotó como evidencia.
+ * Las reflexiones (pasos ante una falla, aprendizajes del cierre) no se muestran nunca.
  */
 export default async function VistaLiderPage() {
   const ctx = await getCurrentUserContext();
@@ -37,8 +38,8 @@ export default async function VistaLiderPage() {
   let bloques: Bloque[] = [], evidencia: Evid[] = [], compromisos: Comp[] = [], delegaciones: Deleg[] = [];
   if (ids.length) {
     const [b, e, c, d] = await Promise.all([
-      supabase.from('frecuencia_bloques').select('user_id, tipo, inicio, estado, minutos_reales_foco').in('user_id', ids).gte('inicio', `${lunes}T00:00:00Z`).lt('inicio', `${fechaMasDias(lunes, 7)}T00:00:00Z`).order('inicio', { ascending: true }),
-      supabase.from('frecuencia_evidencia').select('user_id, fecha, texto, tipo').in('user_id', ids).neq('tipo', 'APRENDIZAJE').order('fecha', { ascending: false }).order('created_at', { ascending: false }).limit(60),
+      supabase.from('frecuencia_bloques').select('user_id, tipo, inicio, estado, minutos_reales_foco').in('user_id', ids).gte('inicio', horaEnTimezoneAUtc(lunes, '00:00', tz).toISOString()).lt('inicio', horaEnTimezoneAUtc(fechaMasDias(lunes, 7), '00:00', tz).toISOString()).order('inicio', { ascending: true }),
+      supabase.from('frecuencia_evidencia').select('user_id, fecha, texto, tipo').in('user_id', ids).in('tipo', ['ENTRENAMIENTO_CUMPLIDO', 'MANUAL']).order('fecha', { ascending: false }).order('created_at', { ascending: false }).limit(300),
       supabase.from('frecuencia_compromisos').select('user_id, co_conductor_id, texto_mensual, avance').in('user_id', ids).eq('mes', mes),
       supabase.from('frecuencia_delegaciones').select('de_user_id, a_user_id, volvio, fecha').in('de_user_id', ids).order('created_at', { ascending: false }),
     ]);
@@ -97,7 +98,7 @@ export default async function VistaLiderPage() {
                           <ul className={s.lista} style={{ marginTop: 10 }}>
                             {bs.slice(0, 6).map((x, i) => {
                               const { dia, hora } = diaYHoraLocal(x.inicio, tz);
-                              return <li key={i}><span className={s.cuando}>{copy.semana.diasLabel[dia as keyof typeof copy.semana.diasLabel] ?? dia} {hora}</span>{x.tipo.toLowerCase()} · {t.estados[x.estado] ?? x.estado}</li>;
+                              return <li key={i}><span className={s.cuando}>{copy.semana.diasLabel[dia as keyof typeof copy.semana.diasLabel] ?? dia} {hora}</span>{' '}{x.tipo.toLowerCase()} · {t.estados[x.estado] ?? x.estado}</li>;
                             })}
                           </ul>
                         </>
@@ -105,7 +106,7 @@ export default async function VistaLiderPage() {
                     </div>
                     <div className={s.bloque}>
                       <h4>{t.evidencia}</h4>
-                      {ev.length === 0 ? <p className={s.suave}>{t.sinEvidencia}</p> : <ul className={s.lista}>{ev.map((x, i) => <li key={i}><span className={s.cuando}>{x.fecha}</span>{x.texto}</li>)}</ul>}
+                      {ev.length === 0 ? <p className={s.suave}>{t.sinEvidencia}</p> : <ul className={s.lista}>{ev.map((x, i) => <li key={i}><span className={s.cuando}>{x.fecha}</span>{' '}{x.texto}</li>)}</ul>}
                     </div>
                     <div className={s.bloque}>
                       <h4>{t.compromiso}</h4>
@@ -127,7 +128,7 @@ export default async function VistaLiderPage() {
                         <>
                           <p className={s.dato}>{t.volvieron(vol, ds.length)}</p>
                           <ul className={s.lista}>
-                            {ds.slice(0, 5).map((x, i) => <li key={i}><span className={s.cuando}>{x.fecha}</span>{t.a} {nombres.get(x.a_user_id) ?? '—'} · {x.volvio ? t.volvio : t.enSusManos}</li>)}
+                            {ds.slice(0, 5).map((x, i) => <li key={i}><span className={s.cuando}>{x.fecha}</span>{' '}{t.a} {nombres.get(x.a_user_id) ?? '—'} · {x.volvio ? t.volvio : t.enSusManos}</li>)}
                           </ul>
                         </>
                       )}
