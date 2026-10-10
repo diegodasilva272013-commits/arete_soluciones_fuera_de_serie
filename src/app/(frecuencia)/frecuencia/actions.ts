@@ -357,6 +357,12 @@ export async function guardarCriterio(input: {
   const { supabase, user } = await usuarioActual();
   if (!user) return { error: 'No hay sesión.' };
 
+  if (input.ambito !== 'personal' && input.ambito !== 'equipo') return { error: 'Datos inválidos.' };
+  if (typeof input.reversible !== 'boolean') return { error: 'Datos inválidos.' };
+  if (input.id !== undefined && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(input.id))) return { error: 'Datos inválidos.' };
+  for (const [x, max] of [[input.tiempoReversibilidad, 120], [input.quienAsumeResponsabilidad, 160]] as const) {
+    if (x != null && (typeof x !== 'string' || x.length > max)) return { error: 'Datos inválidos.' };
+  }
   // "Si no está escrito, no es criterio": los 4 puntos son obligatorios.
   const completos = [input.titulo, input.queSeDecide, input.queEntra, input.queNoEntra, input.costoSiSaleMal].every((x) => typeof x === 'string' && x.trim());
   if (!completos) return { error: 'Faltan puntos del criterio.' };
@@ -384,8 +390,9 @@ export async function guardarCriterio(input: {
   };
 
   if (input.id) {
-    const { error } = await (supabase as any).from('frecuencia_criterios').update(fila).eq('id', input.id).eq('user_id', user.id);
-    if (error) return { error: 'No se pudo guardar.' };
+    const { data: tocada, error } = await (supabase as any).from('frecuencia_criterios').update(fila).eq('id', input.id).eq('user_id', user.id).select('id').maybeSingle();
+    // Un id ajeno o borrado no toca ninguna fila: no es un éxito.
+    if (error || !tocada) return { error: 'No se pudo guardar.' };
     revalidatePath('/frecuencia/criterios');
     return { ok: true, id: input.id };
   }
