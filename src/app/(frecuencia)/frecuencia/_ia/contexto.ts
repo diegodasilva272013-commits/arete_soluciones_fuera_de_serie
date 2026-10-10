@@ -54,3 +54,36 @@ export async function construirContextoAgente(userId: string): Promise<{ sistema
     .join('\n\n');
   return { sistema };
 }
+
+/**
+ * Variables que se le pasan al agente de VOZ al empezar la llamada (dynamic variables de
+ * ElevenLabs): el mismo contexto que el chat, aplanado a texto. Son DATOS, no instrucciones.
+ */
+export async function variablesAgenteVoz(userId: string): Promise<Record<string, string>> {
+  const supabase = createSupabaseServerClient();
+  const { data: pref } = await (supabase as any).from('frecuencia_preferencias').select('timezone').eq('user_id', userId).maybeSingle();
+  const tz = (pref?.timezone as string | undefined) ?? 'America/Argentina/Buenos_Aires';
+  const hoy = fechaLocal(tz);
+  const corto = (x: unknown) => String(x ?? '').slice(0, 120);
+
+  const { data: dial } = await (supabase as any).from('frecuencia_dial').select('frecuencia').eq('user_id', userId).eq('fecha', hoy).order('created_at', { ascending: false }).limit(1).maybeSingle();
+  const { data: enAire } = await (supabase as any).from('frecuencia_bloques').select('tarea_id').eq('user_id', userId).eq('estado', 'EN_EL_AIRE').maybeSingle();
+  let bloque = 'ninguno';
+  if (enAire?.tarea_id) {
+    const { data: t } = await (supabase as any).from('frecuencia_tareas').select('titulo').eq('id', enAire.tarea_id).maybeSingle();
+    bloque = corto(t?.titulo) || 'uno sin título';
+  }
+  const { data: postergadas } = await (supabase as any).from('frecuencia_tareas').select('titulo').eq('user_id', userId).gt('veces_postergada', 0).order('veces_postergada', { ascending: false }).limit(3);
+  const { data: objetivo } = await (supabase as any).from('frecuencia_objetivos').select('titulo').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).maybeSingle();
+  const { data: identidad } = await (supabase as any).from('frecuencia_identidad').select('estandar_minimo').eq('user_id', userId).maybeSingle();
+  const minimo = Array.isArray(identidad?.estandar_minimo) ? (identidad.estandar_minimo as unknown[]).map(corto).join('; ') : '';
+
+  return {
+    fecha_de_hoy: hoy,
+    dial_de_hoy: typeof dial?.frecuencia === 'number' ? String(dial.frecuencia) : 'todavía no marcó su dial de hoy',
+    bloque_al_aire: bloque,
+    tareas_postergadas: ((postergadas ?? []) as { titulo: string }[]).map((t) => corto(t.titulo)).join('; ') || 'ninguna',
+    objetivo_principal: corto(objetivo?.titulo) || 'todavía no tiene un objetivo',
+    estandar_minimo: minimo || 'todavía no escribió su estándar mínimo',
+  };
+}

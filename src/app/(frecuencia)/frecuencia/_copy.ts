@@ -134,6 +134,21 @@ export const copy = {
     } as Record<string, string>,
   },
 
+  voz: {
+    titulo: 'Hablar',
+    iniciar: 'Hablar con el agente',
+    cortar: 'Cortar',
+    sinAgente: 'La voz todavía no está conectada. Avisale a quien administra Frecuencia.',
+    conectando: 'Conectando…',
+    escuchando: 'Te escucho',
+    hablando: 'Hablando',
+    permisoMicrofono: 'Necesito el micrófono para escucharte. Permitilo en el navegador y probá de nuevo.',
+    errorGenerico: 'No se pudo conectar la voz. Probá de nuevo en un momento.',
+    transcripcion: 'Lo que se dijo',
+    propuesta: 'Propuesta de semana',
+    propuestaSi: 'Sí, guardala',
+  },
+
   chat: {
     kicker: 'Agente',
     titulo: 'Hablá con tu agente',
