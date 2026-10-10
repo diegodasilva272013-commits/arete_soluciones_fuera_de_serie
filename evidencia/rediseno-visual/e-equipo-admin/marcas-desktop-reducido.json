@@ -1,0 +1,20 @@
+{
+  "marcas": [
+    {
+      "t": "00:09",
+      "captura": "05-hub-lider-desktop-reducido.png",
+      "nota": "Hub del equipo visto por la líder (incluye acceso a la vista del líder; sin acceso de admin)"
+    },
+    {
+      "t": "00:09",
+      "captura": "-",
+      "nota": "Admin link visible para no-admin: 0"
+    },
+    {
+      "t": "00:13",
+      "captura": "-",
+      "nota": "No-admin entra a /equipo/admin → termina en /frecuencia/equipo"
+    }
+  ],
+  "errores": []
+}
