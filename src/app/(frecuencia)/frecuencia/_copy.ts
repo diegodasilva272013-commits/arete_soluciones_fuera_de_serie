@@ -435,6 +435,9 @@ export const copy = {
     volvio: 'Volvió',
     marcarVolvio: 'Marcar que volvió',
     desmarcarVolvio: 'No volvió',
+    quitar: 'Quitar delegación',
+    confirmarQuitar: 'La otra persona dejará de ver la tarea y el criterio. ¿Quitarla?',
+    errorLectura: 'No se pudieron cargar tus delegaciones. Probá de nuevo en un momento.',
     resultado: (volvieron: number, total: number) => `Volvieron ${volvieron} de ${total}`,
     testLider: 'Si una tarea delegada vuelve a tu escritorio, no delegaste criterio.',
     leer: {

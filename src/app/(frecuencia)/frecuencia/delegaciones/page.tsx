@@ -19,8 +19,16 @@ export default async function DelegacionesPage() {
   const supabase = createSupabaseServerClient() as any;
 
   // La RLS también deja ver al líder las de su equipo: acá solo las propias (las del equipo van en la vista del líder).
-  const { data } = await supabase.from('frecuencia_delegaciones').select('id, tarea_id, de_user_id, a_user_id, criterio_id, volvio, fecha').or(`de_user_id.eq.${ctx.userId},a_user_id.eq.${ctx.userId}`).order('created_at', { ascending: false });
+  const { data, error: errorLectura } = await supabase.from('frecuencia_delegaciones').select('id, tarea_id, de_user_id, a_user_id, criterio_id, volvio, fecha').or(`de_user_id.eq.${ctx.userId},a_user_id.eq.${ctx.userId}`).order('created_at', { ascending: false });
   const filas = (data ?? []) as Fila[];
+  if (errorLectura) {
+    return (
+      <div className={base.pantalla}>
+        <h1 className={base.titulo}>{t.titulo}</h1>
+        <p className={s.error} role="alert">{t.errorLectura}</p>
+      </div>
+    );
+  }
   const hechas = filas.filter((f) => f.de_user_id === ctx.userId);
   const recibidas = filas.filter((f) => f.a_user_id === ctx.userId);
 
@@ -45,7 +53,7 @@ export default async function DelegacionesPage() {
       </div>
 
       <section className={s.seccion} aria-label={t.delegueTitulo}>
-        <p className={base.campoLabel}>{t.delegueTitulo}</p>
+        <h2 className={base.campoLabel}>{t.delegueTitulo}</h2>
         {hechas.length > 0 && (
           <div className={s.resultado}>
             <strong>{t.resultado(volvieron, hechas.length)}</strong>
@@ -72,7 +80,7 @@ export default async function DelegacionesPage() {
       </section>
 
       <section className={s.seccion} aria-label={t.recibidasTitulo}>
-        <p className={base.campoLabel}>{t.recibidasTitulo}</p>
+        <h2 className={base.campoLabel}>{t.recibidasTitulo}</h2>
         {recibidas.length === 0 ? (
           <p className={base.ayuda}>{t.vacioRecibidas}</p>
         ) : (
@@ -91,12 +99,12 @@ export default async function DelegacionesPage() {
                     </>
                   )}
                   {c && (
-                    <dl className={s.criterio} aria-label={`${t.criterio}: ${c.titulo}`}>
+                    <dl className={s.criterio}>
                       <dt>{t.criterio}</dt><dd>{c.titulo}</dd>
                       <dt>{t.leer.queSeDecide}</dt><dd>{c.que_se_decide}</dd>
-                      <dt>{t.leer.queEntra}</dt><dd>{c.que_entra}</dd>
-                      <dt>{t.leer.queNoEntra}</dt><dd>{c.que_no_entra}</dd>
-                      <dt>{t.leer.costo}</dt><dd>{c.costo_si_sale_mal}</dd>
+                      {c.que_entra && <><dt>{t.leer.queEntra}</dt><dd>{c.que_entra}</dd></>}
+                      {c.que_no_entra && <><dt>{t.leer.queNoEntra}</dt><dd>{c.que_no_entra}</dd></>}
+                      {c.costo_si_sale_mal && <><dt>{t.leer.costo}</dt><dd>{c.costo_si_sale_mal}</dd></>}
                       <dt>{t.leer.reversible}</dt><dd>{c.reversible ? `${t.leer.si}${c.tiempo_reversibilidad ? ` · ${c.tiempo_reversibilidad}` : ''}` : t.leer.no}</dd>
                     </dl>
                   )}
