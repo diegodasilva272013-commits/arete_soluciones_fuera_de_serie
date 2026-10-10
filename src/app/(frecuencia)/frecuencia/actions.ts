@@ -558,6 +558,7 @@ export async function guardarAprendizaje(texto: string): Promise<AccionState> {
   const { supabase, user } = await usuarioActual();
   if (!user) return { error: 'No hay sesión.' };
   if (!texto.trim()) return { error: 'Vacío.' };
+  if (texto.length > 500) return { error: 'Demasiado largo.' };
 
   const timezone = await timezoneDelUsuario(supabase, user.id);
   const fecha = fechaLocal(timezone);
@@ -571,7 +572,7 @@ export async function guardarAprendizaje(texto: string): Promise<AccionState> {
     texto: texto.trim(),
     tipo: 'APRENDIZAJE',
   });
-  if (error) return { error: error.message };
+  if (error) return { error: 'No se pudo guardar.' };
   revalidatePath('/frecuencia/cierre');
   return { ok: true };
 }

@@ -71,6 +71,7 @@ export function CierreCliente({
   const [aprendizajes, setAprendizajes] = useState(aprendizajesIniciales);
   const [textoAprendizaje, setTextoAprendizaje] = useState('');
   const [guardandoAprendizaje, setGuardandoAprendizaje] = useState(false);
+  const [errorAprendizaje, setErrorAprendizaje] = useState(false);
   const [textoManual, setTextoManual] = useState('');
   const [guardandoManual, setGuardandoManual] = useState(false);
 
@@ -92,10 +93,14 @@ export function CierreCliente({
     const texto = textoAprendizaje.trim();
     if (!texto) return true;
     setGuardandoAprendizaje(true);
+    setErrorAprendizaje(false);
     const r = await guardarAprendizaje(texto);
     setGuardandoAprendizaje(false);
-    if (r.error) return false;
-    setAprendizajes((prev) => [...prev, { id: `local-${prev.length}`, texto, tipo: 'APRENDIZAJE', creadoEn: new Date().toISOString() }]);
+    if (r.error) {
+      setErrorAprendizaje(true);
+      return false;
+    }
+    setAprendizajes((prev) => [...prev, { id: `local-${crypto.randomUUID()}`, texto, tipo: 'APRENDIZAJE', creadoEn: new Date().toISOString() }]);
     setTextoAprendizaje('');
     return true;
   }
@@ -106,7 +111,7 @@ export function CierreCliente({
     const r = await agregarEvidenciaManual(textoManual);
     setGuardandoManual(false);
     if (!r.error) {
-      setEvidencia((prev) => [...prev, { id: `local-${prev.length}`, texto: textoManual.trim(), tipo: 'MANUAL', creadoEn: new Date().toISOString() }]);
+      setEvidencia((prev) => [...prev, { id: `local-${crypto.randomUUID()}`, texto: textoManual.trim(), tipo: 'MANUAL', creadoEn: new Date().toISOString() }]);
       setTextoManual('');
     }
   }
@@ -166,8 +171,9 @@ export function CierreCliente({
           )}
 
           <div className={base.campo}>
-            <label className={base.campoLabel}>{copy.cierre.registro.cargarManual}</label>
+            <label className={base.campoLabel} htmlFor="evidencia-manual">{copy.cierre.registro.cargarManual}</label>
             <input
+              id="evidencia-manual"
               className={base.input}
               value={textoManual}
               onChange={(ev) => setTextoManual(ev.target.value)}
@@ -217,14 +223,14 @@ export function CierreCliente({
               value={textoAprendizaje}
               onChange={(ev) => setTextoAprendizaje(ev.target.value)}
               placeholder={copy.cierre.aprendiste.placeholder}
+              maxLength={500}
+              rows={5}
             />
+            {errorAprendizaje && <p className={s.error} role="alert">{copy.estados.error}</p>}
           </div>
           <BarraPasos>
             <button type="button" className={base.btnSec} onClick={retroceder}>
               {copy.botones.atras}
-            </button>
-            <button type="button" className={base.btnSec} onClick={agregarAprendizaje} disabled={guardandoAprendizaje || !textoAprendizaje.trim()}>
-              {guardandoAprendizaje ? copy.botones.guardando : copy.cierre.aprendiste.agregar}
             </button>
             <button
               type="button"
@@ -234,7 +240,7 @@ export function CierreCliente({
                 if (await agregarAprendizaje()) avanzar();
               }}
             >
-              {copy.botones.siguiente}
+              {guardandoAprendizaje ? copy.botones.guardando : copy.botones.siguiente}
             </button>
           </BarraPasos>
         </div>
