@@ -1,0 +1,50 @@
+{
+  "marcas": [
+    {
+      "t": "00:12",
+      "captura": "01-lista-vacia-desktop.png",
+      "nota": "Criterios: regla y test del método (desde la base), sin criterios"
+    },
+    {
+      "t": "00:19",
+      "captura": "-",
+      "nota": "Guardar incompleto → Faltan puntos: completá los cuatro para guardarlo."
+    },
+    {
+      "t": "00:21",
+      "captura": "02-incompleto-desktop.png",
+      "nota": "Faltan puntos: no se guarda (\"si no está escrito, no es criterio\")"
+    },
+    {
+      "t": "00:26",
+      "captura": "03-completo-desktop.png",
+      "nota": "Los cuatro puntos completos, ámbito de equipo"
+    },
+    {
+      "t": "00:34",
+      "captura": "04-lista-con-criterio-desktop.png",
+      "nota": "Criterio guardado, visible en la lista"
+    },
+    {
+      "t": "00:42",
+      "captura": "05-editar-desktop.png",
+      "nota": "Edición del criterio existente"
+    },
+    {
+      "t": "00:48",
+      "captura": "-",
+      "nota": "Editado: Descuentos a clientes nuevos (v2)"
+    },
+    {
+      "t": "00:49",
+      "captura": "-",
+      "nota": "Compañera sin delegación lee el criterio ajeno → filas: 0"
+    },
+    {
+      "t": "00:49",
+      "captura": "-",
+      "nota": "Compañera intenta editarlo → filas afectadas: 0"
+    }
+  ],
+  "errores": []
+}

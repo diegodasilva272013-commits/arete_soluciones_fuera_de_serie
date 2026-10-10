@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
@@ -24,6 +24,9 @@ export function CriterioFormulario({ inicial, equipos, guia }: { inicial?: Crite
   const [responsable, setResponsable] = useState(inicial?.quien_asume_responsabilidad ?? '');
   const [ambito, setAmbito] = useState<'personal' | 'equipo'>(inicial?.ambito ?? 'personal');
   const [equipoId, setEquipoId] = useState(inicial?.equipo_id ?? equipos[0]?.id ?? '');
+
+  // El aviso de "faltan puntos" no queda pegado: se va en cuanto la persona sigue escribiendo.
+  useEffect(() => setError(null), [titulo, queSeDecide, queEntra, queNoEntra, costo, reversible, tiempo]);
 
   function guardar() {
     const completo = [titulo, queSeDecide, queEntra, queNoEntra, costo].every((x) => x.trim()) && reversible !== null && (!reversible || tiempo.trim());
