@@ -1,0 +1,111 @@
+.caja {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid rgba(var(--azul-rgb), 0.35);
+  background: linear-gradient(135deg, rgba(var(--azul-rgb), 0.1), rgba(10, 10, 12, 0.6));
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.titulo,
+.sub {
+  margin: 0 0 8px;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+.sub {
+  color: var(--ceniza);
+  font-size: 10px;
+  margin-top: 14px;
+}
+.aviso {
+  margin: 0;
+}
+.escena {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 0 8px;
+}
+.onda {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 64px;
+}
+.onda i {
+  display: block;
+  width: 5px;
+  height: 100%;
+  background: var(--ceniza);
+  transform: scaleY(0.08);
+  transform-origin: center;
+  transition: background 0.3s ease;
+}
+.escena[data-modo='listening'] .onda i {
+  background: var(--hueso);
+}
+.escena[data-modo='speaking'] .onda i {
+  background: var(--azul-luz);
+  box-shadow: 0 0 10px rgba(var(--azul-rgb), 0.9);
+}
+.estado {
+  min-height: 1.4em;
+  margin: 0;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hueso);
+}
+.error {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: #ff8a8a;
+}
+.propuesta ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.propuesta li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--linea);
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 14px;
+  color: var(--hueso);
+}
+.cuando {
+  font-family: var(--f-mono), monospace;
+  font-size: 10px;
+  color: var(--ceniza);
+  white-space: nowrap;
+}
+.transcripcion {
+  max-height: 220px;
+  overflow-y: auto;
+}
+.lineaAgente,
+.lineaVos {
+  margin: 4px 0;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.lineaAgente {
+  color: var(--azul-luz);
+}
+.lineaVos {
+  color: var(--hueso);
+  text-align: right;
+}
+@media (prefers-reduced-motion: reduce) {
+  .onda i {
+    transition: none;
+  }
+}
