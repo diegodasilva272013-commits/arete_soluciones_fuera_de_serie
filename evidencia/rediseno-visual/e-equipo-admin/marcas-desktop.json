@@ -2,18 +2,48 @@
   "marcas": [
     {
       "t": "00:10",
-      "captura": "05-hub-lider-desktop.png",
-      "nota": "Hub del equipo visto por la líder (incluye acceso a la vista del líder; sin acceso de admin)"
+      "captura": "01-admin-vacio-desktop.png",
+      "nota": "Pantalla de administración de equipos, sin equipos"
     },
     {
-      "t": "00:12",
-      "captura": "-",
-      "nota": "Admin link visible para no-admin: 0"
+      "t": "00:16",
+      "captura": "02-busca-lider-desktop.png",
+      "nota": "Buscando líder por nombre: resultados reales"
     },
     {
-      "t": "00:17",
+      "t": "00:23",
+      "captura": "03-equipo-creado-desktop.png",
+      "nota": "Equipo creado: el líder queda cargado como miembro automáticamente"
+    },
+    {
+      "t": "00:32",
+      "captura": "04-miembro-agregado-desktop.png",
+      "nota": "Miembro agregado"
+    },
+    {
+      "t": "00:38",
       "captura": "-",
-      "nota": "No-admin entra a /equipo/admin → termina en /frecuencia/equipo"
+      "nota": "Cambio de líder: Setters de prueba | Prueba miembra · LÍDER | Prueba lidera | HACER LÍDER | SACAR | AGREGAR MIEMBRO"
+    },
+    {
+      "t": "00:42",
+      "captura": "-",
+      "nota": "Vuelve a cambiar el líder"
+    },
+    {
+      "t": "00:46",
+      "captura": "-",
+      "nota": "Sacar miembro: Setters de prueba | Prueba lidera · LÍDER | AGREGAR MIEMBRO"
+    },
+    {
+      "t": "00:47",
+      "captura": "-",
+      "nota": "No admin intenta crear equipo → {\"filas\":0,\"error\":\"42501\"}"
+    },
+    {
+      "t": "00:48",
+      "captura": "-",
+      "nota": "No admin intenta agregarse a un equipo → error 42501"
     }
   ],
   "errores": []
