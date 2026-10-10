@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { copy } from '../_copy';
 import s from './_delegaciones.module.css';
-import { marcarVolvio } from './_actions';
+import { marcarVolvio, quitarDelegacion } from './_actions';
 
 const t = copy.delegaciones;
 
@@ -31,15 +31,35 @@ export function FilaDelegue({ id, tarea, persona, criterio, fecha, volvio }: { i
     }
   }
 
+  async function quitar() {
+    if (candado.current || !confirm(t.confirmarQuitar)) return;
+    candado.current = true;
+    setOcupado(true);
+    setError(null);
+    try {
+      const r = await quitarDelegacion({ id });
+      if (r.error) setError(r.error);
+      else router.refresh();
+    } catch {
+      setError(t.form.error);
+    } finally {
+      candado.current = false;
+      setOcupado(false);
+    }
+  }
+
   return (
     <article className={`${s.tarjeta} ${volvio ? s.volvio : ''}`}>
       <p className={s.meta}>{t.a} {persona} · {fecha}</p>
       <p className={s.titulo}>{tarea}</p>
       <p className={s.meta} style={{ margin: 0 }}>{t.criterio}: {criterio}</p>
       <div className={s.fila}>
-        <span className={`${s.estado} ${volvio ? s.estadoVolvio : ''}`}>{volvio ? t.volvio : t.enSusManos}</span>
+        <span className={`${s.estado} ${volvio ? s.estadoVolvio : ''}`} role="status">{volvio ? t.volvio : t.enSusManos}</span>
         <button type="button" className={s.mini} disabled={ocupado} onClick={alternar} aria-label={`${volvio ? t.desmarcarVolvio : t.marcarVolvio}: ${tarea}`}>
           {volvio ? t.desmarcarVolvio : t.marcarVolvio}
+        </button>
+        <button type="button" className={s.mini} disabled={ocupado} onClick={quitar} aria-label={`${t.quitar}: ${tarea}`}>
+          {t.quitar}
         </button>
       </div>
       {error && <p className={s.error} role="alert">{error}</p>}

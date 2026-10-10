@@ -18,3 +18,11 @@
 | Residuo | 0 al final (se borran datos, equipo y cuentas) |
 
 Detalle crudo: `rls-delegaciones.json`. Capturas desktop / mobile / reduced-motion + videos del que delega y del que recibe.
+
+## Revisión independiente (arreglado)
+**En la app:** el servidor ya no deja pasar errores de lectura como "no hay nada"; carrera de duplicados frenada también por la base (ver SQL); "Quitar delegación" (la otra persona deja de ver tarea y criterio); no se puede borrar una tarea delegada sin quitar antes la delegación (evita que la otra persona la pierda en silencio y que cambie el "volvieron X de Y"); criterio sin campos vacíos; encabezados `h2`, `aria-label` por tarea, estado anunciado.
+**En la base (migración nueva `0083_frecuencia_delegaciones_acceso*.sql`, la corrés vos: chequeo → SQL → verificación):**
+1. Quien recibió una delegación solo ve la tarea y el criterio mientras SIGA en el equipo de quien delegó (antes los veía para siempre).
+2. Quien delega no puede reasignar la delegación a alguien de otro equipo.
+3. Una tarea no puede estar delegada dos veces a la misma persona mientras siga en sus manos (índice único).
+Sin correr 0083 todo funciona igual, solo quedan abiertos esos tres huecos.

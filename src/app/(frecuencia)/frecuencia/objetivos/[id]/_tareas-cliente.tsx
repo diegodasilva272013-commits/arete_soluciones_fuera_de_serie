@@ -161,7 +161,7 @@ export function TareasCliente({ objetivoId, tareasIniciales, imagenesPorTarea = 
                   {copy.tareas.editarTarea}
                 </button>
                 {puedeDelegar && (
-                  <Link href={`/frecuencia/delegaciones/nueva?tarea=${t.id}`} className={base.btnGhost}>
+                  <Link href={`/frecuencia/delegaciones/nueva?tarea=${t.id}`} className={base.btnGhost} aria-label={`${copy.delegaciones.accionDelegar}: ${t.titulo}`}>
                     {copy.delegaciones.accionDelegar}
                   </Link>
                 )}
