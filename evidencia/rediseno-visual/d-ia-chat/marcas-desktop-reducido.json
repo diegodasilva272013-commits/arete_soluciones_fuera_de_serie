@@ -1,0 +1,60 @@
+{
+  "marcas": [
+    {
+      "t": "00:09",
+      "captura": "01-chat-vacio-desktop-reducido.png",
+      "nota": "Chat del agente: acciones rápidas, caja que crece, selector de modelo"
+    },
+    {
+      "t": "00:14",
+      "captura": "-",
+      "nota": "Objetivos tras \"Crear objetivo\": 2 (era 1)"
+    },
+    {
+      "t": "00:14",
+      "captura": "02-herramienta-crear-objetivo-desktop-reducido.png",
+      "nota": "El agente usó la herramienta: chip \"Creó un objetivo\" (y quedó guardado en la base)"
+    },
+    {
+      "t": "00:21",
+      "captura": "-",
+      "nota": "Bloques tras proponer: 0 (la propuesta no guarda nada)"
+    },
+    {
+      "t": "00:22",
+      "captura": "03-propuesta-de-semana-desktop-reducido.png",
+      "nota": "Propuesta de semana con botones para confirmar; todavía NO se guardó"
+    },
+    {
+      "t": "00:26",
+      "captura": "-",
+      "nota": "Intento de confirmar con un hash inventado: bloques = 0"
+    },
+    {
+      "t": "00:27",
+      "captura": "04-compuerta-bloquea-confirmacion-falsa-desktop-reducido.png",
+      "nota": "El modelo intentó guardar con un hash inventado: la compuerta lo bloqueó"
+    },
+    {
+      "t": "01:05",
+      "captura": "-",
+      "nota": "Tras el \"Sí, guardala\" de la persona: bloques = 8"
+    },
+    {
+      "t": "01:06",
+      "captura": "05-semana-guardada-desktop-reducido.png",
+      "nota": "Con el sí de la persona y el hash correcto, se guarda"
+    },
+    {
+      "t": "01:13",
+      "captura": "-",
+      "nota": "Tras recargar se recuperan 10 mensajes (memoria en la base)"
+    },
+    {
+      "t": "01:13",
+      "captura": "06-memoria-tras-recargar-desktop-reducido.png",
+      "nota": "Memoria: al volver, la conversación sigue"
+    }
+  ],
+  "errores": []
+}
