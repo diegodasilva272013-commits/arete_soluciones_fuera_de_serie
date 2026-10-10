@@ -88,6 +88,55 @@ export const copy = {
     todasIguales: 'Todas tus áreas tienen el mismo número. Movelas para que se note cuál es la más fuerte y cuál la más débil, o elegilas acá abajo.',
   },
 
+  revision: {
+    kicker: 'Revisión semanal',
+    titulo: 'Decite la verdad',
+    pasoDe: (actual: number, total: number) => `Paso ${actual} de ${total}`,
+    entrada: 'Es domingo: tu revisión de la semana',
+    entradaOtroDia: 'Revisar mi semana',
+    verdad: {
+      subtitulo: 'Medimos el entrenamiento, no el partido: lo que importa es lo que hiciste, no si el resultado ya llegó.',
+      principal: 'Entrenamiento cumplido',
+      principalDetalle: (hechos: number, total: number) => `${hechos} de ${total} bloques de esta semana`,
+      secundaria: 'Avance de tus objetivos',
+      secundariaDetalle: (con: number, total: number) => `${con} de ${total} tareas con al menos un bloque cumplido`,
+      sinDatos: 'Esta semana no tenías bloques armados. Está bien: la que viene la armamos juntos.',
+      porTarea: 'Tarea por tarea',
+    },
+    funciono: {
+      subtitulo: 'Lo que funcionó se repite. Lo que no, se saca. Sin culpa: es información.',
+      queFuncionoLabel: 'Qué funcionó',
+      queFuncionoPlaceholder: 'Ej.: Empezar por lo difícil a la mañana',
+      queNoLabel: 'Qué no funcionó',
+      queNoPlaceholder: 'Ej.: Dejar el celular al lado mientras escribía',
+      sumar: 'Enter para sumarlo',
+    },
+    areas: {
+      subtitulo: 'Volvé a puntuar tus áreas con lo que viste esta semana. ¿Cambió cuál te empuja y cuál te frena?',
+    },
+    energia: {
+      kicker: 'Tu mapa de energía',
+      subtitulo: 'Pasaron varias semanas desde que lo hiciste y el mapa cambia con la vida. Volvé a decir cuándo rendís mejor.',
+      noToca: 'Tu mapa de energía está al día. No hace falta cambiarlo todavía.',
+      saltear: 'Lo dejo como está',
+      horaDespertar: 'A qué hora te despertás',
+    },
+    semana: {
+      titulo: 'La semana que viene',
+      subtitulo: 'Cerramos armando la próxima semana. Es una propuesta: la revisás y recién ahí se guarda.',
+      armar: 'Proponeme la semana que viene',
+      armando: 'Armando…',
+      guardar: 'Guardar la semana que viene',
+      yaArmada: 'La semana que viene ya está armada. Podés ajustarla desde Semana.',
+      sinNada: 'No hay nada para proponer todavía: cargá tareas en tus objetivos.',
+    },
+    completo: {
+      titulo: 'Semana cerrada.',
+      subtitulo: 'Mirar para atrás con la verdad es lo que te deja avanzar sin pelearte con vos mismo. Nos vemos en la semana nueva.',
+      irASemana: 'Ver la semana que viene',
+    },
+  },
+
   objetivos: {
     kicker: 'Objetivos',
     titulo: 'Tus objetivos',

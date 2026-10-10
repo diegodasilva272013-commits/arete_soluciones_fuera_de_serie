@@ -346,12 +346,13 @@ export async function proponerSemana(): Promise<{ bloques: BloquePropuesto[]; er
   return { bloques: armarSemana(resultado.datos) };
 }
 
-export async function confirmarSemana(bloques: BloquePropuesto[]): Promise<AccionState> {
+export async function confirmarSemana(bloques: BloquePropuesto[], siguiente = false): Promise<AccionState> {
   const { supabase, user } = await usuarioActual();
   if (!user) return { error: 'No hay sesión.' };
 
   const timezone = await timezoneDelUsuario(supabase, user.id);
-  const lunes = lunesDeLaSemana(timezone);
+  // `siguiente`: la revisión del domingo arma la semana que viene.
+  const lunes = siguiente ? fechaMasDias(lunesDeLaSemana(timezone), 7) : lunesDeLaSemana(timezone);
 
   const filas = bloques.map((b) => {
     const indiceDia = DIAS_SEMANA.indexOf(b.dia);
@@ -365,11 +366,46 @@ export async function confirmarSemana(bloques: BloquePropuesto[]): Promise<Accio
     };
   });
 
+  // Idempotente para la semana que viene (revisión del domingo): si ya hay bloques de tareas esa semana
+  // (doble toque, dos pestañas, reintento tras un corte de red), no se duplican.
+  if (siguiente) {
+    const desde = horaEnTimezoneAUtc(lunes, '00:00', timezone).toISOString();
+    const hasta = horaEnTimezoneAUtc(fechaMasDias(lunes, 7), '00:00', timezone).toISOString();
+    const { count } = await (supabase as any)
+      .from('frecuencia_bloques')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .not('tarea_id', 'is', null)
+      .gte('inicio', desde)
+      .lt('inicio', hasta);
+    if ((count ?? 0) > 0) return { ok: true };
+  }
+
   const { error } = await (supabase as any).from('frecuencia_bloques').insert(filas);
 
   if (error) return { error: error.message };
   revalidatePath('/frecuencia/semana');
   revalidatePath('/frecuencia/hoy');
+  return { ok: true };
+}
+
+export async function guardarRevision(input: { queFunciono: string[]; queNo: string[]; cargaSiguiente?: Record<string, unknown> }): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const limpiar = (xs: string[]) => xs.map((x) => String(x).trim().slice(0, 300)).filter(Boolean).slice(0, 20);
+  const timezone = await timezoneDelUsuario(supabase, user.id);
+  const payload: Record<string, unknown> = {
+    user_id: user.id,
+    semana: lunesDeLaSemana(timezone),
+    que_funciono: limpiar(input.queFunciono),
+    que_no: limpiar(input.queNo),
+  };
+  if (input.cargaSiguiente) payload.carga_siguiente = input.cargaSiguiente;
+
+  const { error } = await (supabase as any).from('frecuencia_revisiones').upsert(payload, { onConflict: 'user_id,semana' });
+  if (error) return { error: 'No se pudo guardar.' };
+  revalidatePath('/frecuencia/revision');
   return { ok: true };
 }
 
