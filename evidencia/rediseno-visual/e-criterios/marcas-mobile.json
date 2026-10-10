@@ -1,0 +1,40 @@
+{
+  "marcas": [
+    {
+      "t": "00:10",
+      "captura": "01-lista-vacia-mobile.png",
+      "nota": "Criterios: regla y test del método (desde la base), sin criterios"
+    },
+    {
+      "t": "00:15",
+      "captura": "-",
+      "nota": "Guardar incompleto → Faltan puntos: completá los cuatro para guardarlo."
+    },
+    {
+      "t": "00:17",
+      "captura": "02-incompleto-mobile.png",
+      "nota": "Faltan puntos: no se guarda (\"si no está escrito, no es criterio\")"
+    },
+    {
+      "t": "00:19",
+      "captura": "03-completo-mobile.png",
+      "nota": "Los cuatro puntos completos, ámbito de equipo"
+    },
+    {
+      "t": "00:25",
+      "captura": "04-lista-con-criterio-mobile.png",
+      "nota": "Criterio guardado, visible en la lista"
+    },
+    {
+      "t": "00:29",
+      "captura": "05-editar-mobile.png",
+      "nota": "Edición del criterio existente"
+    },
+    {
+      "t": "00:33",
+      "captura": "-",
+      "nota": "Editado: Descuentos a clientes nuevos (v2)"
+    }
+  ],
+  "errores": []
+}

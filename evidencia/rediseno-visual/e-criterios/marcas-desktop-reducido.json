@@ -1,0 +1,40 @@
+{
+  "marcas": [
+    {
+      "t": "00:09",
+      "captura": "01-lista-vacia-desktop-reducido.png",
+      "nota": "Criterios: regla y test del método (desde la base), sin criterios"
+    },
+    {
+      "t": "00:12",
+      "captura": "-",
+      "nota": "Guardar incompleto → Faltan puntos: completá los cuatro para guardarlo."
+    },
+    {
+      "t": "00:12",
+      "captura": "02-incompleto-desktop-reducido.png",
+      "nota": "Faltan puntos: no se guarda (\"si no está escrito, no es criterio\")"
+    },
+    {
+      "t": "00:14",
+      "captura": "03-completo-desktop-reducido.png",
+      "nota": "Los cuatro puntos completos, ámbito de equipo"
+    },
+    {
+      "t": "00:17",
+      "captura": "04-lista-con-criterio-desktop-reducido.png",
+      "nota": "Criterio guardado, visible en la lista"
+    },
+    {
+      "t": "00:19",
+      "captura": "05-editar-desktop-reducido.png",
+      "nota": "Edición del criterio existente"
+    },
+    {
+      "t": "00:22",
+      "captura": "-",
+      "nota": "Editado: Descuentos a clientes nuevos (v2)"
+    }
+  ],
+  "errores": []
+}
