@@ -1,216 +1,352 @@
 .wrap {
   position: relative;
-  margin-top: 32px;
+  margin-top: 24px;
+  padding-bottom: 24px;
 }
 
-/* ── Lectura numérica ─────────────────────────────────────────────── */
+/* ── Display de radio ─────────────────────────────────────────────── */
 
-.lectura {
+.display {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  align-items: center;
   gap: 10px;
-  margin-bottom: 18px;
+  margin: 28px 0 20px;
 }
-.lecturaValor {
+.displayDigitos {
+  position: relative;
+  display: inline-block;
   font-family: var(--f-mono), 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 44px;
+  font-size: clamp(72px, 22vw, 148px);
   font-weight: 500;
   line-height: 1;
-  color: var(--hueso);
+  letter-spacing: 0.02em;
+  white-space: pre;
   font-variant-numeric: tabular-nums;
-  transition: color 0.4s ease;
 }
-.lecturaValorEscasez {
-  color: #8a8a8a;
+/* Los "8" apagados, como un display real de segmentos. */
+.displayApagado {
+  color: rgba(242, 239, 233, 0.06);
+  user-select: none;
 }
-.lecturaValorAbundancia {
+.displayEncendido {
+  position: absolute;
+  inset: 0;
+  text-align: right;
+  color: var(--hueso);
+  transition: color 0.5s ease, text-shadow 0.5s ease;
+}
+.displayBajo .displayEncendido {
+  color: #8d8d8d;
+  text-shadow: none;
+}
+.displayAlto .displayEncendido {
   color: var(--azul-luz);
-  text-shadow: 0 0 24px rgba(var(--azul-rgb), 0.5);
+  text-shadow: 0 0 18px rgba(var(--azul-rgb), 0.75), 0 0 60px rgba(var(--azul-rgb), 0.4);
 }
-.lecturaEstacion {
+.displayEstacion {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+}
+.displayLed {
+  width: 7px;
+  height: 7px;
+  background: var(--ceniza);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+.displayAlto .displayLed {
+  background: var(--azul-luz);
+  box-shadow: 0 0 10px rgba(var(--azul-rgb), 0.9);
+}
+.displayAlto .displayEstacion {
+  color: var(--azul-luz);
+}
+
+/* ── La señal + la banda ──────────────────────────────────────────── */
+
+.radio,
+.display {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.radio {
+  --senal-h: clamp(120px, 24vh, 190px);
+  position: relative;
+  margin: 0 -4px;
+}
+.senal {
+  position: relative;
+  height: var(--senal-h);
+  overflow: hidden;
+  border-top: 1px solid var(--linea);
+  border-bottom: 1px solid var(--linea);
+  background: linear-gradient(180deg, rgba(10, 10, 12, 0.7), rgba(10, 10, 12, 0.35));
+  isolation: isolate;
+}
+.estatica {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.ondaSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.banda {
+  position: relative;
+  height: 76px;
+  margin-top: -1px;
+  cursor: ew-resize;
+  touch-action: none;
+  outline: none;
+  user-select: none;
+  background: rgba(10, 10, 12, 0.55);
+  border-bottom: 1px solid var(--linea);
+}
+.banda:focus-visible {
+  box-shadow: inset 0 0 0 1px rgba(var(--azul-rgb), 0.7);
+}
+.marcas,
+.numeros {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.marca {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 10px;
+  margin-left: -0.5px;
+  background: rgba(242, 239, 233, 0.16);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+.marca5 {
+  height: 16px;
+  background: rgba(242, 239, 233, 0.3);
+}
+.marca25 {
+  height: 26px;
+  background: rgba(242, 239, 233, 0.6);
+}
+.marcaClic {
+  background: var(--azul-luz);
+  box-shadow: 0 0 12px rgba(var(--azul-rgb), 0.95);
+}
+.numero {
+  position: absolute;
+  bottom: 10px;
+  transform: translateX(-50%);
   font-family: var(--f-mono), monospace;
   font-size: 10px;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.06em;
+  color: var(--ceniza);
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+.numero:first-child {
+  transform: translateX(0);
+}
+.numero:last-child {
+  transform: translateX(-100%);
+}
+.numeroClic {
+  color: var(--azul-luz);
+  text-shadow: 0 0 10px rgba(var(--azul-rgb), 0.9);
+}
+
+/* La aguja cruza la señal y la banda de punta a punta. */
+.aguja {
+  position: absolute;
+  top: calc(-1 * var(--senal-h));
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0, rgba(242, 239, 233, 0.9) 55%, var(--hueso) 100%);
+  box-shadow: 0 0 10px rgba(var(--azul-rgb), 0.7);
+}
+.agujaAlta {
+  box-shadow: 0 0 14px rgba(var(--azul-rgb), 0.95), 0 0 36px rgba(var(--azul-rgb), 0.55);
+}
+.agujaCabeza {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  background: var(--hueso);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+  transform: rotate(180deg);
+}
+.extremos {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 0 4px;
+  font-family: var(--f-mono), monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ceniza);
 }
 
-/* ── Escena visual (ruido / onda) ─────────────────────────────────── */
+/* ── Energías de escasez: medidores VU ────────────────────────────── */
 
-.escena {
+.energias {
+  margin-top: 36px;
+}
+.energiasTitulo {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--hueso);
+}
+.energiasAyuda {
+  margin-top: 6px;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 14px;
+  color: var(--ceniza);
+}
+.medidores {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+.medidor {
   position: relative;
-  height: 160px;
-  overflow: hidden;
-  border: 1px solid var(--linea);
-  background: var(--negro-2);
-  isolation: isolate;
-}
-
-.capa {
-  position: absolute;
-  inset: 0;
-}
-
-.ruido {
-  background-image: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.05), transparent 40%),
-    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.04), transparent 45%),
-    repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.025) 0, rgba(255, 255, 255, 0.025) 1px, transparent 1px, transparent 3px);
-  filter: grayscale(1) contrast(1.1);
-  animation: ruidoFlicker 0.6s steps(2) infinite;
-}
-@keyframes ruidoFlicker {
-  0% { opacity: 0.9; transform: translate(0, 0); }
-  50% { opacity: 0.7; transform: translate(-1px, 1px); }
-  100% { opacity: 1; transform: translate(1px, 0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ruido {
-    animation: none;
-    opacity: 0.85;
-  }
-}
-
-.ondaSvg {
-  width: 100%;
-  height: 100%;
-}
-.ondaPath {
-  fill: none;
-  stroke: var(--azul-luz);
-  stroke-width: 2;
-  filter: drop-shadow(0 0 8px rgba(var(--azul-rgb), 0.8));
-}
-
-/* ── Banda de sintonía ────────────────────────────────────────────── */
-
-.banda {
-  position: relative;
-  margin-top: 22px;
-  height: 64px;
-}
-.pista {
-  position: absolute;
-  top: 50%;
-  left: 14px;
-  right: 14px;
-  height: 2px;
-  transform: translateY(-50%);
-  background: var(--linea-2);
-}
-.marcas {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 14px;
-  pointer-events: none;
-}
-.marca {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 8px;
+  padding: 12px 8px 10px;
+  border: 1px solid var(--linea);
+  background: rgba(10, 10, 12, 0.5);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.medidorLeds {
+  display: flex;
+  flex-direction: column;
   gap: 4px;
-  padding-top: 20px;
+  width: 100%;
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
 }
-.marcaLinea {
-  width: 1px;
-  height: 8px;
-  background: var(--linea-2);
+.medidorLeds:focus-visible {
+  outline: 1px solid rgba(var(--azul-rgb), 0.8);
 }
-.marcaLabel {
+.led {
+  display: block;
+  height: 9px;
+  width: 100%;
+  background: rgba(242, 239, 233, 0.07);
+  clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+.ledOn.ledVerde {
+  background: #46d17a;
+  box-shadow: 0 0 10px rgba(70, 209, 122, 0.7);
+}
+.ledOn.ledAmbar {
+  background: #f0b429;
+  box-shadow: 0 0 10px rgba(240, 180, 41, 0.7);
+}
+.ledOn.ledRojo {
+  background: #ef4b4b;
+  box-shadow: 0 0 12px rgba(239, 75, 75, 0.8);
+}
+.medidorLeds:active .led:not(.ledOn):first-child {
+  background: rgba(242, 239, 233, 0.18);
+}
+.medidorNumero {
   font-family: var(--f-mono), monospace;
-  font-size: 9px;
-  letter-spacing: 0.05em;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--hueso);
+  font-variant-numeric: tabular-nums;
+}
+.medidorNombre {
+  min-height: 2.6em;
+  text-align: center;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 12.5px;
+  line-height: 1.3;
   color: var(--ceniza);
 }
-.marcaCero .marcaLinea {
-  background: var(--ceniza);
-  height: 12px;
-}
-
-.aguja {
-  position: absolute;
-  top: 50%;
-  width: 26px;
-  height: 26px;
-  margin-left: -13px;
-  margin-top: -13px;
-  background: var(--hueso);
-  border: 2px solid var(--negro);
-  box-shadow: 0 0 0 1px var(--azul), 0 4px 14px rgba(0, 0, 0, 0.5);
-  cursor: grab;
-  touch-action: none;
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-}
-.aguja:active {
-  cursor: grabbing;
-}
-.agujaAbundancia {
-  background: var(--azul-luz);
-  box-shadow: 0 0 0 1px var(--azul-luz), 0 0 20px rgba(var(--azul-rgb), 0.7);
-}
-
-/* ── Energías de escasez ──────────────────────────────────────────── */
-
-.energias {
-  margin-top: 32px;
-}
-.energiasGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1px;
-  background: var(--linea);
-  border: 1px solid var(--linea);
-  margin-top: 12px;
-}
-.energia {
-  background: var(--negro-2);
-  padding: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.15s ease;
-}
-.energia:hover {
-  background: var(--negro-3);
-}
-.energia:active {
-  transform: scale(0.98);
-}
-.energiaNombre {
-  font-family: var(--f-texto), Spectral, Georgia, serif;
-  font-size: 13px;
-  color: var(--hueso);
-}
-.energiaContador {
+.medidorRestar {
+  width: 32px;
+  height: 24px;
+  border: 1px solid var(--linea-2);
+  background: transparent;
+  color: var(--ceniza);
   font-family: var(--f-mono), monospace;
-  font-size: 16px;
-  color: var(--azul-luz);
-  font-variant-numeric: tabular-nums;
-  min-width: 20px;
-  text-align: right;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+.medidorRestar:hover:not(:disabled) {
+  color: var(--hueso);
+  border-color: var(--hueso);
+}
+.medidorRestar:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .medidores {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .banda {
+    height: 70px;
+  }
+  /* En celular solo se rotulan los extremos, el cero y ±50. */
+  .numero:nth-child(2),
+  .numero:nth-child(4),
+  .numero:nth-child(6),
+  .numero:nth-child(8) {
+    display: none;
+  }
 }
 
 /* ── Panel "cambiar de dial" ──────────────────────────────────────── */
 
 .panelCambio {
-  margin-top: 24px;
+  margin-top: 28px;
   padding: 18px;
   border: 1px solid rgba(var(--azul-rgb), 0.25);
-  background: rgba(var(--azul-rgb), 0.05);
+  background: rgba(var(--azul-rgb), 0.06);
   clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
 }
 .panelCambioTitulo {
+  margin-bottom: 10px;
   font-family: var(--f-mono), monospace;
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--azul-luz);
-  margin-bottom: 10px;
 }
 .accionesLista {
   display: flex;
@@ -218,10 +354,27 @@
   gap: 8px;
 }
 .accionChip {
+  padding: 6px 10px;
+  border: 1px solid var(--linea-2);
+  background: rgba(10, 10, 12, 0.6);
   font-family: var(--f-texto), Spectral, Georgia, serif;
   font-size: 12.5px;
   color: var(--hueso);
-  padding: 6px 10px;
-  border: 1px solid var(--linea-2);
-  background: var(--negro-2);
+}
+
+.error {
+  margin-top: 16px;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 14px;
+  color: #ef6b6b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .displayEncendido,
+  .displayLed,
+  .marca,
+  .numero,
+  .led {
+    transition: none;
+  }
 }

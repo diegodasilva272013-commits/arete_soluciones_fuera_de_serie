@@ -66,7 +66,10 @@ export const copy = {
     abundanciaFm: 'Abundancia FM',
     instruccionArrastre: 'Arrastrá la aguja a tu frecuencia de hoy.',
     energiasTitulo: 'Energías de escasez, sin juicio',
-    energiasInstruccion: 'Tocá para sumar.',
+    energiasInstruccion: 'Cada vez que la sentiste hoy, tocá el medidor: se prende una luz.',
+    sumarEnergia: 'Tocá para sumar una',
+    restarEnergia: 'Quitar una',
+    entreLasDos: 'Entre las dos radios',
     avisoNegativo: 'Tu frecuencia está en escasez.',
   },
 

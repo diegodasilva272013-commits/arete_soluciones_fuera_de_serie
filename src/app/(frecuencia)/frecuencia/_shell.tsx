@@ -164,8 +164,8 @@ export function FrecuenciaShell({
   return (
     <Ctx.Provider value={valor}>
       {/* El shader se apaga donde algo más ocupa la GPU: EN EL AIRE (estudio
-          3D a pantalla completa) y el Dial, que tiene su propio gradiente. */}
-      <FondoVivo frecuencia={frecuencia} gradienteActivo={flujosManuales === 0 && !rutaMostrada?.startsWith('/frecuencia/dial')} />
+          3D a pantalla completa). */}
+      <FondoVivo frecuencia={frecuencia} gradienteActivo={flujosManuales === 0} />
 
       <header className={s.header}>
         <Link href="/frecuencia" className={s.marca}>
