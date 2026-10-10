@@ -1,0 +1,30 @@
+{
+  "marcas": [
+    {
+      "t": "00:12",
+      "captura": "01-objetivo-sin-tareas-desktop.png",
+      "nota": "Objetivo sin tareas: botón para que la IA proponga"
+    },
+    {
+      "t": "00:19",
+      "captura": "-",
+      "nota": "Antes de aceptar hay 1 tareas guardadas (la IA solo propone)"
+    },
+    {
+      "t": "00:20",
+      "captura": "02-propuesta-para-revisar-desktop.png",
+      "nota": "Propuesta de la IA: metas por período y tareas con protocolo, sin guardar nada"
+    },
+    {
+      "t": "00:27",
+      "captura": "-",
+      "nota": "Guardadas: [[\"Tarea de prueba\",\"1/null\",0,0],[\"Armar la lista de prospectos\",\"1/3\",0,2],[\"Escribir el mensaje de contacto\",\"1/1\",1,1],[\"Contactar a 10 prospectos\",\"1/4\",2,0]] · metas: 3"
+    },
+    {
+      "t": "00:29",
+      "captura": "03-guardada-desktop.png",
+      "nota": "Guardadas: arrancan con dosis 1 y crecen hasta la objetivo; botón para armar la semana"
+    }
+  ],
+  "errores": []
+}

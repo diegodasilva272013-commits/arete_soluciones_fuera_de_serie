@@ -88,6 +88,32 @@ export const copy = {
     todasIguales: 'Todas tus áreas tienen el mismo número. Movelas para que se note cuál es la más fuerte y cuál la más débil, o elegilas acá abajo.',
   },
 
+  descomposicion: {
+    boton: 'Proponeme las tareas con IA',
+    titulo: 'Bajarlo a tierra',
+    ayuda: 'La IA te propone las tareas y los pasos. Vos las revisás: no se guarda nada hasta que digas que sí.',
+    pensando: 'Pensando cómo bajarlo a tierra…',
+    propuestaTitulo: 'Esto te propongo',
+    metasTitulo: 'Metas por período',
+    tareasTitulo: 'Tareas',
+    dependeDe: 'Va después de:',
+    minutos: (n: number) => `${n} min`,
+    vecesPorSemana: (n: number) => `${n} ${n === 1 ? 'vez' : 'veces'} por semana`,
+    aceptar: 'Guardar estas tareas',
+    otra: 'Pedir otra propuesta',
+    descartar: 'Descartar',
+    guardadas: (n: number) => `Listo: ${n} ${n === 1 ? 'tarea guardada' : 'tareas guardadas'}.`,
+    armarSemana: 'Armar mi semana',
+    errores: {
+      sin_configuracion: 'La IA todavía no está configurada. Avisale a quien administra Frecuencia.',
+      sin_clave: 'La IA todavía no está conectada. Avisale a quien administra Frecuencia.',
+      limite: 'Hay mucha demanda en este momento. Probá de nuevo en un minuto.',
+      proveedor: 'No pudimos hablar con la IA. Probá de nuevo en un momento.',
+      invalida: 'La IA no armó una propuesta que podamos usar. Probá de nuevo.',
+      generico: 'Algo salió mal. Probá de nuevo.',
+    } as Record<string, string>,
+  },
+
   objetivos: {
     kicker: 'Objetivos',
     titulo: 'Tus objetivos',
