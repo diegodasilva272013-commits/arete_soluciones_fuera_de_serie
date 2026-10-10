@@ -18,14 +18,18 @@ function clamp(v: number, min: number, max: number) {
   return Math.min(max, Math.max(min, v));
 }
 
+const SEGMENTOS = 10;
+
 function BandaVertical({
   area,
+  indice,
   nivel,
   esPalanca,
   esManzana,
   onCambiar,
 }: {
   area: AreaVida;
+  indice: number;
   nivel: number;
   esPalanca: boolean;
   esManzana: boolean;
@@ -33,38 +37,49 @@ function BandaVertical({
 }) {
   const pistaRef = useRef<HTMLDivElement>(null);
   const arrastrando = useRef(false);
+  const nivelAlTocar = useRef<number | null>(null);
 
-  const calcularDesdeY = useCallback(
+  const nivelDesdeY = useCallback(
     (clientY: number) => {
       const el = pistaRef.current;
-      if (!el) return;
+      if (!el) return undefined;
       const rect = el.getBoundingClientRect();
-      const fraccion = clamp((rect.bottom - clientY) / rect.height, 0, 1);
-      onCambiar(Math.round(fraccion * 10));
+      // Se descuenta el relleno de la pista: el toque cae en el LED que se tocó
+      // (el primero = 1, cualquier punto por debajo de él = 0).
+      const util = rect.height - 8;
+      const fraccion = clamp((rect.bottom - 4 - clientY) / util, 0, 1);
+      return Math.ceil(fraccion * SEGMENTOS);
     },
-    [onCambiar]
+    []
   );
 
   const onPointerDown = (e: React.PointerEvent) => {
     arrastrando.current = true;
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    calcularDesdeY(e.clientY);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    const n = nivelDesdeY(e.clientY);
+    nivelAlTocar.current = n ?? null;
+    // Tocar el último LED encendido lo apaga (como un interruptor).
+    onCambiar(n !== undefined && n === nivel ? n - 1 : n ?? nivel);
   };
   const onPointerMove = (e: React.PointerEvent) => {
     if (!arrastrando.current) return;
-    calcularDesdeY(e.clientY);
+    const n = nivelDesdeY(e.clientY);
+    if (n === undefined || n === nivelAlTocar.current) return;
+    nivelAlTocar.current = null;
+    onCambiar(n);
   };
   const onPointerUp = () => {
     arrastrando.current = false;
   };
 
-  const rellenoClase = esPalanca ? s.rellenoPalanca : esManzana ? s.rellenoManzana : '';
+  const tono = esPalanca ? s.bandaPalanca : esManzana ? s.bandaManzana : '';
 
   return (
-    <div className={s.banda}>
-      <span className={`${s.nivelLabel} ${esPalanca ? s.nivelLabelPalanca : ''} ${esManzana ? s.nivelLabelManzana : ''}`}>
-        {nivel}
+    <div className={`${s.banda} ${tono}`} style={{ ['--i' as string]: indice }}>
+      <span className={s.etiquetaRol} aria-hidden>
+        {esPalanca ? copy.areas.palancaLabel : esManzana ? copy.areas.manzanaLabel : ''}
       </span>
+      <span className={s.nivelLabel}>{String(nivel).padStart(2, '0')}</span>
       <div
         ref={pistaRef}
         className={s.pistaVertical}
@@ -74,16 +89,26 @@ function BandaVertical({
         onPointerCancel={onPointerUp}
         role="slider"
         aria-label={area.nombre}
+        aria-orientation="vertical"
         aria-valuemin={0}
-        aria-valuemax={10}
+        aria-valuemax={SEGMENTOS}
         aria-valuenow={nivel}
+        aria-valuetext={esPalanca ? `${nivel} · ${copy.areas.palancaLabel}` : esManzana ? `${nivel} · ${copy.areas.manzanaLabel}` : undefined}
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === 'ArrowUp') onCambiar(clamp(nivel + 1, 0, 10));
-          if (e.key === 'ArrowDown') onCambiar(clamp(nivel - 1, 0, 10));
+          let n: number | null = null;
+          if (e.key === 'ArrowUp' || e.key === 'ArrowRight') n = nivel + 1;
+          if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') n = nivel - 1;
+          if (e.key === 'Home') n = 0;
+          if (e.key === 'End') n = SEGMENTOS;
+          if (n === null) return;
+          e.preventDefault();
+          onCambiar(clamp(n, 0, SEGMENTOS));
         }}
       >
-        <div className={`${s.relleno} ${rellenoClase}`} style={{ height: `${(nivel / 10) * 100}%` }} />
+        {Array.from({ length: SEGMENTOS }, (_, i) => (
+          <i key={i} className={`${s.seg} ${i < nivel ? s.segOn : ''} ${i === nivel - 1 ? s.segTope : ''}`} />
+        ))}
       </div>
       <span className={s.nombre}>{area.nombre}</span>
     </div>
@@ -193,9 +218,10 @@ export function Ecualizador({
       <p className={base.subtitulo}>{copy.areas.subtitulo}</p>
 
       <div className={s.bandas}>
-        {areas.map((area) => (
+        {areas.map((area, i) => (
           <BandaVertical
             key={area.key}
+            indice={i}
             area={area}
             nivel={niveles[area.key] ?? 0}
             esPalanca={palanca === area.key}
@@ -215,6 +241,7 @@ export function Ecualizador({
             <button
               key={a.key}
               type="button"
+              aria-pressed={palanca === a.key}
               className={`${s.chipArea} ${palanca === a.key ? s.chipAreaElegidaPalanca : ''}`}
               onClick={() => setPalanca(a.key)}
             >
@@ -232,6 +259,7 @@ export function Ecualizador({
             <button
               key={a.key}
               type="button"
+              aria-pressed={manzana === a.key}
               className={`${s.chipArea} ${manzana === a.key ? s.chipAreaElegidaManzana : ''}`}
               onClick={() => setManzana(a.key)}
             >
@@ -253,7 +281,7 @@ export function Ecualizador({
           role="alert"
           // El aviso puede quedar fuera de vista (las bandas son altas): se lleva a la vista.
           ref={(el) => el?.scrollIntoView({ block: 'center', behavior: 'smooth' })}
-          style={{ color: '#ff8a8a', fontSize: 14, marginTop: 16 }}
+          className={s.error}
         >
           {error}
         </p>
