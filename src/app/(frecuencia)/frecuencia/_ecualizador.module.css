@@ -1,5 +1,6 @@
 .wrap {
   margin-top: 28px;
+  padding-bottom: 128px;
 }
 
 .bandas {
@@ -29,18 +30,24 @@
 .etiquetaRol {
   height: 12px;
   font-family: var(--f-mono), monospace;
-  font-size: 8px;
-  letter-spacing: 0.1em;
+  font-size: 10px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
   color: var(--ceniza);
+}
+.banda:first-child .etiquetaRol {
+  align-self: flex-start;
+}
+.banda:last-child .etiquetaRol {
+  align-self: flex-end;
 }
 .bandaPalanca .etiquetaRol {
   color: var(--azul-luz);
   text-shadow: 0 0 8px rgba(var(--azul-rgb), 0.9);
 }
 .bandaManzana .etiquetaRol {
-  color: #8a8a8a;
+  color: var(--ceniza);
 }
 
 .nivelLabel {
@@ -53,7 +60,7 @@
   color: var(--azul-luz);
 }
 .bandaManzana .nivelLabel {
-  color: #8a8a8a;
+  color: var(--ceniza);
 }
 
 /* La banda: 10 segmentos tipo LED, se arrastra desde cualquier punto. */
@@ -74,7 +81,8 @@
   user-select: none;
 }
 .pistaVertical:focus-visible {
-  border-color: rgba(var(--azul-rgb), 0.8);
+  outline: 2px solid var(--hueso);
+  outline-offset: 3px;
 }
 .seg {
   display: block;
@@ -104,6 +112,10 @@
   background: #4d4d4d;
   animation: titilar 1.4s steps(1) infinite;
 }
+.bandaManzana .pistaVertical {
+  border-color: rgba(242, 239, 233, 0.22);
+  animation: titilar 1.4s steps(1) infinite;
+}
 .bandaManzana .segTope {
   background: #6a6a6a;
 }
@@ -116,6 +128,7 @@
 @media (prefers-reduced-motion: reduce) {
   .banda { animation: none; }
   .bandaManzana .segOn { animation: none; opacity: 0.7; }
+  .bandaManzana .pistaVertical { animation: none; }
   .seg { transition: none; }
 }
 
@@ -182,7 +195,7 @@
   box-shadow: 0 0 10px rgba(var(--azul-rgb), 0.3);
 }
 .chipAreaElegidaManzana {
-  border-color: #8a8a8a;
+  border-color: var(--ceniza);
   color: var(--hueso);
 }
 

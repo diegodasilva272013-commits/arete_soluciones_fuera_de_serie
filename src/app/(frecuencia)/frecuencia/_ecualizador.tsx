@@ -37,26 +37,36 @@ function BandaVertical({
 }) {
   const pistaRef = useRef<HTMLDivElement>(null);
   const arrastrando = useRef(false);
+  const nivelAlTocar = useRef<number | null>(null);
 
-  const calcularDesdeY = useCallback(
+  const nivelDesdeY = useCallback(
     (clientY: number) => {
       const el = pistaRef.current;
-      if (!el) return;
+      if (!el) return undefined;
       const rect = el.getBoundingClientRect();
-      const fraccion = clamp((rect.bottom - clientY) / rect.height, 0, 1);
-      onCambiar(Math.round(fraccion * SEGMENTOS));
+      // Se descuenta el relleno de la pista: el toque cae en el LED que se tocó
+      // (el primero = 1, cualquier punto por debajo de él = 0).
+      const util = rect.height - 8;
+      const fraccion = clamp((rect.bottom - 4 - clientY) / util, 0, 1);
+      return Math.ceil(fraccion * SEGMENTOS);
     },
-    [onCambiar]
+    []
   );
 
   const onPointerDown = (e: React.PointerEvent) => {
     arrastrando.current = true;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    calcularDesdeY(e.clientY);
+    const n = nivelDesdeY(e.clientY);
+    nivelAlTocar.current = n ?? null;
+    // Tocar el último LED encendido lo apaga (como un interruptor).
+    onCambiar(n !== undefined && n === nivel ? n - 1 : n ?? nivel);
   };
   const onPointerMove = (e: React.PointerEvent) => {
     if (!arrastrando.current) return;
-    calcularDesdeY(e.clientY);
+    const n = nivelDesdeY(e.clientY);
+    if (n === undefined || n === nivelAlTocar.current) return;
+    nivelAlTocar.current = null;
+    onCambiar(n);
   };
   const onPointerUp = () => {
     arrastrando.current = false;
@@ -83,6 +93,7 @@ function BandaVertical({
         aria-valuemin={0}
         aria-valuemax={SEGMENTOS}
         aria-valuenow={nivel}
+        aria-valuetext={esPalanca ? `${nivel} · ${copy.areas.palancaLabel}` : esManzana ? `${nivel} · ${copy.areas.manzanaLabel}` : undefined}
         tabIndex={0}
         onKeyDown={(e) => {
           let n: number | null = null;
@@ -230,6 +241,7 @@ export function Ecualizador({
             <button
               key={a.key}
               type="button"
+              aria-pressed={palanca === a.key}
               className={`${s.chipArea} ${palanca === a.key ? s.chipAreaElegidaPalanca : ''}`}
               onClick={() => setPalanca(a.key)}
             >
@@ -247,6 +259,7 @@ export function Ecualizador({
             <button
               key={a.key}
               type="button"
+              aria-pressed={manzana === a.key}
               className={`${s.chipArea} ${manzana === a.key ? s.chipAreaElegidaManzana : ''}`}
               onClick={() => setManzana(a.key)}
             >

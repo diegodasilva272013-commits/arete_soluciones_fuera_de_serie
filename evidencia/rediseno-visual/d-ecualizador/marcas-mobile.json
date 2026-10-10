@@ -1,27 +1,27 @@
 {
   "marcas": [
     {
-      "t": "00:09",
+      "t": "00:10",
       "captura": "01-ecualizador-vacio-mobile.png",
       "nota": "Ecualizador sin datos: 10 bandas LED"
     },
     {
-      "t": "00:17",
+      "t": "00:18",
       "captura": "02-bandas-con-palanca-y-manzana-mobile.png",
       "nota": "Bandas con valores: palanca azul con glow, manzana gris titilando"
     },
     {
-      "t": "00:18",
+      "t": "00:19",
       "captura": "-",
       "nota": "Teclado sube la banda 1"
     },
     {
-      "t": "00:21",
+      "t": "00:22",
       "captura": "-",
       "nota": "Guardó"
     },
     {
-      "t": "00:29",
+      "t": "00:30",
       "captura": "03-recargado-guardado-mobile.png",
       "nota": "Tras recargar: valores, palanca y manzana persistidos"
     }

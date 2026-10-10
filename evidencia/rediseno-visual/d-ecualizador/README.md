@@ -12,3 +12,7 @@ Build de producción local de la rama `claude/frecuencia-ecualizador-visual` con
 | Persistencia: tras guardar y recargar vuelven valores, palanca y manzana | `guardarAreas` (sin cambios) | `actions.ts` | 03 |
 
 Sin cambios de lógica: la palanca/manzana automáticas (PR #5) y los textos (`_copy.ts`) siguen igual. El onboarding usa el mismo componente.
+
+## Revisor independiente
+Bloqueantes: ninguno. Corregido en el commit siguiente: etiqueta de rol cortada en los bordes (se ancla al extremo), rol accesible (`aria-valuetext`, `aria-pressed` en los chips), foco de teclado visible (anillo hueso), el toque cae en el LED tocado (antes el redondeo lo corría) y tocar el último LED lo apaga, tamaño de la etiqueta 8→10 px, colores a tokens, espacio inferior sobre el dock, la manzana en 0 también titila (borde).
+⚠️ No cambiado: el objetivo táctil de cada banda en 390 px mide ~31 px de ancho (10 bandas en una fila) y el arrastre vertical bloquea el scroll mientras el dedo está sobre una banda; el resto de la pantalla sí se puede scrollear.
