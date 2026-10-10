@@ -167,10 +167,8 @@ export function AdminEquipos({ equipos }: { equipos: EquipoConMiembros[] }) {
                   etiqueta={`${t.agregarMiembro} · ${e.nombre}`}
                   excluir={e.miembros.map((m) => m.userId)}
                   deshabilitado={pendiente}
-                  deshabilitado={pendiente}
                   onElegir={(p) => ejecutar(e.id, () => agregarMiembro({ equipoId: e.id, userId: p.id }))}
                 />
-                {errores[e.id] && <p className={s.error} role="alert">{errores[e.id]}</p>}
                 {errores[e.id] && <p className={s.error} role="alert">{errores[e.id]}</p>}
               </div>
             </section>
