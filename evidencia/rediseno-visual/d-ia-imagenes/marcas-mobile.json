@@ -1,0 +1,40 @@
+{
+  "marcas": [
+    {
+      "t": "00:11",
+      "captura": "01-objetivo-sin-imagen-mobile.png",
+      "nota": "Objetivo con sección de imagen mental y ancla por tarea"
+    },
+    {
+      "t": "00:14",
+      "captura": "-",
+      "nota": "Estado real visible mientras se genera (consulta a frecuencia_imagenes)"
+    },
+    {
+      "t": "00:24",
+      "captura": "03-imagen-lista-mobile.png",
+      "nota": "Imagen lista: revelada al pasar el estado real a \"lista\""
+    },
+    {
+      "t": "00:25",
+      "captura": "-",
+      "nota": "Filas: [[\"lista\",true,\"black-forest-labs/flux.1-schnell\"]] · prompt: Una agenda llena de reuniones con clientes, una oficina luminosa y mi equipo celebrando. Fotografía cinematográfica, luz cálida, sin texto ni logos"
+    },
+    {
+      "t": "00:25",
+      "captura": "-",
+      "nota": "Archivos en el bucket bajo mi carpeta: 1"
+    },
+    {
+      "t": "00:36",
+      "captura": "-",
+      "nota": "Con 5 imágenes hoy, el 6º pedido muestra el límite diario"
+    },
+    {
+      "t": "00:37",
+      "captura": "04-limite-diario-mobile.png",
+      "nota": "Límite diario alcanzado: mensaje claro, no se genera nada"
+    }
+  ],
+  "errores": []
+}

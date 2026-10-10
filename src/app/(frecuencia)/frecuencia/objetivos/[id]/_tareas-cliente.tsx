@@ -12,6 +12,7 @@ import { useMemo, useState } from 'react';
 import { calcularPrioridad, type TareaParaPlan, type TipoEnergia } from '@/lib/frecuencia/plan';
 import { crearTarea, actualizarTarea, borrarTarea, type TareaInput } from '../../actions';
 import { copy } from '../../_copy';
+import { GeneradorImagen, type ImagenGuardada } from './_generador-imagen';
 import base from '../../frecuencia.module.css';
 
 export interface TareaDeObjetivo {
@@ -31,7 +32,7 @@ function formVacio(): TareaInput {
   return { objetivoId: '', titulo: '', protocolo: [], tipoEnergia: null, duracionMin: null, dosisActual: 1, dosisObjetivo: null, desbloquea: [] };
 }
 
-export function TareasCliente({ objetivoId, tareasIniciales }: { objetivoId: string; tareasIniciales: TareaDeObjetivo[] }) {
+export function TareasCliente({ objetivoId, tareasIniciales, imagenesPorTarea = {} }: { objetivoId: string; tareasIniciales: TareaDeObjetivo[]; imagenesPorTarea?: Record<string, ImagenGuardada[]> }) {
   const [tareas, setTareas] = useState(tareasIniciales);
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [form, setForm] = useState<TareaInput>({ ...formVacio(), objetivoId });
@@ -153,6 +154,7 @@ export function TareasCliente({ objetivoId, tareasIniciales }: { objetivoId: str
                 {` · ${copy.tareas.dosisActualLabel.toLowerCase()} ${t.dosis_actual}${t.dosis_objetivo ? `/${t.dosis_objetivo}` : ''}`}
                 {t.desbloquea.length > 0 ? ` · desbloquea ${t.desbloquea.length}` : ''}
               </p>
+              <GeneradorImagen tareaId={t.id} imagenes={imagenesPorTarea[t.id] ?? []} titulo={copy.imagenes.anclaTitulo} botonGenerar={copy.imagenes.generarAncla} />
               <div className={base.filaBotones} style={{ marginTop: 14 }}>
                 <button type="button" className={base.btnSec} onClick={() => empezarEdicion(t)}>
                   {copy.tareas.editarTarea}

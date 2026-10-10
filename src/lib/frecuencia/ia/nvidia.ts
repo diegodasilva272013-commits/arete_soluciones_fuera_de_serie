@@ -127,3 +127,46 @@ export async function chatCompletion(args: {
   const llamadas = (m.tool_calls ?? []).filter((c) => !!c && typeof c.id === 'string' && c.type === 'function' && typeof c.function?.name === 'string' && (typeof c.function.arguments === 'string' || c.function.arguments == null)).map((c) => ({ ...c, function: { name: c.function.name, arguments: c.function.arguments ?? '' } }));
   return { role: 'assistant', content: m.content ?? null, tool_calls: llamadas.length ? llamadas : undefined };
 }
+
+// ── Imágenes ──────────────────────────────────────────────────────────
+
+const HOST_IMAGENES = 'ai.api.nvidia.com';
+const MAX_BYTES_IMAGEN = 5 * 1024 * 1024;
+
+/**
+ * El endpoint viene de la base (editable por admins): solo se aceptan https
+ * y el host de NVIDIA para imágenes. En modo de prueba se puede redirigir al
+ * servidor falso con NVIDIA_IMAGES_BASE_URL (se reemplaza el origen).
+ */
+export function endpointImagenSeguro(endpoint: string): string | null {
+  try {
+    const u = new URL(endpoint);
+    if (process.env.FRECUENCIA_IA_MODO_PRUEBA === '1' && process.env.NVIDIA_IMAGES_BASE_URL) {
+      return process.env.NVIDIA_IMAGES_BASE_URL.replace(/\/$/, '') + u.pathname;
+    }
+    return u.protocol === 'https:' && u.hostname === HOST_IMAGENES ? u.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Tipo de imagen por su cabecera real (no por lo que diga el proveedor). */
+export function tipoDeImagen(bytes: Uint8Array): { mime: string; ext: string } | null {
+  if (bytes.length > 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return { mime: 'image/png', ext: 'png' };
+  if (bytes.length > 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return { mime: 'image/jpeg', ext: 'jpg' };
+  if (bytes.length > 12 && bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return { mime: 'image/webp', ext: 'webp' };
+  return null;
+}
+
+export async function generarImagen(args: { endpoint: string; prompt: string; modeloId: string }): Promise<{ bytes: Uint8Array; mime: string; ext: string }> {
+  const url = endpointImagenSeguro(args.endpoint);
+  if (!url) throw new ErrorIA('proveedor', 'El endpoint de imágenes no es válido.');
+  if (!reservarPedido(`img:${args.modeloId}`)) throw new ErrorIA('limite', 'Se alcanzó el límite de pedidos por minuto de este modelo.');
+  const r = (await pedir(url, { prompt: args.prompt, width: 1024, height: 1024, seed: 0, steps: 4 })) as { artifacts?: { base64?: string; finishReason?: string }[]; image?: string };
+  const b64 = r?.artifacts?.[0]?.base64 ?? r?.image;
+  if (typeof b64 !== 'string' || !b64 || (r?.artifacts?.[0]?.finishReason && r.artifacts[0].finishReason !== 'SUCCESS')) throw new ErrorIA('respuesta_invalida', 'La respuesta de imágenes no tiene el formato esperado.');
+  const bytes = new Uint8Array(Buffer.from(b64, 'base64'));
+  const tipo = tipoDeImagen(bytes);
+  if (!tipo || bytes.length > MAX_BYTES_IMAGEN) throw new ErrorIA('respuesta_invalida', 'La imagen recibida no es válida.');
+  return { bytes, ...tipo };
+}
