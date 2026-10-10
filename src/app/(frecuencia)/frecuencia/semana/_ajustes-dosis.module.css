@@ -1,0 +1,59 @@
+.panel {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid rgba(var(--azul-rgb), 0.35);
+  background: linear-gradient(135deg, rgba(var(--azul-rgb), 0.1), rgba(var(--azul-rgb), 0.02));
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.titulo {
+  margin: 0 0 6px;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+.ayuda {
+  margin: 0 0 14px;
+}
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.item {
+  padding: 14px 16px;
+  border-left: 3px solid var(--azul-luz);
+  background: rgba(10, 10, 12, 0.6);
+}
+.bajar {
+  border-left-color: var(--hueso);
+}
+.mensaje {
+  margin: 0 0 6px;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--hueso);
+}
+.datos {
+  margin: 0 0 12px;
+  font-family: var(--f-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+}
+.botones {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.error {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: #ff8a8a;
+}
