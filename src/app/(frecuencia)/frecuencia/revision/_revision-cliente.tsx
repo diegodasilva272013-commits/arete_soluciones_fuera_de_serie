@@ -9,7 +9,7 @@
  */
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Ecualizador } from '../_ecualizador';
 import { guardarAreas, guardarEnergia, guardarRevision, proponerSemana, confirmarSemana } from '../actions';
 import { copy } from '../_copy';
@@ -51,8 +51,9 @@ function Medidor({ etiqueta, pct, detalle, grande }: { etiqueta: string; pct: nu
   );
 }
 
-function ListaEditable({ etiqueta, placeholder, items, onCambiar, id }: { etiqueta: string; placeholder: string; items: string[]; onCambiar: (xs: string[]) => void; id: string }) {
-  const [texto, setTexto] = useState('');
+function ListaEditable({ etiqueta, placeholder, items, onCambiar, id, borrador, onBorrador }: { etiqueta: string; placeholder: string; items: string[]; onCambiar: (xs: string[]) => void; id: string; borrador: string; onBorrador: (t: string) => void }) {
+  const texto = borrador;
+  const setTexto = onBorrador;
   function sumar() {
     const t = texto.trim();
     if (!t) return;
@@ -69,7 +70,7 @@ function ListaEditable({ etiqueta, placeholder, items, onCambiar, id }: { etique
           {items.map((x, i) => (
             <li key={`${i}-${x}`} className={s.item}>
               <span>{x}</span>
-              <button type="button" className={base.chipQuitar} onClick={() => onCambiar(items.filter((_, j) => j !== i))} aria-label={copy.botones.quitar}>
+              <button type="button" className={base.chipQuitar} onClick={() => onCambiar(items.filter((_, j) => j !== i))} aria-label={`${copy.botones.quitar}: ${x}`}>
                 ×
               </button>
             </li>
@@ -135,7 +136,10 @@ export function RevisionCliente({
 
   const [queFunciono, setQueFunciono] = useState(queFuncionoInicial);
   const [queNo, setQueNo] = useState(queNoInicial);
+  const [borradorFunciono, setBorradorFunciono] = useState('');
+  const [borradorNo, setBorradorNo] = useState('');
   const [guardando, setGuardando] = useState(false);
+  const guardandoRef = useRef(false);
   const [error, setError] = useState(false);
 
   const [horaDespertar, setHoraDespertar] = useState(horaDespertarInicial);
@@ -148,9 +152,16 @@ export function RevisionCliente({
   const pctSecundaria = metricas.tareasTotal ? Math.round((metricas.tareasConAvance / metricas.tareasTotal) * 100) : 0;
 
   async function guardarFuncionoYAvanzar() {
+    // Lo escrito sin Enter también cuenta: se vuelca al guardar.
+    const f = borradorFunciono.trim() ? [...queFunciono, borradorFunciono.trim()] : queFunciono;
+    const n = borradorNo.trim() ? [...queNo, borradorNo.trim()] : queNo;
+    setQueFunciono(f);
+    setQueNo(n);
+    setBorradorFunciono('');
+    setBorradorNo('');
     setGuardando(true);
     setError(false);
-    const r = await guardarRevision({ queFunciono, queNo });
+    const r = await guardarRevision({ queFunciono: f, queNo: n });
     setGuardando(false);
     if (r.error) {
       setError(true);
@@ -187,15 +198,18 @@ export function RevisionCliente({
   }
 
   async function guardarSemana() {
-    if (!propuesta) return;
+    if (!propuesta || guardandoRef.current) return;
+    guardandoRef.current = true;
     setGuardando(true);
     setError(false);
     const r = await confirmarSemana(propuesta, true);
-    if (!r.error) await guardarRevision({ queFunciono, queNo, cargaSiguiente: { bloques: propuesta.length, tareas: Array.from(new Set(propuesta.map((b) => b.titulo))).length } });
+    const r2 = r.error ? null : await guardarRevision({ queFunciono, queNo, cargaSiguiente: { bloques: propuesta.length, tareas: Array.from(new Set(propuesta.map((b) => b.titulo))).length } });
     setGuardando(false);
-    if (r.error) {
+    guardandoRef.current = false;
+    // La semana ya quedó guardada aunque el resumen de la revisión falle: se avisa pero no se bloquea.
+    if (r.error || r2?.error) {
       setError(true);
-      return;
+      if (r.error) return;
     }
     avanzar();
   }
@@ -227,7 +241,7 @@ export function RevisionCliente({
               <p className={s.subEtiqueta}>{copy.revision.verdad.porTarea}</p>
               <ul className={s.items}>
                 {metricas.porTarea.map((t) => (
-                  <li key={t.titulo} className={s.fila}>
+                  <li key={`${t.titulo}-${t.planificados}`} className={s.fila}>
                     <span>{t.titulo}</span>
                     <span className={s.filaNumero}>
                       {t.cumplidos}/{t.planificados}
@@ -248,8 +262,8 @@ export function RevisionCliente({
       {paso === 'funciono' && (
         <div className={s.paso}>
           <p className={base.subtitulo}>{copy.revision.funciono.subtitulo}</p>
-          <ListaEditable id="funciono" etiqueta={copy.revision.funciono.queFuncionoLabel} placeholder={copy.revision.funciono.queFuncionoPlaceholder} items={queFunciono} onCambiar={setQueFunciono} />
-          <ListaEditable id="no-funciono" etiqueta={copy.revision.funciono.queNoLabel} placeholder={copy.revision.funciono.queNoPlaceholder} items={queNo} onCambiar={setQueNo} />
+          <ListaEditable id="funciono" etiqueta={copy.revision.funciono.queFuncionoLabel} placeholder={copy.revision.funciono.queFuncionoPlaceholder} items={queFunciono} onCambiar={setQueFunciono} borrador={borradorFunciono} onBorrador={setBorradorFunciono} />
+          <ListaEditable id="no-funciono" etiqueta={copy.revision.funciono.queNoLabel} placeholder={copy.revision.funciono.queNoPlaceholder} items={queNo} onCambiar={setQueNo} borrador={borradorNo} onBorrador={setBorradorNo} />
           {mensajeError}
           <BarraPasos>
             <button type="button" className={base.btnSec} onClick={retroceder}>

@@ -15,3 +15,7 @@ Recorrido completo: Decite la verdad → qué funcionó / qué no → volver a p
 | Sin culpa, todo el texto en `_copy.ts` (`copy.revision`) | `_copy.ts` |
 
 Bug encontrado y corregido durante la prueba: al guardar la energía la página se revalida y el paso "energía" desaparecía, saltando el índice y salteando "la semana que viene". Los pasos ahora se congelan al abrir.
+
+## Revisor independiente
+Bloqueantes: ninguno. Corregido: guardar la semana que viene es idempotente (doble toque, dos pestañas o reintento ya no duplican bloques: el servidor no inserta si esa semana ya tiene bloques de tareas); "ya armada" solo cuenta bloques de tareas (un imprevisto o un no negociable no la dan por armada); lo escrito sin apretar Enter se guarda igual; si falla el resumen de la revisión se avisa sin perder la semana; la métrica de avance cuenta solo tareas planificadas; `aria-label` de quitar incluye el texto.
+Anotado sin cambiar: "Lo dejo como está" en energía vuelve a preguntar la semana siguiente (a propósito, hasta que se actualice); sin mapa de energía previo no se ofrece rediagnóstico (el onboarding ya lo pide); la revisión hecha un lunes se guarda como "esta semana" con datos parciales.

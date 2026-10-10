@@ -44,7 +44,7 @@ export default async function RevisionPage() {
     planificados: lista.reduce((n, t) => n + t.planificados, 0),
     cumplidos: lista.reduce((n, t) => n + t.cumplidos, 0),
     tareasConAvance: lista.filter((t) => t.cumplidos > 0).length,
-    tareasTotal: lista.length,
+    tareasTotal: lista.filter((t) => t.planificados > 0).length,
     porTarea: lista.filter((t) => t.planificados > 0).map((t) => ({ titulo: t.titulo, planificados: t.planificados, cumplidos: t.cumplidos })),
   };
 
@@ -82,6 +82,7 @@ export default async function RevisionPage() {
     .from('frecuencia_bloques')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', ctx.userId)
+    .not('tarea_id', 'is', null)
     .gte('inicio', hasta)
     .lt('inicio', hastaSiguiente);
 

@@ -366,6 +366,21 @@ export async function confirmarSemana(bloques: BloquePropuesto[], siguiente = fa
     };
   });
 
+  // Idempotente para la semana que viene (revisión del domingo): si ya hay bloques de tareas esa semana
+  // (doble toque, dos pestañas, reintento tras un corte de red), no se duplican.
+  if (siguiente) {
+    const desde = horaEnTimezoneAUtc(lunes, '00:00', timezone).toISOString();
+    const hasta = horaEnTimezoneAUtc(fechaMasDias(lunes, 7), '00:00', timezone).toISOString();
+    const { count } = await (supabase as any)
+      .from('frecuencia_bloques')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .not('tarea_id', 'is', null)
+      .gte('inicio', desde)
+      .lt('inicio', hasta);
+    if ((count ?? 0) > 0) return { ok: true };
+  }
+
   const { error } = await (supabase as any).from('frecuencia_bloques').insert(filas);
 
   if (error) return { error: error.message };
