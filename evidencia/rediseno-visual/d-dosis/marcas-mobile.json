@@ -1,0 +1,35 @@
+{
+  "marcas": [
+    {
+      "t": "00:10",
+      "captura": "01-propuestas-de-dosis-mobile.png",
+      "nota": "Semana con dos propuestas: subir \"Entrenar\" (2→3) y bajar \"Escribir el informe\" (3→2), sin culpa"
+    },
+    {
+      "t": "00:16",
+      "captura": "02-tras-aceptar-mobile.png",
+      "nota": "Aceptó la suba: esa propuesta desaparece"
+    },
+    {
+      "t": "00:23",
+      "captura": "-",
+      "nota": "Tras recargar: la suba ya aceptada NO se vuelve a proponer con el mismo historial (solo queda la de bajar)"
+    },
+    {
+      "t": "00:25",
+      "captura": "02b-sin-cadena-mobile.png",
+      "nota": "Recargar: queda solo la propuesta de bajar; Entrenar no vuelve a subir en cadena"
+    },
+    {
+      "t": "00:28",
+      "captura": "03-tras-dejarlo-mobile.png",
+      "nota": "Dejó la otra como está: el panel se oculta"
+    },
+    {
+      "t": "00:29",
+      "captura": "-",
+      "nota": "Base tras aceptar/dejar: [{\"titulo\":\"Entrenar\",\"dosis_actual\":3},{\"titulo\":\"Escribir el informe\",\"dosis_actual\":3}]"
+    }
+  ],
+  "errores": []
+}

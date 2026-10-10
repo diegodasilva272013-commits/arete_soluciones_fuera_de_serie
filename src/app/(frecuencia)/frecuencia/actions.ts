@@ -11,6 +11,7 @@ import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { fechaLocal, momentoDelDia, lunesDeLaSemana, fechaMasDias, horaEnTimezoneAUtc } from '@/lib/frecuencia-fecha';
 import { obtenerDatosParaArmarSemana, obtenerDatosEnElAire, type DatosEnElAire } from '@/lib/frecuencia-semana';
+import { obtenerAjustesDosis } from '@/lib/frecuencia-dosis';
 import { armarSemana, DIAS_SEMANA, type BloquePropuesto } from '@/lib/frecuencia/plan';
 import type { FrecuenciaFranja, NoNegociableGuardado } from '@/types/frecuencia';
 
@@ -370,6 +371,27 @@ export async function confirmarSemana(bloques: BloquePropuesto[]): Promise<Accio
   if (error) return { error: error.message };
   revalidatePath('/frecuencia/semana');
   revalidatePath('/frecuencia/hoy');
+  return { ok: true };
+}
+
+/**
+ * Aplica un ajuste de dosis que la persona confirmó. Se vuelve a calcular
+ * la propuesta en el servidor y solo se aplica si coincide: nunca se cambia
+ * una dosis a un valor arbitrario que mande el cliente.
+ */
+export async function aplicarAjusteDosis(tareaId: string, nuevaDosis: number): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const timezone = await timezoneDelUsuario(supabase, user.id);
+  const propuestas = await obtenerAjustesDosis(user.id, timezone);
+  const propuesta = propuestas.find((p) => p.tareaId === tareaId && p.a === nuevaDosis);
+  if (!propuesta) return { error: 'Ese ajuste ya no corresponde.' };
+
+  const { error } = await (supabase as any).from('frecuencia_tareas').update({ dosis_actual: nuevaDosis }).eq('id', tareaId).eq('user_id', user.id);
+  if (error) return { error: 'No se pudo guardar.' };
+  revalidatePath('/frecuencia/semana');
+  revalidatePath('/frecuencia/objetivos');
   return { ok: true };
 }
 
