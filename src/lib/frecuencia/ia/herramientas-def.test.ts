@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFINICIONES, NOMBRES_HERRAMIENTAS, parsearArgumentos, validarArmarSemana, validarCrearObjetivo, validarCrearTarea, validarEscribirCriterio, validarIniciarBloque, validarRegistrarEvidencia } from './herramientas-def';
+import { fechaCalendarioValida, hashPropuesta, puedeConfirmarSemana, DEFINICIONES, NOMBRES_HERRAMIENTAS, parsearArgumentos, validarArmarSemana, validarCrearObjetivo, validarCrearTarea, validarEscribirCriterio, validarIniciarBloque, validarRegistrarEvidencia } from './herramientas-def';
 
 const ID = '3f2b8c1e-5a4d-4e8b-9c1a-2b7d6e5f4a3c';
 
@@ -41,9 +41,10 @@ describe('validarCrearTarea', () => {
 });
 
 describe('otras validaciones', () => {
-  it('armar_semana: confirmar solo true cuenta', () => {
-    expect(validarArmarSemana({})).toEqual({ ok: true, datos: { confirmar: false } });
-    expect(validarArmarSemana({ confirmar: true })).toEqual({ ok: true, datos: { confirmar: true } });
+  it('armar_semana: confirmar solo true cuenta y exige el hash de la propuesta mostrada', () => {
+    expect(validarArmarSemana({})).toEqual({ ok: true, datos: { confirmar: false, propuestaHash: null } });
+    expect(validarArmarSemana({ confirmar: true }).ok).toBe(false);
+    expect(validarArmarSemana({ confirmar: true, propuesta_hash: 'abc123' })).toEqual({ ok: true, datos: { confirmar: true, propuestaHash: 'abc123' } });
     expect(validarArmarSemana({ confirmar: 'si' }).ok).toBe(false);
   });
   it('iniciar_bloque y registrar_evidencia', () => {
@@ -65,5 +66,34 @@ describe('otras validaciones', () => {
     expect(parsearArgumentos('{"a":1}')).toEqual({ a: 1 });
     expect(parsearArgumentos('')).toEqual({});
     expect(parsearArgumentos('{roto')).toBeNull();
+  });
+});
+
+describe('compuerta de confirmación de la semana', () => {
+  const base = { hashMostrado: 'aaaa', hayRespuestaPosterior: true, hashActual: 'aaaa', hashSolicitado: 'aaaa' };
+  it('deja guardar solo lo mostrado, tal cual, y con la respuesta de la persona', () => {
+    expect(puedeConfirmarSemana(base)).toEqual({ ok: true });
+  });
+  it('no deja si nunca se mostró, si la persona no respondió, si el hash no coincide o si la propuesta cambió', () => {
+    expect(puedeConfirmarSemana({ ...base, hashMostrado: null }).ok).toBe(false);
+    expect(puedeConfirmarSemana({ ...base, hayRespuestaPosterior: false }).ok).toBe(false);
+    expect(puedeConfirmarSemana({ ...base, hashSolicitado: 'bbbb' }).ok).toBe(false);
+    expect(puedeConfirmarSemana({ ...base, hashSolicitado: null }).ok).toBe(false);
+    expect(puedeConfirmarSemana({ ...base, hashActual: 'cccc' }).ok).toBe(false);
+  });
+  it('hashPropuesta es determinístico y sensible al contenido', () => {
+    expect(hashPropuesta([{ a: 1 }])).toBe(hashPropuesta([{ a: 1 }]));
+    expect(hashPropuesta([{ a: 1 }])).not.toBe(hashPropuesta([{ a: 2 }]));
+    expect(hashPropuesta([])).toMatch(/^[0-9a-f]{8}$/);
+  });
+});
+
+describe('fechaCalendarioValida', () => {
+  it('rechaza fechas que no existen', () => {
+    expect(fechaCalendarioValida('2026-03-31')).toBe(true);
+    expect(fechaCalendarioValida('2026-02-31')).toBe(false);
+    expect(fechaCalendarioValida('2026-99-99')).toBe(false);
+    expect(fechaCalendarioValida('31/03/2026')).toBe(false);
+    expect(fechaCalendarioValida(20260331)).toBe(false);
   });
 });

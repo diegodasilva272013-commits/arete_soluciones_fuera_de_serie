@@ -58,7 +58,36 @@ describe('chatCompletion', () => {
     await expect(chatCompletion({ modelo: 'd', mensajes: [] })).rejects.toMatchObject({ codigo: 'respuesta_invalida' });
   });
 
-  it('respeta NVIDIA_CHAT_BASE_URL (servidor falso de pruebas)', async () => {
+  it('ignora NVIDIA_CHAT_BASE_URL fuera del modo de prueba (nunca manda la clave a otro host)', async () => {
+    process.env.NVIDIA_CHAT_BASE_URL = 'http://evil.example/v1';
+    delete process.env.FRECUENCIA_IA_MODO_PRUEBA;
+    const f = vi.fn().mockResolvedValue(respuesta({ choices: [{ message: { role: 'assistant', content: 'ok' } }] }));
+    vi.stubGlobal('fetch', f);
+    await chatCompletion({ modelo: 'x1', mensajes: [] });
+    expect(f.mock.calls[0][0]).toBe('https://integrate.api.nvidia.com/v1/chat/completions');
+    expect(f.mock.calls[0][1].redirect).toBe('error');
+  });
+
+  it('descarta llamadas a herramientas mal formadas', async () => {
+    const tool_calls = [{ id: 'ok', type: 'function', function: { name: 'crear_objetivo', arguments: '{}' } }, { id: 'mal', type: 'function', function: {} }, { type: 'otra' }];
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(respuesta({ choices: [{ message: { role: 'assistant', content: null, tool_calls } }] })));
+    const r = await chatCompletion({ modelo: 'x2', mensajes: [] });
+    expect(r.tool_calls).toHaveLength(1);
+  });
+
+  it('timeout y la clave nunca aparecen en los mensajes de error', async () => {
+    const abort = Object.assign(new Error('abort'), { name: 'AbortError' });
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abort));
+    const e1 = await chatCompletion({ modelo: 'x3', mensajes: [] }).catch((e) => e);
+    expect(e1.codigo).toBe('timeout');
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('fallo con clave-de-prueba')));
+    const e2 = await chatCompletion({ modelo: 'x4', mensajes: [] }).catch((e) => e);
+    expect(e2.codigo).toBe('proveedor');
+    expect(String(e2.message)).not.toContain('clave-de-prueba');
+  });
+
+  it('con FRECUENCIA_IA_MODO_PRUEBA=1 respeta NVIDIA_CHAT_BASE_URL (servidor falso)', async () => {
+    process.env.FRECUENCIA_IA_MODO_PRUEBA = '1';
     process.env.NVIDIA_CHAT_BASE_URL = 'http://localhost:9999/v1';
     const f = vi.fn().mockResolvedValue(respuesta({ choices: [{ message: { role: 'assistant', content: 'ok' } }] }));
     vi.stubGlobal('fetch', f);

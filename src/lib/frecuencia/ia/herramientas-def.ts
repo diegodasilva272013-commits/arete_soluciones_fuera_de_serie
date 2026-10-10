@@ -33,8 +33,9 @@ export const DEFINICIONES: DefinicionHerramienta[] = [
     duracion_min: { type: 'integer', minimum: 5, maximum: 480 },
     dosis_objetivo: { type: 'integer', minimum: 1, maximum: 7, description: 'Veces por semana a las que se quiere llegar.' },
   }, ['objetivo_id', 'titulo']),
-  fn('armar_semana', 'Propone la semana (sin guardar) o, con confirmar=true y después de que la persona dijo que sí, la guarda.', {
-    confirmar: { type: 'boolean', description: 'false o ausente: solo propone. true: guarda la propuesta vigente.' },
+  fn('armar_semana', 'Propone la semana (sin guardar). Para guardarla: confirmar=true, con el propuesta_hash que devolvió la propuesta, SOLO después de que la persona dijo que sí en un mensaje posterior.', {
+    confirmar: { type: 'boolean', description: 'false o ausente: solo propone. true: guarda la propuesta que la persona aceptó.' },
+    propuesta_hash: { type: 'string', description: 'El propuesta_hash de la propuesta que se le mostró (obligatorio con confirmar=true).' },
   }, []),
   fn('iniciar_bloque', 'Sale al aire con un bloque programado.', { bloque_id: { type: 'string' } }, ['bloque_id']),
   fn('registrar_evidencia', 'Anota algo que la persona hizo hoy.', { texto: { type: 'string' } }, ['texto']),
@@ -71,7 +72,7 @@ export function validarCrearObjetivo(a: unknown): Validacion<DatosCrearObjetivo>
   const o = objeto(a);
   const titulo = texto(o?.titulo, 200);
   if (!titulo) return { ok: false, error: 'Falta el título del objetivo.' };
-  const fecha = o?.fecha_limite == null ? null : typeof o.fecha_limite === 'string' && FECHA.test(o.fecha_limite) ? o.fecha_limite : undefined;
+  const fecha = o?.fecha_limite == null ? null : fechaCalendarioValida(o.fecha_limite) ? o.fecha_limite : undefined;
   if (fecha === undefined) return { ok: false, error: 'La fecha límite tiene que ser YYYY-MM-DD.' };
   return { ok: true, datos: { titulo, imagenMental: texto(o?.imagen_mental, 600), areaKey: texto(o?.area_key, 60), fechaLimite: fecha, identidadQueExpresa: texto(o?.identidad_que_expresa, 300) } };
 }
@@ -92,10 +93,49 @@ export function validarCrearTarea(a: unknown): Validacion<DatosCrearTarea> {
   return { ok: true, datos: { objetivoId: o.objetivo_id, titulo, protocolo, tipoEnergia: tipo, duracionMin: duracion, dosisObjetivo: dosis } };
 }
 
-export function validarArmarSemana(a: unknown): Validacion<{ confirmar: boolean }> {
+export function validarArmarSemana(a: unknown): Validacion<{ confirmar: boolean; propuestaHash: string | null }> {
   const o = objeto(a);
   if (o?.confirmar != null && typeof o.confirmar !== 'boolean') return { ok: false, error: 'confirmar tiene que ser true o false.' };
-  return { ok: true, datos: { confirmar: o?.confirmar === true } };
+  const hash = texto(o?.propuesta_hash, 40);
+  if (o?.confirmar === true && !hash) return { ok: false, error: 'Para confirmar hace falta el propuesta_hash de la propuesta que se le mostró a la persona.' };
+  return { ok: true, datos: { confirmar: o?.confirmar === true, propuestaHash: hash } };
+}
+
+/** Hash corto y determinístico (FNV-1a) de una propuesta: lo que se le MUESTRA es lo que se guarda. */
+export function hashPropuesta(valor: unknown): string {
+  const s = JSON.stringify(valor);
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(16).padStart(8, '0');
+}
+
+export interface EstadoConfirmacionSemana {
+  /** Hash de la última propuesta que se le mostró a la persona en esta conversación (null si no hubo). */
+  hashMostrado: string | null;
+  /** ¿Hubo un mensaje de la PERSONA después de esa propuesta? (su "sí") */
+  hayRespuestaPosterior: boolean;
+  /** Hash de la propuesta que se calcularía ahora. */
+  hashActual: string;
+  /** Hash que pidió el modelo guardar. */
+  hashSolicitado: string | null;
+}
+/** Compuerta de confirmación: solo se guarda lo que se mostró, tal cual, y después de que la persona respondió. */
+export function puedeConfirmarSemana(e: EstadoConfirmacionSemana): { ok: true } | { ok: false; error: string } {
+  if (!e.hashMostrado) return { ok: false, error: 'Primero hay que proponerle la semana a la persona y esperar su sí.' };
+  if (!e.hayRespuestaPosterior) return { ok: false, error: 'Todavía no respondió: esperá su sí antes de guardar.' };
+  if (!e.hashSolicitado || e.hashSolicitado !== e.hashMostrado) return { ok: false, error: 'Esa no es la propuesta que se le mostró.' };
+  if (e.hashActual !== e.hashMostrado) return { ok: false, error: 'La propuesta cambió desde que se la mostraste: volvé a proponerla.' };
+  return { ok: true };
+}
+
+/** Fecha YYYY-MM-DD que existe en el calendario (rechaza 2026-02-31). */
+export function fechaCalendarioValida(f: unknown): f is string {
+  if (typeof f !== 'string' || !FECHA.test(f)) return false;
+  const d = new Date(`${f}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === f;
 }
 
 export function validarIniciarBloque(a: unknown): Validacion<{ bloqueId: string }> {
