@@ -269,6 +269,80 @@ export async function crearTarea(input: TareaInput): Promise<AccionState & { id?
   return { ok: true, id: data.id };
 }
 
+export async function crearObjetivoNuevo(input: {
+  titulo: string;
+  imagenMental: string | null;
+  areaKey: string | null;
+  fechaLimite: string | null;
+  identidadQueExpresa: string | null;
+}): Promise<AccionState & { id?: string }> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const { data, error } = await (supabase as any)
+    .from('frecuencia_objetivos')
+    .insert({
+      user_id: user.id,
+      titulo: input.titulo,
+      imagen_mental: input.imagenMental,
+      area_key: input.areaKey,
+      fecha_limite: input.fechaLimite,
+      identidad_que_expresa: input.identidadQueExpresa,
+    })
+    .select('id')
+    .single();
+  if (error) return { error: 'No se pudo guardar.' };
+  revalidatePath('/frecuencia/objetivos');
+  return { ok: true, id: data.id };
+}
+
+export async function guardarCriterio(input: {
+  id?: string;
+  ambito: 'personal' | 'equipo';
+  equipoId?: string | null;
+  titulo: string;
+  queSeDecide: string;
+  queEntra: string;
+  queNoEntra: string;
+  costoSiSaleMal: string;
+  reversible: boolean;
+  tiempoReversibilidad: string | null;
+  quienAsumeResponsabilidad?: string | null;
+}): Promise<AccionState & { id?: string }> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  // "Si no está escrito, no es criterio": los 4 puntos son obligatorios.
+  const completos = [input.titulo, input.queSeDecide, input.queEntra, input.queNoEntra, input.costoSiSaleMal].every((x) => typeof x === 'string' && x.trim());
+  if (!completos) return { error: 'Faltan puntos del criterio.' };
+  if (input.reversible && !input.tiempoReversibilidad?.trim()) return { error: 'Falta el tiempo de reversibilidad.' };
+
+  const fila = {
+    user_id: user.id,
+    ambito: input.ambito,
+    equipo_id: input.ambito === 'equipo' ? input.equipoId ?? null : null,
+    titulo: input.titulo.trim(),
+    que_se_decide: input.queSeDecide.trim(),
+    que_entra: input.queEntra.trim(),
+    que_no_entra: input.queNoEntra.trim(),
+    costo_si_sale_mal: input.costoSiSaleMal.trim(),
+    reversible: input.reversible,
+    tiempo_reversibilidad: input.reversible ? input.tiempoReversibilidad!.trim() : null,
+    quien_asume_responsabilidad: input.quienAsumeResponsabilidad?.trim() || null,
+  };
+
+  if (input.id) {
+    const { error } = await (supabase as any).from('frecuencia_criterios').update(fila).eq('id', input.id).eq('user_id', user.id);
+    if (error) return { error: 'No se pudo guardar.' };
+    revalidatePath('/frecuencia/criterios');
+    return { ok: true, id: input.id };
+  }
+  const { data, error } = await (supabase as any).from('frecuencia_criterios').insert(fila).select('id').single();
+  if (error) return { error: 'No se pudo guardar.' };
+  revalidatePath('/frecuencia/criterios');
+  return { ok: true, id: data.id };
+}
+
 export async function actualizarTarea(tareaId: string, input: TareaInput): Promise<AccionState> {
   const { supabase, user } = await usuarioActual();
   if (!user) return { error: 'No hay sesión.' };
