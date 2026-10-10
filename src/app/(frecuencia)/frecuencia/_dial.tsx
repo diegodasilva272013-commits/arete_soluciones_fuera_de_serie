@@ -20,7 +20,7 @@
  * Con prefers-reduced-motion: sin inercia, ruido quieto y onda sin animar.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { animate, motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from 'framer-motion';
 import { copy } from './_copy';
 import type { EnergiaEscasez } from '@/types/frecuencia';
@@ -43,8 +43,8 @@ const SEMILLAS = Array.from({ length: 121 }, (_, i) => {
   return x - Math.floor(x);
 });
 
-function caminoSenal(valor: number, fase: number): string {
-  const t = (valor + 100) / 200; // 0 escasez … 1 abundancia
+function caminoSenal(valorCrudo: number, fase: number): string {
+  const t = (clamp(valorCrudo, -100, 100) + 100) / 200; // 0 escasez … 1 abundancia
   const sucio = Math.pow(1 - t, 1.4);
   const puntos: string[] = [];
   for (let i = 0; i <= 120; i++) {
@@ -108,7 +108,9 @@ export function Dial({
     velocidad: 0,
   });
 
-  const izquierda = useTransform(aguja, (v) => `${((v + 100) / 200) * 100}%`);
+  const izquierda = useTransform(aguja, (v) => `${((clamp(v, -100, 100) + 100) / 200) * 100}%`);
+  const idGlow = `dialGlow${useId().replace(/:/g, '')}`;
+  const inercia = useRef<{ stop: () => void } | null>(null);
 
   // Lectura entera + "clic" al cruzar cada 25 + fondo vivo en vivo (de a 10).
   const valorPrevio = useRef(inicial);
@@ -133,6 +135,7 @@ export function Dial({
 
   // Si se va sin guardar, el fondo vuelve al dial real de hoy.
   useEffect(() => () => {
+    inercia.current?.stop();
     if (!guardado.current) restaurarFondo();
   }, [restaurarFondo]);
 
@@ -206,7 +209,10 @@ export function Dial({
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    if (e.button !== 0) return;
+    inercia.current?.stop();
     aguja.stop();
+    guardado.current = false;
     arrastre.current = { activo: true, ultimoX: e.clientX, ultimoT: performance.now(), velocidad: 0 };
     aguja.set(valorDesdeX(e.clientX));
   };
@@ -227,7 +233,7 @@ export function Dial({
     a.activo = false;
     if (reducido || Math.abs(a.velocidad) < 20) return;
     // Inercia: la aguja sigue un poco con la velocidad que traía.
-    animate(aguja, aguja.get(), {
+    inercia.current = animate(aguja, aguja.get(), {
       type: 'inertia',
       velocity: a.velocidad,
       power: 0.25,
@@ -244,11 +250,15 @@ export function Dial({
     let nuevo: number | null = null;
     if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') nuevo = valor - salto;
     if (e.key === 'ArrowRight' || e.key === 'ArrowUp') nuevo = valor + salto;
+    if (e.key === 'PageDown') nuevo = valor - 10;
+    if (e.key === 'PageUp') nuevo = valor + 10;
     if (e.key === 'Home') nuevo = -100;
     if (e.key === 'End') nuevo = 100;
     if (nuevo === null) return;
     e.preventDefault();
+    inercia.current?.stop();
     aguja.stop();
+    guardado.current = false;
     aguja.set(clamp(nuevo, -100, 100));
   };
 
@@ -279,14 +289,14 @@ export function Dial({
       {!sinInstruccion && <p className={base.subtitulo}>{copy.dial.instruccionArrastre}</p>}
 
       {/* ── Display de radio ── */}
-      <div className={`${s.display} ${enAbundancia ? s.displayAlto : enEscasez ? s.displayBajo : ''}`} aria-live="polite">
+      <div className={`${s.display} ${enAbundancia ? s.displayAlto : enEscasez ? s.displayBajo : ''}`} aria-atomic>
         <span className={s.displayDigitos}>
           <span className={s.displayApagado} aria-hidden>
             -888
           </span>
           <span className={s.displayEncendido}>{textoValor.padStart(4, ' ')}</span>
         </span>
-        <span className={s.displayEstacion}>
+        <span className={s.displayEstacion} aria-live="polite">
           <i className={s.displayLed} aria-hidden />
           {enAbundancia ? copy.dial.abundanciaFm : enEscasez ? copy.dial.escasezFm : copy.dial.entreLasDos}
         </span>
@@ -298,7 +308,7 @@ export function Dial({
           <canvas ref={ruidoRef} className={s.estatica} style={{ opacity: Math.pow(1 - t, 1.3) * 0.85 }} />
           <svg className={s.ondaSvg} viewBox={`0 0 ${ANCHO} ${ALTO_SENAL}`} preserveAspectRatio="none">
             <defs>
-              <filter id="dialGlow" filterUnits="userSpaceOnUse" x="-20" y="-40" width={ANCHO + 40} height={ALTO_SENAL + 80}>
+              <filter id={idGlow} filterUnits="userSpaceOnUse" x="-20" y="-40" width={ANCHO + 40} height={ALTO_SENAL + 80}>
                 <feGaussianBlur stdDeviation={3 + 4 * t} result="b" />
                 <feMerge>
                   <feMergeNode in="b" />
@@ -313,8 +323,8 @@ export function Dial({
               stroke={`rgba(${Math.round(150 - 58 * t)}, ${Math.round(150 + 4 * t)}, ${Math.round(150 + 105 * t)}, ${0.35 + 0.65 * t})`}
               strokeWidth={1.2 + 1.6 * t}
               vectorEffect="non-scaling-stroke"
-              filter={t > 0.45 ? 'url(#dialGlow)' : undefined}
-              initial={reducido ? false : { pathLength: 0 }}
+              filter={t > 0.45 ? `url(#${idGlow})` : undefined}
+              initial={reducido === false ? { pathLength: 0 } : false}
               animate={{ pathLength: 1 }}
               transition={{ duration: 1.6, ease: [0.16, 0.84, 0.28, 1] }}
             />
@@ -326,6 +336,7 @@ export function Dial({
           className={s.banda}
           role="slider"
           aria-label={copy.dial.kicker}
+          aria-orientation="horizontal"
           aria-valuemin={-100}
           aria-valuemax={100}
           aria-valuenow={valor}

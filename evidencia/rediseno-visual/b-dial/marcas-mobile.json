@@ -6,7 +6,7 @@
       "nota": "Dial recién abierto, sin valor de hoy: \"Entre las dos radios\""
     },
     {
-      "t": "00:15",
+      "t": "00:16",
       "captura": "02-escasez-fuerte-mobile.png",
       "nota": "Arrastre a -90: estática, dígitos grises, LEDs"
     },
@@ -31,7 +31,7 @@
       "nota": "Teclado End = +100: onda azul limpia, glow, fondo sintonizado"
     },
     {
-      "t": "00:32",
+      "t": "00:33",
       "captura": "06-teclado-flechas-mobile.png",
       "nota": "Flechas y Shift: aguja se mueve con teclado"
     },
@@ -41,7 +41,7 @@
       "nota": "guardó valor 100; url /frecuencia/dial"
     },
     {
-      "t": "00:37",
+      "t": "00:38",
       "captura": "07-despues-de-guardar-mobile.png",
       "nota": "Después de guardar"
     }

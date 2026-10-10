@@ -27,3 +27,8 @@ Build de producción local de la rama `claude/frecuencia-dial`, contra la base r
 
 ## Qué no cambia
 La firma del componente es la misma: lo siguen usando el paso 1 del onboarding, `/frecuencia/dial` y el Cierre del día sin tocar sus archivos (salvo `sinInstruccion` en el onboarding).
+
+## Revisor independiente
+Bloqueantes: ninguno. Importantes corregidos: (1) la inercia podía pasarse de ±100 y dejar `NaN` en la onda → clamp; (3) tras guardar en `/dial`, mover la aguja y salir no restauraba el fondo → `guardado` se reinicia al tocar; (4) el dock tapaba el final → más espacio inferior. Menores corregidos: reduced-motion en el primer render, click derecho, PageUp/PageDown, `aria-orientation`, `aria-live` solo en la estación, `useId` para el filtro, se detiene la inercia al desmontar.
+No tocado a propósito: (2) el shader ahora corre también en `/dial` — ⚠️ sin medir en un celular real de gama baja; (5) en ±100 la aguja se superpone con la etiqueta del extremo (es la posición real del valor).
+Nota: el revisor no encontró `docs/FRECUENCIA_HANDOFF.md` porque vive en otra rama, no en main.

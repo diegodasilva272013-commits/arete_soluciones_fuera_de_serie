@@ -1,17 +1,17 @@
 {
   "marcas": [
     {
-      "t": "00:08",
+      "t": "00:07",
       "captura": "01-dial-en-cero-desktop-reducido.png",
       "nota": "Dial recién abierto, sin valor de hoy: \"Entre las dos radios\""
     },
     {
-      "t": "00:13",
+      "t": "00:12",
       "captura": "02-escasez-fuerte-desktop-reducido.png",
       "nota": "Arrastre a -90: estática, dígitos grises, LEDs"
     },
     {
-      "t": "00:15",
+      "t": "00:14",
       "captura": "03-energias-medidores-desktop-reducido.png",
       "nota": "Medidores VU con 3 / 6 / 9 / 1 LEDs (verde, ámbar, rojo)"
     },
@@ -31,7 +31,7 @@
       "nota": "Teclado End = +100: onda azul limpia, glow, fondo sintonizado"
     },
     {
-      "t": "00:24",
+      "t": "00:23",
       "captura": "06-teclado-flechas-desktop-reducido.png",
       "nota": "Flechas y Shift: aguja se mueve con teclado"
     },
@@ -41,7 +41,7 @@
       "nota": "guardó valor 100; url /frecuencia/dial"
     },
     {
-      "t": "00:28",
+      "t": "00:27",
       "captura": "07-despues-de-guardar-desktop-reducido.png",
       "nota": "Después de guardar"
     }
