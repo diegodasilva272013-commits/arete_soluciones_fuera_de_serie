@@ -162,10 +162,10 @@ export const copy = {
     ayuda: 'Miramos cómo te fue las últimas semanas. Vos decidís: no cambia nada hasta que aceptes.',
     // Subir: premio al ritmo sostenido, sin presión.
     subir: (titulo: string, semanas: number, de: number, a: number) =>
-      `Venís sosteniendo "${titulo}" hace ${semanas} semanas. ¿Lo subimos de ${de} a ${a} veces por semana?`,
+      `Venís sosteniendo "${titulo}" hace ${semanas === 1 ? '1 semana' : `${semanas} semanas`}. ¿Lo subimos de ${de} a ${a} veces por semana?`,
     // Bajar: cero culpa; el hecho no es de la persona.
     bajar: (titulo: string, semanas: number, de: number, a: number) =>
-      `"${titulo}" venía pesado estas ${semanas} semanas. Esto era un esfuerzo heroico y lo vamos a hacer sostenible: ¿lo bajamos de ${de} a ${a} veces por semana?`,
+      `"${titulo}" venía pesado ${semanas === 1 ? 'esta semana' : `estas ${semanas} semanas`}. Era un esfuerzo heroico y lo vamos a hacer sostenible: ¿lo bajamos de ${de} a ${a} veces por semana?`,
     aceptar: 'Aceptar el cambio',
     dejarlo: 'Dejarlo como está',
     cumplimiento: (pct: number) => `${pct}% cumplido`,

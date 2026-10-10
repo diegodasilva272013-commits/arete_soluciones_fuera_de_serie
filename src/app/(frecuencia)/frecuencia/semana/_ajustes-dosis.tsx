@@ -49,7 +49,9 @@ export function AjustesDosis({ propuestas, semanaClave }: { propuestas: AjusteDo
     const r = await aplicarAjusteDosis(p.tareaId, p.a);
     setTrabajando(null);
     if (r.error) {
+      // Puede que la propuesta ya no corresponda (otra pestaña, otro dispositivo): se recalcula.
       setError(true);
+      router.refresh();
       return;
     }
     ocultar(p.tareaId);
@@ -64,7 +66,7 @@ export function AjustesDosis({ propuestas, semanaClave }: { propuestas: AjusteDo
         {visibles.map((p) => (
           <li key={p.tareaId} className={`${s.item} ${p.tipo === 'subir' ? s.subir : s.bajar}`}>
             <p className={s.mensaje}>{(p.tipo === 'subir' ? copy.dosis.subir : copy.dosis.bajar)(p.titulo, p.cumplimientos.length, p.de, p.a)}</p>
-            <p className={s.datos}>{p.cumplimientos.map((c) => copy.dosis.cumplimiento(Math.round(c * 100))).join(' · ')}</p>
+            {p.tipo === 'subir' && <p className={s.datos}>{p.cumplimientos.map((c) => copy.dosis.cumplimiento(Math.round(c * 100))).join(' · ')}</p>}
             <div className={s.botones}>
               <button type="button" className={base.btn} onClick={() => aceptar(p)} disabled={trabajando === p.tareaId}>
                 {trabajando === p.tareaId ? copy.botones.guardando : copy.dosis.aceptar}

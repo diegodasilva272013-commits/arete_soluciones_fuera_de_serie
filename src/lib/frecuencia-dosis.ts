@@ -6,18 +6,21 @@
  */
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { getReglasDosis } from '@/lib/frecuencia-kb';
-import { fechaMasDias, horaEnTimezoneAUtc, lunesDeLaSemana } from '@/lib/frecuencia-fecha';
+import { fechaLocal, fechaMasDias, horaEnTimezoneAUtc, lunesDeLaSemana } from '@/lib/frecuencia-fecha';
 import { proponerAjustesDosis, type AjusteDosisPropuesto, type SemanaDeCumplimiento } from '@/lib/frecuencia/dosis';
 
 export async function obtenerAjustesDosis(userId: string, timezone: string): Promise<AjusteDosisPropuesto[]> {
   const reglasKb = await getReglasDosis();
   const subir = reglasKb?.umbral_subir_dosis;
   const bajar = reglasKb?.umbral_bajar_dosis;
-  if (!subir || !bajar) return [];
+  // La base puede traer el placeholder {todo:true}: sin números válidos no se propone nada.
+  const semanasOk = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n >= 1 && n <= 12;
+  const pctOk = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n > 0 && n <= 1;
+  if (!subir || !bajar || !semanasOk(subir.semanas) || !semanasOk(bajar.semanas) || !pctOk(subir.cumplimiento_min) || !pctOk(bajar.cumplimiento_max)) return [];
 
   const supabase = createSupabaseServerClient();
-  const { data: tareasData } = await (supabase as any).from('frecuencia_tareas').select('id, titulo, dosis_actual, dosis_objetivo').eq('user_id', userId);
-  const tareas = ((tareasData ?? []) as any[]).map((t) => ({ id: t.id as string, titulo: t.titulo as string, dosisActual: (t.dosis_actual ?? 1) as number, dosisObjetivo: (t.dosis_objetivo ?? null) as number | null }));
+  const { data: tareasData } = await (supabase as any).from('frecuencia_tareas').select('id, titulo, dosis_actual, dosis_objetivo, updated_at').eq('user_id', userId);
+  const tareas = ((tareasData ?? []) as any[]).map((t) => ({ id: t.id as string, titulo: t.titulo as string, dosisActual: (t.dosis_actual ?? 1) as number, dosisObjetivo: (t.dosis_objetivo ?? null) as number | null, cambiadaEn: t.updated_at ? fechaLocal(timezone, new Date(t.updated_at)) : null }));
   if (!tareas.length) return [];
 
   // Solo semanas ya terminadas (la actual todavía se está viviendo).

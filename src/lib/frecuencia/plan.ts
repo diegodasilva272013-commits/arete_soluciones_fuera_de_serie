@@ -25,6 +25,16 @@
  * lo confirme o lo corrija con un dato real más adelante.
  */
 
+/**
+ * Veces por semana que se agenda una tarea: la dosis ACTUAL (arranca chica y
+ * crece con el escalado de dosis), nunca por encima de la dosis objetivo si la
+ * hay. Mínimo 1.
+ */
+export function dosisSemanal(dosisActual: number | null | undefined, dosisObjetivo: number | null | undefined): number {
+  const actual = dosisActual && dosisActual > 0 ? dosisActual : dosisObjetivo && dosisObjetivo > 0 ? dosisObjetivo : 1;
+  return dosisObjetivo && dosisObjetivo > 0 ? Math.min(actual, dosisObjetivo) : actual;
+}
+
 export type DiaSemana = 'lunes' | 'martes' | 'miercoles' | 'jueves' | 'viernes' | 'sabado' | 'domingo';
 
 export const DIAS_SEMANA: DiaSemana[] = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];

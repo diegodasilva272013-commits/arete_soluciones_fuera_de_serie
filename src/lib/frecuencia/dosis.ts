@@ -19,8 +19,14 @@ export interface TareaParaEscalar {
   titulo: string;
   /** Veces por semana que hoy se agenda. */
   dosisActual: number;
-  /** Hasta dónde crecer (null = sin tope). */
+  /** Hasta dónde crecer (null = tope duro de DOSIS_MAXIMA). */
   dosisObjetivo: number | null;
+  /**
+   * Fecha (YYYY-MM-DD) del último cambio de la tarea: solo cuentan las semanas
+   * que EMPEZARON después, así una dosis recién subida no se vuelve a subir
+   * con el mismo historial (hace falta vivir semanas nuevas con la dosis nueva).
+   */
+  cambiadaEn?: string | null;
 }
 
 /** Una semana (más reciente primero) con lo planificado y lo cumplido por tarea. */
@@ -38,6 +44,9 @@ export interface AjusteDosisPropuesto {
   /** Cumplimiento (0–1) de cada una de las semanas evaluadas, la más reciente primero. */
   cumplimientos: number[];
 }
+
+/** Máximo duro de veces por semana cuando la tarea no tiene dosis objetivo. */
+export const DOSIS_MAXIMA = 7;
 
 function cumplimientoDeLaSemana(s: SemanaDeCumplimiento, tareaId: string): number | null {
   const d = s.porTarea[tareaId];
@@ -58,6 +67,7 @@ export function proponerAjustesDosis(tareas: TareaParaEscalar[], semanas: Semana
       if (n <= 0 || semanas.length < n) return null;
       const valores: number[] = [];
       for (const s of semanas.slice(0, n)) {
+        if (t.cambiadaEn && s.lunes < t.cambiadaEn) return null;
         const c = cumplimientoDeLaSemana(s, t.id);
         if (c === null) return null;
         valores.push(c);
@@ -66,7 +76,7 @@ export function proponerAjustesDosis(tareas: TareaParaEscalar[], semanas: Semana
     };
 
     const paraSubir = datos(reglas.subir.semanas);
-    const tope = t.dosisObjetivo ?? Infinity;
+    const tope = t.dosisObjetivo ?? DOSIS_MAXIMA;
     if (paraSubir && paraSubir.every((c) => c >= reglas.subir.cumplimientoMin) && t.dosisActual < tope) {
       propuestas.push({ tareaId: t.id, titulo: t.titulo, tipo: 'subir', de: t.dosisActual, a: t.dosisActual + 1, cumplimientos: paraSubir });
       continue;

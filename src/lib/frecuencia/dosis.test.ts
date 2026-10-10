@@ -19,9 +19,16 @@ describe('proponerAjustesDosis', () => {
     expect(proponerAjustesDosis([{ ...tarea, dosisActual: 4 }], [semana('2026-10-05', 4, 4), semana('2026-09-28', 4, 4)], reglas)).toEqual([]);
   });
 
-  it('sube sin tope si no hay dosis objetivo', () => {
-    const r = proponerAjustesDosis([{ ...tarea, dosisObjetivo: null, dosisActual: 7 }], [semana('2026-10-05', 7, 7), semana('2026-09-28', 7, 7)], reglas);
-    expect(r[0].a).toBe(8);
+  it('sin dosis objetivo sube hasta el máximo duro (7) y no más', () => {
+    const sem = [semana('2026-10-05', 6, 6), semana('2026-09-28', 6, 6)];
+    expect(proponerAjustesDosis([{ ...tarea, dosisObjetivo: null, dosisActual: 6 }], sem, reglas)[0].a).toBe(7);
+    expect(proponerAjustesDosis([{ ...tarea, dosisObjetivo: null, dosisActual: 7 }], [semana('2026-10-05', 7, 7), semana('2026-09-28', 7, 7)], reglas)).toEqual([]);
+  });
+
+  it('no vuelve a proponer con semanas anteriores al último cambio de la tarea', () => {
+    const sem = [semana('2026-10-05', 2, 2), semana('2026-09-28', 2, 2)];
+    expect(proponerAjustesDosis([{ ...tarea, cambiadaEn: '2026-10-01' }], sem, reglas)).toEqual([]);
+    expect(proponerAjustesDosis([{ ...tarea, cambiadaEn: '2026-09-28' }], sem, reglas)).toHaveLength(1);
   });
 
   it('propone bajar tras 2 semanas con <=50%', () => {

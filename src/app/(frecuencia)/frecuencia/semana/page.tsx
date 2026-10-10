@@ -53,7 +53,8 @@ export default async function SemanaPage() {
     .maybeSingle();
   const noNegociables = normalizarNoNegociables(identidad?.no_negociables);
 
-  const ajustesDosis = await obtenerAjustesDosis(ctx.userId, timezone);
+  // Una falla de esta función nunca tiene que tumbar la pantalla de la semana.
+  const ajustesDosis = await obtenerAjustesDosis(ctx.userId, timezone).catch(() => []);
 
   return (
     <div className={base.pantallaAncha}>

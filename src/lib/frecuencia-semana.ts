@@ -11,6 +11,7 @@ import { diaYHoraLocal } from '@/lib/frecuencia-fecha';
 import { copy } from '@/app/(frecuencia)/frecuencia/_copy';
 import type { NoNegociableGuardado } from '@/types/frecuencia';
 import type { DatosParaArmarSemana, DiaSemana, TareaParaPlan } from '@/lib/frecuencia/plan';
+import { dosisSemanal } from '@/lib/frecuencia/plan';
 
 const DIAS_VALIDOS = new Set(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']);
 
@@ -168,7 +169,7 @@ export async function obtenerDatosParaArmarSemana(userId: string): Promise<{ dat
     tipoEnergia: t.tipo_energia,
     duracionMin: t.duracion_min ?? 30,
     // Se agenda la dosis ACTUAL (veces por semana): arranca chica y crece con el escalado (7.3) hasta la dosis objetivo.
-    dosisObjetivo: t.dosis_actual ?? t.dosis_objetivo,
+    dosisObjetivo: dosisSemanal(t.dosis_actual, t.dosis_objetivo),
     vecesDesbloquea: Array.isArray(t.desbloquea) ? t.desbloquea.length : 0,
     areaKey: t.objetivo_id ? areaPorObjetivo.get(t.objetivo_id) ?? null : null,
     objetivoId: t.objetivo_id,
