@@ -1,0 +1,247 @@
+C8 — aislamiento de Frecuencia
+
+1. Equipos: solo admin crea; el resto no
+  OK   no admin NO crea equipo
+  OK   admin crea equipo
+  OK   el líder queda como miembro automáticamente
+  OK   admin agrega miembro m1
+  OK   admin agrega miembro m2
+  OK   no admin NO se agrega a un equipo
+  OK   no admin NO agrega a otra persona
+  OK   no admin NO cambia el líder
+  OK   no admin NO borra el equipo
+  OK   miembro ve su equipo
+  OK   persona ajena NO ve el equipo
+  OK   persona ajena NO ve los miembros
+
+2. Siembra de datos de m1 (cada persona escribe lo suyo)
+  OK   m1 crea preferencias
+  OK   m1 crea identidad
+  OK   m1 crea mapa de energía
+  OK   m1 crea dial
+  OK   m1 crea espejo
+  OK   m1 crea conversación
+  OK   m1 crea mensaje
+  OK   m1 crea área
+  OK   m1 crea objetivo
+  OK   m1 crea tarea
+  OK   m1 crea idea
+  OK   m1 crea revisión
+  OK   m1 crea imagen
+  OK   m1 crea criterio
+  OK   m1 crea bloque
+  OK   m1 crea evidencia
+  OK   m1 crea compromiso (co-conductor m2)
+  OK   m1 crea delegación a m2
+
+3. Datos ÍNTIMOS de m1: nadie más los lee (ni líder, ni admin, ni compañero, ni ajeno, ni sin rol)
+  OK   dueño lee frecuencia_preferencias
+  OK   líder NO lee frecuencia_preferencias de m1
+  OK   admin NO lee frecuencia_preferencias de m1
+  OK   compañero m2 NO lee frecuencia_preferencias de m1
+  OK   ajeno NO lee frecuencia_preferencias de m1
+  OK   sin rol NO lee frecuencia_preferencias de m1
+  OK   dueño lee frecuencia_identidad
+  OK   líder NO lee frecuencia_identidad de m1
+  OK   admin NO lee frecuencia_identidad de m1
+  OK   compañero m2 NO lee frecuencia_identidad de m1
+  OK   ajeno NO lee frecuencia_identidad de m1
+  OK   sin rol NO lee frecuencia_identidad de m1
+  OK   dueño lee frecuencia_mapa_energia
+  OK   líder NO lee frecuencia_mapa_energia de m1
+  OK   admin NO lee frecuencia_mapa_energia de m1
+  OK   compañero m2 NO lee frecuencia_mapa_energia de m1
+  OK   ajeno NO lee frecuencia_mapa_energia de m1
+  OK   sin rol NO lee frecuencia_mapa_energia de m1
+  OK   dueño lee frecuencia_dial
+  OK   líder NO lee frecuencia_dial de m1
+  OK   admin NO lee frecuencia_dial de m1
+  OK   compañero m2 NO lee frecuencia_dial de m1
+  OK   ajeno NO lee frecuencia_dial de m1
+  OK   sin rol NO lee frecuencia_dial de m1
+  OK   dueño lee frecuencia_espejo
+  OK   líder NO lee frecuencia_espejo de m1
+  OK   admin NO lee frecuencia_espejo de m1
+  OK   compañero m2 NO lee frecuencia_espejo de m1
+  OK   ajeno NO lee frecuencia_espejo de m1
+  OK   sin rol NO lee frecuencia_espejo de m1
+  OK   dueño lee frecuencia_conversaciones
+  OK   líder NO lee frecuencia_conversaciones de m1
+  OK   admin NO lee frecuencia_conversaciones de m1
+  OK   compañero m2 NO lee frecuencia_conversaciones de m1
+  OK   ajeno NO lee frecuencia_conversaciones de m1
+  OK   sin rol NO lee frecuencia_conversaciones de m1
+  OK   dueño lee frecuencia_mensajes
+  OK   líder NO lee frecuencia_mensajes de m1
+  OK   admin NO lee frecuencia_mensajes de m1
+  OK   compañero m2 NO lee frecuencia_mensajes de m1
+  OK   ajeno NO lee frecuencia_mensajes de m1
+  OK   sin rol NO lee frecuencia_mensajes de m1
+  OK   dueño lee frecuencia_areas
+  OK   líder NO lee frecuencia_areas de m1
+  OK   admin NO lee frecuencia_areas de m1
+  OK   compañero m2 NO lee frecuencia_areas de m1
+  OK   ajeno NO lee frecuencia_areas de m1
+  OK   sin rol NO lee frecuencia_areas de m1
+  OK   dueño lee frecuencia_objetivos
+  OK   líder NO lee frecuencia_objetivos de m1
+  OK   admin NO lee frecuencia_objetivos de m1
+  OK   compañero m2 NO lee frecuencia_objetivos de m1
+  OK   ajeno NO lee frecuencia_objetivos de m1
+  OK   sin rol NO lee frecuencia_objetivos de m1
+  OK   dueño lee frecuencia_tareas
+  OK   líder NO lee frecuencia_tareas de m1
+  OK   admin NO lee frecuencia_tareas de m1
+  OK   ajeno NO lee frecuencia_tareas de m1
+  OK   sin rol NO lee frecuencia_tareas de m1
+  OK   dueño lee frecuencia_ideas
+  OK   líder NO lee frecuencia_ideas de m1
+  OK   admin NO lee frecuencia_ideas de m1
+  OK   compañero m2 NO lee frecuencia_ideas de m1
+  OK   ajeno NO lee frecuencia_ideas de m1
+  OK   sin rol NO lee frecuencia_ideas de m1
+  OK   dueño lee frecuencia_revisiones
+  OK   líder NO lee frecuencia_revisiones de m1
+  OK   admin NO lee frecuencia_revisiones de m1
+  OK   compañero m2 NO lee frecuencia_revisiones de m1
+  OK   ajeno NO lee frecuencia_revisiones de m1
+  OK   sin rol NO lee frecuencia_revisiones de m1
+  OK   dueño lee frecuencia_imagenes
+  OK   líder NO lee frecuencia_imagenes de m1
+  OK   admin NO lee frecuencia_imagenes de m1
+  OK   compañero m2 NO lee frecuencia_imagenes de m1
+  OK   ajeno NO lee frecuencia_imagenes de m1
+  OK   sin rol NO lee frecuencia_imagenes de m1
+  OK   dueño lee frecuencia_criterios
+  OK   líder NO lee frecuencia_criterios de m1
+  OK   admin NO lee frecuencia_criterios de m1
+  OK   ajeno NO lee frecuencia_criterios de m1
+  OK   sin rol NO lee frecuencia_criterios de m1
+  OK   storage: nadie ve la carpeta de m1
+
+4. Lo que el LÍDER sí lee (solo lectura) de su equipo, y lo que no
+  OK   líder lee frecuencia_bloques de m1
+  OK   admin NO lee frecuencia_bloques de m1
+  OK   ajeno NO lee frecuencia_bloques de m1
+  OK   sin rol NO lee frecuencia_bloques de m1
+  OK   líder lee frecuencia_evidencia de m1
+  OK   admin NO lee frecuencia_evidencia de m1
+  OK   ajeno NO lee frecuencia_evidencia de m1
+  OK   sin rol NO lee frecuencia_evidencia de m1
+  OK   líder lee frecuencia_compromisos de m1
+  OK   admin NO lee frecuencia_compromisos de m1
+  OK   ajeno NO lee frecuencia_compromisos de m1
+  OK   sin rol NO lee frecuencia_compromisos de m1
+  OK   líder lee las delegaciones de m1
+  OK   líder NO edita bloques de m1
+  OK   líder NO borra evidencia de m1
+  OK   líder NO edita el compromiso de m1
+  OK   líder NO mueve el avance (no es co-conductor)
+  OK   líder NO escribe en nombre de m1
+
+5. Delegaciones y co-conductor
+  OK   m2 (receptor) lee la tarea delegada
+  OK   m2 lee el criterio delegado
+  OK   m2 NO lee otras cosas de m1 (objetivo)
+  OK   m2 NO edita la tarea
+  OK   m2 NO edita el criterio
+  OK   m2 NO marca "volvió"
+  OK   m1 (quien delega) SÍ marca "volvió"
+  OK   ajeno NO ve la delegación
+  OK   ajeno NO ve la tarea delegada
+  OK   delegar a quien no comparte equipo se rechaza
+  OK   delegar sin criterio se rechaza
+  OK   delegarse a sí mismo se rechaza
+  OK   delegar "en nombre de" otra persona se rechaza
+  OK   co-conductor m2 lee el compromiso
+  OK   co-conductor NO edita el texto
+  OK   co-conductor NO edita el avance directo
+  OK   co-conductor SÍ mueve el avance por la función
+  OK   el avance quedó en 60
+  OK   ajeno NO mueve el avance
+
+6. Nadie escribe en la cuenta de otra persona
+  OK   m2 NO inserta frecuencia_ideas con user_id de m1
+  OK   ajeno NO inserta frecuencia_ideas con user_id de m1
+  OK   m2 NO inserta frecuencia_objetivos con user_id de m1
+  OK   ajeno NO inserta frecuencia_objetivos con user_id de m1
+  OK   m2 NO inserta frecuencia_dial con user_id de m1
+  OK   ajeno NO inserta frecuencia_dial con user_id de m1
+  OK   m2 NO inserta frecuencia_espejo con user_id de m1
+  OK   ajeno NO inserta frecuencia_espejo con user_id de m1
+  OK   m2 NO inserta frecuencia_areas con user_id de m1
+  OK   ajeno NO inserta frecuencia_areas con user_id de m1
+  OK   m2 NO edita la idea de m1
+  OK   m2 NO borra el objetivo de m1
+
+7. Contenido del método (knowledge_blocks): todos leen, solo admin escribe
+  OK   autenticado lee knowledge_blocks
+  OK   no admin NO escribe knowledge_blocks
+  OK   no admin NO edita knowledge_blocks
+  OK   admin SÍ escribe knowledge_blocks
+
+8. Sin sesión (anon): nada
+  OK   anon NO lee frecuencia_preferencias
+  OK   anon NO lee frecuencia_identidad
+  OK   anon NO lee frecuencia_mapa_energia
+  OK   anon NO lee frecuencia_dial
+  OK   anon NO lee frecuencia_espejo
+  OK   anon NO lee frecuencia_conversaciones
+  OK   anon NO lee frecuencia_mensajes
+  OK   anon NO lee frecuencia_areas
+  OK   anon NO lee frecuencia_objetivos
+  OK   anon NO lee frecuencia_tareas
+  OK   anon NO lee frecuencia_ideas
+  OK   anon NO lee frecuencia_revisiones
+  OK   anon NO lee frecuencia_imagenes
+  OK   anon NO lee frecuencia_criterios
+  OK   anon NO lee frecuencia_bloques
+  OK   anon NO lee frecuencia_evidencia
+  OK   anon NO lee frecuencia_compromisos
+  OK   anon NO lee frecuencia_delegaciones
+  OK   anon NO lee frecuencia_equipos
+  OK   anon NO lee frecuencia_equipo_miembros
+  OK   anon NO lee frecuencia_knowledge_blocks
+
+9. Archivos (bucket frecuencia-imagenes): cada persona solo en su carpeta
+  OK   m1 sube a su carpeta
+  OK   m1 lee su archivo
+  OK   m2 NO sube a la carpeta de m1
+  OK   líder NO ve la carpeta de m1
+  OK   admin NO ve la carpeta de m1
+  OK   m2 NO descarga el archivo de m1
+
+10. Limpieza y RESIDUO CERO
+  OK   borrada la cuenta c8-admin-179…
+  OK   borrada la cuenta c8-lider-179…
+  OK   borrada la cuenta c8-m1-179170…
+  OK   borrada la cuenta c8-m2-179170…
+  OK   borrada la cuenta c8-ajeno-179…
+  OK   borrada la cuenta c8-sinrol-17…
+  OK   residuo 0 en frecuencia_preferencias
+  OK   residuo 0 en frecuencia_identidad
+  OK   residuo 0 en frecuencia_mapa_energia
+  OK   residuo 0 en frecuencia_dial
+  OK   residuo 0 en frecuencia_espejo
+  OK   residuo 0 en frecuencia_conversaciones
+  OK   residuo 0 en frecuencia_mensajes
+  OK   residuo 0 en frecuencia_areas
+  OK   residuo 0 en frecuencia_objetivos
+  OK   residuo 0 en frecuencia_tareas
+  OK   residuo 0 en frecuencia_ideas
+  OK   residuo 0 en frecuencia_revisiones
+  OK   residuo 0 en frecuencia_imagenes
+  OK   residuo 0 en frecuencia_criterios
+  OK   residuo 0 en frecuencia_bloques
+  OK   residuo 0 en frecuencia_evidencia
+  OK   residuo 0 en frecuencia_compromisos
+  OK   residuo 0 en frecuencia_equipo_miembros
+  OK   residuo 0 en frecuencia_delegaciones
+  OK   residuo 0 en frecuencia_equipos
+  OK   residuo 0 en profiles
+  OK   residuo 0 en personas
+  OK   residuo 0 en auth.users
+  OK   residuo 0 en el bucket de imágenes
+  OK   no quedó la clave temporal del método
+
+C8: 224/224 OK
