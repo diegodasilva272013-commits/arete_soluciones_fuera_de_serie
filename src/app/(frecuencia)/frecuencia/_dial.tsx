@@ -50,7 +50,7 @@ function caminoSenal(valorCrudo: number, fase: number): string {
   for (let i = 0; i <= 120; i++) {
     const x = (i / 120) * ANCHO;
     const onda = Math.sin(i * 0.26 + fase) * (10 + 34 * t);
-    const temblor = (SEMILLAS[(i * 7 + Math.floor(fase * 9)) % SEMILLAS.length] - 0.5) * 90 * sucio;
+    const temblor = (SEMILLAS[(((i * 7 + Math.floor(fase * 9)) % SEMILLAS.length) + SEMILLAS.length) % SEMILLAS.length] - 0.5) * 90 * sucio;
     puntos.push(`${x.toFixed(1)},${(ALTO_SENAL / 2 + onda + temblor).toFixed(1)}`);
   }
   return `M${puntos.join(' L')}`;
