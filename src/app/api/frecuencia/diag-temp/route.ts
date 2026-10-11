@@ -63,7 +63,7 @@ export async function GET(req: Request) {
           method: 'POST',
           headers: { Authorization: `Bearer ${k}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: id, max_tokens: 60, tool_choice: 'auto',
+            model: id, max_tokens: 800, tool_choice: 'auto',
             messages: [{ role: 'user', content: 'Anotá el objetivo "correr" usando la herramienta.' }],
             tools: [{ type: 'function', function: { name: 'anotar', description: 'Anota un objetivo', parameters: { type: 'object', properties: { texto: { type: 'string' } }, required: ['texto'] } } }],
           }),
