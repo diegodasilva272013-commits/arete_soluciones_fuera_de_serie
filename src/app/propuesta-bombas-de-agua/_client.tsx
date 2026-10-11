@@ -12,6 +12,7 @@ import { NumberedList } from '@/components/propuesta/NumberedList';
 import { SectionNav, useSectionNav } from '@/components/propuesta/SectionNav';
 import { AcceptanceCta } from '@/components/propuesta/AcceptanceCta';
 import AnimatedGradient from '@/components/ui/animated-gradient';
+import { ProductosDemo } from './_productos';
 import { checkPassword, notifyAcceptance } from './actions';
 import * as d from './_content/bombas.data';
 import s from '@/app/empresa/corp.module.css';
@@ -80,7 +81,12 @@ function ProposalContent() {
         <div className={s.inner}>
           <SectionHead {...d.sections.web} />
           <div className={s.reveal} data-reveal=""><ElasticSolucion items={webTabsContent} /></div>
-          <PanelBand body={d.webNotaDiseno} style={{ marginTop: 40 }} />
+          <div className={s.reveal} data-reveal="" style={{ marginTop: 64, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+            <p className={s.kickerLabel} style={{ justifyContent: 'center' }}>{d.productosDemoEyebrow}</p>
+            <div style={{ width: '100%' }}><ProductosDemo /></div>
+            <p className={s.bandBody} style={{ margin: 0, fontSize: 13, textAlign: 'center' }}>{d.productosDemoNota}</p>
+          </div>
+          <PanelBand body={d.webNotaDiseno} style={{ marginTop: 56 }} />
         </div>
       </section>
 
