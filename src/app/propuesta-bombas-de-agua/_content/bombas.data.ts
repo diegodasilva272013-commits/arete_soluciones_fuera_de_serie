@@ -103,34 +103,35 @@ export const productosDemoEyebrow = 'Así se ve cada producto del catálogo (eje
 export const productosDemoNota =
   'Ejemplo ilustrativo. En la web, cada ficha lleva las fotos y los datos técnicos reales de cada producto.';
 export const productosDemoAccion = 'Consultar por WhatsApp';
+export const productosDemoCerrar = 'Cerrar';
 const PRODUCTOS = '/propuesta-bombas-de-agua/productos';
 export const productosDemo: ProductoDemo[] = [
   {
     categoria: 'Bombas',
     nombre: 'Bomba centrífuga de acero inoxidable',
     descripcion: 'Cuerpo de acero inoxidable con bocas roscadas de entrada y salida, motor eléctrico con caja de conexiones y base de fijación.',
-    img: `${PRODUCTOS}/bomba_1.webp`,
+    img: `${PRODUCTOS}/bomba_1_card.webp`,
     alt: 'Bomba centrífuga de acero inoxidable con motor eléctrico negro',
   },
   {
     categoria: 'Motores',
     nombre: 'Motor eléctrico industrial con brida',
     descripcion: 'Carcasa gris aleteada para disipar calor, brida de acoplamiento con agujeros de fijación, eje con chaveta y caja de bornes.',
-    img: `${PRODUCTOS}/bomba_2.webp`,
+    img: `${PRODUCTOS}/bomba_2_card.webp`,
     alt: 'Motor eléctrico industrial gris con brida y eje',
   },
   {
     categoria: 'Motores',
     nombre: 'Motor eléctrico con capacitor y pie',
     descripcion: 'Carcasa negra aleteada, capacitor sobre la caja de conexiones, eje de acero con chaveta y pie de fijación.',
-    img: `${PRODUCTOS}/bomba_3.webp`,
+    img: `${PRODUCTOS}/bomba_3_card.webp`,
     alt: 'Motor eléctrico negro con capacitor y eje de acero',
   },
   {
     categoria: 'Bombas',
     nombre: 'Bomba sumergible de acero inoxidable',
     descripcion: 'Cuerpo cilíndrico de acero inoxidable con rejilla perforada de succión, salida roscada y cable de alimentación.',
-    img: `${PRODUCTOS}/bomba_4.webp`,
+    img: `${PRODUCTOS}/bomba_4_card.webp`,
     alt: 'Bomba sumergible cilíndrica de acero inoxidable con cable',
   },
 ];
