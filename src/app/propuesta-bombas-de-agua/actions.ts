@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
 const COOKIE = 'propuesta-bombas-de-agua';
 const MAX_AGE = 60 * 60 * 48; // 48 h
@@ -20,22 +21,21 @@ export async function checkPassword(pwd: string): Promise<{ ok: boolean }> {
   return { ok: true };
 }
 
-export async function notifyAcceptance(): Promise<{ ok: boolean }> {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return { ok: true };
+const DESTINO = 'diegodasilva272013@gmail.com';
+const ASUNTO = '✅ Propuesta Bombas y motores de agua — aceptada';
+const CORREO_ARETE = 'arete@aretesoluciones.space';
 
-  try {
-    const resend = new Resend(key);
-    const fecha = new Date().toLocaleString('es-AR', {
-      timeZone: 'America/Argentina/Buenos_Aires',
-      dateStyle: 'full',
-      timeStyle: 'short',
-    });
-    await resend.emails.send({
-      from: 'Areté Propuestas <ia@aretesoluciones.com>',
-      to: ['diegodasilva272013@gmail.com'],
-      subject: '✅ Propuesta Bombas y motores de agua — aceptada',
-      html: `
+// Devuelve ok:true SOLO si el mail realmente salió. Primero por el SMTP de
+// Hostinger (SMTP_PASS, el mismo que usa el resto del sitio) y, si no está
+// configurado o falla, por Resend. Si no hay ningún medio, devuelve ok:false
+// para que la página no diga "fuimos notificados" cuando no es cierto.
+export async function notifyAcceptance(): Promise<{ ok: boolean }> {
+  const fecha = new Date().toLocaleString('es-AR', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    dateStyle: 'full',
+    timeStyle: 'short',
+  });
+  const html = `
 <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#111;padding:40px">
   <h2 style="color:#1a6fff;margin-bottom:8px">Propuesta aceptada</h2>
   <p style="color:#666;margin-top:0">La empresa de bombas y motores de agua revisó y aceptó la propuesta de la web con catálogo.</p>
@@ -58,10 +58,43 @@ export async function notifyAcceptance(): Promise<{ ok: boolean }> {
     </tr>
   </table>
   <p style="margin-top:32px;font-size:13px;color:#999">Areté Soluciones · Sistema de propuestas</p>
-</div>`,
-    });
-    return { ok: true };
-  } catch {
-    return { ok: false };
+</div>`;
+
+  const pass = process.env.SMTP_PASS;
+  if (pass) {
+    const user = process.env.SMTP_USER || CORREO_ARETE;
+    const port = Number(process.env.SMTP_PORT || 465);
+    try {
+      const transport = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.hostinger.com',
+        port,
+        secure: port === 465,
+        auth: { user, pass },
+      });
+      await transport.sendMail({ from: `Areté Propuestas <${user}>`, to: DESTINO, subject: ASUNTO, html });
+      transport.close();
+      return { ok: true };
+    } catch (e) {
+      console.error('[propuesta-bombas] SMTP falló', e);
+    }
   }
+
+  const key = process.env.RESEND_API_KEY;
+  if (key) {
+    try {
+      const { error } = await new Resend(key).emails.send({
+        from: 'Areté Propuestas <ia@aretesoluciones.com>',
+        to: [DESTINO],
+        subject: ASUNTO,
+        html,
+      });
+      if (!error) return { ok: true };
+      console.error('[propuesta-bombas] Resend rechazó el mail', error);
+    } catch (e) {
+      console.error('[propuesta-bombas] Resend falló', e);
+    }
+  }
+
+  console.error('[propuesta-bombas] aceptación sin enviar: no hay SMTP_PASS ni RESEND_API_KEY que funcione');
+  return { ok: false };
 }

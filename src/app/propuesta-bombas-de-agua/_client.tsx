@@ -148,6 +148,7 @@ function ProposalContent() {
         sub={d.cierreTexto}
         buttonLabel={d.cierreBotonLabel}
         notifyAcceptance={notifyAcceptance}
+        requireOk
       />
 
       <footer style={{ padding: '40px 16px 56px', textAlign: 'center', fontFamily: 'var(--f-mono), monospace', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ceniza)' }}>

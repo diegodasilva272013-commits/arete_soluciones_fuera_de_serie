@@ -14,6 +14,8 @@ export function AcceptanceCta({
   successTitle = 'Propuesta aceptada',
   successSub = 'El equipo de Areté fue notificado. Los contactamos en las próximas horas para coordinar el inicio.',
   notifyAcceptance,
+  requireOk = false,
+  errorText = 'No pudimos enviar la confirmación. Probá de nuevo en unos minutos o escribinos por WhatsApp.',
 }: {
   title?: string;
   sub: string;
@@ -21,14 +23,25 @@ export function AcceptanceCta({
   successTitle?: string;
   successSub?: string;
   notifyAcceptance: () => Promise<{ ok: boolean }>;
+  /** Si es true, solo pasa al estado de éxito cuando el envío salió bien (por defecto siempre pasa, como antes). */
+  requireOk?: boolean;
+  errorText?: string;
 }) {
   const [accepted, setAccepted] = useState(false);
   const [accepting, setAccepting] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [pending, start] = useTransition();
 
   const handleAccept = () => {
     setAccepting(true);
-    start(async () => { await notifyAcceptance(); setAccepted(true); setAccepting(false); });
+    setFailed(false);
+    start(async () => {
+      let ok = true;
+      try { ok = (await notifyAcceptance()).ok; } catch { ok = false; }
+      if (requireOk && !ok) { setFailed(true); setAccepting(false); return; }
+      setAccepted(true);
+      setAccepting(false);
+    });
   };
 
   return (
@@ -51,6 +64,7 @@ export function AcceptanceCta({
                 {accepting || pending ? 'Enviando…' : buttonLabel}{!accepting && !pending && <ArrowRight size={14} />}
               </button>
             </div>
+            {failed && <p role="alert" className={s.ctaSub} style={{ marginTop: 20, color: '#f87171' }}>{errorText}</p>}
           </div>
         )}
       </div>
