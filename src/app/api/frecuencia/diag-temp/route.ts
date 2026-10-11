@@ -1,11 +1,13 @@
 // TEMPORAL — diagnóstico de la clave de NVIDIA en producción. Se borra apenas
 // se resuelve. Protegido con FRECUENCIA_C8_SECRET. No devuelve la clave.
 import { NextResponse } from 'next/server';
+import { unstable_noStore as noStore } from 'next/cache';
 import { createSupabaseAdminClient } from '@/lib/supabase-server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
+  noStore(); // el data cache de Next persiste entre deploys: sin esto la lectura de la base puede venir vieja
   const secreto = process.env.FRECUENCIA_C8_SECRET;
   if (!secreto || req.headers.get('x-diag') !== secreto) return NextResponse.json({ error: 'no' }, { status: 404 });
 
