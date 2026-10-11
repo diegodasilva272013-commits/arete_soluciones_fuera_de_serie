@@ -84,16 +84,17 @@ export const situacionComparacion: ComparacionItem[] = [
 ];
 
 // ── 02 — La web ─────────────────────────────────────────────────────────────
-// Las imágenes son cuadros de la propia portada (public/propuesta-bombas-de-agua/
-// frames/desktop/): la misma bomba, no fotos de stock.
+// Fotos del menú: una por pestaña (productos/menu_N.webp). Solo WhatsApp usa un
+// cuadro de la portada porque hay 5 fotos para 6 pestañas.
 export type WebTabData = { id: string; label: string; intro: string; img?: string };
 const FRAMES = '/propuesta-bombas-de-agua/frames/desktop';
+const PRODUCTOS = '/propuesta-bombas-de-agua/productos';
 export const webTabs: WebTabData[] = [
-  { id: 'inicio', label: 'Inicio', intro: 'La portada con la bomba que se desarma con el scroll.', img: `${FRAMES}/f_0001.webp` },
-  { id: 'empresa', label: 'Empresa / Quiénes somos', intro: 'La historia de la empresa, qué hacen y cómo trabajan.', img: `${FRAMES}/f_0040.webp` },
-  { id: 'servicios', label: 'Servicios', intro: 'Los servicios que ofrecen, cada uno con su descripción.', img: `${FRAMES}/f_0080.webp` },
-  { id: 'catalogo', label: 'Catálogo', intro: 'Bombas, motores y repuestos, ordenados por categoría, con buscador. Cada producto tiene su ficha, con fotos, descripción y datos técnicos.', img: `${FRAMES}/f_0120.webp` },
-  { id: 'contacto', label: 'Contacto', intro: 'Dirección, teléfono, mail, horarios y ubicación.', img: `${FRAMES}/f_0160.webp` },
+  { id: 'inicio', label: 'Inicio', intro: 'La portada con la bomba que se desarma con el scroll.', img: `${PRODUCTOS}/menu_4.webp` },
+  { id: 'empresa', label: 'Empresa / Quiénes somos', intro: 'La historia de la empresa, qué hacen y cómo trabajan.', img: `${PRODUCTOS}/menu_2.webp` },
+  { id: 'servicios', label: 'Servicios', intro: 'Los servicios que ofrecen, cada uno con su descripción.', img: `${PRODUCTOS}/menu_3.webp` },
+  { id: 'catalogo', label: 'Catálogo', intro: 'Bombas, motores y repuestos, ordenados por categoría, con buscador. Cada producto tiene su ficha, con fotos, descripción y datos técnicos.', img: `${PRODUCTOS}/menu_1.webp` },
+  { id: 'contacto', label: 'Contacto', intro: 'Dirección, teléfono, mail, horarios y ubicación.', img: `${PRODUCTOS}/menu_5.webp` },
   { id: 'whatsapp', label: 'WhatsApp', intro: 'Un botón fijo en toda la web y otro en cada producto, que abre la conversación con el nombre del producto ya escrito.', img: `${FRAMES}/f_0192.webp` },
 ];
 // Ejemplo de la card de cada producto del catálogo. Fotos y descripciones de
@@ -104,7 +105,6 @@ export const productosDemoNota =
   'Ejemplo ilustrativo. En la web, cada ficha lleva las fotos y los datos técnicos reales de cada producto.';
 export const productosDemoAccion = 'Consultar por WhatsApp';
 export const productosDemoCerrar = 'Cerrar';
-const PRODUCTOS = '/propuesta-bombas-de-agua/productos';
 export const productosDemo: ProductoDemo[] = [
   {
     categoria: 'Bombas',
