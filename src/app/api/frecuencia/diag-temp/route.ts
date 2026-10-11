@@ -76,5 +76,43 @@ export async function GET(req: Request) {
     }
     out.pruebas_herramientas = pruebas;
   }
+  const sp = new URL(req.url).searchParams;
+  // ?chat=id1,id2 : respuesta simple (sin herramientas) para ver el contenido
+  const chat = (sp.get('chat') ?? '').split(',').filter(Boolean);
+  if (k && chat.length) {
+    const r2: Record<string, unknown> = {};
+    for (const id of chat) {
+      try {
+        const r = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${k}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: id, max_tokens: 200, messages: [{ role: 'user', content: 'Respondé en una frase corta, en español rioplatense: ¿qué es un dial?' }] }),
+        });
+        const j = (await r.json().catch(() => null)) as { choices?: { message?: { content?: string | null; reasoning_content?: string | null } }[] } | null;
+        const m = j?.choices?.[0]?.message;
+        r2[id] = { status: r.status, content: m?.content ?? null, tiene_reasoning: !!m?.reasoning_content };
+      } catch {
+        r2[id] = { error: 'red' };
+      }
+    }
+    out.chat = r2;
+  }
+  // ?aplicar=id1,id2 : reemplaza los modelos de chat en la base (el primero es el por defecto)
+  const aplicar = (sp.get('aplicar') ?? '').split(',').filter(Boolean);
+  if (aplicar.length) {
+    const nombres: Record<string, string> = {
+      'deepseek-ai/deepseek-v4.1-flash': 'DeepSeek V4.1 Flash',
+      'openai/gpt-oss-20b': 'GPT-OSS 20B (más rápido)',
+      'nvidia/nemotron-3-super-120b-a12b': 'Nemotron 3 Super 120B',
+    };
+    const admin = createSupabaseAdminClient() as any;
+    const { data } = await admin.from('frecuencia_knowledge_blocks').select('valor').eq('clave', 'modelos_ia').maybeSingle();
+    const nuevo = {
+      ...(data?.valor ?? { imagenes: [] }),
+      chat: aplicar.map((id, i) => ({ id, nombre: nombres[id] ?? id, licencia: 'NVIDIA API Catalog', ...(i === 0 ? { por_defecto: true } : {}) })),
+    };
+    const { error } = await admin.from('frecuencia_knowledge_blocks').update({ valor: nuevo, updated_at: new Date().toISOString() }).eq('clave', 'modelos_ia');
+    out.aplicado = error ? `error: ${error.message}` : nuevo.chat;
+  }
   return NextResponse.json(out);
 }
