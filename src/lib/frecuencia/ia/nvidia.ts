@@ -77,6 +77,11 @@ function buscarClave(): string {
   return '';
 }
 
+/** Estado de la clave para el panel de diagnóstico del admin: solo si está y qué variables parecidas llegaron (nombres, nunca valores). */
+export function diagnosticoClave(): { detectada: boolean; variablesParecidas: string[] } {
+  return { detectada: !!buscarClave(), variablesParecidas: Object.keys(process.env).filter((n) => /nvidia/i.test(n)) };
+}
+
 function clave(): string {
   const k = buscarClave();
   if (!k) {
