@@ -120,7 +120,7 @@ function InfoCard({
   }
 
   const [isHovered, setIsHovered] = useState(false);
-  const [allImagesLoaded, setAllImagesLoaded] = useState(true);
+  const [, setAllImagesLoaded] = useState(true);
   const [isDismissed, setIsDismissed] = useState(() => {
     if (typeof window === "undefined" || dismissType === "once") return false;
     return dismissType === "forever"
@@ -158,10 +158,9 @@ function InfoCard({
           {!isDismissed && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
-              animate={{
-                opacity: allImagesLoaded ? 1 : 0,
-                y: allImagesLoaded ? 0 : 10,
-              }}
+              // La card se muestra siempre: esperar a las imágenes para
+              // aparecer dejaba la card invisible si el onLoad no llegaba.
+              animate={{ opacity: 1, y: 0 }}
               exit={{
                 opacity: 0,
                 y: 10,
@@ -274,13 +273,36 @@ const InfoCardMedia = ({
     [processedMedia]
   );
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    if (media.length > 0) {
-      setAllImagesLoaded(false);
-      loadedMedia.current.clear();
-    } else {
+    if (media.length === 0) {
       setAllImagesLoaded(true); // No media to load
+      return;
     }
+    setAllImagesLoaded(false);
+    loadedMedia.current.clear();
+
+    // Si la imagen ya estaba cargada (caché, o terminó antes de que React
+    // hidrate) el evento onLoad nunca llega: hay que mirarlo a mano, o la
+    // card se queda en opacidad 0 para siempre.
+    const total = Math.min(3, media.length);
+    const check = () => {
+      containerRef.current
+        ?.querySelectorAll<HTMLImageElement | HTMLVideoElement>("img, video")
+        .forEach((el) => {
+          const ready =
+            el instanceof HTMLImageElement
+              ? el.complete
+              : el.readyState >= 2;
+          if (ready) loadedMedia.current.add(el.currentSrc || el.src);
+        });
+      if (loadedMedia.current.size >= total) setAllImagesLoaded(true);
+    };
+    check();
+    // Red de seguridad: nunca dejar la card invisible si una imagen falla.
+    const fallback = setTimeout(() => setAllImagesLoaded(true), 2500);
+    return () => clearTimeout(fallback);
   }, [media.length]);
 
   useEffect(() => {
@@ -326,6 +348,7 @@ const InfoCardMedia = ({
       }}
     >
       <motion.div
+        ref={containerRef}
         className={cn("relative mt-2 rounded-md", className)}
         animate={{
           height:
@@ -398,6 +421,7 @@ const InfoCardMedia = ({
                       itemClassName
                     )}
                     onLoad={() => handleMediaLoad(src)}
+                    onError={() => handleMediaLoad(src)}
                     loading={loading}
                     {...mediaProps}
                   />
