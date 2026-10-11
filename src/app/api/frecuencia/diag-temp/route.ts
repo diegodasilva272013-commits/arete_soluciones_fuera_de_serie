@@ -44,5 +44,37 @@ export async function GET(req: Request) {
       out.nvidia_error_red = String((e as Error)?.message ?? e).slice(0, 200);
     }
   }
+  if (k) {
+    try {
+      const r = await fetch('https://integrate.api.nvidia.com/v1/models', { headers: { Authorization: `Bearer ${k}` } });
+      const j = (await r.json()) as { data?: { id: string }[] };
+      const ids = (j.data ?? []).map((m) => m.id);
+      out.total_modelos = ids.length;
+      out.modelos_disponibles = ids.filter((i) => /llama-3\.[1-9]|llama-4|nemotron|mistral|qwen|gpt-oss|deepseek|gemma/i.test(i) && !/vision|embed|guard|reward|safety|vl|clip|parse|retriev|rerank/i.test(i));
+    } catch (e) {
+      out.error_modelos = String((e as Error)?.message ?? e).slice(0, 200);
+    }
+    // Prueba con herramientas de los candidatos (?probar=id1,id2)
+    const probar = (new URL(req.url).searchParams.get('probar') ?? '').split(',').filter(Boolean);
+    const pruebas: Record<string, string> = {};
+    for (const id of probar) {
+      try {
+        const r = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${k}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: id, max_tokens: 60, tool_choice: 'auto',
+            messages: [{ role: 'user', content: 'Anotá el objetivo "correr" usando la herramienta.' }],
+            tools: [{ type: 'function', function: { name: 'anotar', description: 'Anota un objetivo', parameters: { type: 'object', properties: { texto: { type: 'string' } }, required: ['texto'] } } }],
+          }),
+        });
+        const t = await r.text();
+        pruebas[id] = `${r.status} ${r.ok ? (t.includes('tool_calls') ? 'USA_HERRAMIENTAS' : 'sin_tool_calls') : t.slice(0, 160)}`;
+      } catch (e) {
+        pruebas[id] = 'error red';
+      }
+    }
+    out.pruebas_herramientas = pruebas;
+  }
   return NextResponse.json(out);
 }
