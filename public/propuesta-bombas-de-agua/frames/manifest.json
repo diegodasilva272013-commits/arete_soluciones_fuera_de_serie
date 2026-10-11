@@ -1,0 +1,18 @@
+{
+  "count": 192,
+  "fps": 24,
+  "duracion_s": 8,
+  "patron": "f_%04d.webp",
+  "juegos": {
+    "desktop": {
+      "ancho": 1280,
+      "alto": 720,
+      "bytes": 5124326
+    },
+    "mobile": {
+      "ancho": 720,
+      "alto": 406,
+      "bytes": 2408324
+    }
+  }
+}
