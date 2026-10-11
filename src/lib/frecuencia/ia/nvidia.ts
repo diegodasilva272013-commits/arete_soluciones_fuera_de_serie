@@ -67,10 +67,24 @@ export function baseUrl(real: string, override: string | undefined): string {
   return process.env.FRECUENCIA_IA_MODO_PRUEBA === '1' && override ? override : real;
 }
 
+/** Variables que tienen NVIDIA y "key" en el nombre (cualquier mayúscula/minúscula): la clave puede haberse cargado con cualquier variante. */
+function buscarClave(): string {
+  const directa = process.env.NVIDIA_API_KEY || process.env.nvidia_key || process.env.NVIDIA_KEY;
+  if (directa && directa.trim()) return directa.trim();
+  for (const [nombre, valor] of Object.entries(process.env)) {
+    if (/nvidia/i.test(nombre) && /(key|token|secret)/i.test(nombre) && !/(url|base|modo)/i.test(nombre) && valor && valor.trim()) return valor.trim();
+  }
+  return '';
+}
+
 function clave(): string {
-  // La clave puede estar cargada como NVIDIA_API_KEY o como nvidia_key / NVIDIA_KEY (los nombres de variables distinguen mayúsculas).
-  const k = (process.env.NVIDIA_API_KEY || process.env.nvidia_key || process.env.NVIDIA_KEY || '').trim();
-  if (!k) throw new ErrorIA('sin_clave', 'Falta la clave de NVIDIA en el entorno (NVIDIA_API_KEY o nvidia_key).');
+  const k = buscarClave();
+  if (!k) {
+    // Solo los NOMBRES de variables parecidas (nunca valores), para que en los logs del servidor se vea qué llegó.
+    const parecidas = Object.keys(process.env).filter((n) => /nvidia/i.test(n));
+    console.error('[nvidia] No hay clave en el entorno del servidor. Variables con "nvidia" en el nombre:', parecidas.length ? parecidas.join(', ') : '(ninguna)');
+    throw new ErrorIA('sin_clave', 'Falta la clave de NVIDIA en el entorno (NVIDIA_API_KEY o nvidia_key).');
+  }
   return k;
 }
 
