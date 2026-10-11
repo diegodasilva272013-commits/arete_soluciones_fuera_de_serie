@@ -8,10 +8,12 @@
  * implementaciones que puedan desalinearse.
  */
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { calcularPrioridad, type TareaParaPlan, type TipoEnergia } from '@/lib/frecuencia/plan';
 import { crearTarea, actualizarTarea, borrarTarea, type TareaInput } from '../../actions';
 import { copy } from '../../_copy';
+import { GeneradorImagen, type ImagenGuardada } from './_generador-imagen';
 import base from '../../frecuencia.module.css';
 
 export interface TareaDeObjetivo {
@@ -31,7 +33,7 @@ function formVacio(): TareaInput {
   return { objetivoId: '', titulo: '', protocolo: [], tipoEnergia: null, duracionMin: null, dosisActual: 1, dosisObjetivo: null, desbloquea: [] };
 }
 
-export function TareasCliente({ objetivoId, tareasIniciales }: { objetivoId: string; tareasIniciales: TareaDeObjetivo[] }) {
+export function TareasCliente({ objetivoId, tareasIniciales, imagenesPorTarea = {}, puedeDelegar = false }: { objetivoId: string; tareasIniciales: TareaDeObjetivo[]; imagenesPorTarea?: Record<string, ImagenGuardada[]>; puedeDelegar?: boolean }) {
   const [tareas, setTareas] = useState(tareasIniciales);
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [form, setForm] = useState<TareaInput>({ ...formVacio(), objetivoId });
@@ -126,7 +128,7 @@ export function TareasCliente({ objetivoId, tareasIniciales }: { objetivoId: str
     if (!window.confirm(copy.tareas.confirmarBorrar)) return;
     const r = await borrarTarea(tareaId, objetivoId);
     if (r.error) {
-      setError(copy.estados.error);
+      setError(r.error.includes('delegada') ? copy.delegaciones.noSePuedeBorrar : copy.estados.error);
       return;
     }
     setTareas((prev) => prev.filter((t) => t.id !== tareaId).map((t) => ({ ...t, desbloquea: t.desbloquea.filter((id) => id !== tareaId) })));
@@ -153,10 +155,16 @@ export function TareasCliente({ objetivoId, tareasIniciales }: { objetivoId: str
                 {` · ${copy.tareas.dosisActualLabel.toLowerCase()} ${t.dosis_actual}${t.dosis_objetivo ? `/${t.dosis_objetivo}` : ''}`}
                 {t.desbloquea.length > 0 ? ` · desbloquea ${t.desbloquea.length}` : ''}
               </p>
+              <GeneradorImagen tareaId={t.id} imagenes={imagenesPorTarea[t.id] ?? []} titulo={copy.imagenes.anclaTitulo} botonGenerar={copy.imagenes.generarAncla} />
               <div className={base.filaBotones} style={{ marginTop: 14 }}>
                 <button type="button" className={base.btnSec} onClick={() => empezarEdicion(t)}>
                   {copy.tareas.editarTarea}
                 </button>
+                {puedeDelegar && (
+                  <Link href={`/frecuencia/delegaciones/nueva?tarea=${t.id}`} className={base.btnGhost} aria-label={`${copy.delegaciones.accionDelegar}: ${t.titulo}`}>
+                    {copy.delegaciones.accionDelegar}
+                  </Link>
+                )}
                 <button type="button" className={base.btnGhost} onClick={() => borrar(t.id)}>
                   {copy.botones.quitar}
                 </button>

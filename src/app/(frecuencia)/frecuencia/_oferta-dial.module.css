@@ -1,0 +1,19 @@
+.oferta {
+  margin: 10px 0 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--azul-luz);
+  background: rgba(var(--azul-rgb), 0.08);
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--hueso);
+}
+.enlace {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+  text-decoration: underline;
+  white-space: nowrap;
+}

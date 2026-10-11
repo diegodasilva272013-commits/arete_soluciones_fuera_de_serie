@@ -1,0 +1,50 @@
+{
+  "marcas": [
+    {
+      "t": "00:09",
+      "captura": "01-dial-en-cero-mobile.png",
+      "nota": "Dial recién abierto, sin valor de hoy: \"Entre las dos radios\""
+    },
+    {
+      "t": "00:16",
+      "captura": "02-escasez-fuerte-mobile.png",
+      "nota": "Arrastre a -90: estática, dígitos grises, LEDs"
+    },
+    {
+      "t": "00:22",
+      "captura": "03-energias-medidores-mobile.png",
+      "nota": "Medidores VU con 3 / 6 / 9 / 1 LEDs (verde, ámbar, rojo)"
+    },
+    {
+      "t": "00:25",
+      "captura": "03b-inercia-mobile.png",
+      "nota": "Soltó con velocidad: la aguja sigue sola"
+    },
+    {
+      "t": "00:28",
+      "captura": "04-media-mobile.png",
+      "nota": "Posición tras la inercia"
+    },
+    {
+      "t": "00:30",
+      "captura": "05-abundancia-100-mobile.png",
+      "nota": "Teclado End = +100: onda azul limpia, glow, fondo sintonizado"
+    },
+    {
+      "t": "00:33",
+      "captura": "06-teclado-flechas-mobile.png",
+      "nota": "Flechas y Shift: aguja se mueve con teclado"
+    },
+    {
+      "t": "00:36",
+      "captura": "-",
+      "nota": "guardó valor 100; url /frecuencia/dial"
+    },
+    {
+      "t": "00:38",
+      "captura": "07-despues-de-guardar-mobile.png",
+      "nota": "Después de guardar"
+    }
+  ],
+  "errores": []
+}

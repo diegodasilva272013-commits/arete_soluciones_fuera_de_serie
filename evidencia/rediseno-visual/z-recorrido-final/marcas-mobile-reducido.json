@@ -1,0 +1,20 @@
+{
+  "marcas": [
+    {
+      "t": "00:09",
+      "captura": "int-hoy-mobile-reducido.png",
+      "nota": "hoy"
+    },
+    {
+      "t": "00:13",
+      "captura": "int-espejo-mobile-reducido.png",
+      "nota": "espejo"
+    },
+    {
+      "t": "00:18",
+      "captura": "int-semana-mobile-reducido.png",
+      "nota": "semana"
+    }
+  ],
+  "errores": []
+}

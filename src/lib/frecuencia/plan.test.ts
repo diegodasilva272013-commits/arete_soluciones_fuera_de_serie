@@ -192,3 +192,15 @@ function toMinutos(hora: string): number {
   const [h, m] = hora.split(':').map(Number);
   return h * 60 + m;
 }
+
+describe('dosisSemanal', () => {
+  it('agenda la dosis actual, sin pasarse de la dosis objetivo', async () => {
+    const { dosisSemanal } = await import('./plan');
+    expect(dosisSemanal(2, 4)).toBe(2);
+    expect(dosisSemanal(5, 3)).toBe(3);
+    expect(dosisSemanal(3, null)).toBe(3);
+    expect(dosisSemanal(null, 3)).toBe(3);
+    expect(dosisSemanal(null, null)).toBe(1);
+    expect(dosisSemanal(0, 0)).toBe(1);
+  });
+});

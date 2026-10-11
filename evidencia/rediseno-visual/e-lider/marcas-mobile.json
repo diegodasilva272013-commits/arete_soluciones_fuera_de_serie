@@ -1,0 +1,20 @@
+{
+  "marcas": [
+    {
+      "t": "00:10",
+      "captura": "01-vista-lider-mobile.png",
+      "nota": "Vista del líder: bloques, evidencia, compromiso y delegaciones de la persona del equipo"
+    },
+    {
+      "t": "00:11",
+      "captura": "-",
+      "nota": "Texto sensible o de otra persona que aparece en la página: ninguno"
+    },
+    {
+      "t": "00:11",
+      "captura": "-",
+      "nota": "Evidencia de trabajo visible: true · APRENDIZAJE oculto: true"
+    }
+  ],
+  "errores": []
+}

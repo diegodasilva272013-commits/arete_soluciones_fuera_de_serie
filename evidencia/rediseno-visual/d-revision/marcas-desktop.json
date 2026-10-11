@@ -1,0 +1,45 @@
+{
+  "marcas": [
+    {
+      "t": "00:13",
+      "captura": "01-decite-la-verdad-desktop.png",
+      "nota": "Revisión: entrenamiento cumplido (principal) y avance del objetivo (secundaria)"
+    },
+    {
+      "t": "00:18",
+      "captura": "02-que-funciono-desktop.png",
+      "nota": "Qué funcionó / qué no, como listas"
+    },
+    {
+      "t": "00:25",
+      "captura": "03-volver-a-puntuar-areas-desktop.png",
+      "nota": "Volver a puntuar las áreas (Ecualizador)"
+    },
+    {
+      "t": "00:31",
+      "captura": "04-rediagnostico-de-energia-desktop.png",
+      "nota": "Rediagnóstico de energía (toca: pasaron más de 12 semanas)"
+    },
+    {
+      "t": "00:38",
+      "captura": "05-la-semana-que-viene-desktop.png",
+      "nota": "Armar la semana que viene"
+    },
+    {
+      "t": "00:46",
+      "captura": "05b-propuesta-semana-siguiente-desktop.png",
+      "nota": "Propuesta de la semana que viene"
+    },
+    {
+      "t": "00:57",
+      "captura": "06-semana-cerrada-desktop.png",
+      "nota": "Semana cerrada"
+    },
+    {
+      "t": "00:59",
+      "captura": "-",
+      "nota": "Revisión guardada: [{\"que_funciono\":[\"Empezar por lo difícil a la mañana\"],\"que_no\":[\"Dejar el celular cerca\"],\"carga_siguiente\":{\"tareas\":3,\"bloques\":11}}]"
+    }
+  ],
+  "errores": []
+}

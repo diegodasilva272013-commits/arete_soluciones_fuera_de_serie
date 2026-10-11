@@ -11,6 +11,8 @@ import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { fechaLocal, momentoDelDia, lunesDeLaSemana, fechaMasDias, horaEnTimezoneAUtc } from '@/lib/frecuencia-fecha';
 import { obtenerDatosParaArmarSemana, obtenerDatosEnElAire, type DatosEnElAire } from '@/lib/frecuencia-semana';
+import { obtenerAjustesDosis } from '@/lib/frecuencia-dosis';
+import { fechaCalendarioValida } from '@/lib/frecuencia/ia/herramientas-def';
 import { armarSemana, DIAS_SEMANA, type BloquePropuesto } from '@/lib/frecuencia/plan';
 import type { FrecuenciaFranja, NoNegociableGuardado } from '@/types/frecuencia';
 
@@ -192,6 +194,46 @@ export async function guardarEspejo(input: {
   return { ok: true };
 }
 
+export async function guardarCheckinEspejo(formData: FormData): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const comoMeVeo = String(formData.get('como_me_veo') ?? '').trim().slice(0, 600);
+  const comoMePercibo = String(formData.get('como_me_percibo') ?? '').trim().slice(0, 600);
+  const comoMeSiento = String(formData.get('como_me_siento') ?? '').trim().slice(0, 600);
+  if (!comoMeVeo && !comoMePercibo && !comoMeSiento) return { error: 'Vacío.' };
+
+  let fotoPath: string | null = null;
+  const foto = formData.get('foto');
+  if (foto instanceof File && foto.size > 0) {
+    const ext = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[foto.type];
+    if (!ext || foto.size > 5 * 1024 * 1024) return { error: 'Foto inválida.' };
+    // <user_id>/espejo/<uuid>.<ext>: nunca se pisa un archivo (el bucket no tiene UPDATE).
+    const ruta = `${user.id}/espejo/${crypto.randomUUID()}.${ext}`;
+    const { error: errSubida } = await supabase.storage.from('frecuencia-imagenes').upload(ruta, foto, { contentType: foto.type, upsert: false });
+    if (errSubida) return { error: 'No se pudo subir la foto.' };
+    fotoPath = ruta;
+  }
+
+  const timezone = await timezoneDelUsuario(supabase, user.id);
+  const { error } = await (supabase as any).from('frecuencia_espejo').insert({
+    user_id: user.id,
+    fecha: fechaLocal(timezone),
+    momento: momentoDelDia(timezone),
+    como_me_veo: comoMeVeo || null,
+    como_me_percibo: comoMePercibo || null,
+    como_me_siento: comoMeSiento || null,
+    foto_storage_path: fotoPath,
+  });
+  if (error) {
+    // Si la fila no se pudo guardar, la foto subida no queda huérfana.
+    if (fotoPath) await supabase.storage.from('frecuencia-imagenes').remove([fotoPath]);
+    return { error: 'No se pudo guardar.' };
+  }
+  revalidatePath('/frecuencia/espejo');
+  return { ok: true };
+}
+
 // ── 7. Primer objetivo ────────────────────────────────────────────────
 
 export async function guardarObjetivo(input: {
@@ -269,6 +311,97 @@ export async function crearTarea(input: TareaInput): Promise<AccionState & { id?
   return { ok: true, id: data.id };
 }
 
+export async function crearObjetivoNuevo(input: {
+  titulo: string;
+  imagenMental: string | null;
+  areaKey: string | null;
+  fechaLimite: string | null;
+  identidadQueExpresa: string | null;
+}): Promise<AccionState & { id?: string }> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+  // Las acciones son endpoints públicos: la validación vive acá, no solo en quien las llama.
+  if (!input.titulo?.trim() || input.titulo.length > 200 || (input.imagenMental?.length ?? 0) > 600 || (input.identidadQueExpresa?.length ?? 0) > 300) return { error: 'Datos inválidos.' };
+  if (input.fechaLimite !== null && !fechaCalendarioValida(input.fechaLimite)) return { error: 'Datos inválidos.' };
+
+  const { data, error } = await (supabase as any)
+    .from('frecuencia_objetivos')
+    .insert({
+      user_id: user.id,
+      titulo: input.titulo,
+      imagen_mental: input.imagenMental,
+      area_key: input.areaKey,
+      fecha_limite: input.fechaLimite,
+      identidad_que_expresa: input.identidadQueExpresa,
+    })
+    .select('id')
+    .single();
+  if (error) return { error: 'No se pudo guardar.' };
+  revalidatePath('/frecuencia/objetivos');
+  return { ok: true, id: data.id };
+}
+
+export async function guardarCriterio(input: {
+  id?: string;
+  ambito: 'personal' | 'equipo';
+  equipoId?: string | null;
+  titulo: string;
+  queSeDecide: string;
+  queEntra: string;
+  queNoEntra: string;
+  costoSiSaleMal: string;
+  reversible: boolean;
+  tiempoReversibilidad: string | null;
+  quienAsumeResponsabilidad?: string | null;
+}): Promise<AccionState & { id?: string }> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  if (input.ambito !== 'personal' && input.ambito !== 'equipo') return { error: 'Datos inválidos.' };
+  if (typeof input.reversible !== 'boolean') return { error: 'Datos inválidos.' };
+  if (input.id !== undefined && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(input.id))) return { error: 'Datos inválidos.' };
+  for (const [x, max] of [[input.tiempoReversibilidad, 120], [input.quienAsumeResponsabilidad, 160]] as const) {
+    if (x != null && (typeof x !== 'string' || x.length > max)) return { error: 'Datos inválidos.' };
+  }
+  // "Si no está escrito, no es criterio": los 4 puntos son obligatorios.
+  const completos = [input.titulo, input.queSeDecide, input.queEntra, input.queNoEntra, input.costoSiSaleMal].every((x) => typeof x === 'string' && x.trim());
+  if (!completos) return { error: 'Faltan puntos del criterio.' };
+  if ([input.titulo, input.queSeDecide, input.queEntra, input.queNoEntra, input.costoSiSaleMal].some((x) => x.length > 400)) return { error: 'Datos inválidos.' };
+  // Un criterio de equipo solo cuelga de un equipo del que la persona es miembro (lo lee quien recibe una delegación).
+  if (input.ambito === 'equipo') {
+    if (!input.equipoId) return { error: 'Falta el equipo.' };
+    const { data: miembro } = await (supabase as any).from('frecuencia_equipo_miembros').select('equipo_id').eq('equipo_id', input.equipoId).eq('user_id', user.id).maybeSingle();
+    if (!miembro) return { error: 'No sos parte de ese equipo.' };
+  }
+  if (input.reversible && !input.tiempoReversibilidad?.trim()) return { error: 'Falta el tiempo de reversibilidad.' };
+
+  const fila = {
+    user_id: user.id,
+    ambito: input.ambito,
+    equipo_id: input.ambito === 'equipo' ? input.equipoId ?? null : null,
+    titulo: input.titulo.trim(),
+    que_se_decide: input.queSeDecide.trim(),
+    que_entra: input.queEntra.trim(),
+    que_no_entra: input.queNoEntra.trim(),
+    costo_si_sale_mal: input.costoSiSaleMal.trim(),
+    reversible: input.reversible,
+    tiempo_reversibilidad: input.reversible ? input.tiempoReversibilidad!.trim() : null,
+    ...(input.quienAsumeResponsabilidad !== undefined ? { quien_asume_responsabilidad: input.quienAsumeResponsabilidad?.trim() || null } : {}),
+  };
+
+  if (input.id) {
+    const { data: tocada, error } = await (supabase as any).from('frecuencia_criterios').update(fila).eq('id', input.id).eq('user_id', user.id).select('id').maybeSingle();
+    // Un id ajeno o borrado no toca ninguna fila: no es un éxito.
+    if (error || !tocada) return { error: 'No se pudo guardar.' };
+    revalidatePath('/frecuencia/criterios');
+    return { ok: true, id: input.id };
+  }
+  const { data, error } = await (supabase as any).from('frecuencia_criterios').insert(fila).select('id').single();
+  if (error) return { error: 'No se pudo guardar.' };
+  revalidatePath('/frecuencia/criterios');
+  return { ok: true, id: data.id };
+}
+
 export async function actualizarTarea(tareaId: string, input: TareaInput): Promise<AccionState> {
   const { supabase, user } = await usuarioActual();
   if (!user) return { error: 'No hay sesión.' };
@@ -295,6 +428,10 @@ export async function actualizarTarea(tareaId: string, input: TareaInput): Promi
 export async function borrarTarea(tareaId: string, objetivoId: string): Promise<AccionState> {
   const { supabase, user } = await usuarioActual();
   if (!user) return { error: 'No hay sesión.' };
+
+  // Una tarea delegada no se borra en silencio: la otra persona perdería la tarea y vos el historial de "volvió".
+  const { data: delegadas } = await (supabase as any).from('frecuencia_delegaciones').select('id').eq('tarea_id', tareaId).eq('de_user_id', user.id).limit(1);
+  if ((delegadas ?? []).length > 0) return { error: 'Esa tarea está delegada. Quitá la delegación antes de borrarla.' };
 
   // Antes de borrar, sacar esta tarea de cualquier `desbloquea` de otra
   // tarea que la referencie — si no, queda un uuid fantasma en el array.
@@ -346,12 +483,13 @@ export async function proponerSemana(): Promise<{ bloques: BloquePropuesto[]; er
   return { bloques: armarSemana(resultado.datos) };
 }
 
-export async function confirmarSemana(bloques: BloquePropuesto[]): Promise<AccionState> {
+export async function confirmarSemana(bloques: BloquePropuesto[], siguiente = false): Promise<AccionState> {
   const { supabase, user } = await usuarioActual();
   if (!user) return { error: 'No hay sesión.' };
 
   const timezone = await timezoneDelUsuario(supabase, user.id);
-  const lunes = lunesDeLaSemana(timezone);
+  // `siguiente`: la revisión del domingo arma la semana que viene.
+  const lunes = siguiente ? fechaMasDias(lunesDeLaSemana(timezone), 7) : lunesDeLaSemana(timezone);
 
   const filas = bloques.map((b) => {
     const indiceDia = DIAS_SEMANA.indexOf(b.dia);
@@ -365,11 +503,67 @@ export async function confirmarSemana(bloques: BloquePropuesto[]): Promise<Accio
     };
   });
 
+  // Idempotente para la semana que viene (revisión del domingo): si ya hay bloques de tareas esa semana
+  // (doble toque, dos pestañas, reintento tras un corte de red), no se duplican.
+  if (siguiente) {
+    const desde = horaEnTimezoneAUtc(lunes, '00:00', timezone).toISOString();
+    const hasta = horaEnTimezoneAUtc(fechaMasDias(lunes, 7), '00:00', timezone).toISOString();
+    const { count } = await (supabase as any)
+      .from('frecuencia_bloques')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .not('tarea_id', 'is', null)
+      .gte('inicio', desde)
+      .lt('inicio', hasta);
+    if ((count ?? 0) > 0) return { ok: true };
+  }
+
   const { error } = await (supabase as any).from('frecuencia_bloques').insert(filas);
 
   if (error) return { error: error.message };
   revalidatePath('/frecuencia/semana');
   revalidatePath('/frecuencia/hoy');
+  return { ok: true };
+}
+
+/**
+ * Aplica un ajuste de dosis que la persona confirmó. Se vuelve a calcular
+ * la propuesta en el servidor y solo se aplica si coincide: nunca se cambia
+ * una dosis a un valor arbitrario que mande el cliente.
+ */
+export async function aplicarAjusteDosis(tareaId: string, nuevaDosis: number): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const timezone = await timezoneDelUsuario(supabase, user.id);
+  const propuestas = await obtenerAjustesDosis(user.id, timezone);
+  const propuesta = propuestas.find((p) => p.tareaId === tareaId && p.a === nuevaDosis);
+  if (!propuesta) return { error: 'Ese ajuste ya no corresponde.' };
+
+  const { error } = await (supabase as any).from('frecuencia_tareas').update({ dosis_actual: nuevaDosis }).eq('id', tareaId).eq('user_id', user.id);
+  if (error) return { error: 'No se pudo guardar.' };
+  revalidatePath('/frecuencia/semana');
+  revalidatePath('/frecuencia/objetivos');
+  return { ok: true };
+}
+
+export async function guardarRevision(input: { queFunciono: string[]; queNo: string[]; cargaSiguiente?: Record<string, unknown> }): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+
+  const limpiar = (xs: string[]) => xs.map((x) => String(x).trim().slice(0, 300)).filter(Boolean).slice(0, 20);
+  const timezone = await timezoneDelUsuario(supabase, user.id);
+  const payload: Record<string, unknown> = {
+    user_id: user.id,
+    semana: lunesDeLaSemana(timezone),
+    que_funciono: limpiar(input.queFunciono),
+    que_no: limpiar(input.queNo),
+  };
+  if (input.cargaSiguiente) payload.carga_siguiente = input.cargaSiguiente;
+
+  const { error } = await (supabase as any).from('frecuencia_revisiones').upsert(payload, { onConflict: 'user_id,semana' });
+  if (error) return { error: 'No se pudo guardar.' };
+  revalidatePath('/frecuencia/revision');
   return { ok: true };
 }
 
@@ -550,6 +744,29 @@ export async function agregarEvidenciaManual(texto: string): Promise<AccionState
     tipo: 'MANUAL',
   });
   if (error) return { error: error.message };
+  revalidatePath('/frecuencia/cierre');
+  return { ok: true };
+}
+
+export async function guardarAprendizaje(texto: string): Promise<AccionState> {
+  const { supabase, user } = await usuarioActual();
+  if (!user) return { error: 'No hay sesión.' };
+  if (!texto.trim()) return { error: 'Vacío.' };
+  if (texto.length > 500) return { error: 'Demasiado largo.' };
+
+  const timezone = await timezoneDelUsuario(supabase, user.id);
+  const fecha = fechaLocal(timezone);
+
+  // Mismo almacén que el registro (frecuencia_evidencia.tipo es texto libre),
+  // con un tipo propio: así el cierre los muestra aparte y no hace falta tocar la base.
+  const { error } = await (supabase as any).from('frecuencia_evidencia').insert({
+    user_id: user.id,
+    bloque_id: null,
+    fecha,
+    texto: texto.trim(),
+    tipo: 'APRENDIZAJE',
+  });
+  if (error) return { error: 'No se pudo guardar.' };
   revalidatePath('/frecuencia/cierre');
   return { ok: true };
 }

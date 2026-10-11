@@ -2,16 +2,61 @@
   margin-top: 28px;
 }
 
-.evidenciaLista {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.vacio {
   margin-top: 20px;
 }
-.evidenciaItem {
-  padding: 12px 16px;
+
+/* Bitácora de emisión: hora · nodo · lo que salió al aire. */
+.bitacora {
+  position: relative;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.bitacoraFila {
+  position: relative;
+  display: grid;
+  grid-template-columns: 52px 18px 1fr;
+  gap: 8px;
+  padding-bottom: 14px;
+  animation: filaEntra 0.5s cubic-bezier(0.16, 0.84, 0.28, 1) both;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+.bitacoraFila::before {
+  content: '';
+  position: absolute;
+  left: calc(52px + 8px + 8px);
+  top: 12px;
+  bottom: 0;
+  width: 1px;
+  background: var(--linea-2);
+}
+.bitacoraFila:last-child::before {
+  display: none;
+}
+@keyframes filaEntra {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: none; }
+}
+.bitacoraHora {
+  padding-top: 2px;
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  color: var(--azul-luz);
+  font-variant-numeric: tabular-nums;
+}
+.bitacoraNodo {
+  width: 9px;
+  height: 9px;
+  margin: 5px 0 0 4px;
+  background: var(--azul-luz);
+  box-shadow: 0 0 10px rgba(var(--azul-rgb), 0.8);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+.bitacoraCuerpo {
+  padding: 10px 14px;
   border: 1px solid var(--linea);
-  background: var(--negro-2);
+  background: rgba(10, 10, 12, 0.6);
   clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
 .evidenciaTexto {
@@ -27,7 +72,39 @@
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--ceniza);
+}
+
+/* Lo que aprendiste hoy: frases sueltas, sin hora, con comillas grandes. */
+.aprendizajes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.aprendizaje {
+  position: relative;
+  padding: 6px 0 6px 28px;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--hueso);
+  animation: filaEntra 0.5s cubic-bezier(0.16, 0.84, 0.28, 1) both;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+.aprendizaje::before {
+  content: '“';
+  position: absolute;
+  left: 0;
+  top: -4px;
+  font-family: var(--f-display), Montserrat, sans-serif;
+  font-style: normal;
+  font-size: 32px;
   color: var(--azul-luz);
+  text-shadow: 0 0 14px rgba(var(--azul-rgb), 0.7);
 }
 
 .bloquesManana {
@@ -74,6 +151,75 @@
 }
 
 .completoWrap {
-  margin-top: 60px;
+  margin-top: 20vh;
   text-align: center;
+}
+
+.completoSub {
+  margin: 12px auto 0;
+}
+.finEtiqueta {
+  margin: 0 0 14px;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+  text-shadow: 0 0 12px rgba(var(--azul-rgb), 0.8);
+  animation: finEntra 1.2s ease 1.3s both;
+}
+@keyframes finEntra {
+  from { opacity: 0; letter-spacing: 0.6em; }
+  to { opacity: 1; letter-spacing: 0.32em; }
+}
+.completoWrap h2 {
+  animation: finTitulo 1.2s ease 1.5s both;
+}
+@keyframes finTitulo {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Fin de la transmisión: la pantalla se apaga como un televisor viejo. */
+.apagon {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  animation: apagonFondo 1.6s ease-in forwards;
+}
+.apagonLinea {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  box-shadow: 0 0 40px 8px rgba(var(--azul-rgb), 0.9);
+  animation: apagonLinea 1.6s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+@keyframes apagonLinea {
+  0% { transform: scaleY(1) scaleX(1); opacity: 0; background: #9fc1ff; }
+  20% { transform: scaleY(1) scaleX(1); opacity: 0.18; background: #9fc1ff; }
+  55% { transform: scaleY(0.004) scaleX(1); opacity: 1; background: #fff; }
+  85% { transform: scaleY(0.004) scaleX(0.05); opacity: 1; }
+  100% { transform: scaleY(0.004) scaleX(0); opacity: 0; }
+}
+@keyframes apagonFondo {
+  0%, 60% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .apagon { display: none; }
+  .bitacoraFila,
+  .aprendizaje,
+  .finEtiqueta,
+  .completoWrap h2 { animation: none; }
+}
+
+.error {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #ff8a8a;
 }

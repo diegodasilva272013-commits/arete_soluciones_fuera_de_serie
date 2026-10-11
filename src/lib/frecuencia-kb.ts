@@ -10,6 +10,8 @@ import type {
   AreasReglas,
   EnergiaEscasez,
   MapaEnergiaDefault,
+  ModeloIA,
+  ModelosIAKB,
   OnboardingCopy,
   ReglasPlanKB,
   ReglasDecisionKB,
@@ -32,9 +34,23 @@ async function leerBloque<T>(clave: string): Promise<T | null> {
   return data.valor as T;
 }
 
+/** Lectura genérica de un bloque (para claves sueltas como limite_imagenes_diario o prompt_imagen). */
+export const leerBloqueGenerico = <T,>(clave: string) => leerBloque<T>(clave);
 export const getAreasVida = () => leerBloque<AreaVida[]>('areas_vida');
 export const getAreasReglas = () => leerBloque<AreasReglas>('areas_reglas');
 export const getEnergiasEscasez = () => leerBloque<EnergiaEscasez[]>('energias_escasez');
+/** Palabras y frases de escasez por energía (7.6). Si la clave no existe todavía, la detección queda apagada. */
+export const getPalabrasEscasez = () => leerBloque<Record<string, string[]>>('palabras_escasez');
+/** Modelos de IA habilitados (chat e imágenes). Nunca en el código: los carga Diego por SQL. */
+export async function getModelosIA(): Promise<ModelosIAKB> {
+  const v = await leerBloque<Partial<ModelosIAKB>>('modelos_ia');
+  const valido = (xs: unknown): ModeloIA[] => (Array.isArray(xs) ? xs.filter((m): m is ModeloIA => !!m && typeof (m as ModeloIA).id === 'string' && typeof (m as ModeloIA).nombre === 'string') : []);
+  return { chat: valido(v?.chat), imagenes: valido(v?.imagenes) };
+}
+/** Prompts del agente: viven en la base. Si faltan, la función de IA correspondiente no arranca (falla cerrada). */
+export const getPromptChat = async () => (await leerBloque<{ texto?: string }>('prompt_chat'))?.texto ?? null;
+export const getPromptDescomposicion = async () => (await leerBloque<{ texto?: string }>('prompt_descomposicion'))?.texto ?? null;
+export const getTonoAgente = () => leerBloque<{ todo?: boolean; propuesta?: string; texto?: string }>('tono_agente');
 export const getAccionesSubida = () => leerBloque<string[]>('acciones_subida');
 export const getMapaEnergiaDefault = () => leerBloque<MapaEnergiaDefault>('mapa_energia_default');
 /**

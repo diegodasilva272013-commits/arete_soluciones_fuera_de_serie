@@ -6,11 +6,93 @@
   clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
 }
 
-.linea {
-  margin-top: 28px;
+.vacio {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+.vacioTexto {
+  margin: 0;
+}
+.conflicto {
+  margin-top: 20px;
+  border-color: var(--azul);
+}
+.conflictoTexto {
+  margin: 0;
+  flex: 1;
+}
+
+.lineaTitulo {
+  margin: 32px 0 0;
+  font-family: var(--f-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+}
+
+/* ── Línea vertical del día: riel con un nodo por bloque ──────────── */
+.linea {
+  position: relative;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.fila {
+  position: relative;
+  padding: 0 0 12px 34px;
+}
+.fila::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--linea-2);
+}
+.fila:first-child::before {
+  top: 22px;
+}
+.fila:last-child::before {
+  bottom: calc(100% - 22px);
+}
+.filaPasada::before,
+.filaActual::before {
+  background: linear-gradient(180deg, var(--azul), var(--azul-luz));
+  box-shadow: 0 0 10px rgba(var(--azul-rgb), 0.5);
+}
+.nodo {
+  position: absolute;
+  left: 3px;
+  top: 16px;
+  width: 14px;
+  height: 14px;
+  background: var(--negro);
+  border: 2px solid var(--linea-2);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  z-index: 1;
+}
+.filaPasada .nodo {
+  background: var(--azul);
+  border-color: var(--azul);
+}
+.filaActual .nodo {
+  background: var(--azul-luz);
+  border-color: var(--azul-luz);
+  box-shadow: 0 0 14px rgba(var(--azul-rgb), 1);
+  animation: nodoPulso 1.8s ease-in-out infinite;
+}
+@keyframes nodoPulso {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+}
+.filaPasada .item {
+  opacity: 0.55;
 }
 
 .item {
@@ -19,7 +101,7 @@
   gap: 14px;
   padding: 14px 16px;
   border: 1px solid var(--linea);
-  background: var(--negro-2);
+  background: rgba(10, 10, 12, 0.6);
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
 .itemHora {
@@ -42,20 +124,19 @@
   color: var(--azul-luz);
 }
 
-/* ── Bloque actual: glow respirando (tokens Areté, chanfle, no radius) ── */
+/* ── Bloque actual: tarjeta que respira con glow azul ──────────────── */
 .itemActual {
   composes: item;
-  position: relative;
-  border-color: var(--azul);
-  background: rgba(var(--azul-rgb), 0.07);
   flex-direction: column;
   align-items: stretch;
-  gap: 10px;
+  gap: 12px;
+  padding: 20px 20px 22px;
+  border-color: var(--azul);
+  background: linear-gradient(135deg, rgba(var(--azul-rgb), 0.16), rgba(var(--azul-rgb), 0.04));
   animation: respirarGlow 3.2s ease-in-out infinite;
 }
 @keyframes respirarGlow {
-  0%,
-  100% {
+  0%, 100% {
     box-shadow: 0 0 0 1px rgba(var(--azul-rgb), 0.15), 0 14px 40px -18px rgba(var(--azul-rgb), 0.45);
   }
   50% {
@@ -67,10 +148,13 @@
     animation: none;
     box-shadow: 0 0 0 1px rgba(var(--azul-rgb), 0.25);
   }
+  .filaActual .nodo {
+    animation: none;
+  }
 }
 .itemActualCabecera {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 14px;
 }
 .itemActualBadge {
@@ -80,17 +164,93 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--negro);
-  background: var(--azul);
+  background: var(--azul-luz);
   padding: 3px 9px;
 }
+.itemActualTitulo {
+  margin: 0;
+  font-family: var(--f-display), Montserrat, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(20px, 4.6vw, 28px);
+  line-height: 1.15;
+  color: var(--hueso);
+}
+/* SALIR AL AIRE: el botón más grande de la pantalla. */
+.salirAlAire {
+  width: 100%;
+  padding: 20px 24px;
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  box-shadow: 0 0 28px rgba(var(--azul-rgb), 0.5);
+}
 
+/* ── Bandeja de ideas: cajón que se abre ──────────────────────────── */
 .ideasPanel {
-  margin-top: 32px;
+  margin-top: 28px;
+  border-top: 1px solid var(--linea);
+}
+.ideasBoton {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--hueso);
+}
+.ideasTitulo {
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+.ideasFlecha {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--azul-luz);
+  border-bottom: 2px solid var(--azul-luz);
+  transform: rotate(45deg);
+  transition: transform 0.3s ease;
+}
+.ideasFlechaAbierta {
+  transform: rotate(-135deg);
+}
+.ideasCajon {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+.ideasCajonAbierto {
+  grid-template-rows: 1fr;
+}
+.ideasContenido {
+  overflow: hidden;
+  min-height: 0;
+  visibility: hidden;
+  transition: visibility 0s linear 0.35s;
+}
+.ideasCajonAbierto .ideasContenido {
+  visibility: visible;
+  transition-delay: 0s;
+}
+.ideasAyuda {
+  margin: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ideasCajon,
+  .ideasContenido,
+  .ideasFlecha {
+    transition: none;
+  }
 }
 .ideaForm {
   display: flex;
   gap: 8px;
-  margin-top: 14px;
+  margin: 14px 0 6px;
 }
 .ideaForm input {
   flex: 1;

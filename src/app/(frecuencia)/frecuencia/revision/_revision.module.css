@@ -1,0 +1,109 @@
+.paso {
+  margin-top: 24px;
+  padding-bottom: 24px;
+}
+.vacio {
+  margin-top: 20px;
+}
+.medidor {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid var(--linea);
+  background: rgba(10, 10, 12, 0.6);
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+}
+.medidorGrande {
+  border-color: rgba(var(--azul-rgb), 0.5);
+  background: linear-gradient(135deg, rgba(var(--azul-rgb), 0.14), rgba(10, 10, 12, 0.6));
+}
+.medidorEtiqueta {
+  margin: 0 0 6px;
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+.medidorPct {
+  margin: 0;
+  font-family: var(--f-mono), monospace;
+  font-weight: 500;
+  font-size: clamp(48px, 12vw, 84px);
+  line-height: 1;
+  color: var(--hueso);
+  font-variant-numeric: tabular-nums;
+}
+.medidorGrande .medidorPct {
+  color: var(--azul-luz);
+  text-shadow: 0 0 22px rgba(var(--azul-rgb), 0.6);
+}
+.medidorPct span {
+  font-size: 0.4em;
+  margin-left: 4px;
+  color: var(--ceniza);
+}
+.barra {
+  height: 6px;
+  margin: 12px 0 8px;
+  background: rgba(242, 239, 233, 0.08);
+}
+.barraRelleno {
+  height: 100%;
+  background: var(--azul);
+  box-shadow: 0 0 12px rgba(var(--azul-rgb), 0.8);
+  transition: width 0.9s cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+.medidorDetalle {
+  margin: 0;
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 14px;
+  color: var(--ceniza);
+}
+.subEtiqueta {
+  margin: 28px 0 10px;
+  font-family: var(--f-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ceniza);
+}
+.items {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.item,
+.fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--linea);
+  font-family: var(--f-texto), Spectral, Georgia, serif;
+  font-size: 15px;
+  color: var(--hueso);
+}
+.filaNumero {
+  font-family: var(--f-mono), monospace;
+  font-size: 12px;
+  color: var(--azul-luz);
+  white-space: nowrap;
+}
+.error {
+  margin: 16px 0 0;
+  font-size: 14px;
+  color: #ff8a8a;
+}
+.completo {
+  margin-top: 20vh;
+  text-align: center;
+}
+.completoSub {
+  margin: 12px auto 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .barraRelleno {
+    transition: none;
+  }
+}

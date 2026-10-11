@@ -1,0 +1,17 @@
+.nota { margin-top: 18px; padding: 12px 14px; border-left: 2px solid var(--azul); background: rgba(var(--azul-rgb), 0.06); font-family: var(--f-texto), Spectral, serif; font-size: 13.5px; font-style: italic; color: var(--ceniza); }
+.equipo { margin-top: 36px; }
+.equipoNombre { font-family: var(--f-display), Montserrat, sans-serif; font-weight: 800; font-size: 22px; color: var(--hueso); margin: 0 0 4px; }
+.persona { margin-top: 18px; padding: 20px 22px; border: 1px solid var(--linea); background: rgba(255, 255, 255, 0.02); clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px); }
+.personaNombre { font-family: var(--f-display), Montserrat, sans-serif; font-weight: 700; font-size: 18px; color: var(--hueso); margin: 0 0 12px; }
+.grilla { display: grid; grid-template-columns: 1fr; gap: 18px; }
+@media (min-width: 900px) { .grilla { grid-template-columns: 1fr 1fr; } }
+.bloque h4 { font-family: var(--f-mono), monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--azul-luz); margin: 0 0 8px; font-weight: 400; }
+.dato { font-family: var(--f-texto), Spectral, serif; font-size: 14px; color: var(--hueso); margin: 0 0 4px; }
+.suave { font-family: var(--f-texto), Spectral, serif; font-size: 13.5px; color: var(--ceniza); font-style: italic; margin: 0; }
+.lista { list-style: none; margin: 0; padding: 0; }
+.lista li { font-family: var(--f-texto), Spectral, serif; font-size: 13.5px; color: var(--hueso); padding: 6px 0; border-top: 1px solid var(--linea); }
+.lista li:first-child { border-top: 0; }
+.cuando { font-family: var(--f-mono), monospace; font-size: 10px; letter-spacing: 0.08em; color: var(--ceniza); margin-right: 8px; }
+.barra { position: relative; height: 6px; background: var(--linea-2); margin-top: 8px; overflow: hidden; }
+.relleno { position: absolute; inset: 0 auto 0 0; background: var(--azul-luz); }
+.error { color: #ff6b6b; font-size: 13px; margin-top: 16px; }

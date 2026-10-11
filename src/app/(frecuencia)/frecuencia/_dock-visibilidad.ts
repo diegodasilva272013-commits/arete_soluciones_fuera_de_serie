@@ -9,7 +9,7 @@
  * de /hoy; "armar semana" es un estado dentro de /semana) se declaran
  * desde la pantalla con useFlujoActivo() — ver _shell.tsx.
  */
-const RUTAS_DE_FLUJO = ['/frecuencia/onboarding', '/frecuencia/cierre'];
+const RUTAS_DE_FLUJO = ['/frecuencia/onboarding', '/frecuencia/cierre', '/frecuencia/revision'];
 
 export function esRutaDeFlujo(pathname: string | null): boolean {
   return !!pathname && RUTAS_DE_FLUJO.some((r) => pathname === r || pathname.startsWith(`${r}/`));

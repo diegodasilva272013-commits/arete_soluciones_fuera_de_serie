@@ -1,0 +1,14 @@
+{
+  "receptorLeeTarea": 1,
+  "receptorLeeCriterio": 1,
+  "receptorEditaTarea": 0,
+  "receptorMarcaVolvio": 0,
+  "receptorEditaCriterio": 0,
+  "ajenoLeeTarea": 0,
+  "ajenoLeeCriterio": 0,
+  "ajenoLeeDelegaciones": 0,
+  "delegarAQuienNoComparteEquipo": "42501",
+  "delegarSinCriterio": "23502",
+  "delegarseASiMismo": "23514",
+  "delegarEnNombreDeOtro": "42501"
+}
