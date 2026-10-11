@@ -15,7 +15,8 @@ import * as d from './_content/bombas.data';
 
 // Cards de ejemplo de los productos del catálogo (InfoCard sobre fondo
 // oscuro). Cada card apila 3 fotos del catálogo: la del producto va arriba y
-// las otras dos quedan atrás; al pasar el cursor se abren en abanico.
+// las otras dos quedan atrás; al pasar el cursor se abren en abanico, la
+// card crece y aparece la descripción del producto con las acciones.
 export function ProductosDemo() {
   const total = d.productosDemo.length;
   return (
@@ -39,17 +40,19 @@ export function ProductosDemo() {
               <InfoCardTitle className="text-[15px] leading-snug" style={{ fontFamily: 'var(--f-display), Montserrat, sans-serif', fontWeight: 700 }}>
                 {p.nombre}
               </InfoCardTitle>
-              <InfoCardDescription className="text-[13px] leading-[18px] text-[rgba(242,239,233,0.62)]" style={{ fontFamily: 'var(--f-texto), Spectral, serif' }}>
-                {p.descripcion}
-              </InfoCardDescription>
               <InfoCardMedia media={media} shrinkHeight={120} expandHeight={190} />
-              <InfoCardFooter className="pt-3 text-[rgba(242,239,233,0.8)]">
-                <InfoCardDismiss>{d.productosDemoCerrar}</InfoCardDismiss>
-                <InfoCardAction>
-                  <span className="flex flex-row items-center gap-1 underline">
-                    {d.productosDemoAccion} <ExternalLink size={12} />
-                  </span>
-                </InfoCardAction>
+              <InfoCardFooter className="flex-col gap-3 overflow-hidden pt-3 text-[rgba(242,239,233,0.8)]">
+                <InfoCardDescription className="text-[13px] leading-[19px] text-[rgba(242,239,233,0.72)]" style={{ fontFamily: 'var(--f-texto), Spectral, serif' }}>
+                  {p.descripcion}
+                </InfoCardDescription>
+                <div className="flex justify-between text-xs">
+                  <InfoCardDismiss>{d.productosDemoCerrar}</InfoCardDismiss>
+                  <InfoCardAction>
+                    <span className="flex flex-row items-center gap-1 underline">
+                      {d.productosDemoAccion} <ExternalLink size={12} />
+                    </span>
+                  </InfoCardAction>
+                </div>
               </InfoCardFooter>
             </InfoCardContent>
           </InfoCard>

@@ -160,7 +160,8 @@ function InfoCard({
               initial={{ opacity: 0, y: 10 }}
               // La card se muestra siempre: esperar a las imágenes para
               // aparecer dejaba la card invisible si el onLoad no llegaba.
-              animate={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
               exit={{
                 opacity: 0,
                 y: 10,
