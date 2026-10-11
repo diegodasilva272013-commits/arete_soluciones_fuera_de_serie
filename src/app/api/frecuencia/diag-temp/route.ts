@@ -111,8 +111,8 @@ export async function GET(req: Request) {
       ...(data?.valor ?? { imagenes: [] }),
       chat: aplicar.map((id, i) => ({ id, nombre: nombres[id] ?? id, licencia: 'NVIDIA API Catalog', ...(i === 0 ? { por_defecto: true } : {}) })),
     };
-    const { error } = await admin.from('frecuencia_knowledge_blocks').update({ valor: nuevo, updated_at: new Date().toISOString() }).eq('clave', 'modelos_ia');
-    out.aplicado = error ? `error: ${error.message}` : nuevo.chat;
+    const res = await admin.from('frecuencia_knowledge_blocks').update({ valor: nuevo }).eq('clave', 'modelos_ia').select('clave, valor');
+    out.aplicado = res.error ? `error: ${res.error.message} (${res.error.code})` : { filas: res.data?.length ?? 0, chat: res.data?.[0]?.valor?.chat?.map((m: { id: string }) => m.id) };
   }
   return NextResponse.json(out);
 }
