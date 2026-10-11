@@ -47,6 +47,17 @@ describe('chatCompletion', () => {
     expect(f).not.toHaveBeenCalled();
   });
 
+  it('acepta la clave cargada como nvidia_key', async () => {
+    delete process.env.NVIDIA_API_KEY;
+    process.env.nvidia_key = 'clave-alias';
+    const f = vi.fn().mockResolvedValue(respuesta({ choices: [{ message: { role: 'assistant', content: 'hola' } }] }));
+    vi.stubGlobal('fetch', f);
+    await chatCompletion({ modelo: 'm', mensajes: [] });
+    expect((f.mock.calls[0][1] as { headers: Record<string, string> }).headers.Authorization).toBe('Bearer clave-alias');
+    delete process.env.nvidia_key;
+    process.env.NVIDIA_API_KEY = 'clave-de-prueba';
+  });
+
   it('traduce 429, 500, red caída y respuestas vacías', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(respuesta({}, 429)));
     await expect(chatCompletion({ modelo: 'a', mensajes: [] })).rejects.toMatchObject({ codigo: 'limite' });

@@ -68,8 +68,9 @@ export function baseUrl(real: string, override: string | undefined): string {
 }
 
 function clave(): string {
-  const k = process.env.NVIDIA_API_KEY;
-  if (!k) throw new ErrorIA('sin_clave', 'Falta NVIDIA_API_KEY en el entorno.');
+  // La clave puede estar cargada como NVIDIA_API_KEY o como nvidia_key / NVIDIA_KEY (los nombres de variables distinguen mayúsculas).
+  const k = (process.env.NVIDIA_API_KEY || process.env.nvidia_key || process.env.NVIDIA_KEY || '').trim();
+  if (!k) throw new ErrorIA('sin_clave', 'Falta la clave de NVIDIA en el entorno (NVIDIA_API_KEY o nvidia_key).');
   return k;
 }
 
