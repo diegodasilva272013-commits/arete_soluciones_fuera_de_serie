@@ -5,7 +5,7 @@ const TITULO = 'Propuesta — Bombas y motores de agua | Areté Soluciones';
 const DESCRIPCION = 'Web con catálogo, panel propio y botón de WhatsApp, por Areté Soluciones.';
 
 export const metadata = {
-  title: TITULO,
+  title: { absolute: TITULO },
   description: DESCRIPCION,
   robots: 'noindex,nofollow',
   openGraph: { title: TITULO, description: DESCRIPCION },

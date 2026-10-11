@@ -26,7 +26,7 @@ const mono = JetBrains_Mono({
 // noindex: es una propuesta comercial con precios, no tiene que aparecer en
 // buscadores ni en el sitemap.
 export const metadata: Metadata = {
-  title: 'Propuesta — Bombas y motores de agua | Areté Soluciones',
+  title: { absolute: 'Propuesta — Bombas y motores de agua | Areté Soluciones' },
   robots: { index: false, follow: false, nocache: true },
 };
 
