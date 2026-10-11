@@ -7,6 +7,8 @@ import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import { ChatCliente } from './_chat-cliente';
 import { AgenteVoz } from './_agente-voz';
+import { DiagnosticoIA } from './_diagnostico-ia';
+import { diagnosticoClave } from '@/lib/frecuencia/ia/nvidia';
 
 export default async function ChatPage() {
   const ctx = await getCurrentUserContext();
@@ -30,6 +32,8 @@ export default async function ChatPage() {
       </div>
       <h1 className={base.titulo}>{copy.chat.titulo}</h1>
       <p className={base.subtitulo}>{copy.chat.subtitulo}</p>
+
+      {ctx.isAdmin && (() => { const d = diagnosticoClave(); return <DiagnosticoIA clave={d.detectada} variables={d.variablesParecidas} modelos={modelos.chat.length} />; })()}
 
       <AgenteVoz agentId={process.env.NEXT_PUBLIC_FRECUENCIA_AGENT_ID || null} />
 
