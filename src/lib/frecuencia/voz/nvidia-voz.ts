@@ -50,7 +50,8 @@ message ModeloConfig { string model_name = 1; map<string, string> parameters = 2
 message ConfigSintesis { repeated ModeloConfig model_config = 1; }
 `;
 
-const root = protobuf.parse(PROTO).root;
+// keepCase: los campos del protocolo de NVIDIA van en snake_case tal cual.
+const root = protobuf.parse(PROTO, { keepCase: true }).root;
 const T = (n: string) => root.lookupType(`nv.${n}`);
 
 function clave(): string {
@@ -112,7 +113,7 @@ type RespReconocer = { results: { alternatives: { transcript: string }[] }[] };
 export async function transcribir(wav: Buffer): Promise<{ texto: string; modelo: string; idioma: string }> {
   clave();
   const frecuencia = frecuenciaWav(wav);
-  let ultimo = '';
+  const fallos: string[] = [];
   for (const f of FUNCIONES.asr) {
     for (const idioma of f.idiomas) {
       try {
@@ -127,14 +128,15 @@ export async function transcribir(wav: Buffer): Promise<{ texto: string; modelo:
         const texto = r.results.map((x) => x.alternatives[0]?.transcript ?? '').join(' ').replace(/\s+/g, ' ').trim();
         return { texto, modelo: f.nombre, idioma };
       } catch (e) {
-        ultimo = `${f.nombre}/${idioma}: ${(e as Error).message}`.slice(0, 200);
+        const detalle = `${f.nombre}/${idioma}: ${(e as Error).message}`.slice(0, 160);
+        fallos.push(detalle);
         // Si el idioma no corresponde se sigue con el próximo; si es un error de cuenta/clave, no tiene sentido seguir.
-        if (/UNAUTHENTICATED|PERMISSION_DENIED/.test(ultimo)) throw new ErrorVoz('proveedor', ultimo);
+        if (/UNAUTHENTICATED|PERMISSION_DENIED/.test(detalle)) throw new ErrorVoz('proveedor', detalle);
       }
     }
   }
-  console.error('[voz] ninguna función de reconocimiento respondió', ultimo);
-  throw new ErrorVoz('proveedor', ultimo || 'Sin respuesta del reconocimiento de voz.');
+  console.error('[voz] ninguna función de reconocimiento respondió', fallos);
+  throw new ErrorVoz('proveedor', fallos.join(' | ') || 'Sin respuesta del reconocimiento de voz.');
 }
 
 /** Voces disponibles de Magpie (para elegir una en español). */
