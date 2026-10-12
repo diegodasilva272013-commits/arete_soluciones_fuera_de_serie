@@ -1,12 +1,12 @@
 /**
- * Voz del agente: recibe el texto de la respuesta y devuelve el audio (mp3).
+ * Voz del agente: recibe el texto de la respuesta y devuelve el audio (WAV).
  * Sesión obligatoria y mismo control de acceso que el chat.
  */
 
 import { NextResponse } from 'next/server';
 import { getCurrentUserContext } from '@/lib/current-user';
 import { tieneAccesoFrecuencia } from '@/lib/frecuencia-access';
-import { ErrorVoz, reservarVoz, sintetizar } from '@/lib/frecuencia/voz/openai';
+import { ErrorVoz, reservarVoz, sintetizar } from '@/lib/frecuencia/voz/nvidia-voz';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
   try {
     const audio = await sintetizar(texto);
-    return new Response(audio, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-store' } });
+    return new Response(new Uint8Array(audio), { headers: { 'Content-Type': 'audio/wav', 'Cache-Control': 'no-store' } });
   } catch (e) {
     if (e instanceof ErrorVoz) return error(e.codigo === 'sin_clave' ? 'sin_clave' : 'proveedor', e.codigo === 'sin_clave' ? 503 : 502);
     return error('proveedor', 502);

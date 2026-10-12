@@ -1,13 +1,14 @@
 /**
  * Mensajes de voz del chat de Frecuencia: recibe el audio grabado por la persona
  * y devuelve el texto. Sesión obligatoria y mismo control de acceso que el chat.
- * La clave de OpenAI vive solo acá, en el servidor.
+ * El audio llega como WAV mono de 16 bits (el navegador lo convierte). La clave de
+ * NVIDIA vive solo acá, en el servidor.
  */
 
 import { NextResponse } from 'next/server';
 import { getCurrentUserContext } from '@/lib/current-user';
 import { tieneAccesoFrecuencia } from '@/lib/frecuencia-access';
-import { ErrorVoz, reservarVoz, transcribir } from '@/lib/frecuencia/voz/openai';
+import { ErrorVoz, reservarVoz, transcribir } from '@/lib/frecuencia/voz/nvidia-voz';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -34,11 +35,11 @@ export async function POST(req: Request) {
   if (!archivo) return error('pedido_invalido', 400);
   if (archivo.size > MAX_BYTES) return error('audio_largo', 413);
   if (archivo.size < MIN_BYTES) return error('sin_voz', 422);
-  const tipo = archivo.type || 'audio/webm';
-  if (!/^(audio|video)\//.test(tipo)) return error('pedido_invalido', 400);
+  const bytes = Buffer.from(await archivo.arrayBuffer());
+  if (bytes.toString('ascii', 0, 4) !== 'RIFF') return error('formato', 415);
 
   try {
-    const texto = await transcribir(await archivo.arrayBuffer(), tipo);
+    const { texto } = await transcribir(bytes);
     if (!texto) return error('sin_voz', 422);
     return NextResponse.json({ texto: texto.slice(0, 2000) });
   } catch (e) {
