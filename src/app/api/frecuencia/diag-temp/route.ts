@@ -1,6 +1,6 @@
 // TEMPORAL — prueba de la voz de NVIDIA (ASR + TTS por gRPC). Se borra al terminar.
 import { NextResponse } from 'next/server';
-import { sintetizar, transcribir, vocesDisponibles } from '@/lib/frecuencia/voz/nvidia-voz';
+import { configCruda, sintetizar, transcribir, vocesDisponibles } from '@/lib/frecuencia/voz/nvidia-voz';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -19,14 +19,21 @@ export async function POST(req: Request) {
     }
   }
   try {
-    out.voces = (await vocesDisponibles()).filter((v) => /ES|multi/i.test(v)).slice(0, 30);
+    out.config_cruda = JSON.stringify(await configCruda()).slice(0, 1800);
+    out.voces = (await vocesDisponibles()).slice(0, 60);
   } catch (e) {
     out.voces_error = String((e as Error).message).slice(0, 200);
   }
   try {
     const t1 = Date.now();
     const wav = await sintetizar('Hola, soy tu agente de Frecuencia. ¿Qué querés lograr esta semana?');
-    out.tts = { bytes: wav.length, ms: Date.now() - t1, wav_base64_inicio: wav.subarray(0, 12).toString('ascii') };
+    out.tts = { bytes: wav.length, ms: Date.now() - t1 };
+    try {
+      const t2 = Date.now();
+      out.tts_ida_y_vuelta = { ...(await transcribir(wav)), ms: Date.now() - t2 };
+    } catch (e) {
+      out.tts_ida_y_vuelta_error = String((e as Error).message).slice(0, 200);
+    }
     if (new URL(req.url).searchParams.get('devolver')) out.tts_audio_b64 = wav.toString('base64');
   } catch (e) {
     out.tts_error = `${(e as Error).name}: ${(e as Error).message}`.slice(0, 300);

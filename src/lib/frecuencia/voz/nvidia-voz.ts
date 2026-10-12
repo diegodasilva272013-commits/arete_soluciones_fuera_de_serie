@@ -22,10 +22,11 @@ const OBJETIVO = 'grpc.nvcf.nvidia.com:443';
 
 // Funciones públicas del catálogo de NVIDIA (ids verificados contra la API de la cuenta).
 export const FUNCIONES = {
+  // Orden = el que mejor responde (verificado en producción): el multilingüe primero.
   asr: [
-    { nombre: 'parakeet-ctc-0.6b-es', id: 'a9eeee8f-b509-4712-b19d-194361fa5f31', idiomas: ['es-US', 'es-ES', 'es'] },
-    { nombre: 'parakeet-1.1b-rnnt-multilingual', id: '71203149-d3b7-4460-8231-1be2543a1fca', idiomas: ['es-US', 'es-ES', 'es', 'multi'] },
-    { nombre: 'whisper-large-v3', id: 'b702f636-f60c-4a3d-a6f4-f3568c13bd7d', idiomas: ['es', 'es-US', 'multi'] },
+    { nombre: 'parakeet-1.1b-rnnt-multilingual', id: '71203149-d3b7-4460-8231-1be2543a1fca', idiomas: ['es-US'] },
+    { nombre: 'whisper-large-v3', id: 'b702f636-f60c-4a3d-a6f4-f3568c13bd7d', idiomas: ['es'] },
+    { nombre: 'parakeet-ctc-0.6b-es', id: 'a9eeee8f-b509-4712-b19d-194361fa5f31', idiomas: ['es-US'] },
   ],
   tts: { nombre: 'magpie-tts-multilingual', id: '877104f7-e885-42b9-8de8-f6e4c6303969' },
 };
@@ -123,7 +124,7 @@ export async function transcribir(wav: Buffer): Promise<{ texto: string; modelo:
           'RecognizeRequest',
           'RecognizeResponse',
           { config: { encoding: 1, sample_rate_hertz: frecuencia, language_code: idioma, max_alternatives: 1, enable_automatic_punctuation: true, audio_channel_count: 1 }, audio: wav },
-          25_000,
+          20_000,
         );
         const texto = r.results.map((x) => x.alternatives[0]?.transcript ?? '').join(' ').replace(/\s+/g, ' ').trim();
         return { texto, modelo: f.nombre, idioma };
@@ -140,6 +141,10 @@ export async function transcribir(wav: Buffer): Promise<{ texto: string; modelo:
 }
 
 /** Voces disponibles de Magpie (para elegir una en español). */
+export async function configCruda(): Promise<unknown> {
+  return unario<Record<string, unknown>, unknown>(FUNCIONES.tts.id, '/nvidia.riva.tts.RivaSpeechSynthesis/GetRivaSynthesisConfig', 'Vacio', 'ConfigSintesis', {}, 15_000);
+}
+
 export async function vocesDisponibles(): Promise<string[]> {
   const r = await unario<Record<string, unknown>, { model_config: { parameters: Record<string, string> }[] }>(
     FUNCIONES.tts.id,
@@ -150,7 +155,10 @@ export async function vocesDisponibles(): Promise<string[]> {
     15_000,
   );
   const voces = new Set<string>();
-  for (const c of r.model_config) for (const v of (c.parameters.voices ?? '').split(',')) if (v.trim()) voces.add(v.trim());
+  for (const c of r.model_config) {
+    const p = c.parameters ?? {};
+    for (const v of String(p.voices ?? p.voice_name ?? '').split(',')) if (v.trim()) voces.add(v.trim());
+  }
   return [...voces];
 }
 
