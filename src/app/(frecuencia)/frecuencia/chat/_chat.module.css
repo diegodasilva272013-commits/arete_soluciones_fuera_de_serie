@@ -367,3 +367,40 @@
     animation: none;
   }
 }
+
+.conversacion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--azul);
+  background: rgba(var(--azul-rgb), 0.08);
+  font-family: var(--f-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--azul-luz);
+}
+.conversacion .punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--azul-luz);
+  animation: latido 1.2s ease-in-out infinite;
+}
+.conversacion button {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid var(--azul);
+  color: var(--hueso);
+  padding: 6px 12px;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+@media (prefers-reduced-motion: reduce) {
+  .conversacion .punto {
+    animation: none;
+  }
+}

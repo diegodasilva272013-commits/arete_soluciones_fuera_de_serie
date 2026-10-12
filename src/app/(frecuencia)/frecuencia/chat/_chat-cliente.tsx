@@ -6,23 +6,15 @@
  * rápidas, selector de modelo (de la base), estados reales (enviando,
  * herramientas usadas, propuesta de semana para confirmar). Sin librerías nuevas.
  *
- * Voz: dictado con SpeechRecognition (mensajes de voz que se envían al terminar)
- * y lectura de las respuestas con speechSynthesis. Todo en el navegador: sin
- * claves ni servicios externos.
+ * Voz (ver _voz.ts): mensajes de voz (se graba el audio y el agente lo
+ * entiende), modo conversación manos libres y respuestas leídas en voz alta.
  */
 
 import { useEffect, useRef, useState } from 'react';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import s from './_chat.module.css';
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const CLAVE_LEER = 'frecuencia_chat_leer_voz';
-
-/** Texto limpio para leer en voz alta: sin markdown ni símbolos sueltos. */
-function paraVoz(t: string): string {
-  return t.replace(/[*_`#>~]+/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\s+/g, ' ').trim();
-}
+import { useVoz } from './_voz';
 
 interface Mensaje {
   rol: 'user' | 'assistant';
@@ -55,107 +47,8 @@ export function ChatCliente({
   const finRef = useRef<HTMLDivElement>(null);
 
   // ── Voz ──
-  const [soportaDictado, setSoportaDictado] = useState(false);
-  const [grabando, setGrabando] = useState(false);
-  const [leer, setLeer] = useState(false);
-  const [hablando, setHablando] = useState(false);
-  const recRef = useRef<any>(null);
-  const leerRef = useRef(false);
-  const enviarRef = useRef<(t: string) => void>(() => {});
-
-  useEffect(() => {
-    setSoportaDictado(!!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition));
-    try {
-      const v = localStorage.getItem(CLAVE_LEER) === '1';
-      setLeer(v);
-      leerRef.current = v;
-    } catch { /* sin almacenamiento: queda apagado */ }
-    return () => {
-      try { recRef.current?.abort(); } catch { /* nada */ }
-      window.speechSynthesis?.cancel();
-    };
-  }, []);
-
-  function cambiarLeer(v: boolean) {
-    setLeer(v);
-    leerRef.current = v;
-    try { localStorage.setItem(CLAVE_LEER, v ? '1' : '0'); } catch { /* nada */ }
-    if (!v) { window.speechSynthesis?.cancel(); setHablando(false); }
-    else desbloquearVoz();
-  }
-
-  // iOS/Safari solo deja hablar si la primera voz sale de un toque de la persona.
-  function desbloquearVoz() {
-    try { window.speechSynthesis?.speak(new SpeechSynthesisUtterance('')); } catch { /* nada */ }
-  }
-
-  function hablar(texto: string) {
-    const synth = window.speechSynthesis;
-    const t = paraVoz(texto);
-    if (!synth || !t) return;
-    synth.cancel();
-    const u = new SpeechSynthesisUtterance(t);
-    u.lang = 'es-AR';
-    const voces = synth.getVoices();
-    u.voice = voces.find((x) => x.lang === 'es-AR') ?? voces.find((x) => /^es[-_](419|MX|US)/i.test(x.lang)) ?? voces.find((x) => x.lang.toLowerCase().startsWith('es')) ?? null;
-    u.onstart = () => setHablando(true);
-    u.onend = () => setHablando(false);
-    u.onerror = () => setHablando(false);
-    synth.speak(u);
-  }
-
-  function pararVoz() {
-    window.speechSynthesis?.cancel();
-    setHablando(false);
-  }
-
-  function alternarDictado() {
-    if (grabando) {
-      recRef.current?.stop(); // onend envía lo dictado
-      return;
-    }
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR || enviando) return;
-    pararVoz();
-    desbloquearVoz();
-    setError(null);
-    const rec = new SR();
-    rec.lang = 'es-AR';
-    rec.interimResults = true;
-    rec.continuous = true;
-    let final = '';
-    let parcial = '';
-    let fallo = false;
-    rec.onresult = (e: any) => {
-      parcial = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const r = e.results[i];
-        if (r.isFinal) final += `${r[0].transcript} `;
-        else parcial += r[0].transcript;
-      }
-      setTexto(`${final}${parcial}`.trim());
-    };
-    rec.onerror = (e: any) => {
-      fallo = true;
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') setError(copy.chat.voz.permiso);
-      else if (e.error === 'audio-capture') setError(copy.chat.voz.sinMicrofono);
-      else if (e.error !== 'aborted') setError(copy.chat.voz.sinEntender);
-    };
-    rec.onend = () => {
-      setGrabando(false);
-      recRef.current = null;
-      const t = `${final}${parcial}`.trim();
-      if (t) enviarRef.current(t);
-      else if (!fallo) setError(copy.chat.voz.sinEntender);
-    };
-    recRef.current = rec;
-    try {
-      rec.start();
-      setGrabando(true);
-    } catch {
-      setError(copy.chat.voz.sinEntender);
-    }
-  }
+  const enviarRef = useRef<(t: string) => Promise<string | null>>(async () => null);
+  const voz = useVoz({ enviarRef, ocupado: enviando, setError });
 
   // La caja de texto crece sola con lo que se escribe.
   useEffect(() => {
@@ -175,9 +68,10 @@ export function ChatCliente({
     finRef.current?.scrollIntoView({ block: 'end', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }, [mensajes, enviando]);
 
-  async function enviar(contenido: string) {
+  async function enviar(contenido: string): Promise<string | null> {
     const t = contenido.trim();
-    if (!t || enviando) return;
+    if (!t || enviando) return null;
+    let respuesta: string | null = null;
     setError(null);
     setEnviando(true);
     setMensajes((m) => [...m, { rol: 'user', contenido: t }]);
@@ -194,7 +88,7 @@ export function ChatCliente({
         setError(copy.chat.errores[d.error as string] ?? copy.chat.errores.generico);
       } else {
         setMensajes((m) => [...m, { rol: 'assistant', contenido: d.respuesta as string, acciones: d.acciones as Accion[] }]);
-        if (leerRef.current) hablar(String(d.respuesta ?? ''));
+        respuesta = String(d.respuesta ?? '');
       }
     } catch {
       setError(copy.chat.errores.generico);
@@ -202,6 +96,8 @@ export function ChatCliente({
       setEnviando(false);
       areaRef.current?.focus();
     }
+    if (respuesta) await voz.hablarSiCorresponde(respuesta);
+    return respuesta;
   }
 
   enviarRef.current = enviar;
@@ -311,29 +207,49 @@ export function ChatCliente({
           />
           <button
             type="button"
-            className={grabando ? `${s.microfono} ${s.microfonoActivo}` : s.microfono}
-            onClick={alternarDictado}
-            disabled={!soportaDictado || (enviando && !grabando)}
-            aria-pressed={grabando}
-            title={soportaDictado ? undefined : copy.chat.voz.noSoportado}
+            className={voz.grabando ? `${s.microfono} ${s.microfonoActivo}` : s.microfono}
+            onClick={() => void voz.grabarNota()}
+            disabled={!voz.soporta || voz.conversando || voz.transcribiendo || (enviando && !voz.grabando)}
+            aria-pressed={voz.grabando}
+            title={voz.soporta ? undefined : copy.chat.voz.noSoportado}
           >
-            {grabando ? copy.chat.voz.grabando : copy.chat.voz.grabar}
+            {voz.grabando ? copy.chat.voz.grabandoNota : voz.transcribiendo ? copy.chat.voz.transcribiendo : copy.chat.voz.grabarNota}
+          </button>
+          <button
+            type="button"
+            className={s.microfono}
+            onClick={() => void voz.iniciarConversacion()}
+            disabled={!voz.soporta || voz.conversando || voz.grabando || voz.transcribiendo || enviando}
+            title={voz.soporta ? undefined : copy.chat.voz.noSoportado}
+          >
+            {copy.chat.voz.conversar}
           </button>
           <button type="button" className={s.enviar} onClick={() => enviar(texto)} disabled={enviando || !texto.trim()}>
             {enviando ? copy.chat.enviando : copy.chat.enviar}
           </button>
         </div>
+        {voz.conversando && (
+          <div className={s.conversacion} role="status">
+            <i className={s.punto} aria-hidden />
+            <span>
+              {voz.hablando ? copy.chat.voz.convHablando : enviando || voz.transcribiendo || voz.estadoConv === 'pensando' ? copy.chat.voz.convPensando : copy.chat.voz.convEscuchando}
+            </span>
+            <button type="button" onClick={voz.terminarConversacion}>
+              {copy.chat.voz.terminarConv}
+            </button>
+          </div>
+        )}
         <div className={s.vozFila}>
           <label>
-            <input type="checkbox" checked={leer} onChange={(e) => cambiarLeer(e.target.checked)} />
+            <input type="checkbox" checked={voz.leer || voz.conversando} disabled={voz.conversando} onChange={(e) => voz.cambiarLeer(e.target.checked)} />
             <span>{copy.chat.voz.leer}</span>
           </label>
-          {hablando && (
-            <button type="button" onClick={pararVoz}>
+          {voz.hablando && (
+            <button type="button" onClick={voz.pararVoz}>
               {copy.chat.voz.detenerVoz}
             </button>
           )}
-          {!soportaDictado && <span>{copy.chat.voz.noSoportado}</span>}
+          {!voz.soporta && <span>{copy.chat.voz.noSoportado}</span>}
         </div>
         {modelos.length > 1 && (
           <label className={s.modelo}>
