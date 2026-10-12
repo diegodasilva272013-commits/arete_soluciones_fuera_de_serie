@@ -1,16 +1,35 @@
-// TEMPORAL — funciones públicas de voz en NVCF. Se borra al terminar.
+// TEMPORAL — prueba de la voz de NVIDIA (ASR + TTS por gRPC). Se borra al terminar.
 import { NextResponse } from 'next/server';
+import { sintetizar, transcribir, vocesDisponibles } from '@/lib/frecuencia/voz/nvidia-voz';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 120;
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   const secreto = process.env.FRECUENCIA_C8_SECRET;
   if (!secreto || req.headers.get('x-diag') !== secreto) return NextResponse.json({ error: 'no' }, { status: 404 });
-  const k = (process.env.nvidia_key || process.env.NVIDIA_API_KEY || '').trim();
-  const r = await fetch('https://api.nvcf.nvidia.com/v2/nvcf/functions?visibility=public', { headers: { Authorization: `Bearer ${k}` }, signal: AbortSignal.timeout(30000) });
-  const j = (await r.json()) as { functions?: { id: string; name: string; status: string; apiBodyFormat?: string; functionType?: string }[] };
-  const todas = j.functions ?? [];
-  const voz = todas.filter((x) => /asr|tts|speech|parakeet|canary|magpie|riva|whisper|fastpitch|voice|audio|stt|transcri/i.test(x.name));
-  return NextResponse.json({ total: todas.length, voz: voz.map((x) => `${x.name} | ${x.id} | ${x.status} | ${x.apiBodyFormat ?? ''} ${x.functionType ?? ''}`), muestra: todas.slice(0, 5).map((x) => x.name) });
+  const out: Record<string, unknown> = {};
+  const f = (await req.formData()).get('audio') as File | null;
+  if (f) {
+    const t0 = Date.now();
+    try {
+      out.asr = { ...(await transcribir(Buffer.from(await f.arrayBuffer()))), ms: Date.now() - t0 };
+    } catch (e) {
+      out.asr_error = `${(e as Error).name}: ${(e as Error).message}`.slice(0, 300);
+    }
+  }
+  try {
+    out.voces = (await vocesDisponibles()).filter((v) => /ES|multi/i.test(v)).slice(0, 30);
+  } catch (e) {
+    out.voces_error = String((e as Error).message).slice(0, 200);
+  }
+  try {
+    const t1 = Date.now();
+    const wav = await sintetizar('Hola, soy tu agente de Frecuencia. ¿Qué querés lograr esta semana?');
+    out.tts = { bytes: wav.length, ms: Date.now() - t1, wav_base64_inicio: wav.subarray(0, 12).toString('ascii') };
+    if (new URL(req.url).searchParams.get('devolver')) out.tts_audio_b64 = wav.toString('base64');
+  } catch (e) {
+    out.tts_error = `${(e as Error).name}: ${(e as Error).message}`.slice(0, 300);
+  }
+  return NextResponse.json(out);
 }
