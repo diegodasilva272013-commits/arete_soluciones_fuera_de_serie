@@ -12,7 +12,7 @@ export async function probarNvidia(): Promise<{ ok: boolean; detalle: string }> 
   const modelo = modelos.chat.find((m) => m.por_defecto) ?? modelos.chat[0];
   if (!modelo) return { ok: false, detalle: 'No hay modelos de chat cargados en la base (falta el SQL 0082).' };
   try {
-    const r = await chatCompletion({ modelo: modelo.id, mensajes: [{ role: 'user', content: 'Respondé solo: ok' }], maxTokens: 10 });
+    const r = await chatCompletion({ modelo: modelo.id, mensajes: [{ role: 'user', content: 'Respondé solo: ok' }], maxTokens: 400 });
     return { ok: true, detalle: `NVIDIA respondió con ${modelo.nombre}: "${String(r.content ?? '').slice(0, 40)}"` };
   } catch (e) {
     if (e instanceof ErrorIA) return { ok: false, detalle: `${e.codigo}: ${e.message}` };

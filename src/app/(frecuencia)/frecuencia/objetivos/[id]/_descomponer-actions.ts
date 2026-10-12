@@ -46,7 +46,7 @@ export async function proponerDescomposicion(objetivoId: string): Promise<Result
       modelo: modelo.id,
       json: true,
       temperatura: 0.3,
-      maxTokens: 2000,
+      maxTokens: 4000,
       mensajes: [
         { role: 'system', content: `${prompt}\n\nReglas del método (respetalas):\n${JSON.stringify(metodo)}` },
         { role: 'user', content: JSON.stringify({ objetivo }) },

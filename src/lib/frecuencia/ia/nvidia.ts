@@ -127,21 +127,33 @@ export async function chatCompletion(args: {
 }): Promise<MensajeChat> {
   if (!reservarPedido(args.modelo)) throw new ErrorIA('limite', 'Se alcanzó el límite de pedidos por minuto de este modelo.');
   const base = baseUrl('https://integrate.api.nvidia.com/v1', process.env.NVIDIA_CHAT_BASE_URL);
-  const cuerpo: Record<string, unknown> = {
-    model: args.modelo,
-    messages: args.mensajes,
-    temperature: args.temperatura ?? 0.4,
-    max_tokens: args.maxTokens ?? 1200,
-    stream: false,
+  // Los modelos "de razonamiento" (Nemotron, DeepSeek, GPT-OSS...) gastan parte
+  // de max_tokens pensando: con poco margen devuelven content=null y
+  // finish_reason="length". Por eso el margen por defecto es amplio y, si aun así
+  // llega vacío por cortarse, se reintenta una vez con el triple.
+  const armar = (tokens: number) => {
+    const cuerpo: Record<string, unknown> = {
+      model: args.modelo,
+      messages: args.mensajes,
+      temperature: args.temperatura ?? 0.4,
+      max_tokens: tokens,
+      stream: false,
+    };
+    if (args.herramientas?.length) {
+      cuerpo.tools = args.herramientas;
+      cuerpo.tool_choice = 'auto';
+    }
+    if (args.json) cuerpo.response_format = { type: 'json_object' };
+    return cuerpo;
   };
-  if (args.herramientas?.length) {
-    cuerpo.tools = args.herramientas;
-    cuerpo.tool_choice = 'auto';
+  type Respuesta = { choices?: { message?: MensajeChat; finish_reason?: string }[] };
+  const tokens = args.maxTokens ?? 4096;
+  let r = (await pedir(`${base}/chat/completions`, armar(tokens))) as Respuesta;
+  let m = r?.choices?.[0]?.message;
+  if (m && m.content == null && !m.tool_calls?.length && r?.choices?.[0]?.finish_reason === 'length') {
+    r = (await pedir(`${base}/chat/completions`, armar(Math.min(tokens * 3, 12000)))) as Respuesta;
+    m = r?.choices?.[0]?.message;
   }
-  if (args.json) cuerpo.response_format = { type: 'json_object' };
-
-  const r = (await pedir(`${base}/chat/completions`, cuerpo)) as { choices?: { message?: MensajeChat }[] };
-  const m = r?.choices?.[0]?.message;
   if (!m || (m.content == null && !m.tool_calls?.length)) throw new ErrorIA('respuesta_invalida', 'La respuesta del proveedor no tiene el formato esperado.');
   // Las llamadas a herramientas se tratan como no confiables: solo pasan las bien formadas.
   const llamadas = (m.tool_calls ?? []).filter((c) => !!c && typeof c.id === 'string' && c.type === 'function' && typeof c.function?.name === 'string' && (typeof c.function.arguments === 'string' || c.function.arguments == null)).map((c) => ({ ...c, function: { name: c.function.name, arguments: c.function.arguments ?? '' } }));
