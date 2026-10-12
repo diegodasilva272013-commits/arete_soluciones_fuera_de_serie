@@ -240,6 +240,17 @@ export const copy = {
     enviar: 'Enviar',
     enviando: 'Pensando…',
     modelo: 'Modelo',
+    // Voz del chat (dictado y lectura en voz alta con la voz del navegador).
+    voz: {
+      grabar: 'Hablar',
+      grabando: 'Escuchando… tocá para enviar',
+      leer: 'Que me responda con voz',
+      detenerVoz: 'Parar la voz',
+      noSoportado: 'Tu navegador no permite dictar por voz. Probá con Chrome, Edge o Safari.',
+      permiso: 'Necesito el micrófono para escucharte. Permitilo en el navegador y probá de nuevo.',
+      sinEntender: 'No te escuché bien. Probá de nuevo.',
+      sinMicrofono: 'No encuentro un micrófono en este dispositivo.',
+    },
     accionesRapidas: [
       { etiqueta: 'Crear objetivo', mensaje: 'Quiero crear un objetivo nuevo.' },
       { etiqueta: 'Escribir criterio', mensaje: 'Quiero escribir un criterio para poder delegar una decisión.' },

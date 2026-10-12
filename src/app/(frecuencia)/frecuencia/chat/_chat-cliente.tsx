@@ -5,12 +5,24 @@
  * 21st.dev, diseño propio de Areté: caja de texto que crece sola, acciones
  * rápidas, selector de modelo (de la base), estados reales (enviando,
  * herramientas usadas, propuesta de semana para confirmar). Sin librerías nuevas.
+ *
+ * Voz: dictado con SpeechRecognition (mensajes de voz que se envían al terminar)
+ * y lectura de las respuestas con speechSynthesis. Todo en el navegador: sin
+ * claves ni servicios externos.
  */
 
 import { useEffect, useRef, useState } from 'react';
 import { copy } from '../_copy';
 import base from '../frecuencia.module.css';
 import s from './_chat.module.css';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const CLAVE_LEER = 'frecuencia_chat_leer_voz';
+
+/** Texto limpio para leer en voz alta: sin markdown ni símbolos sueltos. */
+function paraVoz(t: string): string {
+  return t.replace(/[*_`#>~]+/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\s+/g, ' ').trim();
+}
 
 interface Mensaje {
   rol: 'user' | 'assistant';
@@ -41,6 +53,109 @@ export function ChatCliente({
   const [modeloId, setModeloId] = useState(modelos.find((m) => m.porDefecto)?.id ?? modelos[0]?.id ?? '');
   const areaRef = useRef<HTMLTextAreaElement>(null);
   const finRef = useRef<HTMLDivElement>(null);
+
+  // ── Voz ──
+  const [soportaDictado, setSoportaDictado] = useState(false);
+  const [grabando, setGrabando] = useState(false);
+  const [leer, setLeer] = useState(false);
+  const [hablando, setHablando] = useState(false);
+  const recRef = useRef<any>(null);
+  const leerRef = useRef(false);
+  const enviarRef = useRef<(t: string) => void>(() => {});
+
+  useEffect(() => {
+    setSoportaDictado(!!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition));
+    try {
+      const v = localStorage.getItem(CLAVE_LEER) === '1';
+      setLeer(v);
+      leerRef.current = v;
+    } catch { /* sin almacenamiento: queda apagado */ }
+    return () => {
+      try { recRef.current?.abort(); } catch { /* nada */ }
+      window.speechSynthesis?.cancel();
+    };
+  }, []);
+
+  function cambiarLeer(v: boolean) {
+    setLeer(v);
+    leerRef.current = v;
+    try { localStorage.setItem(CLAVE_LEER, v ? '1' : '0'); } catch { /* nada */ }
+    if (!v) { window.speechSynthesis?.cancel(); setHablando(false); }
+    else desbloquearVoz();
+  }
+
+  // iOS/Safari solo deja hablar si la primera voz sale de un toque de la persona.
+  function desbloquearVoz() {
+    try { window.speechSynthesis?.speak(new SpeechSynthesisUtterance('')); } catch { /* nada */ }
+  }
+
+  function hablar(texto: string) {
+    const synth = window.speechSynthesis;
+    const t = paraVoz(texto);
+    if (!synth || !t) return;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(t);
+    u.lang = 'es-AR';
+    const voces = synth.getVoices();
+    u.voice = voces.find((x) => x.lang === 'es-AR') ?? voces.find((x) => /^es[-_](419|MX|US)/i.test(x.lang)) ?? voces.find((x) => x.lang.toLowerCase().startsWith('es')) ?? null;
+    u.onstart = () => setHablando(true);
+    u.onend = () => setHablando(false);
+    u.onerror = () => setHablando(false);
+    synth.speak(u);
+  }
+
+  function pararVoz() {
+    window.speechSynthesis?.cancel();
+    setHablando(false);
+  }
+
+  function alternarDictado() {
+    if (grabando) {
+      recRef.current?.stop(); // onend envía lo dictado
+      return;
+    }
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR || enviando) return;
+    pararVoz();
+    desbloquearVoz();
+    setError(null);
+    const rec = new SR();
+    rec.lang = 'es-AR';
+    rec.interimResults = true;
+    rec.continuous = true;
+    let final = '';
+    let parcial = '';
+    let fallo = false;
+    rec.onresult = (e: any) => {
+      parcial = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const r = e.results[i];
+        if (r.isFinal) final += `${r[0].transcript} `;
+        else parcial += r[0].transcript;
+      }
+      setTexto(`${final}${parcial}`.trim());
+    };
+    rec.onerror = (e: any) => {
+      fallo = true;
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') setError(copy.chat.voz.permiso);
+      else if (e.error === 'audio-capture') setError(copy.chat.voz.sinMicrofono);
+      else if (e.error !== 'aborted') setError(copy.chat.voz.sinEntender);
+    };
+    rec.onend = () => {
+      setGrabando(false);
+      recRef.current = null;
+      const t = `${final}${parcial}`.trim();
+      if (t) enviarRef.current(t);
+      else if (!fallo) setError(copy.chat.voz.sinEntender);
+    };
+    recRef.current = rec;
+    try {
+      rec.start();
+      setGrabando(true);
+    } catch {
+      setError(copy.chat.voz.sinEntender);
+    }
+  }
 
   // La caja de texto crece sola con lo que se escribe.
   useEffect(() => {
@@ -79,6 +194,7 @@ export function ChatCliente({
         setError(copy.chat.errores[d.error as string] ?? copy.chat.errores.generico);
       } else {
         setMensajes((m) => [...m, { rol: 'assistant', contenido: d.respuesta as string, acciones: d.acciones as Accion[] }]);
+        if (leerRef.current) hablar(String(d.respuesta ?? ''));
       }
     } catch {
       setError(copy.chat.errores.generico);
@@ -87,6 +203,8 @@ export function ChatCliente({
       areaRef.current?.focus();
     }
   }
+
+  enviarRef.current = enviar;
 
   return (
     <div className={s.wrap}>
@@ -191,9 +309,31 @@ export function ChatCliente({
             rows={1}
             maxLength={2000}
           />
+          <button
+            type="button"
+            className={grabando ? `${s.microfono} ${s.microfonoActivo}` : s.microfono}
+            onClick={alternarDictado}
+            disabled={!soportaDictado || (enviando && !grabando)}
+            aria-pressed={grabando}
+            title={soportaDictado ? undefined : copy.chat.voz.noSoportado}
+          >
+            {grabando ? copy.chat.voz.grabando : copy.chat.voz.grabar}
+          </button>
           <button type="button" className={s.enviar} onClick={() => enviar(texto)} disabled={enviando || !texto.trim()}>
             {enviando ? copy.chat.enviando : copy.chat.enviar}
           </button>
+        </div>
+        <div className={s.vozFila}>
+          <label>
+            <input type="checkbox" checked={leer} onChange={(e) => cambiarLeer(e.target.checked)} />
+            <span>{copy.chat.voz.leer}</span>
+          </label>
+          {hablando && (
+            <button type="button" onClick={pararVoz}>
+              {copy.chat.voz.detenerVoz}
+            </button>
+          )}
+          {!soportaDictado && <span>{copy.chat.voz.noSoportado}</span>}
         </div>
         {modelos.length > 1 && (
           <label className={s.modelo}>
