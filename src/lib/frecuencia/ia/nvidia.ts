@@ -105,7 +105,11 @@ async function pedir(url: string, cuerpo: unknown): Promise<unknown> {
       redirect: 'error',
     });
     if (r.status === 429) throw new ErrorIA('limite', 'El proveedor de IA pidió esperar un momento.');
-    if (!r.ok) throw new ErrorIA('proveedor', `El proveedor de IA respondió ${r.status}.`);
+    if (!r.ok) {
+      // Solo el estado y un pedazo del mensaje del proveedor (nunca la clave) para poder diagnosticar.
+      console.error('[nvidia] el proveedor respondió', r.status, (await r.text().catch(() => '')).slice(0, 300));
+      throw new ErrorIA('proveedor', `El proveedor de IA respondió ${r.status}.`);
+    }
     return await r.json();
   } catch (e) {
     if (e instanceof ErrorIA) throw e;
@@ -154,7 +158,10 @@ export async function chatCompletion(args: {
     r = (await pedir(`${base}/chat/completions`, armar(Math.min(tokens * 3, 12000)))) as Respuesta;
     m = r?.choices?.[0]?.message;
   }
-  if (!m || (m.content == null && !m.tool_calls?.length)) throw new ErrorIA('respuesta_invalida', 'La respuesta del proveedor no tiene el formato esperado.');
+  if (!m || (m.content == null && !m.tool_calls?.length)) {
+    console.error('[nvidia] respuesta sin contenido ni herramientas', args.modelo, JSON.stringify(r?.choices?.[0] ?? null).slice(0, 300));
+    throw new ErrorIA('respuesta_invalida', 'La respuesta del proveedor no tiene el formato esperado.');
+  }
   // Las llamadas a herramientas se tratan como no confiables: solo pasan las bien formadas.
   const llamadas = (m.tool_calls ?? []).filter((c) => !!c && typeof c.id === 'string' && c.type === 'function' && typeof c.function?.name === 'string' && (typeof c.function.arguments === 'string' || c.function.arguments == null)).map((c) => ({ ...c, function: { name: c.function.name, arguments: c.function.arguments ?? '' } }));
   return { role: 'assistant', content: m.content ?? null, tool_calls: llamadas.length ? llamadas : undefined };

@@ -38,7 +38,8 @@ export async function POST(req: Request) {
   enCurso.add(ctx.userId);
   try {
     return await procesar(req, ctx.userId, ctx.role);
-  } catch {
+  } catch (e) {
+    console.error('[frecuencia/chat] error inesperado', e instanceof Error ? e.message.slice(0, 300) : String(e).slice(0, 300));
     return error('proveedor', 502);
   } finally {
     enCurso.delete(ctx.userId);
@@ -155,6 +156,7 @@ async function procesar(req: Request, userId: string, role: string): Promise<Res
   } catch (e) {
     if (e instanceof Error && e.message === 'no_se_pudo_guardar') return NextResponse.json({ error: 'proveedor', conversacionId }, { status: 500 });
     const codigo = e instanceof ErrorIA ? e.codigo : 'proveedor';
+    console.error('[frecuencia/chat] fallo', codigo, e instanceof Error ? e.message.slice(0, 300) : String(e).slice(0, 300));
     return NextResponse.json({ error: codigo, conversacionId }, { status: codigo === 'limite' ? 429 : 502 });
   }
 

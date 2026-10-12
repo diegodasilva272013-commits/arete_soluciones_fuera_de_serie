@@ -40,7 +40,10 @@ export async function POST(req: Request) {
 
   try {
     const { texto } = await transcribir(bytes);
-    if (!texto) return error('sin_voz', 422);
+    if (!texto) {
+      console.error('[voz] transcripción vacía', { bytes: bytes.length });
+      return error('sin_voz', 422);
+    }
     return NextResponse.json({ texto: texto.slice(0, 2000) });
   } catch (e) {
     if (e instanceof ErrorVoz) return error(e.codigo === 'sin_clave' ? 'sin_clave' : 'proveedor', e.codigo === 'sin_clave' ? 503 : 502);

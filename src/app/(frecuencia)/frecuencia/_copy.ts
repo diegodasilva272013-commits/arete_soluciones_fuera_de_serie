@@ -209,6 +209,8 @@ export const copy = {
       limite: 'Hay mucha demanda en este momento. Probá de nuevo en un minuto.',
       proveedor: 'No pudimos hablar con la IA. Probá de nuevo en un momento.',
       invalida: 'La IA no armó una propuesta que podamos usar. Probá de nuevo.',
+      respuesta_invalida: 'La IA no contestó bien. Probá de nuevo.',
+      timeout: 'La IA tardó demasiado. Probá de nuevo.',
       generico: 'Algo salió mal. Probá de nuevo.',
     } as Record<string, string>,
   },
