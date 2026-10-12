@@ -17,6 +17,7 @@ import { construirContextoAgente } from '@/app/(frecuencia)/frecuencia/_ia/conte
 import { ejecutarHerramienta } from '@/app/(frecuencia)/frecuencia/_ia/ejecutar';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // los modelos de razonamiento con herramientas pueden tardar varios segundos
 
 const MAX_MENSAJE = 2000;
 const MAX_POR_HORA = 60;

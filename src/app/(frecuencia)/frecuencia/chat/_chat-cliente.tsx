@@ -81,6 +81,7 @@ export function ChatCliente({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ conversacionId, mensaje: t, modeloId }),
+        signal: AbortSignal.timeout(85_000), // nunca queda "pensando" para siempre
       });
       const d = await r.json().catch(() => ({}));
       if (d.conversacionId) setConversacionId(d.conversacionId);
@@ -181,6 +182,19 @@ export function ChatCliente({
       )}
 
       <div className={s.compositor}>
+        {voz.conversando && (
+          <div className={s.conversacion} role="status">
+            <i className={s.punto} aria-hidden />
+            <span>
+              {voz.hablando ? copy.chat.voz.convHablando : enviando || voz.transcribiendo || voz.estadoConv === 'pensando' ? copy.chat.voz.convPensando : copy.chat.voz.convEscuchando}
+              {voz.paso ? ` · ${voz.paso}` : ''}
+            </span>
+            <button type="button" onClick={voz.terminarConversacion}>
+              {copy.chat.voz.terminarConv}
+            </button>
+          </div>
+        )}
+
         <div className={s.rapidas} hidden={mensajes.length === 0}>
           {copy.chat.accionesRapidas.map((a) => (
             <button key={a.etiqueta} type="button" className={s.rapida} disabled={enviando} onClick={() => enviar(a.mensaje)}>
@@ -188,23 +202,25 @@ export function ChatCliente({
             </button>
           ))}
         </div>
-        <div className={s.caja}>
-          <textarea
-            ref={areaRef}
-            className={s.area}
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                enviar(texto);
-              }
-            }}
-            placeholder={copy.chat.placeholder}
-            aria-label={copy.chat.placeholder}
-            rows={1}
-            maxLength={2000}
-          />
+
+        <textarea
+          ref={areaRef}
+          className={s.area}
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              enviar(texto);
+            }
+          }}
+          placeholder={copy.chat.placeholder}
+          aria-label={copy.chat.placeholder}
+          rows={1}
+          maxLength={2000}
+        />
+
+        <div className={s.barra}>
           <button
             type="button"
             className={voz.grabando ? `${s.microfono} ${s.microfonoActivo}` : s.microfono}
@@ -228,40 +244,36 @@ export function ChatCliente({
             {enviando ? copy.chat.enviando : copy.chat.enviar}
           </button>
         </div>
-        {voz.conversando && (
-          <div className={s.conversacion} role="status">
-            <i className={s.punto} aria-hidden />
-            <span>
-              {voz.hablando ? copy.chat.voz.convHablando : enviando || voz.transcribiendo || voz.estadoConv === 'pensando' ? copy.chat.voz.convPensando : copy.chat.voz.convEscuchando}
-            </span>
-            <button type="button" onClick={voz.terminarConversacion}>
-              {copy.chat.voz.terminarConv}
-            </button>
-          </div>
-        )}
-        <div className={s.vozFila}>
-          <label>
+
+        <div className={s.opciones}>
+          <label className={s.leer}>
             <input type="checkbox" checked={voz.leer || voz.conversando} disabled={voz.conversando} onChange={(e) => voz.cambiarLeer(e.target.checked)} />
             <span>{copy.chat.voz.leer}</span>
           </label>
-          {voz.hablando && (
-            <button type="button" onClick={voz.pararVoz}>
-              {copy.chat.voz.detenerVoz}
-            </button>
+          {modelos.length > 1 && (
+            <label className={s.modelo}>
+              <span>{copy.chat.modelo}</span>
+              <select value={modeloId} onChange={(e) => setModeloId(e.target.value)} disabled={enviando}>
+                {modelos.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.nombre}
+                  </option>
+                ))}
+              </select>
+            </label>
           )}
-          {!voz.soporta && <span>{copy.chat.voz.noSoportado}</span>}
         </div>
-        {modelos.length > 1 && (
-          <label className={s.modelo}>
-            <span>{copy.chat.modelo}</span>
-            <select value={modeloId} onChange={(e) => setModeloId(e.target.value)} disabled={enviando}>
-              {modelos.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.nombre}
-                </option>
-              ))}
-            </select>
-          </label>
+
+        {(voz.hablando || !voz.soporta || (!voz.conversando && voz.paso)) && (
+          <div className={s.estadoVoz}>
+            {voz.hablando && (
+              <button type="button" onClick={voz.pararVoz}>
+                {copy.chat.voz.detenerVoz}
+              </button>
+            )}
+            {!voz.soporta && <span>{copy.chat.voz.noSoportado}</span>}
+            {!voz.conversando && voz.paso && <span>{copy.chat.voz.paso}: {voz.paso}</span>}
+          </div>
         )}
       </div>
     </div>

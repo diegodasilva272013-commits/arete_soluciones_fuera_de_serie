@@ -169,14 +169,8 @@ export function AgenteVoz({ agentId }: { agentId: string | null }) {
     setEstado('disconnected');
   }
 
-  if (!agentId) {
-    return (
-      <section className={s.caja}>
-        <p className={s.titulo}>{copy.voz.titulo}</p>
-        <p className={`${base.ayuda} ${s.aviso}`}>{copy.voz.sinAgente}</p>
-      </section>
-    );
-  }
+  // Sin agente de ElevenLabs configurado no se muestra nada: la voz del chat (mensaje de voz y conversación) ya está en el compositor.
+  if (!agentId) return null;
 
   const activo = estado === 'connected';
   return (

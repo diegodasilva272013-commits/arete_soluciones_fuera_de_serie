@@ -6,8 +6,8 @@
  * de hablar, responde con voz y vuelve a escuchar).
  *
  * Todo con la API de NVIDIA (la misma clave del agente), vía el servidor:
- * Audio → texto: /api/frecuencia/voz/transcribir (Parakeet). El audio se convierte
- * a WAV 16 kHz en el navegador. Si el servidor no puede, respaldo con el
+ * Audio → texto: /api/frecuencia/voz/transcribir (Parakeet). El audio se capta como PCM
+ * y se arma un WAV de 16 kHz en el navegador (sin MediaRecorder ni decodificación). Si el servidor no puede, respaldo con el
  * reconocimiento de voz del navegador, que corre en paralelo mientras se graba.
  * Texto → voz: /api/frecuencia/voz/hablar (Magpie); si no puede, la voz del navegador.
  */
@@ -25,6 +25,17 @@ const MIN_BYTES = 1500;
 // WAV de silencio: sirve para "desbloquear" el audio en iOS/Safari con un toque de la persona.
 const WAV_SILENCIO = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 
+/** Ningún paso puede dejar la pantalla colgada: si tarda más que `ms`, falla con el nombre del paso. */
+function tope<T>(p: Promise<T>, ms: number, paso: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`tiempo:${paso}`)), ms);
+    p.then(
+      (v) => { clearTimeout(t); resolve(v); },
+      (e) => { clearTimeout(t); reject(e); },
+    );
+  });
+}
+
 export type EstadoConversacion = 'escuchando' | 'pensando' | 'hablando';
 
 /** Texto limpio para leer en voz alta: sin markdown ni símbolos sueltos. */
@@ -32,30 +43,40 @@ export function paraVoz(t: string): string {
   return t.replace(/[*_`#>~]+/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\s+/g, ' ').trim();
 }
 
-/** Convierte el audio grabado (webm/mp4) a WAV mono de 16 kHz y 16 bits: el formato que pide el reconocimiento de voz de NVIDIA. */
-export async function aWav16k(blob: Blob): Promise<Blob | null> {
-  try {
-    const AC = (window as any).AudioContext || (window as any).webkitAudioContext;
-    const ctx = new AC();
-    const dec: AudioBuffer = await ctx.decodeAudioData(await blob.arrayBuffer());
-    void ctx.close();
-    const off = new OfflineAudioContext(1, Math.max(1, Math.ceil(dec.duration * 16000)), 16000);
-    const fuente = off.createBufferSource();
-    fuente.buffer = dec;
-    fuente.connect(off.destination);
-    fuente.start();
-    const pcm = (await off.startRendering()).getChannelData(0);
-    const v = new DataView(new ArrayBuffer(44 + pcm.length * 2));
-    const txt = (o: number, t: string) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
-    txt(0, 'RIFF'); v.setUint32(4, 36 + pcm.length * 2, true); txt(8, 'WAVEfmt ');
-    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
-    v.setUint32(24, 16000, true); v.setUint32(28, 32000, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
-    txt(36, 'data'); v.setUint32(40, pcm.length * 2, true);
-    for (let i = 0; i < pcm.length; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, pcm[i])) * 0x7fff, true);
-    return new Blob([v], { type: 'audio/wav' });
-  } catch {
-    return null;
+/**
+ * PCM captado del micrófono (Float32, a la frecuencia del navegador) → WAV mono de 16 kHz y 16 bits,
+ * el formato que pide el reconocimiento de voz de NVIDIA. Sin decodificar nada: es una cuenta simple.
+ */
+export function pcmAWav16k(trozos: Float32Array[], frecuencia: number): Blob {
+  let total = 0;
+  for (const t of trozos) total += t.length;
+  const razon = frecuencia / 16000;
+  const n = Math.max(1, Math.floor(total / razon));
+  const plano = new Float32Array(total);
+  let o = 0;
+  for (const t of trozos) { plano.set(t, o); o += t.length; }
+  // Bajar a 16 kHz promediando cada ventana (también filtra lo agudo que sobra) y medir el pico.
+  const pcm = new Float32Array(n);
+  let pico = 0;
+  for (let i = 0; i < n; i++) {
+    const desde = Math.floor(i * razon);
+    const hasta = Math.min(total, Math.max(desde + 1, Math.floor((i + 1) * razon)));
+    let suma = 0;
+    for (let j = desde; j < hasta; j++) suma += plano[j];
+    const v = suma / (hasta - desde);
+    pcm[i] = v;
+    pico = Math.max(pico, Math.abs(v));
   }
+  // Micrófonos bajos hacen que el reconocimiento "no escuche voz": se sube el volumen hasta ~90% del máximo (tope x8).
+  const ganancia = pico > 0.001 ? Math.min(8, 0.9 / pico) : 1;
+  const v = new DataView(new ArrayBuffer(44 + n * 2));
+  const txt = (off: number, t: string) => { for (let i = 0; i < t.length; i++) v.setUint8(off + i, t.charCodeAt(i)); };
+  txt(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); txt(8, 'WAVEfmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, 16000, true); v.setUint32(28, 32000, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  txt(36, 'data'); v.setUint32(40, n * 2, true);
+  for (let i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, pcm[i] * ganancia)) * 0x7fff, true);
+  return new Blob([v], { type: 'audio/wav' });
 }
 
 interface Captura {
@@ -80,6 +101,8 @@ export function useVoz({
   const [estadoConv, setEstadoConv] = useState<EstadoConversacion>('escuchando');
   const [hablando, setHablando] = useState(false);
   const [leer, setLeer] = useState(false);
+  const [paso, setPasoEstado] = useState('');
+  const setPaso = (t: string) => { console.log('[voz] paso:', t); setPasoEstado(t); };
 
   const streamRef = useRef<MediaStream | null>(null);
   const ctxRef = useRef<AudioContext | null>(null);
@@ -150,27 +173,33 @@ export function useVoz({
         };
         const conVozDelNavegador = () => {
           const synth = window.speechSynthesis;
-          if (!synth) return fin();
+          if (!synth) return finConGuardia();
           const u = new SpeechSynthesisUtterance(t);
           u.lang = 'es-AR';
           const voces = synth.getVoices();
           u.voice = voces.find((x) => x.lang === 'es-AR') ?? voces.find((x) => /^es[-_](419|MX|US)/i.test(x.lang)) ?? voces.find((x) => x.lang.toLowerCase().startsWith('es')) ?? null;
-          u.onend = fin;
-          u.onerror = fin;
+          u.onend = finConGuardia;
+          u.onerror = finConGuardia;
           synth.speak(u);
         };
+        // Si por algo la reproducción nunca avisa que terminó, se corta sola (según el largo del texto).
+        const guardia = setTimeout(() => { pararVoz(); }, 30_000 + t.length * 90);
+        const finConGuardia = () => { clearTimeout(guardia); fin(); };
         void (async () => {
           if (servidorTTS.current) {
             try {
-              const r = await fetch('/api/frecuencia/voz/hablar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto: t }) });
+              setPaso('preparando la voz');
+              const control = new AbortController();
+              const reloj = setTimeout(() => control.abort(), 20_000);
+              const r = await fetch('/api/frecuencia/voz/hablar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto: t }), signal: control.signal }).finally(() => clearTimeout(reloj));
               if (r.ok) {
                 const url = URL.createObjectURL(await r.blob());
                 const a = audioRef.current ?? new Audio();
                 audioRef.current = a;
-                a.onended = () => { URL.revokeObjectURL(url); fin(); };
+                a.onended = () => { URL.revokeObjectURL(url); finConGuardia(); };
                 a.onerror = () => { URL.revokeObjectURL(url); conVozDelNavegador(); };
                 a.src = url;
-                try { await a.play(); return; } catch { URL.revokeObjectURL(url); }
+                try { setPaso('hablando'); await a.play(); return; } catch { URL.revokeObjectURL(url); }
               } else if (r.status !== 429) {
                 servidorTTS.current = false; // sin clave / sin crédito: se usa la voz del navegador hasta recargar
               }
@@ -204,7 +233,8 @@ export function useVoz({
   async function abrirMic(): Promise<boolean> {
     if (streamRef.current?.active) return true;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+      setPaso('pidiendo el micrófono');
+      const stream = await tope(navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }), 20_000, 'abrir el micrófono');
       streamRef.current = stream;
       const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
       if (Ctx) {
@@ -218,6 +248,8 @@ export function useVoz({
       return true;
     } catch (e) {
       const nombre = (e as Error).name;
+      setPaso('');
+      if ((e as Error).message?.startsWith('tiempo:')) { setError(copy.chat.voz.microfonoNoResponde); return false; }
       setError(nombre === 'NotFoundError' ? copy.chat.voz.sinMicrofono : nombre === 'NotAllowedError' || nombre === 'SecurityError' ? copy.chat.voz.permiso : copy.chat.voz.sinEntender);
       return false;
     }
@@ -231,15 +263,27 @@ export function useVoz({
     analyserRef.current = null;
   }
 
-  /** Graba el audio y, en paralelo, reconoce lo que se dice con el navegador (respaldo si el servidor no puede). */
+  /**
+   * Capta el audio del micrófono directamente como PCM (sin MediaRecorder ni decodificación) y, en paralelo,
+   * reconoce lo que se dice con el navegador (respaldo si el servidor no puede).
+   */
   function iniciarCaptura(): Captura | null {
     const stream = streamRef.current;
-    if (!stream) return null;
-    const mimes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
-    const mime = mimes.find((m) => MediaRecorder.isTypeSupported(m)) ?? '';
-    const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
-    const trozos: Blob[] = [];
-    rec.ondataavailable = (e) => { if (e.data.size) trozos.push(e.data); };
+    const ctx = ctxRef.current;
+    if (!stream || !ctx) return null;
+    void ctx.resume().catch(() => {});
+    const fuente = ctx.createMediaStreamSource(stream);
+    const proc = ctx.createScriptProcessor(4096, 1, 1);
+    const mudo = ctx.createGain();
+    mudo.gain.value = 0; // el procesador tiene que estar conectado para correr, pero no se escucha
+    const trozos: Float32Array[] = [];
+    proc.onaudioprocess = (e) => { trozos.push(new Float32Array(e.inputBuffer.getChannelData(0))); };
+    fuente.connect(proc);
+    proc.connect(mudo);
+    mudo.connect(ctx.destination);
+    const soltar = () => {
+      try { proc.onaudioprocess = null; fuente.disconnect(); proc.disconnect(); mudo.disconnect(); } catch { /* nada */ }
+    };
 
     let final = '';
     let parcial = '';
@@ -266,26 +310,20 @@ export function useVoz({
       } catch { sr = null; }
     }
 
-    rec.start();
     return {
-      parar: () =>
-        new Promise((resolve) => {
-          const cerrar = () => resolve({ blob: new Blob(trozos, { type: rec.mimeType || mime || 'audio/webm' }), vivo: `${final}${parcial}`.trim() });
-          rec.onstop = async () => {
-            if (sr) {
-              await new Promise<void>((ok) => {
-                srTermino = ok;
-                setTimeout(ok, 700); // el reconocimiento puede tardar un instante en soltar lo último
-                try { sr.stop(); } catch { ok(); }
-              });
-            }
-            cerrar();
-          };
-          try { rec.stop(); } catch { cerrar(); }
-        }),
+      parar: async () => {
+        soltar();
+        if (sr) {
+          await new Promise<void>((ok) => {
+            srTermino = ok;
+            setTimeout(ok, 700); // el reconocimiento puede tardar un instante en soltar lo último
+            try { sr.stop(); } catch { ok(); }
+          });
+        }
+        return { blob: pcmAWav16k(trozos, ctx.sampleRate), vivo: `${final}${parcial}`.trim() };
+      },
       cancelar: () => {
-        rec.onstop = null;
-        try { rec.stop(); } catch { /* nada */ }
+        soltar();
         try { sr?.abort(); } catch { /* nada */ }
       },
     };
@@ -293,22 +331,27 @@ export function useVoz({
 
   /** Del audio al texto: servidor primero, respaldo con lo que reconoció el navegador. */
   async function aTexto(blob: Blob, vivo: string): Promise<string> {
-    const wav = servidorSTT.current && blob.size >= MIN_BYTES ? await aWav16k(blob) : null;
+    const wav = servidorSTT.current && blob.size >= MIN_BYTES ? blob : null; // ya viene como WAV 16 kHz
     if (wav) {
+      setPaso('transcribiendo');
+      const control = new AbortController();
+      const reloj = setTimeout(() => control.abort(), 25_000);
       try {
         const fd = new FormData();
         fd.append('audio', wav, 'voz.wav');
-        const r = await fetch('/api/frecuencia/voz/transcribir', { method: 'POST', body: fd });
+        const r = await fetch('/api/frecuencia/voz/transcribir', { method: 'POST', body: fd, signal: control.signal });
         if (r.ok) {
           const d = (await r.json()) as { texto?: string };
           if (d.texto?.trim()) return d.texto.trim();
         } else if (r.status === 422) {
-          return vivo; // el servidor no oyó voz
+          return vivo; // el servidor no oyó voz: se usa lo que reconoció el navegador
         } else if (r.status !== 429) {
-          servidorSTT.current = false; // sin clave / sin crédito: se usa el navegador hasta recargar
+          servidorSTT.current = false; // sin clave / error del servicio: se usa el navegador hasta recargar
         }
       } catch {
-        servidorSTT.current = false;
+        // Corte o demora de red: esta vez se usa el navegador, sin dar de baja al servidor.
+      } finally {
+        clearTimeout(reloj);
       }
     }
     return vivo;
@@ -324,14 +367,19 @@ export function useVoz({
       setGrabando(false);
       if (!captura) return;
       setTranscribiendo(true);
+      setPaso('cerrando la grabación');
       try {
         const { blob, vivo } = await captura.parar();
         cerrarMic();
         const t = await aTexto(blob, vivo);
         if (!t) setError(copy.chat.voz.sinEntender);
-        else await enviarRef.current(t);
+        else {
+          setPaso('esperando al agente');
+          await tope(enviarRef.current(t), 90_000, 'respuesta del agente').catch(() => setError(copy.chat.voz.sinRespuesta));
+        }
       } finally {
         setTranscribiendo(false);
+        setPaso('');
       }
       return;
     }
@@ -353,6 +401,7 @@ export function useVoz({
     if (!conversandoRef.current) return;
     const id = ++turnoRef.current;
     setEstadoConv('escuchando');
+    setPaso('escuchando');
     const captura = iniciarCaptura();
     const an = analyserRef.current;
     if (!captura || !an) {
@@ -368,13 +417,23 @@ export function useVoz({
 
     const finalizar = async () => {
       setEstadoConv('pensando');
+      setPaso('cerrando la grabación');
       const { blob, vivo } = await captura.parar();
       if (id !== turnoRef.current || !conversandoRef.current) return;
       const t = await aTexto(blob, vivo);
       if (id !== turnoRef.current || !conversandoRef.current) return;
-      if (!t) return escucharTurno();
+      if (!t) {
+        setPaso('');
+        return escucharTurno();
+      }
       setEstadoConv('hablando');
-      await enviarRef.current(t); // el chat lee la respuesta en voz alta y termina cuando acaba de hablar
+      setPaso('esperando al agente');
+      // El chat lee la respuesta en voz alta y termina cuando acaba de hablar. Con tope: nunca queda colgado.
+      await tope(enviarRef.current(t), 90_000, 'respuesta del agente').catch(() => {
+        pararVoz();
+        setError(copy.chat.voz.sinRespuesta);
+      });
+      setPaso('');
       if (conversandoRef.current) escucharTurno();
     };
 
@@ -437,6 +496,7 @@ export function useVoz({
     estadoConv,
     hablando,
     leer,
+    paso,
     cambiarLeer,
     grabarNota,
     iniciarConversacion,

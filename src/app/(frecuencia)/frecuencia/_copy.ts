@@ -258,6 +258,9 @@ export const copy = {
       permiso: 'Necesito el micrófono para escucharte. Permitilo en el navegador y probá de nuevo.',
       sinEntender: 'No te escuché bien. Probá de nuevo.',
       sinMicrofono: 'No encuentro un micrófono en este dispositivo.',
+      microfonoNoResponde: 'El micrófono no respondió. Revisá que el navegador tenga permiso y que no lo esté usando otra app.',
+      sinRespuesta: 'El agente no contestó a tiempo. Probá de nuevo.',
+      paso: 'Paso',
     },
     accionesRapidas: [
       { etiqueta: 'Crear objetivo', mensaje: 'Quiero crear un objetivo nuevo.' },
