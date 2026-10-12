@@ -5,11 +5,11 @@
  * entiende) y MODO CONVERSACIÓN (manos libres: escucha, detecta cuándo dejaste
  * de hablar, responde con voz y vuelve a escuchar).
  *
- * Audio → texto: primero el servidor (Whisper, /api/frecuencia/voz/transcribir).
- * Si el servidor no puede (sin crédito, sin clave, caído), se usa el
+ * Todo con la API de NVIDIA (la misma clave del agente), vía el servidor:
+ * Audio → texto: /api/frecuencia/voz/transcribir (Parakeet). El audio se convierte
+ * a WAV 16 kHz en el navegador. Si el servidor no puede, respaldo con el
  * reconocimiento de voz del navegador, que corre en paralelo mientras se graba.
- * Texto → voz: primero el servidor (/api/frecuencia/voz/hablar); si no puede,
- * la voz del navegador. Cuando el servidor vuelva a estar disponible, se usa solo.
+ * Texto → voz: /api/frecuencia/voz/hablar (Magpie); si no puede, la voz del navegador.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -30,6 +30,32 @@ export type EstadoConversacion = 'escuchando' | 'pensando' | 'hablando';
 /** Texto limpio para leer en voz alta: sin markdown ni símbolos sueltos. */
 export function paraVoz(t: string): string {
   return t.replace(/[*_`#>~]+/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\s+/g, ' ').trim();
+}
+
+/** Convierte el audio grabado (webm/mp4) a WAV mono de 16 kHz y 16 bits: el formato que pide el reconocimiento de voz de NVIDIA. */
+export async function aWav16k(blob: Blob): Promise<Blob | null> {
+  try {
+    const AC = (window as any).AudioContext || (window as any).webkitAudioContext;
+    const ctx = new AC();
+    const dec: AudioBuffer = await ctx.decodeAudioData(await blob.arrayBuffer());
+    void ctx.close();
+    const off = new OfflineAudioContext(1, Math.max(1, Math.ceil(dec.duration * 16000)), 16000);
+    const fuente = off.createBufferSource();
+    fuente.buffer = dec;
+    fuente.connect(off.destination);
+    fuente.start();
+    const pcm = (await off.startRendering()).getChannelData(0);
+    const v = new DataView(new ArrayBuffer(44 + pcm.length * 2));
+    const txt = (o: number, t: string) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+    txt(0, 'RIFF'); v.setUint32(4, 36 + pcm.length * 2, true); txt(8, 'WAVEfmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 16000, true); v.setUint32(28, 32000, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    txt(36, 'data'); v.setUint32(40, pcm.length * 2, true);
+    for (let i = 0; i < pcm.length; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, pcm[i])) * 0x7fff, true);
+    return new Blob([v], { type: 'audio/wav' });
+  } catch {
+    return null;
+  }
 }
 
 interface Captura {
@@ -267,10 +293,11 @@ export function useVoz({
 
   /** Del audio al texto: servidor primero, respaldo con lo que reconoció el navegador. */
   async function aTexto(blob: Blob, vivo: string): Promise<string> {
-    if (servidorSTT.current && blob.size >= MIN_BYTES) {
+    const wav = servidorSTT.current && blob.size >= MIN_BYTES ? await aWav16k(blob) : null;
+    if (wav) {
       try {
         const fd = new FormData();
-        fd.append('audio', blob, 'voz');
+        fd.append('audio', wav, 'voz.wav');
         const r = await fetch('/api/frecuencia/voz/transcribir', { method: 'POST', body: fd });
         if (r.ok) {
           const d = (await r.json()) as { texto?: string };

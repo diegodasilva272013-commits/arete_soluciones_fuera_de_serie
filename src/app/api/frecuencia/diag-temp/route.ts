@@ -1,6 +1,6 @@
 // TEMPORAL — prueba de la voz de NVIDIA (ASR + TTS por gRPC). Se borra al terminar.
 import { NextResponse } from 'next/server';
-import { configCruda, sintetizar, transcribir, vocesDisponibles } from '@/lib/frecuencia/voz/nvidia-voz';
+import { sintetizar, transcribir } from '@/lib/frecuencia/voz/nvidia-voz';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -17,12 +17,6 @@ export async function POST(req: Request) {
     } catch (e) {
       out.asr_error = `${(e as Error).name}: ${(e as Error).message}`.slice(0, 300);
     }
-  }
-  try {
-    out.config_cruda = JSON.stringify(await configCruda()).slice(0, 1800);
-    out.voces = (await vocesDisponibles()).slice(0, 60);
-  } catch (e) {
-    out.voces_error = String((e as Error).message).slice(0, 200);
   }
   try {
     const t1 = Date.now();

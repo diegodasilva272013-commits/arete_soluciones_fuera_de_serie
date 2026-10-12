@@ -140,52 +140,22 @@ export async function transcribir(wav: Buffer): Promise<{ texto: string; modelo:
   throw new ErrorVoz('proveedor', fallos.join(' | ') || 'Sin respuesta del reconocimiento de voz.');
 }
 
-/** Voces disponibles de Magpie (para elegir una en español). */
-export async function configCruda(): Promise<unknown> {
-  return unario<Record<string, unknown>, unknown>(FUNCIONES.tts.id, '/nvidia.riva.tts.RivaSpeechSynthesis/GetRivaSynthesisConfig', 'Vacio', 'ConfigSintesis', {}, 15_000);
-}
-
-export async function vocesDisponibles(): Promise<string[]> {
-  const r = await unario<Record<string, unknown>, { model_config: { parameters: Record<string, string> }[] }>(
-    FUNCIONES.tts.id,
-    '/nvidia.riva.tts.RivaSpeechSynthesis/GetRivaSynthesisConfig',
-    'Vacio',
-    'ConfigSintesis',
-    {},
-    15_000,
-  );
-  const voces = new Set<string>();
-  for (const c of r.model_config) {
-    const p = c.parameters ?? {};
-    for (const v of String(p.voices ?? p.voice_name ?? '').split(',')) if (v.trim()) voces.add(v.trim());
-  }
-  return [...voces];
-}
-
 const FRECUENCIA_TTS = 22050;
-let vozElegida: string | null = null;
+// Voz en español de Magpie (ES-US.Isabela e ES-US.Diego son las dos de español; se puede cambiar con FRECUENCIA_VOZ).
+const VOZ = process.env.FRECUENCIA_VOZ || 'Magpie-Multilingual.ES-US.Isabela';
 
 /** Texto → audio WAV con una voz en español. */
 export async function sintetizar(texto: string): Promise<Buffer> {
   const input = texto.trim().slice(0, 1500);
   if (!input) throw new ErrorVoz('vacio', 'No hay texto para leer.');
   clave();
-  if (!vozElegida) {
-    try {
-      const todas = await vocesDisponibles();
-      // Preferencia: una voz de español; primero la que mejor suene en rioplatense (masculina o femenina, da igual).
-      vozElegida = todas.find((v) => /ES-US\.Diego/i.test(v)) ?? todas.find((v) => /ES-US\.Isabela/i.test(v)) ?? todas.find((v) => /\.ES-US\./i.test(v)) ?? todas.find((v) => /\.ES\./i.test(v)) ?? null;
-    } catch (e) {
-      console.error('[voz] no se pudo listar las voces', (e as Error).message);
-    }
-  }
   try {
     const r = await unario<Record<string, unknown>, { audio: Buffer }>(
       FUNCIONES.tts.id,
       '/nvidia.riva.tts.RivaSpeechSynthesis/Synthesize',
       'SynthesizeSpeechRequest',
       'SynthesizeSpeechResponse',
-      { text: input, language_code: 'es-US', encoding: 1, sample_rate_hz: FRECUENCIA_TTS, ...(vozElegida ? { voice_name: vozElegida } : {}) },
+      { text: input, language_code: 'es-US', encoding: 1, sample_rate_hz: FRECUENCIA_TTS, voice_name: VOZ },
       30_000,
     );
     if (!r.audio?.length) throw new ErrorVoz('proveedor', 'La síntesis devolvió audio vacío.');
