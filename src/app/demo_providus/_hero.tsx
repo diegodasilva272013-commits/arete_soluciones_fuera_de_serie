@@ -57,7 +57,7 @@ export function HeroLogo() {
         <img
           src="/demo-providus/hero-final.jpg"
           alt=""
-          className="pv-realce pv-respira absolute inset-0 h-full w-full object-cover object-[68%_50%] transition-opacity duration-1000"
+          className="pv-respira absolute inset-0 h-full w-full object-cover object-[68%_50%] transition-opacity duration-1000"
           style={{ opacity: modo === 'quieto' ? 1 : 0 }}
         />
         <video
@@ -71,7 +71,7 @@ export function HeroLogo() {
           aria-hidden="true"
           onPlaying={() => setModo((m) => (m === 'cargando' || m === 'quieto' ? 'intro' : m))}
           onEnded={alTerminarIntro}
-          className="pv-realce absolute inset-0 h-full w-full object-cover object-[68%_50%] transition-opacity duration-700"
+          className="absolute inset-0 h-full w-full object-cover object-[68%_50%] transition-opacity duration-700"
           style={{ opacity: modo === 'intro' ? 1 : 0 }}
         />
         <video
@@ -83,7 +83,7 @@ export function HeroLogo() {
           preload="auto"
           disablePictureInPicture
           aria-hidden="true"
-          className="pv-realce absolute inset-0 h-full w-full object-cover object-[68%_50%]"
+          className="absolute inset-0 h-full w-full object-cover object-[68%_50%]"
           style={{ opacity: modo === 'bucle' ? 1 : 0 }}
         />
         <div className="pv-luz" aria-hidden="true" />
