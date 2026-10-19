@@ -1,29 +1,103 @@
 /*
  * DEMO PROVIDUS — sistema visual propio, aislado de la plataforma (prefijo --pv-).
- * Ángulos rectos, sin sombras, sin degradados, un solo acento.
+ *
+ * Sale del logo: letras de aluminio cepillado, el isotipo "P" con bordes naranja
+ * quemado y un espacio de bronce oscuro con una luz cálida. Fondos de grafito
+ * cálido (nunca negro puro ni azul), texto en aluminio, y UN solo acento: el
+ * naranja de la P, reservado para la acción principal y el foco.
  */
 .providus-demo {
-  --pv-negro: #050505;
-  --pv-carbon: #0d0d0d;
-  --pv-linea: #1f1f1f;
-  --pv-hueso: #f2efe9;
-  --pv-ceniza: #8a8a8a;
-  --pv-azul: #2f7bf6;
-  --pv-azul-luz: #5c9aff;
-  --pv-verde: #22c55e;
-  --pv-rojo: #e5484d;
+  /* superficies: grafito cálido */
+  --pv-fondo: #0f0d0a;
+  --pv-sup: #171410;
+  --pv-sup-2: #1f1b16;
+  --pv-trazo: #2c261e;
+
+  /* texto: aluminio y bronce */
+  --pv-aluminio: #ebe8e3;
+  --pv-plata: #b9b3a9;
+  --pv-bronce: #8f8576;      /* placeholder / ayuda (≥4.5:1 sobre las superficies) */
+  --pv-bronce-luz: #c1a47a;
+
+  /* acento: el naranja de los bordes de la P */
+  --pv-naranja: #c94b27;
+  --pv-naranja-luz: #ee8059;
+  --pv-error: #ee7a6d;
+
+  --pv-ease: cubic-bezier(0.16, 1, 0.3, 1);
 
   min-height: 100dvh;
-  background: var(--pv-negro);
-  color: var(--pv-hueso);
+  background: var(--pv-fondo);
+  color: var(--pv-aluminio);
   font-family: var(--pv-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+.providus-demo ::selection {
+  background: var(--pv-naranja);
+  color: #fff6ef;
+}
+.providus-demo input,
+.providus-demo select {
+  caret-color: var(--pv-naranja-luz);
+  color-scheme: dark;
+}
+.providus-demo input::placeholder {
+  color: var(--pv-bronce);
+  opacity: 1;
+}
+.providus-demo select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: none;
+}
+/* Autocompletado del navegador: que no pinte de amarillo/blanco. */
+.providus-demo input:-webkit-autofill {
+  -webkit-text-fill-color: var(--pv-aluminio);
+  -webkit-box-shadow: 0 0 0 1000px var(--pv-sup-2) inset;
+  transition: background-color 9999s;
+}
+.providus-demo :focus-visible {
+  outline: 2px solid var(--pv-naranja-luz);
+  outline-offset: 3px;
+}
+
+/* Tipografía de display: Archivo en su ancho expandido, como las letras del logo. */
+.pv-display {
+  font-family: var(--pv-display), var(--pv-sans), system-ui, sans-serif;
+  font-stretch: 125%;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+.pv-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Entrada escalonada: un solo gesto al abrir la pantalla. */
+@keyframes pv-entra {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.pv-in {
+  animation: pv-entra 0.9s var(--pv-ease) both;
+  animation-delay: calc(var(--i, 0) * 70ms + 120ms);
 }
 
 @keyframes pv-latido {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.2; }
+  50% { opacity: 0.25; }
+}
+
+/* Confirmación: la foto aparece con una escala suave y la barra cuenta los 6 s del regreso. */
+@keyframes pv-aparece {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pv-cuenta {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
 }
 
 /* La pantalla de carga de la plataforma (Areté) no tiene que aparecer en la demo de Providus. */
@@ -31,17 +105,17 @@ body:has(.providus-demo) div[class*="z-[3000]"] {
   display: none !important;
 }
 
-/* El select hereda el look de campo de línea; sin la flecha nativa. */
-.providus-demo select {
-  appearance: none;
-  -webkit-appearance: none;
-  border-radius: 0;
-}
-.providus-demo input,
-.providus-demo select {
-  border-radius: 0;
+/* Barra de scroll acorde a la paleta. */
+html:has(.providus-demo) {
+  scrollbar-width: thin;
+  scrollbar-color: #3a3228 transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .providus-demo * { animation: none !important; }
+  .providus-demo *,
+  .providus-demo *::before,
+  .providus-demo *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
 }

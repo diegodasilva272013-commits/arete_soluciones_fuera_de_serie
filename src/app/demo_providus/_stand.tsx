@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { caracteresValidos, formatoLegible, normalizarTelefono, soloDigitos } from '@/lib/demo-providus/telefono';
+import { HeroLogo } from './_hero';
 
 type Estado = 'formulario' | 'enviando' | 'listo';
 
@@ -87,31 +88,79 @@ function horaCorta(iso: string): string {
   return new Date(iso).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
+// ── iconos: líneas finas, un solo trazo ─────────────────────────────────
+
+const ico = { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.25, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true } as const;
+
+const IcoPersona = () => (
+  <svg {...ico}><circle cx="12" cy="8.5" r="3.6" /><path d="M4.8 19.6c1-3.4 3.9-5.3 7.2-5.3s6.2 1.9 7.2 5.3" /></svg>
+);
+const IcoTelefono = () => (
+  <svg {...ico}><rect x="7" y="2.8" width="10" height="18.4" rx="2.4" /><path d="M10.6 18.2h2.8" /></svg>
+);
+const IcoCorreo = () => (
+  <svg {...ico}><rect x="3" y="5.4" width="18" height="13.2" rx="2.2" /><path d="m3.6 7.2 8.4 6.2 8.4-6.2" /></svg>
+);
+const IcoInstagram = () => (
+  <svg {...ico}><rect x="3.6" y="3.6" width="16.8" height="16.8" rx="5" /><circle cx="12" cy="12" r="3.8" /><circle cx="17" cy="7" r="0.6" fill="currentColor" stroke="none" /></svg>
+);
+const IcoUbicacion = () => (
+  <svg {...ico}><path d="M12 21.2s6.6-5.6 6.6-11.2a6.6 6.6 0 0 0-13.2 0c0 5.6 6.6 11.2 6.6 11.2Z" /><circle cx="12" cy="10" r="2.4" /></svg>
+);
+const IcoCiudad = () => (
+  <svg {...ico}><path d="M4 20.4V9.2l6-2.6v13.8M10 20.4V4l10 3.6v12.8M3 20.4h18" /><path d="M13.4 10.4h3.2M13.4 13.6h3.2" /></svg>
+);
+const IcoCamara = () => (
+  <svg {...ico} width="28" height="28" strokeWidth="1.1"><path d="M3.4 8.6h3.6l1.6-2.6h6.8l1.6 2.6h3.6v10.8H3.4z" /><circle cx="12" cy="13.6" r="3.5" /></svg>
+);
+const IcoFlecha = () => (
+  <svg {...ico} width="18" height="18" strokeWidth="1.4"><path d="M4.5 12h14.2M13.2 6.5 18.7 12l-5.5 5.5" /></svg>
+);
+const IcoCerrar = () => (
+  <svg {...ico} width="16" height="16"><path d="M6 6l12 12M18 6 6 18" /></svg>
+);
+const IcoFlechaAbajo = () => (
+  <svg {...ico} width="16" height="16"><path d="m6.4 9.6 5.6 5.6 5.6-5.6" /></svg>
+);
+
 // ── piezas de interfaz ──────────────────────────────────────────────────
 
-const ETIQUETA = 'block font-[family-name:var(--pv-mono)] text-[10px] uppercase tracking-[0.2em] text-[var(--pv-ceniza)]';
-const LINEA = 'w-full bg-transparent border-0 border-b py-2 text-[20px] leading-tight text-[var(--pv-hueso)] outline-none placeholder:text-[#3a3a3a] transition-colors rounded-none';
+const ETIQUETA = 'mb-2 block text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--pv-plata)]';
+const ENTRADA = 'h-full w-full min-w-0 bg-transparent text-[17px] font-medium text-[var(--pv-aluminio)] outline-none focus-visible:outline-none disabled:opacity-60';
 
-function Campo({ etiqueta, error, ayuda, children }: { etiqueta: string; error?: string; ayuda?: string; children: React.ReactNode }) {
+function Campo({ etiqueta, icono, error, ayuda, i, children }: { etiqueta: string; icono: React.ReactNode; error?: string; ayuda?: string; i: number; children: React.ReactNode }) {
   return (
-    <div className="mb-6">
+    <label className="pv-in block" style={{ ['--i' as string]: i }}>
       <span className={ETIQUETA}>{etiqueta}</span>
-      {children}
+      <span
+        className={`group flex h-[54px] items-center gap-3 rounded-[14px] bg-[var(--pv-sup)] px-4 transition-[background-color,box-shadow] duration-500 ease-[var(--pv-ease)] ${
+          error
+            ? 'shadow-[inset_0_0_0_1px_var(--pv-error)]'
+            : 'focus-within:bg-[var(--pv-sup-2)] focus-within:shadow-[inset_0_0_0_1px_var(--pv-naranja)]'
+        }`}
+      >
+        <span className="shrink-0 text-[var(--pv-bronce)] transition-colors duration-500 group-focus-within:text-[var(--pv-naranja-luz)]">{icono}</span>
+        {children}
+      </span>
       {error ? (
-        <p role="alert" className="mt-1.5 text-[11px] text-[var(--pv-rojo)]">{error}</p>
+        <span role="alert" className="mt-2 block text-[12px] leading-snug text-[var(--pv-error)]">{error}</span>
       ) : ayuda ? (
-        <p className="mt-1.5 font-[family-name:var(--pv-mono)] text-[11px] text-[var(--pv-ceniza)]">{ayuda}</p>
+        <span className="pv-num mt-2 block text-[12px] leading-snug text-[var(--pv-bronce-luz)]">{ayuda}</span>
       ) : null}
-    </div>
+    </label>
   );
 }
 
-function IconoCamara() {
+/** Cuatro esquinas finas: el encuadre de un visor. */
+function Esquinas() {
+  const base = 'absolute h-6 w-6 border-[var(--pv-plata)]/45';
   return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="square" aria-hidden="true">
-      <path d="M3 8h4l2-3h6l2 3h4v11H3z" />
-      <circle cx="12" cy="13" r="3.6" />
-    </svg>
+    <>
+      <span className={`${base} left-5 top-5 rounded-tl-lg border-l-[1.5px] border-t-[1.5px]`} aria-hidden="true" />
+      <span className={`${base} right-5 top-5 rounded-tr-lg border-r-[1.5px] border-t-[1.5px]`} aria-hidden="true" />
+      <span className={`${base} bottom-5 left-5 rounded-bl-lg border-b-[1.5px] border-l-[1.5px]`} aria-hidden="true" />
+      <span className={`${base} bottom-5 right-5 rounded-br-lg border-b-[1.5px] border-r-[1.5px]`} aria-hidden="true" />
+    </>
   );
 }
 
@@ -134,6 +183,17 @@ export function Stand() {
   const e164 = useMemo(() => (errores.telefono ? null : normalizarTelefono(form.telefono)), [errores.telefono, form.telefono]);
   const valido = Object.keys(errores).length === 0 && !!foto && !procesandoFoto;
 
+  // Qué falta, dicho en voz baja encima del botón mientras está apagado.
+  const falta = useMemo(() => {
+    const l: string[] = [];
+    if (!foto) l.push('la foto');
+    if (errores.nombre) l.push('el nombre');
+    if (errores.apellido) l.push('el apellido');
+    if (errores.telefono) l.push('el teléfono');
+    if (errores.email) l.push('el correo');
+    return l;
+  }, [foto, errores]);
+
   // Historial de esta sesión: vive en localStorage, sin consultar la base.
   useEffect(() => {
     try {
@@ -154,7 +214,6 @@ export function Stand() {
     if (valor) setTocado((t) => ({ ...t, [campo]: true }));
   }
   const ver = (campo: Campo) => (tocado[campo] ? errores[campo] : undefined);
-  const claseLinea = (campo: Campo) => `${LINEA} ${ver(campo) ? 'border-[var(--pv-rojo)]' : 'border-[var(--pv-linea)] focus:border-[var(--pv-azul)]'}`;
 
   async function alElegirFoto(e: React.ChangeEvent<HTMLInputElement>) {
     const archivo = e.target.files?.[0];
@@ -221,129 +280,155 @@ export function Stand() {
   const enviando = estado === 'enviando';
 
   return (
-    <>
-      {/* ENCABEZADO */}
-      <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-[var(--pv-linea)] bg-[var(--pv-negro)] px-4">
-        <div className="flex items-center gap-3">
-          <span className="text-[18px] font-extrabold tracking-[-0.02em] text-[var(--pv-hueso)]">PROVIDUS</span>
-          <span className="h-5 w-px bg-[var(--pv-linea)]" aria-hidden="true" />
-          <span className="text-[10px] leading-tight text-[var(--pv-ceniza)]">Capitalización<br />y Renta</span>
-        </div>
-        <div className="flex items-center gap-2 font-[family-name:var(--pv-mono)] text-[10px] uppercase tracking-[0.2em] text-[var(--pv-ceniza)]">
-          <span className="h-1.5 w-1.5 bg-[var(--pv-verde)]" style={{ borderRadius: '50%', animation: 'pv-latido 1.6s ease-in-out infinite' }} aria-hidden="true" />
+    <div className="lg:grid lg:min-h-dvh lg:grid-cols-[minmax(0,1.2fr)_minmax(460px,0.8fr)]">
+      {/* MARCA: el video del logo. En el celular es el encabezado; en la PC, el panel izquierdo. */}
+      <aside className="relative aspect-[16/10] w-full lg:sticky lg:top-0 lg:aspect-auto lg:h-dvh">
+        <HeroLogo />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[var(--pv-fondo)] to-transparent lg:hidden" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-32 bg-gradient-to-l from-[var(--pv-fondo)] to-transparent lg:block" aria-hidden="true" />
+        <span className="absolute left-5 top-5 flex items-center gap-2 rounded-full bg-[var(--pv-fondo)]/75 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--pv-plata)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--pv-naranja-luz)]" style={{ animation: 'pv-latido 1.8s ease-in-out infinite' }} aria-hidden="true" />
           Stand 1 · en vivo
-        </div>
-      </header>
+        </span>
+      </aside>
 
-      <main className="mx-auto w-full max-w-[480px] px-4 pb-[calc(56px+env(safe-area-inset-bottom)+40px)] pt-[72px]">
-        {/* BLOQUE FOTO */}
+      <main className="relative mx-auto flex w-full max-w-[520px] flex-col px-5 pb-6 lg:max-w-[560px] lg:justify-center lg:px-14 lg:py-14">
+        <div className="relative -mt-9 mb-8 lg:mt-0 lg:mb-10">
+          <h1 className="pv-display pv-in text-[32px] leading-[1.02] text-[var(--pv-aluminio)] lg:text-[40px]" style={{ ['--i' as string]: 0 }}>
+            Nuevo participante
+          </h1>
+          <p className="pv-in mt-3 max-w-[34ch] text-[15px] leading-relaxed text-[var(--pv-plata)]" style={{ ['--i' as string]: 1 }}>
+            Sacá la foto y completá los datos. Queda registrado al instante.
+          </p>
+        </div>
+
+        {/* FOTO */}
         <input id="pv-foto" type="file" accept="image/*" capture="environment" className="sr-only" onChange={alElegirFoto} disabled={enviando} />
-        <label htmlFor="pv-foto" className={`relative mb-2 block aspect-square w-full cursor-pointer overflow-hidden ${foto ? '' : 'border border-dashed border-[#3a3a3a]'}`}>
+        <label
+          htmlFor="pv-foto"
+          className="pv-in group relative mb-3 block aspect-square w-full cursor-pointer overflow-hidden rounded-2xl bg-[var(--pv-sup)] transition-colors duration-500 ease-[var(--pv-ease)] hover:bg-[var(--pv-sup-2)] active:scale-[0.995]"
+          style={{ ['--i' as string]: 2 }}
+        >
           {foto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={foto.url} alt="Foto cargada" className="h-full w-full object-cover" />
           ) : (
-            <span className="flex h-full w-full flex-col items-center justify-center gap-4 text-[var(--pv-ceniza)]">
-              <IconoCamara />
-              <span className="font-[family-name:var(--pv-mono)] text-[10px] uppercase tracking-[0.2em]">
-                {procesandoFoto ? 'Procesando…' : 'Tocar para sacar la foto'}
+            <>
+              <Esquinas />
+              <span className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                <span className="grid h-16 w-16 place-items-center rounded-full bg-[var(--pv-sup-2)] text-[var(--pv-aluminio)] transition-transform duration-500 ease-[var(--pv-ease)] group-hover:scale-105">
+                  <IcoCamara />
+                </span>
+                <span className="text-center">
+                  <span className="block text-[15px] font-semibold text-[var(--pv-aluminio)]">
+                    {procesandoFoto ? 'Procesando…' : 'Tocar para sacar la foto'}
+                  </span>
+                  <span className="mt-1 block text-[12px] text-[var(--pv-bronce)]">Se abre la cámara del celular</span>
+                </span>
               </span>
-            </span>
+            </>
           )}
           {foto && (
-            <span className="absolute right-0 top-0 border-b border-l border-[var(--pv-linea)] bg-[var(--pv-negro)] px-3 py-2 font-[family-name:var(--pv-mono)] text-[10px] uppercase tracking-[0.2em] text-[var(--pv-hueso)]">
+            <span className="absolute bottom-3 right-3 rounded-full bg-[var(--pv-fondo)]/85 px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--pv-aluminio)]">
               {procesandoFoto ? 'Procesando…' : 'Repetir'}
             </span>
           )}
         </label>
-        {errorFoto && <p role="alert" className="mb-4 text-[11px] text-[var(--pv-rojo)]">{errorFoto}</p>}
-        <div className="mb-8" />
+        {errorFoto && <p role="alert" className="mb-3 text-[12px] text-[var(--pv-error)]">{errorFoto}</p>}
 
-        {/* CAMPOS */}
-        <Campo etiqueta="Nombre" error={ver('nombre')}>
-          <input className={claseLinea('nombre')} type="text" name="nombre" autoComplete="off" autoCapitalize="words" required value={form.nombre} onChange={(e) => cambiar('nombre', e.target.value)} onBlur={() => setTocado((t) => ({ ...t, nombre: true }))} disabled={enviando} />
-        </Campo>
-        <Campo etiqueta="Apellido" error={ver('apellido')}>
-          <input className={claseLinea('apellido')} type="text" name="apellido" autoComplete="off" autoCapitalize="words" required value={form.apellido} onChange={(e) => cambiar('apellido', e.target.value)} onBlur={() => setTocado((t) => ({ ...t, apellido: true }))} disabled={enviando} />
-        </Campo>
-        <Campo etiqueta="Teléfono" error={ver('telefono')} ayuda={e164 ? `Se llamará a ${formatoLegible(e164)}` : undefined}>
-          <input className={claseLinea('telefono')} type="tel" name="telefono" inputMode="numeric" autoComplete="off" required value={form.telefono} onChange={(e) => cambiar('telefono', e.target.value)} onBlur={() => setTocado((t) => ({ ...t, telefono: true }))} disabled={enviando} />
-        </Campo>
-        <Campo etiqueta="Correo" error={ver('email')}>
-          <input className={claseLinea('email')} type="email" name="email" inputMode="email" autoComplete="off" autoCapitalize="none" value={form.email} onChange={(e) => cambiar('email', e.target.value)} onBlur={() => setTocado((t) => ({ ...t, email: true }))} disabled={enviando} />
-        </Campo>
-        <Campo etiqueta="Instagram">
-          <div className="flex items-end gap-1">
-            <span className="border-b border-[var(--pv-linea)] py-2 text-[20px] leading-tight text-[var(--pv-ceniza)]">@</span>
-            <input className={`${LINEA} border-[var(--pv-linea)] focus:border-[var(--pv-azul)]`} type="text" name="instagram" autoComplete="off" autoCapitalize="none" autoCorrect="off" value={form.instagram} onChange={(e) => cambiar('instagram', e.target.value.replace(/^@+/, '').replace(/\s/g, ''))} disabled={enviando} />
+        {/* DATOS */}
+        <div className="mt-6 flex flex-col gap-5">
+          <div className="grid grid-cols-2 gap-3">
+            <Campo etiqueta="Nombre" icono={<IcoPersona />} error={ver('nombre')} i={3}>
+              <input className={ENTRADA} type="text" name="nombre" placeholder="Nombre" autoComplete="off" autoCapitalize="words" required value={form.nombre} onChange={(e) => cambiar('nombre', e.target.value)} onBlur={() => setTocado((t) => ({ ...t, nombre: true }))} disabled={enviando} />
+            </Campo>
+            <Campo etiqueta="Apellido" icono={<IcoPersona />} error={ver('apellido')} i={3}>
+              <input className={ENTRADA} type="text" name="apellido" placeholder="Apellido" autoComplete="off" autoCapitalize="words" required value={form.apellido} onChange={(e) => cambiar('apellido', e.target.value)} onBlur={() => setTocado((t) => ({ ...t, apellido: true }))} disabled={enviando} />
+            </Campo>
           </div>
-        </Campo>
-        <Campo etiqueta="Provincia">
-          <div className="relative">
-            <select className={`${LINEA} border-[var(--pv-linea)] focus:border-[var(--pv-azul)] pr-8`} name="provincia" required value={form.provincia} onChange={(e) => cambiar('provincia', e.target.value)} disabled={enviando}>
+          <Campo etiqueta="Teléfono" icono={<IcoTelefono />} error={ver('telefono')} ayuda={e164 ? `Se llamará a ${formatoLegible(e164)}` : undefined} i={4}>
+            <input className={ENTRADA} type="tel" name="telefono" placeholder="0351 15 123-4567" inputMode="numeric" autoComplete="off" required value={form.telefono} onChange={(e) => cambiar('telefono', e.target.value)} onBlur={() => setTocado((t) => ({ ...t, telefono: true }))} disabled={enviando} />
+          </Campo>
+          <Campo etiqueta="Correo" icono={<IcoCorreo />} error={ver('email')} i={5}>
+            <input className={ENTRADA} type="email" name="email" placeholder="nombre@correo.com" inputMode="email" autoComplete="off" autoCapitalize="none" value={form.email} onChange={(e) => cambiar('email', e.target.value)} onBlur={() => setTocado((t) => ({ ...t, email: true }))} disabled={enviando} />
+          </Campo>
+          <Campo etiqueta="Instagram" icono={<IcoInstagram />} i={6}>
+            <span className="-mr-1.5 text-[17px] font-medium text-[var(--pv-bronce)]">@</span>
+            <input className={ENTRADA} type="text" name="instagram" placeholder="usuario" autoComplete="off" autoCapitalize="none" autoCorrect="off" value={form.instagram} onChange={(e) => cambiar('instagram', e.target.value.replace(/^@+/, '').replace(/\s/g, ''))} disabled={enviando} />
+          </Campo>
+          <Campo etiqueta="Provincia" icono={<IcoUbicacion />} i={7}>
+            <select className={`${ENTRADA} pr-6`} name="provincia" required value={form.provincia} onChange={(e) => cambiar('provincia', e.target.value)} disabled={enviando}>
               {PROVINCIAS.map((p) => (
-                <option key={p} value={p} className="bg-[#0d0d0d] text-[#f2efe9]">{p}</option>
+                <option key={p} value={p} className="bg-[#171410] text-[#ebe8e3]">{p}</option>
               ))}
             </select>
-            <svg className="pointer-events-none absolute bottom-3 right-0 text-[var(--pv-ceniza)]" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" aria-hidden="true">
-              <path d="M5 9l7 7 7-7" />
-            </svg>
-          </div>
-        </Campo>
-        <Campo etiqueta="Localidad">
-          <input className={`${LINEA} border-[var(--pv-linea)] focus:border-[var(--pv-azul)]`} type="text" name="localidad" autoComplete="off" autoCapitalize="words" value={form.localidad} onChange={(e) => cambiar('localidad', e.target.value)} disabled={enviando} />
-        </Campo>
+            <span className="pointer-events-none -ml-6 shrink-0 text-[var(--pv-bronce)]"><IcoFlechaAbajo /></span>
+          </Campo>
+          <Campo etiqueta="Localidad" icono={<IcoCiudad />} i={8}>
+            <input className={ENTRADA} type="text" name="localidad" placeholder="Localidad" autoComplete="off" autoCapitalize="words" value={form.localidad} onChange={(e) => cambiar('localidad', e.target.value)} disabled={enviando} />
+          </Campo>
+        </div>
 
         {/* CARGADOS EN ESTE DISPOSITIVO */}
         {historial.length > 0 && (
-          <section className="mt-10 border-t border-[var(--pv-linea)] pt-6">
-            <span className={`${ETIQUETA} mb-4`}>Cargados en este dispositivo</span>
+          <section className="mt-12">
+            <h2 className="mb-2 text-[13px] font-semibold text-[var(--pv-plata)]">Cargados en este dispositivo</h2>
             <ul>
               {historial.slice(0, 5).map((c) => (
-                <li key={c.id} className="flex items-center gap-3 border-b border-[var(--pv-linea)] py-3">
+                <li key={c.id} className="flex items-center gap-3 border-b border-[var(--pv-trazo)] py-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.foto} alt="" className="h-10 w-10 shrink-0 object-cover" style={{ borderRadius: '50%' }} />
+                  <img src={c.foto} alt="" className="h-11 w-11 shrink-0 rounded-full object-cover" />
                   <span className="min-w-0 flex-1 truncate text-[15px] font-semibold">{c.nombre} {c.apellido}</span>
-                  <span className="font-[family-name:var(--pv-mono)] text-[10px] tracking-[0.2em] text-[var(--pv-ceniza)]">{horaCorta(c.hora)}</span>
-                  <button type="button" onClick={() => void darDeBaja(c.id)} aria-label={`Dar de baja a ${c.nombre} ${c.apellido}`} className="flex h-9 w-9 shrink-0 items-center justify-center text-[var(--pv-ceniza)] transition-colors hover:text-[var(--pv-rojo)]">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" aria-hidden="true">
-                      <path d="M5 5l14 14M19 5L5 19" />
-                    </svg>
+                  <span className="pv-num text-[12px] text-[var(--pv-bronce)]">{horaCorta(c.hora)}</span>
+                  <button type="button" onClick={() => void darDeBaja(c.id)} aria-label={`Dar de baja a ${c.nombre} ${c.apellido}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[var(--pv-bronce)] transition-colors duration-300 hover:bg-[var(--pv-sup-2)] hover:text-[var(--pv-error)]">
+                    <IcoCerrar />
                   </button>
                 </li>
               ))}
             </ul>
-            {errorBaja && <p role="alert" className="mt-3 text-[11px] text-[var(--pv-rojo)]">{errorBaja}</p>}
+            {errorBaja && <p role="alert" className="mt-3 text-[12px] text-[var(--pv-error)]">{errorBaja}</p>}
           </section>
         )}
-      </main>
 
-      {/* ERROR DE ENVÍO: arriba del botón, con el motivo real */}
-      {errorEnvio && (
-        <div role="alert" className="fixed inset-x-0 bottom-[calc(56px+env(safe-area-inset-bottom))] z-20 border-t border-[var(--pv-rojo)] bg-[#1a0a0b] px-4 py-3 text-[13px] leading-snug text-[var(--pv-rojo)]">
-          {errorEnvio}
+        {/* ACCIÓN: queda fija abajo mientras se desplaza el formulario */}
+        <div className="sticky bottom-0 z-20 -mx-5 mt-10 bg-gradient-to-t from-[var(--pv-fondo)] from-70% to-transparent px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-10 lg:mx-0 lg:px-0">
+          {errorEnvio && (
+            <div role="alert" className="mb-3 rounded-[14px] bg-[#2a1613] px-4 py-3 text-[13px] leading-snug text-[var(--pv-error)]">
+              {errorEnvio}
+            </div>
+          )}
+          {!valido && !enviando && falta.length > 0 && (
+            <p className="mb-3 text-center text-[12px] text-[var(--pv-bronce)]">Falta {falta.join(', ').replace(/, ([^,]*)$/, ' y $1')}.</p>
+          )}
+          <button
+            type="button"
+            onClick={() => void enviar()}
+            disabled={!valido || enviando}
+            className="group flex h-14 w-full items-center justify-between rounded-[14px] bg-[var(--pv-naranja)] pl-6 pr-2 text-[#fff6ef] transition-[transform,background-color,color] duration-500 ease-[var(--pv-ease)] hover:bg-[#d65530] active:scale-[0.985] disabled:cursor-default disabled:bg-[var(--pv-sup-2)] disabled:text-[var(--pv-bronce)] disabled:hover:bg-[var(--pv-sup-2)] disabled:active:scale-100"
+          >
+            <span className="pv-display text-[13px] uppercase tracking-[0.2em]">{enviando ? 'Enviando…' : 'Registrar'}</span>
+            <span className="grid h-10 w-10 place-items-center rounded-[10px] bg-[#12100d]/25 transition-transform duration-500 ease-[var(--pv-ease)] group-enabled:group-hover:translate-x-0.5 group-disabled:bg-transparent">
+              <IcoFlecha />
+            </span>
+          </button>
         </div>
-      )}
-
-      {/* BOTÓN */}
-      <div className="fixed inset-x-0 bottom-0 z-20 bg-[var(--pv-azul)] pb-[env(safe-area-inset-bottom)]">
-        <button type="button" onClick={() => void enviar()} disabled={!valido || enviando} className="block h-14 w-full font-[family-name:var(--pv-mono)] text-[12px] font-medium uppercase tracking-[0.3em] text-[var(--pv-hueso)] disabled:cursor-default disabled:opacity-40">
-          {enviando ? 'Enviando…' : 'Registrar'}
-        </button>
-      </div>
+      </main>
 
       {/* CONFIRMACIÓN */}
       {estado === 'listo' && ultimo && (
-        <div className="fixed inset-0 z-30 flex flex-col items-center justify-center bg-[var(--pv-negro)] px-6 text-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ultimo.foto} alt="" className="mb-8 h-[120px] w-[120px] object-cover" style={{ borderRadius: '50%' }} />
-          <h1 className="mb-3 text-[32px] font-extrabold leading-tight tracking-[-0.02em]">Listo, {ultimo.nombre}.</h1>
-          <p className="mb-10 text-[15px] text-[var(--pv-ceniza)]">Ya estás participando. Te vamos a contactar.</p>
-          <button type="button" onClick={limpiar} className="border border-[var(--pv-hueso)] px-8 py-4 font-[family-name:var(--pv-mono)] text-[12px] uppercase tracking-[0.3em] text-[var(--pv-hueso)]">
-            Cargar otro
-          </button>
+        <div className="fixed inset-0 z-30 flex flex-col items-center justify-center bg-[var(--pv-fondo)] px-6 text-center" role="status">
+          <div style={{ animation: 'pv-aparece 0.9s var(--pv-ease) both' }} className="flex flex-col items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={ultimo.foto} alt="" className="mb-9 h-[132px] w-[132px] rounded-full object-cover outline outline-1 outline-offset-[7px] outline-[var(--pv-plata)]/35" />
+            <h1 className="pv-display mb-3 text-[34px] leading-[1.05] text-[var(--pv-aluminio)]">Listo, {ultimo.nombre}.</h1>
+            <p className="mb-11 max-w-[30ch] text-[16px] leading-relaxed text-[var(--pv-plata)]">Ya estás participando. Te vamos a contactar.</p>
+            <button type="button" onClick={limpiar} className="rounded-[14px] px-8 py-4 text-[13px] font-semibold uppercase tracking-[0.16em] text-[var(--pv-aluminio)] shadow-[inset_0_0_0_1px_var(--pv-bronce)] transition-[background-color,transform] duration-500 ease-[var(--pv-ease)] hover:bg-[var(--pv-sup)] active:scale-[0.98]">
+              Cargar otro
+            </button>
+          </div>
+          <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[var(--pv-naranja)]" style={{ animation: `pv-cuenta ${SEIS_SEGUNDOS}ms linear both` }} aria-hidden="true" />
         </div>
       )}
-    </>
+    </div>
   );
 }
