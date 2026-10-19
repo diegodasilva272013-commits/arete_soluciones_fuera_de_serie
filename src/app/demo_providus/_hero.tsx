@@ -31,7 +31,7 @@ export function HeroLogo() {
       return;
     }
     reproducir();
-    const espera = setTimeout(() => setModo((m) => (m === 'cargando' ? 'quieto' : m)), 3500);
+    const espera = setTimeout(() => setModo((m) => (m === 'cargando' ? 'quieto' : m)), 1400);
     return () => clearTimeout(espera);
   }, [reproducir]);
 
