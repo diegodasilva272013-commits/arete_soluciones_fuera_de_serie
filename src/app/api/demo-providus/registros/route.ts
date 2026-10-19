@@ -132,3 +132,33 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ ok: true, id: data.id as string, foto_url: fotoUrl, telefono_e164: e164 });
 }
+
+/**
+ * Lectura para la pantalla central (/demo_providus/central): los últimos 50 registros
+ * vivos y los ids dados de baja recientemente, para que la central también vea las bajas.
+ * La base no se abre al navegador: se lee acá con la service role. La central consulta
+ * esto cada ~1,5 s (la "red de seguridad" que no falla aunque el wifi sea malo).
+ */
+export async function GET() {
+  let admin: ReturnType<typeof createSupabaseAdminClient>;
+  try {
+    admin = createSupabaseAdminClient();
+  } catch {
+    return falla('servidor', 503, 'El servidor no tiene acceso a la base (falta la clave de servicio).');
+  }
+  const cols = 'id, creado_en, nombre, apellido, telefono, telefono_e164, provincia, localidad, foto_url, evento, promotora, vendedor_id';
+  const [vivos, bajas] = await Promise.all([
+    (admin as any).from('demo_providus_registros').select(cols).eq('eliminado', false).order('creado_en', { ascending: false }).limit(50),
+    (admin as any).from('demo_providus_registros').select('id').eq('eliminado', true).order('creado_en', { ascending: false }).limit(50),
+  ]);
+  const error = vivos.error ?? bajas.error;
+  if (error) {
+    console.error('[demo-providus] no se pudo listar', error.code, error.message);
+    if (error.code === '42P01') return falla('tabla', 503, 'Falta crear la tabla de la demo en Supabase (correr 0087_demo_providus.sql).');
+    return falla('base', 502, `No se pudo leer la base: ${error.message}`);
+  }
+  return NextResponse.json(
+    { ok: true, registros: vivos.data ?? [], bajas: (bajas.data ?? []).map((x: { id: string }) => x.id), servidor: new Date().toISOString() },
+    { headers: { 'Cache-Control': 'no-store' } },
+  );
+}
