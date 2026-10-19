@@ -1,0 +1,47 @@
+/*
+ * DEMO PROVIDUS — sistema visual propio, aislado de la plataforma (prefijo --pv-).
+ * Ángulos rectos, sin sombras, sin degradados, un solo acento.
+ */
+.providus-demo {
+  --pv-negro: #050505;
+  --pv-carbon: #0d0d0d;
+  --pv-linea: #1f1f1f;
+  --pv-hueso: #f2efe9;
+  --pv-ceniza: #8a8a8a;
+  --pv-azul: #2f7bf6;
+  --pv-azul-luz: #5c9aff;
+  --pv-verde: #22c55e;
+  --pv-rojo: #e5484d;
+
+  min-height: 100dvh;
+  background: var(--pv-negro);
+  color: var(--pv-hueso);
+  font-family: var(--pv-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes pv-latido {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* La pantalla de carga de la plataforma (Areté) no tiene que aparecer en la demo de Providus. */
+body:has(.providus-demo) div[class*="z-[3000]"] {
+  display: none !important;
+}
+
+/* El select hereda el look de campo de línea; sin la flecha nativa. */
+.providus-demo select {
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+.providus-demo input,
+.providus-demo select {
+  border-radius: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .providus-demo * { animation: none !important; }
+}
