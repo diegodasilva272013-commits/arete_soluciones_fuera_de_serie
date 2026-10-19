@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 // La barra del navegador toma el color del fondo.
-export const viewport: Viewport = { themeColor: '#0f0d0a' };
+export const viewport: Viewport = { themeColor: '#1a140d' };
 
 export default function DemoProvidusLayout({ children }: { children: React.ReactNode }) {
   return <div className={`providus-demo ${display.variable} ${sans.variable}`}>{children}</div>;
