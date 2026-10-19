@@ -282,11 +282,10 @@ export function Stand() {
   return (
     <div className="lg:grid lg:min-h-dvh lg:grid-cols-[minmax(0,1.2fr)_minmax(460px,0.8fr)]">
       {/* MARCA: el video del logo. En el celular es el encabezado; en la PC, el panel izquierdo. */}
-      <aside className="relative aspect-[16/10] w-full lg:sticky lg:top-0 lg:aspect-auto lg:h-dvh">
+      <aside className="relative aspect-[4/3] w-full lg:sticky lg:top-0 lg:aspect-auto lg:h-dvh">
         <HeroLogo />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[var(--pv-fondo)] to-transparent lg:hidden" aria-hidden="true" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-32 bg-gradient-to-l from-[var(--pv-fondo)] to-transparent lg:block" aria-hidden="true" />
-        <span className="absolute left-5 top-5 flex items-center gap-2 rounded-full bg-[var(--pv-fondo)]/75 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--pv-plata)]">
+        <span className="absolute right-5 top-5 flex items-center gap-2 rounded-full lg:left-8 lg:right-auto lg:top-8 bg-[var(--pv-fondo)]/75 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--pv-plata)]">
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--pv-naranja-luz)]" style={{ animation: 'pv-latido 1.8s ease-in-out infinite' }} aria-hidden="true" />
           Stand 1 · en vivo
         </span>

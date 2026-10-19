@@ -59,9 +59,36 @@
   -webkit-box-shadow: 0 0 0 1000px var(--pv-sup-2) inset;
   transition: background-color 9999s;
 }
-.providus-demo :focus-visible {
+/* Foco visible en botones y enlaces; los campos ya lo muestran con el anillo del contenedor. */
+.providus-demo :focus-visible:not(input):not(select) {
   outline: 2px solid var(--pv-naranja-luz);
   outline-offset: 3px;
+}
+.providus-demo input:focus-visible,
+.providus-demo select:focus-visible {
+  outline: none;
+}
+
+/*
+ * Media de marca. En el celular llena el encabezado; en pantallas grandes el video
+ * se ve ENTERO (16:9, centrado) y sus bordes se funden con el fondo: el logo nunca
+ * queda recortado.
+ */
+.pv-media {
+  position: absolute;
+  inset: 0;
+}
+@media (min-width: 1024px) {
+  .pv-media {
+    inset: auto 0;
+    top: 50%;
+    transform: translateY(-50%);
+    aspect-ratio: 16 / 9;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14%, #000 86%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 14%, #000 86%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
 }
 
 /* Tipografía de display: Archivo en su ancho expandido, como las letras del logo. */

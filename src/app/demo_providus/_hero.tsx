@@ -25,8 +25,9 @@ export function HeroLogo() {
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-[var(--pv-fondo)]" role="img" aria-label="Providus, S.A. de Capitalización y Renta">
+      <div className="pv-media">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/demo-providus/hero-final.jpg" alt="" className="absolute inset-0 h-full w-full object-cover transition-opacity duration-1000" style={{ opacity: modo === 'quieto' ? 1 : 0 }} />
+      <img src="/demo-providus/hero-final.jpg" alt="" className="absolute inset-0 h-full w-full object-cover object-[68%_50%] transition-opacity duration-1000" style={{ opacity: modo === 'quieto' ? 1 : 0 }} />
       <video
         ref={video}
         src="/demo-providus/hero.mp4"
@@ -35,9 +36,10 @@ export function HeroLogo() {
         preload="auto"
         aria-hidden="true"
         onPlaying={() => setModo('video')}
-        className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+        className="absolute inset-0 h-full w-full object-cover object-[68%_50%] transition-opacity duration-700"
         style={{ opacity: modo === 'video' ? 1 : 0 }}
       />
+      </div>
     </div>
   );
 }
