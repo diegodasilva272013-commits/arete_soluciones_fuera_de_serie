@@ -159,7 +159,8 @@ export function Central() {
   const [lineas, setLineas] = useState<Linea[]>([]);
   const [cargado, setCargado] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
-  const [ahora, setAhora] = useState(() => Date.now());
+  // 0 hasta que monta: el reloj no se dibuja en el servidor (si no, no coincide con el navegador y React falla al hidratar).
+  const [ahora, setAhora] = useState(0);
   const [sonido, setSonido] = useState(false);
   const [confirmando, setConfirmando] = useState<string | null>(null);
   const [errorBaja, setErrorBaja] = useState<{ id: string; msg: string } | null>(null);
@@ -174,6 +175,7 @@ export function Central() {
 
   // Reloj: corre cada segundo, y con él los "hace X s".
   useEffect(() => {
+    setAhora(Date.now());
     const t = setInterval(() => setAhora(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
@@ -330,7 +332,7 @@ export function Central() {
 
   // ── métricas: se calculan sobre lo que ya está en memoria ──
   const vivos = useMemo(() => items.filter((i) => !i.saliendo), [items]);
-  const inicioDia = useMemo(() => { const d = new Date(ahora); d.setHours(0, 0, 0, 0); return d.getTime(); }, [Math.floor(ahora / 60000)]); // eslint-disable-line react-hooks/exhaustive-deps
+  const inicioDia = useMemo(() => { const d = new Date(ahora || Date.now()); d.setHours(0, 0, 0, 0); return d.getTime(); }, [Math.floor(ahora / 60000)]); // eslint-disable-line react-hooks/exhaustive-deps
   const hoy = vivos.filter((i) => ts(i.r) >= inicioDia).length;
   const diezMin = vivos.filter((i) => ts(i.r) >= ahora - 600_000).length;
   const sinAsignar = vivos.filter((i) => !i.r.vendedor_id).length;
@@ -362,7 +364,7 @@ export function Central() {
           >
             ♪ Sonido
           </button>
-          <span className="pv-datos text-[15px] text-[var(--pv-aluminio)]" aria-label="Hora">{hhmmss(ahora)}</span>
+          <span className="pv-datos text-[15px] text-[var(--pv-aluminio)]" aria-label="Hora">{ahora ? hhmmss(ahora) : '--:--:--'}</span>
         </div>
       </header>
 
