@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { caracteresValidos, formatoLegible, normalizarTelefono, soloDigitos } from '@/lib/demo-providus/telefono';
 import { HeroLogo } from './_hero';
+import { LoginPromotora } from './_acceso';
 
 type Estado = 'formulario' | 'enviando' | 'listo';
 
@@ -32,6 +33,7 @@ interface Cargado {
 }
 
 const CLAVE_HISTORIAL = 'pv_demo_stand_historial';
+const CLAVE_EVENTO = 'pv_demo_stand_evento';
 const SEIS_SEGUNDOS = 6000;
 
 // ── utilidades ──────────────────────────────────────────────────────────
@@ -119,6 +121,9 @@ const IcoFlecha = () => (
 const IcoCerrar = () => (
   <svg {...ico} width="16" height="16"><path d="M6 6l12 12M18 6 6 18" /></svg>
 );
+const IcoEvento = () => (
+  <svg {...ico}><rect x="3.6" y="5" width="16.8" height="15.4" rx="2.6" /><path d="M3.6 10h16.8M8 3.2v3.6M16 3.2v3.6" /></svg>
+);
 const IcoFlechaAbajo = () => (
   <svg {...ico} width="16" height="16"><path d="m6.4 9.6 5.6 5.6 5.6-5.6" /></svg>
 );
@@ -166,7 +171,33 @@ function Esquinas() {
 
 // ── pantalla ────────────────────────────────────────────────────────────
 
-export function Stand() {
+interface Promotora {
+  id: string;
+  nombre: string;
+  apellido: string;
+  edad: number | null;
+  foto_url: string | null;
+  sucursal: string | null;
+}
+interface Evento {
+  id: string;
+  nombre: string;
+  lugar: string | null;
+}
+
+/** El formulario de carga. Quién carga y en qué evento viaja con cada registro (el servidor lo estampa). */
+function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eventos: Evento[]; alSalir: (llamarAlServidor: boolean) => void }) {
+  const [eventoId, setEventoId] = useState('');
+  useEffect(() => {
+    let guardado = '';
+    try { guardado = localStorage.getItem(CLAVE_EVENTO) ?? ''; } catch { /* nada */ }
+    setEventoId(eventos.some((e) => e.id === guardado) ? guardado : eventos[0]?.id ?? '');
+  }, [eventos]);
+  function elegirEvento(id: string) {
+    setEventoId(id);
+    try { localStorage.setItem(CLAVE_EVENTO, id); } catch { /* nada */ }
+  }
+
   const [estado, setEstado] = useState<Estado>('formulario');
   const [form, setForm] = useState<Form>(VACIO);
   const [tocado, setTocado] = useState<Partial<Record<Campo, boolean>>>({});
@@ -181,18 +212,19 @@ export function Stand() {
 
   const errores = useMemo(() => validar(form), [form]);
   const e164 = useMemo(() => (errores.telefono ? null : normalizarTelefono(form.telefono)), [errores.telefono, form.telefono]);
-  const valido = Object.keys(errores).length === 0 && !!foto && !procesandoFoto;
+  const valido = Object.keys(errores).length === 0 && !!foto && !procesandoFoto && !!eventoId;
 
   // Qué falta, dicho en voz baja encima del botón mientras está apagado.
   const falta = useMemo(() => {
     const l: string[] = [];
+    if (!eventoId) l.push('el evento');
     if (!foto) l.push('la foto');
     if (errores.nombre) l.push('el nombre');
     if (errores.apellido) l.push('el apellido');
     if (errores.telefono) l.push('el teléfono');
     if (errores.email) l.push('el correo');
     return l;
-  }, [foto, errores]);
+  }, [foto, errores, eventoId]);
 
   // Historial de esta sesión: vive en localStorage, sin consultar la base.
   useEffect(() => {
@@ -249,9 +281,14 @@ export function Stand() {
     try {
       const fd = new FormData();
       fd.append('foto', foto.blob, 'foto.jpg');
+      fd.append('evento_id', eventoId);
       (Object.keys(form) as Campo[]).forEach((k) => fd.append(k, form[k].trim()));
       const r = await fetch('/api/demo-providus/registros', { method: 'POST', body: fd });
-      const d = (await r.json().catch(() => null)) as { ok?: boolean; id?: string; foto_url?: string; detalle?: string } | null;
+      const d = (await r.json().catch(() => null)) as { ok?: boolean; id?: string; foto_url?: string; detalle?: string; error?: string } | null;
+      if (d?.error === 'sesion') {
+        alSalir(false); // la sesión venció: vuelve al ingreso (lo cargado en el formulario se pierde solo si recarga)
+        return;
+      }
       if (!r.ok || !d?.ok || !d.id) throw new Error(d?.detalle || `El servidor respondió ${r.status}.`);
       guardarHistorial([{ id: d.id, nombre: form.nombre.trim(), apellido: form.apellido.trim(), hora: new Date().toISOString(), foto: d.foto_url ?? foto.url }, ...historial]);
       setUltimo({ nombre: form.nombre.trim(), foto: foto.url });
@@ -293,6 +330,20 @@ export function Stand() {
       {/* HOJA DE ALUMINIO: el formulario */}
       <main className="pv-hoja relative -mt-8 flex w-full flex-col rounded-t-[32px] px-5 pb-6 pt-9 lg:mt-0 lg:min-h-dvh lg:justify-center lg:rounded-l-[40px] lg:rounded-tr-none lg:px-14 lg:py-14">
         <div className="mx-auto flex w-full max-w-[500px] flex-col">
+          <div className="pv-in mb-7 flex items-center gap-3" style={{ ['--i' as string]: 0 }}>
+            {promotora.foto_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={promotora.foto_url} alt="" className="h-11 w-11 shrink-0 rounded-full object-cover" />
+            ) : (
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[var(--pv-bronce-800)] text-[15px] font-semibold text-[var(--pv-aluminio)]" aria-hidden="true">{`${promotora.nombre[0] ?? ''}${promotora.apellido[0] ?? ''}`.toUpperCase()}</span>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[15px] font-semibold text-[var(--pv-tinta)]">{promotora.nombre} {promotora.apellido}</p>
+              <p className="truncate text-[12px] font-medium text-[var(--pv-tinta-2)]">{promotora.sucursal ?? 'Sin sucursal'}{promotora.edad ? ` · ${promotora.edad} años` : ''}</p>
+            </div>
+            <button type="button" onClick={() => alSalir(true)} className="rounded-[10px] px-3.5 py-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--pv-tinta-2)] shadow-[inset_0_0_0_1px_rgba(38,29,20,0.18)] transition-colors duration-300 hover:bg-[var(--pv-aluminio-sombra)]">Salir</button>
+          </div>
+
           <div className="mb-8 lg:mb-10">
             <h1 className="pv-display pv-in text-[32px] leading-[1.02] text-[var(--pv-tinta)] lg:text-[40px]" style={{ ['--i' as string]: 0 }}>
               Nuevo participante
@@ -300,6 +351,22 @@ export function Stand() {
             <p className="pv-in mt-3 max-w-[34ch] text-[15px] leading-relaxed text-[var(--pv-tinta-2)]" style={{ ['--i' as string]: 1 }}>
               Sacá la foto y completá los datos. Queda registrado al instante.
             </p>
+          </div>
+
+          {/* EVENTO: cada carga queda registrada en este evento */}
+          <div className="mb-6">
+            {eventos.length === 0 ? (
+              <p role="alert" className="pv-in rounded-[14px] bg-[#f3d9d4] px-4 py-3 text-[13px] font-medium leading-snug text-[var(--pv-error)]" style={{ ['--i' as string]: 2 }}>No hay eventos activos. Avisale a quien administra para que cree uno.</p>
+            ) : (
+              <Campo etiqueta="Evento" icono={<IcoEvento />} i={2}>
+                <select className={`${ENTRADA} pr-6`} name="evento" value={eventoId} onChange={(e) => elegirEvento(e.target.value)} disabled={enviando}>
+                  {eventos.map((ev) => (
+                    <option key={ev.id} value={ev.id} className="bg-[#f6f3ee] text-[#261d14]">{ev.nombre}{ev.lugar ? ` · ${ev.lugar}` : ''}</option>
+                  ))}
+                </select>
+                <span className="pointer-events-none -ml-6 shrink-0 text-[var(--pv-tinta-3)]"><IcoFlechaAbajo /></span>
+              </Campo>
+            )}
           </div>
 
           {/* FOTO */}
@@ -435,6 +502,51 @@ export function Stand() {
             </button>
           </div>
           <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[var(--pv-naranja)]" style={{ animation: `pv-cuenta ${SEIS_SEGUNDOS}ms linear both` }} aria-hidden="true" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+type Estado2 =
+  | { tipo: 'cargando' }
+  | { tipo: 'login' }
+  | { tipo: 'error'; msg: string }
+  | { tipo: 'ok'; promotora: Promotora; eventos: Evento[] };
+
+/** Resuelve la sesión: sin ingresar → login de promotoras; con sesión → el formulario. */
+export function Stand() {
+  const [est, setEst] = useState<Estado2>({ tipo: 'cargando' });
+
+  const cargar = useCallback(async () => {
+    try {
+      const r = await fetch('/api/demo-providus/auth/yo', { cache: 'no-store' });
+      const d = (await r.json().catch(() => null)) as { ok?: boolean; sesion?: string; promotora?: Promotora; eventos?: Evento[]; detalle?: string } | null;
+      if (!r.ok || !d?.ok) throw new Error(d?.detalle || `El servidor respondió ${r.status}.`);
+      if (d.sesion === 'promotora' && d.promotora) setEst({ tipo: 'ok', promotora: d.promotora, eventos: d.eventos ?? [] });
+      else setEst({ tipo: 'login' });
+    } catch (e) {
+      setEst({ tipo: 'error', msg: e instanceof TypeError ? `No se pudo conectar con el servidor (${e.message}).` : e instanceof Error ? e.message : String(e) });
+    }
+  }, []);
+  useEffect(() => { void cargar(); }, [cargar]);
+
+  async function salir(llamarAlServidor: boolean) {
+    if (llamarAlServidor) await fetch('/api/demo-providus/auth/salir', { method: 'POST' }).catch(() => {});
+    setEst({ tipo: 'login' });
+    window.scrollTo({ top: 0 });
+  }
+
+  if (est.tipo === 'login') return <LoginPromotora alListo={() => void cargar()} />;
+  if (est.tipo === 'ok') return <Formulario promotora={est.promotora} eventos={est.eventos} alSalir={(x) => void salir(x)} />;
+  return (
+    <div className="grid min-h-dvh place-items-center px-6 text-center">
+      {est.tipo === 'cargando' ? (
+        <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[var(--pv-arena)]">Cargando…</p>
+      ) : (
+        <div role="alert" className="max-w-[360px]">
+          <p className="mb-5 text-[15px] leading-relaxed text-[var(--pv-aluminio)]">{est.msg}</p>
+          <button type="button" onClick={() => { setEst({ tipo: 'cargando' }); void cargar(); }} className="rounded-[14px] px-7 py-3.5 text-[13px] font-semibold uppercase tracking-[0.16em] text-[var(--pv-aluminio)] shadow-[inset_0_0_0_1px_var(--pv-arena-oscura)]">Reintentar</button>
         </div>
       )}
     </div>

@@ -15,6 +15,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatoLegible } from '@/lib/demo-providus/telefono';
+import { LoginAdmin } from '../_acceso';
 
 interface Registro {
   id: string;
@@ -26,8 +27,13 @@ interface Registro {
   provincia: string;
   localidad: string | null;
   foto_url: string | null;
-  evento: string;
-  promotora: string;
+  evento: string | null;
+  promotora: string | null;
+  promotora_nombre: string | null;
+  promotora_apellido: string | null;
+  promotora_edad: number | null;
+  promotora_foto_url: string | null;
+  sucursal: string | null;
   vendedor_id: string | null;
 }
 interface Item {
@@ -69,6 +75,8 @@ const iniciales = (n: string, a: string) => `${n.trim()[0] ?? ''}${a.trim()[0] ?
 const abreviado = (n: string, a: string) => `${n.trim()} ${a.trim()[0] ?? ''}.`;
 const lugar = (r: Registro) => (r.localidad && r.localidad !== r.provincia ? `${r.provincia}, ${r.localidad}` : r.provincia);
 const ts = (r: Registro) => new Date(r.creado_en).getTime();
+const quien = (r: Registro) => (r.promotora_nombre ? `${r.promotora_nombre} ${r.promotora_apellido ?? ''}`.trim() : r.promotora || 'Sin identificar');
+const nombreCorto = (r: Registro) => (r.promotora_nombre ? `${r.promotora_nombre} ${(r.promotora_apellido ?? '').trim()[0] ?? ''}.`.trim() : r.promotora || 'sin identificar');
 
 // ── piezas ──────────────────────────────────────────────────────────────
 
@@ -111,6 +119,15 @@ function Foto({ r }: { r: Registro }) {
   return <img src={r.foto_url} alt="" onError={() => setFallo(true)} className="h-[72px] w-[72px] shrink-0 rounded-[10px] bg-[var(--pv-bronce-800)] object-cover" />;
 }
 
+function MiniPromotora({ r }: { r: Registro }) {
+  const [fallo, setFallo] = useState(false);
+  if (!r.promotora_foto_url || fallo) {
+    return <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[var(--pv-bronce-700)] text-[9px] font-semibold text-[var(--pv-aluminio)]" aria-hidden="true">{iniciales(r.promotora_nombre ?? quien(r), r.promotora_apellido ?? '')}</span>;
+  }
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={r.promotora_foto_url} alt="" onError={() => setFallo(true)} className="h-5 w-5 shrink-0 rounded-full bg-[var(--pv-bronce-800)] object-cover" />;
+}
+
 function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onConfirmar }: { item: Item; ahora: number; confirmando: boolean; errorBaja: string | null; onPedir: () => void; onCancelar: () => void; onConfirmar: () => void }) {
   const { r } = item;
   const nuevo = item.nuevoHasta !== null && ahora < item.nuevoHasta;
@@ -121,7 +138,14 @@ function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onCon
       <div className="min-w-0 flex-1">
         <p className="truncate text-[19px] font-semibold leading-tight text-[var(--pv-aluminio)]">{r.nombre} {r.apellido}</p>
         <p className="pv-num mt-1.5 truncate text-[13px] text-[var(--pv-sec)]">{formatoLegible(r.telefono_e164)} · {lugar(r)}</p>
-        <p className="pv-datos mt-1.5 truncate text-[11px] text-[var(--pv-sec)]/60">{r.promotora} · {r.evento}</p>
+        <p className="mt-1.5 flex items-center gap-2 truncate text-[11.5px] text-[var(--pv-sec)]">
+          <MiniPromotora r={r} />
+          <span className="truncate">
+            <span className="font-semibold text-[var(--pv-aluminio)]/85">{quien(r)}</span>
+            {r.promotora_edad ? ` · ${r.promotora_edad} años` : ''}
+            {` · ${r.sucursal ?? 'sin sucursal'} · ${r.evento ?? 'sin evento'}`}
+          </span>
+        </p>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1.5">
         <span className="pv-datos text-[13px] text-[var(--pv-aluminio)]">{hhmmss(ts(r))}</span>
@@ -154,7 +178,7 @@ function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onCon
 
 // ── pantalla ────────────────────────────────────────────────────────────
 
-export function Central() {
+function Panel({ alVencer }: { alVencer: () => void }) {
   const [items, setItems] = useState<Item[]>([]);
   const [lineas, setLineas] = useState<Linea[]>([]);
   const [cargado, setCargado] = useState(false);
@@ -274,7 +298,7 @@ export function Central() {
       setItems(siguiente);
 
       if (!inicial && nuevos.length) {
-        for (const n of [...nuevos].reverse()) anotar('INGRESÓ', `${abreviado(n.r.nombre, n.r.apellido)} · ${n.r.provincia}`);
+        for (const n of [...nuevos].reverse()) anotar('INGRESÓ', `${abreviado(n.r.nombre, n.r.apellido)} · ${n.r.provincia} · por ${nombreCorto(n.r)}${n.r.evento ? ` · ${n.r.evento}` : ''}`);
         tick();
       }
     },
@@ -292,6 +316,10 @@ export function Central() {
       try {
         const r = await fetch('/api/demo-providus/registros', { cache: 'no-store', signal: control.signal });
         const d = (await r.json().catch(() => null)) as { ok?: boolean; registros?: Registro[]; bajas?: string[]; detalle?: string } | null;
+        if (r.status === 401) {
+          if (activo) alVencer(); // la sesión de administración venció: vuelve al ingreso
+          return;
+        }
         if (!r.ok || !d?.ok || !d.registros) throw new Error(d?.detalle || `El servidor respondió ${r.status}.`);
         if (!activo) return;
         ultimoOk.current = Date.now();
@@ -313,7 +341,7 @@ export function Central() {
       activo = false;
       clearInterval(t);
     };
-  }, [aplicar]);
+  }, [aplicar, alVencer]);
 
   async function darDeBaja(id: string) {
     setErrorBaja(null);
@@ -364,6 +392,7 @@ export function Central() {
           >
             ♪ Sonido
           </button>
+          <a href="/demo_providus/admin" className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--pv-sec)] transition-colors hover:text-[var(--pv-aluminio)]">Panel</a>
           <span className="pv-datos text-[15px] text-[var(--pv-aluminio)]" aria-label="Hora">{ahora ? hhmmss(ahora) : '--:--:--'}</span>
         </div>
       </header>
@@ -427,4 +456,28 @@ export function Central() {
       </div>
     </div>
   );
+}
+
+/** Protege la central: hace falta la clave de administración (los datos incluyen personas y promotoras). */
+export function Central() {
+  const [est, setEst] = useState<'cargando' | 'login' | 'ok'>('cargando');
+  const [msg, setMsg] = useState<string | null>(null);
+  const revisar = useCallback(async () => {
+    try {
+      const r = await fetch('/api/demo-providus/auth/yo', { cache: 'no-store' });
+      const d = (await r.json().catch(() => null)) as { ok?: boolean; sesion?: string; detalle?: string } | null;
+      if (!r.ok || !d?.ok) throw new Error(d?.detalle || `El servidor respondió ${r.status}.`);
+      setMsg(null);
+      setEst(d.sesion === 'admin' ? 'ok' : 'login');
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : String(e));
+      setEst('login');
+    }
+  }, []);
+  useEffect(() => { void revisar(); }, [revisar]);
+  const alVencer = useCallback(() => setEst('login'), []);
+
+  if (est === 'ok') return <Panel alVencer={alVencer} />;
+  if (est === 'login') return <LoginAdmin titulo="Centro de operaciones" alListo={() => void revisar()} />;
+  return <div className="grid h-dvh place-items-center text-[12px] font-semibold uppercase tracking-[0.2em] text-[var(--pv-arena)]">{msg ?? 'Cargando…'}</div>;
 }

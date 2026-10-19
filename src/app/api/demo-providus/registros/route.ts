@@ -1,21 +1,23 @@
 /**
- * DEMO PROVIDUS — Sprint 1. Alta de un registro desde el celular del stand.
+ * DEMO PROVIDUS — registros del stand.
  *
- * La demo no tiene login, pero el navegador nunca toca la base: este endpoint
- * valida y normaliza todo (también el teléfono, no confía en el cliente), sube
- * la foto al bucket público y recién después inserta la fila con la service
- * role. Evento, promotora y dispositivo los fija el servidor.
+ * POST: alta de un registro. Exige sesión de promotora. El servidor valida y normaliza todo
+ * (también el teléfono), y "estampa" en el registro quién lo cargó (promotora con foto, nombre,
+ * apellido y edad), su sucursal y el evento: esos datos NO vienen del navegador, vienen de la
+ * sesión y de la base, y se copian dentro del registro para que el historial no cambie si
+ * después se edita a la promotora.
+ * GET: lectura para la central. Exige sesión de administración.
+ * El navegador nunca toca la base: todo pasa por acá con la service role.
  */
 
 import { NextResponse } from 'next/server';
-import { createSupabaseAdminClient } from '@/lib/supabase-server';
 import { caracteresValidos, normalizarTelefono } from '@/lib/demo-providus/telefono';
+import { esAdmin, sesionActual } from '@/lib/demo-providus/sesion';
+import { db, errorDeFoto, FALTA_SQL, falla, ipDe, subirFoto, tablaFaltante } from '@/lib/demo-providus/datos';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-const BUCKET = 'demo-providus-fotos';
-const MAX_FOTO = 2 * 1024 * 1024; // el navegador la achica a ~200 KB; esto es solo un tope
 const PROVINCIAS = new Set([
   'Ciudad Autónoma de Buenos Aires', 'Buenos Aires', 'Catamarca', 'Chaco', 'Chubut',
   'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy', 'La Pampa', 'La Rioja',
@@ -37,15 +39,12 @@ function permitido(ip: string, max = 40): boolean {
   return true;
 }
 
-function falla(error: string, status: number, detalle?: string) {
-  return NextResponse.json({ ok: false, error, detalle }, { status });
-}
-
 const texto = (f: FormData, k: string, max: number): string => String(f.get(k) ?? '').trim().slice(0, max);
 
 export async function POST(req: Request) {
-  const ip = (req.headers.get('x-forwarded-for') ?? 'sin-ip').split(',')[0].trim();
-  if (!permitido(ip)) return falla('limite', 429, 'Demasiados envíos seguidos. Esperá un minuto.');
+  const sesion = sesionActual();
+  if (!sesion || sesion.t !== 'p') return falla('sesion', 401, 'Tu sesión venció. Volvé a ingresar.');
+  if (!permitido(ipDe(req))) return falla('limite', 429, 'Demasiados envíos seguidos. Esperá un minuto.');
 
   let f: FormData;
   try {
@@ -61,6 +60,7 @@ export async function POST(req: Request) {
   const instagram = texto(f, 'instagram', 60).replace(/^@+/, '');
   const provincia = texto(f, 'provincia', 60);
   const localidad = texto(f, 'localidad', 80);
+  const eventoId = texto(f, 'evento_id', 60);
 
   if (nombre.length < 2) return falla('nombre', 422, 'Falta el nombre (mínimo 2 letras).');
   if (apellido.length < 2) return falla('apellido', 422, 'Falta el apellido (mínimo 2 letras).');
@@ -69,53 +69,46 @@ export async function POST(req: Request) {
   if (!e164) return falla('telefono', 422, 'No pudimos armar el número para llamar. Revisá el código de área.');
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return falla('email', 422, 'El correo no parece válido.');
   if (!PROVINCIAS.has(provincia)) return falla('provincia', 422, 'Elegí una provincia de la lista.');
+  if (!eventoId) return falla('evento', 422, 'Elegí el evento.');
+  const f1 = f.get('foto');
+  const eFoto = errorDeFoto(f1);
+  if (eFoto) return falla('foto', 422, eFoto);
 
-  const foto = f.get('foto');
-  if (!(foto instanceof File) || foto.size === 0) return falla('foto', 422, 'Falta la foto.');
-  if (foto.size > MAX_FOTO) return falla('foto', 413, 'La foto es demasiado pesada.');
-  if (!/^image\/(jpeg|png|webp)$/.test(foto.type)) return falla('foto', 415, 'La foto tiene que ser JPG, PNG o WebP.');
-
-  let admin: ReturnType<typeof createSupabaseAdminClient>;
+  let admin: ReturnType<typeof db>;
   try {
-    admin = createSupabaseAdminClient();
-  } catch (e) {
-    console.error('[demo-providus] sin cliente admin', e instanceof Error ? e.message : e);
+    admin = db();
+  } catch {
     return falla('servidor', 503, 'El servidor no tiene acceso a la base (falta la clave de servicio).');
   }
 
-  // Bucket: se crea una sola vez si no existe (la migración 0087 también lo crea).
-  const { error: errBucket } = await admin.storage.getBucket(BUCKET);
-  if (errBucket) {
-    const { error: errCrear } = await admin.storage.createBucket(BUCKET, { public: true });
-    if (errCrear && !/already exists|duplicate/i.test(errCrear.message)) {
-      console.error('[demo-providus] no se pudo crear el bucket', errCrear.message);
-      return falla('storage', 503, `No se pudo preparar el almacenamiento de fotos: ${errCrear.message}`);
-    }
+  // Quién carga y en qué evento: se leen de la base, no del navegador.
+  const [{ data: prom, error: ep }, { data: ev, error: ee }] = await Promise.all([
+    admin.from('demo_providus_promotoras').select('id, nombre, apellido, edad, foto_url, activa, sucursal_id, sucursal:demo_providus_sucursales(nombre)').eq('id', sesion.id).maybeSingle(),
+    admin.from('demo_providus_eventos').select('id, nombre, activo').eq('id', eventoId).maybeSingle(),
+  ]);
+  const eb = ep ?? ee;
+  if (eb) return tablaFaltante(eb) ? falla('tabla', 503, FALTA_SQL) : falla('base', 502, `No se pudo leer la base: ${eb.message}`);
+  if (!prom || !prom.activa) return falla('sesion', 401, 'Tu usuario ya no está activo. Avisale a quien administra.');
+  if (!ev || !ev.activo) return falla('evento', 422, 'Ese evento ya no está activo. Elegí otro.');
+
+  let fotoUrl: string;
+  try {
+    fotoUrl = await subirFoto(f1 as File, '');
+  } catch (e) {
+    console.error('[demo-providus] foto', e instanceof Error ? e.message : e);
+    return falla('storage', 502, e instanceof Error ? e.message : 'No se pudo subir la foto.');
   }
 
-  const ext = foto.type === 'image/png' ? 'png' : foto.type === 'image/webp' ? 'webp' : 'jpg';
-  const archivo = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error: errSubida } = await admin.storage.from(BUCKET).upload(archivo, Buffer.from(await foto.arrayBuffer()), { contentType: foto.type, upsert: false });
-  if (errSubida) {
-    console.error('[demo-providus] no se pudo subir la foto', errSubida.message);
-    return falla('storage', 502, `No se pudo subir la foto: ${errSubida.message}`);
-  }
-  const fotoUrl = admin.storage.from(BUCKET).getPublicUrl(archivo).data.publicUrl;
-
-  const { data, error } = await (admin as any)
+  const { data, error } = await admin
     .from('demo_providus_registros')
     .insert({
-      nombre,
-      apellido,
-      telefono,
-      telefono_e164: e164,
-      email: email || null,
-      instagram: instagram || null,
-      provincia,
-      localidad: localidad || null,
-      foto_url: fotoUrl,
-      evento: 'Demo Providus',
-      promotora: 'Stand 1',
+      nombre, apellido, telefono, telefono_e164: e164,
+      email: email || null, instagram: instagram || null, provincia, localidad: localidad || null, foto_url: fotoUrl,
+      // quién, dónde y cuándo
+      evento: ev.nombre, evento_id: ev.id,
+      promotora: `${prom.nombre} ${prom.apellido}`.trim(), promotora_id: prom.id,
+      promotora_nombre: prom.nombre, promotora_apellido: prom.apellido, promotora_edad: prom.edad, promotora_foto_url: prom.foto_url,
+      sucursal_id: prom.sucursal_id, sucursal: prom.sucursal?.nombre ?? null,
       dispositivo: (req.headers.get('user-agent') ?? '').slice(0, 120),
     })
     .select('id')
@@ -123,10 +116,7 @@ export async function POST(req: Request) {
 
   if (error || !data) {
     console.error('[demo-providus] no se pudo guardar el registro', error?.code, error?.message);
-    // 42P01 = la tabla no existe: falta correr la migración 0087.
-    if (error?.code === '42P01' || /does not exist|schema cache/i.test(error?.message ?? '')) {
-      return falla('tabla', 503, 'Falta crear la tabla de la demo en Supabase (correr 0087_demo_providus.sql).');
-    }
+    if (tablaFaltante(error)) return falla('tabla', 503, FALTA_SQL);
     return falla('base', 502, `No se pudo guardar: ${error?.message ?? 'sin detalle'}`);
   }
 
@@ -134,27 +124,27 @@ export async function POST(req: Request) {
 }
 
 /**
- * Lectura para la pantalla central (/demo_providus/central): los últimos 50 registros
- * vivos y los ids dados de baja recientemente, para que la central también vea las bajas.
- * La base no se abre al navegador: se lee acá con la service role. La central consulta
- * esto cada ~1,5 s (la "red de seguridad" que no falla aunque el wifi sea malo).
+ * Lectura para la pantalla central (/demo_providus/central): los últimos 50 registros vivos
+ * con todos sus datos (cliente, promotora, sucursal y evento) y los ids dados de baja
+ * recientemente. Solo administración. La central consulta esto cada ~1,5 s.
  */
 export async function GET() {
-  let admin: ReturnType<typeof createSupabaseAdminClient>;
+  if (!esAdmin(sesionActual())) return falla('sesion', 401, 'Ingresá con la clave de administración.');
+  let admin: ReturnType<typeof db>;
   try {
-    admin = createSupabaseAdminClient();
+    admin = db();
   } catch {
     return falla('servidor', 503, 'El servidor no tiene acceso a la base (falta la clave de servicio).');
   }
-  const cols = 'id, creado_en, nombre, apellido, telefono, telefono_e164, provincia, localidad, foto_url, evento, promotora, vendedor_id';
+  const cols = 'id, creado_en, nombre, apellido, telefono, telefono_e164, provincia, localidad, foto_url, evento, evento_id, promotora, promotora_id, promotora_nombre, promotora_apellido, promotora_edad, promotora_foto_url, sucursal, vendedor_id';
   const [vivos, bajas] = await Promise.all([
-    (admin as any).from('demo_providus_registros').select(cols).eq('eliminado', false).order('creado_en', { ascending: false }).limit(50),
-    (admin as any).from('demo_providus_registros').select('id').eq('eliminado', true).order('creado_en', { ascending: false }).limit(50),
+    admin.from('demo_providus_registros').select(cols).eq('eliminado', false).order('creado_en', { ascending: false }).limit(50),
+    admin.from('demo_providus_registros').select('id').eq('eliminado', true).order('creado_en', { ascending: false }).limit(50),
   ]);
   const error = vivos.error ?? bajas.error;
   if (error) {
     console.error('[demo-providus] no se pudo listar', error.code, error.message);
-    if (error.code === '42P01') return falla('tabla', 503, 'Falta crear la tabla de la demo en Supabase (correr 0087_demo_providus.sql).');
+    if (tablaFaltante(error)) return falla('tabla', 503, FALTA_SQL);
     return falla('base', 502, `No se pudo leer la base: ${error.message}`);
   }
   return NextResponse.json(
