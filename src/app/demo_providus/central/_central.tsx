@@ -108,7 +108,7 @@ function Foto({ r }: { r: Registro }) {
     );
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={r.foto_url} alt="" onError={() => setFallo(true)} className="h-[72px] w-[72px] shrink-0 rounded-[10px] object-cover" />;
+  return <img src={r.foto_url} alt="" onError={() => setFallo(true)} className="h-[72px] w-[72px] shrink-0 rounded-[10px] bg-[var(--pv-bronce-800)] object-cover" />;
 }
 
 function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onConfirmar }: { item: Item; ahora: number; confirmando: boolean; errorBaja: string | null; onPedir: () => void; onCancelar: () => void; onConfirmar: () => void }) {
