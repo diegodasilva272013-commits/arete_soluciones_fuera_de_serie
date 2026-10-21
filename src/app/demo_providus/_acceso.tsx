@@ -8,7 +8,7 @@
  */
 
 import { useState } from 'react';
-import { PanelMarca } from './_orbita';
+import { PanelMarca } from './_panel';
 
 const ETIQUETA = 'mb-2 block text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--pv-tinta-2)]';
 const CAMPO = 'group flex h-[54px] items-center gap-3 rounded-[14px] bg-[var(--pv-aluminio-claro)] px-4 shadow-[inset_0_0_0_1px_rgba(38,29,20,0.09)] transition-[background-color,box-shadow] duration-500 ease-[var(--pv-ease)] focus-within:bg-white focus-within:shadow-[inset_0_0_0_1.5px_var(--pv-naranja)]';
@@ -56,7 +56,7 @@ function Cambio({ href, texto }: { href: string; texto: string }) {
 
 function Boton({ cargando, deshabilitado, texto }: { cargando: boolean; deshabilitado: boolean; texto: string }) {
   return (
-    <button type="submit" disabled={deshabilitado || cargando} className="pv-boton group mt-2 flex h-14 w-full items-center justify-between rounded-[14px] pl-6 pr-2 text-[#fff6ef] transition-[transform,background] duration-500 ease-[var(--pv-ease)] active:scale-[0.985] disabled:cursor-default disabled:text-[var(--pv-tinta-3)] disabled:active:scale-100">
+    <button type="submit" disabled={deshabilitado || cargando} className="pv-boton touch-manipulation group mt-2 flex h-14 w-full items-center justify-between rounded-[14px] pl-6 pr-2 text-[#fff6ef] transition-[transform,background] duration-500 ease-[var(--pv-ease)] active:scale-[0.985] disabled:cursor-default disabled:text-[var(--pv-tinta-3)] disabled:active:scale-100">
       <span className="pv-display text-[13px] uppercase tracking-[0.2em]">{cargando ? 'Ingresando…' : texto}</span>
       <span className="grid h-10 w-10 place-items-center rounded-[10px] bg-[#1a140d]/20 group-disabled:bg-transparent"><IcoFlecha /></span>
     </button>
@@ -95,7 +95,7 @@ export function LoginPromotora({ alListo }: { alListo: () => void }) {
           <span className={ETIQUETA}>Usuario</span>
           <span className={CAMPO}>
             <span className="text-[var(--pv-tinta-3)] group-focus-within:text-[var(--pv-naranja)]"><IcoPersona /></span>
-            <input className={ENTRADA} name="usuario" placeholder="tu.usuario" autoComplete="username" autoCapitalize="none" autoCorrect="off" value={usuario} onChange={(e) => setUsuario(e.target.value)} disabled={cargando} />
+            <input className={ENTRADA} name="usuario" placeholder="tu.usuario" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={usuario} onChange={(e) => setUsuario(e.target.value)} disabled={cargando} />
           </span>
         </label>
         <label className="pv-in block" style={{ ['--i' as string]: 3 }}>
