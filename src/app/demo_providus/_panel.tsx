@@ -56,7 +56,7 @@ export function PanelMarca() {
       <HeroLogo />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(26,20,13,0.95)_0,rgba(26,20,13,0.5)_34%,transparent_64%)]" aria-hidden="true" />
 
-      <div className="absolute inset-x-5 bottom-12 sm:inset-x-8 sm:bottom-6 lg:inset-x-12 lg:bottom-12" aria-hidden="true">
+      <div className="absolute inset-x-8 bottom-6 hidden sm:block lg:inset-x-12 lg:bottom-12" aria-hidden="true">
         <p className="mb-3.5 flex items-center gap-2.5 text-[13px] font-semibold text-[var(--pv-aluminio)]">
           <span className="relative flex h-2 w-2">
             <span className="pv-pulso absolute inset-0 rounded-full bg-[var(--pv-naranja-luz)]" />
@@ -70,7 +70,7 @@ export function PanelMarca() {
           {visibles.map((v, k) => (
             <li
               key={v.i}
-              className={`pv-carga items-center gap-3.5 rounded-[14px] bg-[rgba(26,20,13,0.64)] py-2.5 pl-2.5 pr-4 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.16),0_18px_40px_-18px_rgba(0,0,0,0.85)] ${k === 0 ? 'flex' : 'hidden sm:flex'}`}
+              className={`pv-carga items-center gap-3.5 rounded-[14px] bg-[rgba(26,20,13,0.64)] py-2.5 pl-2.5 pr-4 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.16),0_18px_40px_-18px_rgba(0,0,0,0.85)] flex`}
               style={{ opacity: k === 0 ? 1 : k === 1 ? 0.7 : 0.4 }}
             >
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--pv-bronce-700)] to-[var(--pv-bronce-800)] text-[14px] font-semibold text-[var(--pv-arena)] shadow-[inset_0_0_0_1px_rgba(227,197,142,0.35)]">{iniciales(v.quien)}</span>
