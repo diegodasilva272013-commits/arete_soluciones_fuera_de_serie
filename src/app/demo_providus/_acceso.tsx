@@ -8,7 +8,7 @@
  */
 
 import { useState } from 'react';
-import { HeroLogo } from './_hero';
+import { PanelMarca } from './_orbita';
 
 const ETIQUETA = 'mb-2 block text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--pv-tinta-2)]';
 const CAMPO = 'group flex h-[54px] items-center gap-3 rounded-[14px] bg-[var(--pv-aluminio-claro)] px-4 shadow-[inset_0_0_0_1px_rgba(38,29,20,0.09)] transition-[background-color,box-shadow] duration-500 ease-[var(--pv-ease)] focus-within:bg-white focus-within:shadow-[inset_0_0_0_1.5px_var(--pv-naranja)]';
@@ -17,13 +17,14 @@ const ENTRADA = 'h-full w-full min-w-0 bg-transparent text-[17px] font-medium te
 const ico = { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.25, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true } as const;
 const IcoPersona = () => (<svg {...ico}><circle cx="12" cy="8.5" r="3.6" /><path d="M4.8 19.6c1-3.4 3.9-5.3 7.2-5.3s6.2 1.9 7.2 5.3" /></svg>);
 const IcoCandado = () => (<svg {...ico}><rect x="5" y="10.4" width="14" height="10" rx="2.4" /><path d="M8.2 10.4V7.8a3.8 3.8 0 0 1 7.6 0v2.6" /></svg>);
+const IcoOjo = ({ tachado }: { tachado: boolean }) => (<svg {...ico}><path d="M2.8 12S6.2 5.8 12 5.8 21.2 12 21.2 12 17.8 18.2 12 18.2 2.8 12 2.8 12Z" /><circle cx="12" cy="12" r="2.8" />{tachado && <path d="M4 4l16 16" />}</svg>);
 const IcoFlecha = () => (<svg {...ico} width="18" height="18" strokeWidth="1.4"><path d="M4.5 12h14.2M13.2 6.5 18.7 12l-5.5 5.5" /></svg>);
 
 export function PantallaAcceso({ titulo, bajada, children }: { titulo: string; bajada: string; children: React.ReactNode }) {
   return (
     <div className="lg:grid lg:min-h-dvh lg:grid-cols-[minmax(0,1.15fr)_minmax(500px,0.85fr)]">
       <aside className="relative aspect-[4/3] w-full lg:sticky lg:top-0 lg:aspect-auto lg:h-dvh">
-        <HeroLogo />
+        <PanelMarca />
       </aside>
       <main className="pv-hoja relative -mt-8 flex w-full flex-col rounded-t-[32px] px-5 pb-10 pt-9 lg:mt-0 lg:min-h-dvh lg:justify-center lg:rounded-l-[40px] lg:rounded-tr-none lg:px-14 lg:py-14">
         <div className="mx-auto w-full max-w-[460px]">
@@ -33,6 +34,23 @@ export function PantallaAcceso({ titulo, bajada, children }: { titulo: string; b
         </div>
       </main>
     </div>
+  );
+}
+
+function CampoClave({ valor, alCambiar, deshabilitado, placeholder }: { valor: string; alCambiar: (v: string) => void; deshabilitado: boolean; placeholder: string }) {
+  const [ver, setVer] = useState(false);
+  return (
+    <span className={CAMPO}>
+      <span className="text-[var(--pv-tinta-3)] group-focus-within:text-[var(--pv-naranja)]"><IcoCandado /></span>
+      <input className={ENTRADA} name="clave" type={ver ? 'text' : 'password'} placeholder={placeholder} autoComplete="current-password" value={valor} onChange={(e) => alCambiar(e.target.value)} disabled={deshabilitado} />
+      <button type="button" onClick={() => setVer((v) => !v)} aria-label={ver ? 'Ocultar clave' : 'Mostrar clave'} aria-pressed={ver} className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] text-[var(--pv-tinta-3)] transition-colors hover:bg-[var(--pv-aluminio-sombra)] hover:text-[var(--pv-tinta)]"><IcoOjo tachado={ver} /></button>
+    </span>
+  );
+}
+
+function Cambio({ href, texto }: { href: string; texto: string }) {
+  return (
+    <a href={href} className="pv-in mt-7 inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.16em] text-[var(--pv-tinta-2)] transition-colors hover:text-[var(--pv-naranja)]" style={{ ['--i' as string]: 5 }}>{texto}<IcoFlecha /></a>
   );
 }
 
@@ -82,14 +100,12 @@ export function LoginPromotora({ alListo }: { alListo: () => void }) {
         </label>
         <label className="pv-in block" style={{ ['--i' as string]: 3 }}>
           <span className={ETIQUETA}>Clave</span>
-          <span className={CAMPO}>
-            <span className="text-[var(--pv-tinta-3)] group-focus-within:text-[var(--pv-naranja)]"><IcoCandado /></span>
-            <input className={ENTRADA} name="clave" type="password" placeholder="••••••" autoComplete="current-password" value={clave} onChange={(e) => setClave(e.target.value)} disabled={cargando} />
-          </span>
+          <CampoClave valor={clave} alCambiar={setClave} deshabilitado={cargando} placeholder="••••••" />
         </label>
         {error && <p role="alert" className="rounded-[14px] bg-[#f3d9d4] px-4 py-3 text-[13px] font-medium leading-snug text-[var(--pv-error)]">{error}</p>}
         <Boton cargando={cargando} deshabilitado={!usuario.trim() || !clave} texto="Ingresar" />
       </form>
+      <Cambio href="/demo_providus/admin" texto="Soy del equipo de Providus" />
     </PantallaAcceso>
   );
 }
@@ -123,14 +139,12 @@ export function LoginAdmin({ titulo, alListo }: { titulo: string; alListo: () =>
       <form onSubmit={entrar} className="flex flex-col gap-5">
         <label className="pv-in block" style={{ ['--i' as string]: 2 }}>
           <span className={ETIQUETA}>Clave de administración</span>
-          <span className={CAMPO}>
-            <span className="text-[var(--pv-tinta-3)] group-focus-within:text-[var(--pv-naranja)]"><IcoCandado /></span>
-            <input className={ENTRADA} name="clave" type="password" placeholder="••••••••" autoComplete="current-password" value={clave} onChange={(e) => setClave(e.target.value)} disabled={cargando} />
-          </span>
+          <CampoClave valor={clave} alCambiar={setClave} deshabilitado={cargando} placeholder="••••••••" />
         </label>
         {error && <p role="alert" className="rounded-[14px] bg-[#f3d9d4] px-4 py-3 text-[13px] font-medium leading-snug text-[var(--pv-error)]">{error}</p>}
         <Boton cargando={cargando} deshabilitado={!clave} texto="Ingresar" />
       </form>
+      <Cambio href="/demo_providus" texto="Soy promotora" />
     </PantallaAcceso>
   );
 }
