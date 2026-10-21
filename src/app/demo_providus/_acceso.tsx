@@ -43,14 +43,14 @@ function CampoClave({ valor, alCambiar, deshabilitado, placeholder }: { valor: s
     <span className={CAMPO}>
       <span className="text-[var(--pv-tinta-3)] group-focus-within:text-[var(--pv-naranja)]"><IcoCandado /></span>
       <input className={ENTRADA} name="clave" type={ver ? 'text' : 'password'} placeholder={placeholder} autoComplete="current-password" value={valor} onChange={(e) => alCambiar(e.target.value)} disabled={deshabilitado} />
-      <button type="button" onClick={() => setVer((v) => !v)} aria-label={ver ? 'Ocultar clave' : 'Mostrar clave'} aria-pressed={ver} className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] text-[var(--pv-tinta-3)] transition-colors hover:bg-[var(--pv-aluminio-sombra)] hover:text-[var(--pv-tinta)]"><IcoOjo tachado={ver} /></button>
+      <button type="button" onClick={() => setVer((v) => !v)} aria-label={ver ? 'Ocultar clave' : 'Mostrar clave'} aria-pressed={ver} className="grid h-11 w-11 shrink-0 place-items-center rounded-[10px] -mr-2 text-[var(--pv-tinta-3)] transition-colors hover:bg-[var(--pv-aluminio-sombra)] hover:text-[var(--pv-tinta)]"><IcoOjo tachado={ver} /></button>
     </span>
   );
 }
 
 function Cambio({ href, texto }: { href: string; texto: string }) {
   return (
-    <a href={href} className="pv-in mt-7 inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.16em] text-[var(--pv-tinta-2)] transition-colors hover:text-[var(--pv-naranja)]" style={{ ['--i' as string]: 5 }}>{texto}<IcoFlecha /></a>
+    <a href={href} className="pv-in mt-5 inline-flex min-h-11 items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.16em] text-[var(--pv-tinta-2)] transition-colors hover:text-[var(--pv-naranja)]" style={{ ['--i' as string]: 5 }}>{texto}<IcoFlecha /></a>
   );
 }
 

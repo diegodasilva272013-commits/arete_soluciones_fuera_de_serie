@@ -7,7 +7,7 @@
  * El giro es CSS puro: sin JavaScript, sin video, y se detiene con "reducir movimiento".
  */
 
-const t = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.3, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true } as const;
+const t = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true } as const;
 
 const ICONOS: Record<string, React.ReactNode> = {
   promotora: (
@@ -38,14 +38,14 @@ const ICONOS: Record<string, React.ReactNode> = {
 
 /** radio (px lógicos), duración (s), desfase (s), sentido y tamaño de cada insignia. */
 const ORBITA: { clave: keyof typeof ICONOS; etiqueta: string; radio: number; dur: number; desfase: number; inverso?: boolean; tam: number }[] = [
-  { clave: 'whatsapp', etiqueta: 'WhatsApp', radio: 168, dur: 38, desfase: 0, tam: 52 },
-  { clave: 'llamada', etiqueta: 'Llamada', radio: 168, dur: 38, desfase: 19, tam: 52 },
-  { clave: 'promotora', etiqueta: 'Promotora', radio: 236, dur: 54, desfase: 0, inverso: true, tam: 64 },
-  { clave: 'datos', etiqueta: 'Datos', radio: 236, dur: 54, desfase: 18, inverso: true, tam: 56 },
-  { clave: 'instagram', etiqueta: 'Instagram', radio: 236, dur: 54, desfase: 36, inverso: true, tam: 52 },
-  { clave: 'envivo', etiqueta: 'En vivo', radio: 304, dur: 72, desfase: 0, tam: 56 },
-  { clave: 'tiempoReal', etiqueta: 'Tiempo real', radio: 304, dur: 72, desfase: 24, tam: 52 },
-  { clave: 'crm', etiqueta: 'CRM', radio: 304, dur: 72, desfase: 48, tam: 60 },
+  { clave: 'whatsapp', etiqueta: 'WhatsApp', radio: 168, dur: 38, desfase: 0, tam: 58 },
+  { clave: 'llamada', etiqueta: 'Llamada', radio: 168, dur: 38, desfase: 19, tam: 58 },
+  { clave: 'promotora', etiqueta: 'Promotora', radio: 236, dur: 54, desfase: 0, inverso: true, tam: 70 },
+  { clave: 'datos', etiqueta: 'Datos', radio: 236, dur: 54, desfase: 18, inverso: true, tam: 62 },
+  { clave: 'instagram', etiqueta: 'Instagram', radio: 236, dur: 54, desfase: 36, inverso: true, tam: 58 },
+  { clave: 'envivo', etiqueta: 'En vivo', radio: 304, dur: 72, desfase: 0, tam: 62 },
+  { clave: 'tiempoReal', etiqueta: 'Tiempo real', radio: 304, dur: 72, desfase: 24, tam: 58 },
+  { clave: 'crm', etiqueta: 'CRM', radio: 304, dur: 72, desfase: 48, tam: 66 },
 ];
 
 export function PanelMarca() {
@@ -58,7 +58,7 @@ export function PanelMarca() {
         {ORBITA.map((o) => (
           <span key={o.clave} className="pv-giro" style={{ ['--r' as string]: `${o.radio}px`, ['--d' as string]: `${o.dur}s`, ['--o' as string]: `${-o.desfase}s`, ['--ang' as string]: `${Math.round((o.desfase / o.dur) * 360 * (o.inverso ? -1 : 1))}deg`, animationDirection: o.inverso ? 'reverse' : 'normal' }}>
             <span className="pv-insignia" title={o.etiqueta} style={{ width: o.tam, height: o.tam, animationDirection: o.inverso ? 'normal' : 'reverse' }}>
-              <span className="pv-insignia-ico" style={{ width: o.tam * 0.46, height: o.tam * 0.46 }}>{ICONOS[o.clave]}</span>
+              <span className="pv-insignia-ico" style={{ width: o.tam * 0.54, height: o.tam * 0.54 }}>{ICONOS[o.clave]}</span>
             </span>
           </span>
         ))}
