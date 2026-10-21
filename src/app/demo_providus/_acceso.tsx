@@ -23,7 +23,7 @@ const IcoFlecha = () => (<svg {...ico} width="18" height="18" strokeWidth="1.4">
 export function PantallaAcceso({ titulo, bajada, children }: { titulo: string; bajada: string; children: React.ReactNode }) {
   return (
     <div className="lg:grid lg:min-h-dvh lg:grid-cols-[minmax(0,1.15fr)_minmax(500px,0.85fr)]">
-      <aside className="relative aspect-[4/3] w-full lg:sticky lg:top-0 lg:aspect-auto lg:h-dvh">
+      <aside className="relative aspect-[5/4] w-full lg:sticky lg:top-0 lg:aspect-auto lg:h-dvh">
         <PanelMarca />
       </aside>
       <main className="pv-hoja relative -mt-8 flex w-full flex-col rounded-t-[32px] px-5 pb-10 pt-9 lg:mt-0 lg:min-h-dvh lg:justify-center lg:rounded-l-[40px] lg:rounded-tr-none lg:px-14 lg:py-14">
