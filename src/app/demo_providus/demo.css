@@ -276,3 +276,6 @@ html:has(.providus-demo) {
 @media (max-height: 860px) {
   .pv-carga-extra { display: none; }
 }
+@media (max-width: 1023px) {
+  .pv-carga-extra { display: none; }
+}

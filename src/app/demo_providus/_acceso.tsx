@@ -11,15 +11,22 @@
 
 import { useState } from 'react';
 import { AuthTabs, Ripple, TechOrbitDisplay } from '@/components/ui/modern-animated-sign-in';
-import { HeroLogo } from './_hero';
 import { CargasEnVivo, ICONOS_ORBITA } from './_panel';
 
 function Pantalla({ children }: { children: React.ReactNode }) {
   return (
     <div className="pv-login dark bg-background text-foreground">
-      {/* Celular: el video del logo arriba */}
-      <div className="relative aspect-[5/3] w-full lg:hidden">
-        <HeroLogo />
+      {/* Celular: la misma órbita, achicada, y la última carga abajo */}
+      <div className="lg:hidden">
+        <div className="relative h-[330px] w-full overflow-hidden bg-[#21190f]">
+          <div className="absolute left-1/2 top-1/2 h-[680px] w-[720px] -translate-x-1/2 -translate-y-1/2 scale-[0.48] sm:scale-[0.6]">
+            <Ripple mainCircleSize={100} className="max-w-full" />
+            <TechOrbitDisplay iconsArray={ICONOS_ORBITA} text="Providus" textClassName="text-9xl" />
+          </div>
+        </div>
+        <div className="flex justify-center bg-[#21190f] px-5 pb-6">
+          <CargasEnVivo />
+        </div>
       </div>
       <section className="flex max-lg:justify-center">
         {/* Izquierda */}
