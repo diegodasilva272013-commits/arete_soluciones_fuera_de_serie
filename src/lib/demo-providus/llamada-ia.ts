@@ -66,6 +66,54 @@ export function variablesDelAgente(d: DatosLlamada): Record<string, string> {
   };
 }
 
+/** "+5493415551234" → "3 4 1, 5 5 5, 1 2 3 4": dígito por dígito y con pausas, para que se entienda al dictarlo. */
+export function telefonoConPausas(e164: string): string {
+  const d = e164.replace(/\D/g, '');
+  const nac = d.startsWith('549') ? d.slice(3) : d.startsWith('54') ? d.slice(2) : d;
+  const trozos: string[] = [];
+  for (let i = 0; i < nac.length; i += 3) trozos.push(nac.slice(i, i + 3));
+  if (trozos.length > 1 && trozos[trozos.length - 1].length === 1) trozos.splice(-2, 2, trozos[trozos.length - 2] + trozos[trozos.length - 1]);
+  return trozos.map((t) => t.split('').join(' ')).join(', ');
+}
+
+/**
+ * Lo que dice el agente en cada aviso. Se manda en cada llamada (override del primer mensaje y del prompt) con los datos
+ * ya escritos, así el aviso es siempre este y no el guion de atención entrante del agente. Requiere que el agente tenga
+ * activados los overrides (botón "Activar" de la pestaña Probar agente).
+ */
+export function guionDelAviso(d: DatosLlamada): { primerMensaje: string; prompt: string } {
+  const lugar = [d.cliente.localidad, d.cliente.provincia].filter(Boolean).join(', ');
+  const cliente = `${d.cliente.nombre} ${d.cliente.apellido}`.trim();
+  const tel = telefonoConPausas(d.cliente.telefono_e164);
+  const origen = [d.promotora ? `Lo cargó ${d.promotora}` : '', d.evento ? `en ${d.evento}` : ''].filter(Boolean).join(' ');
+  const primerMensaje = `Hola ${d.vendedor.nombre}, te habla Sofía, de Providus. Te aviso que acaba de entrar un dato nuevo de tu zona: ${cliente}, de ${lugar}. Su teléfono es ${tel}.${origen ? ` ${origen}.` : ''} Ya lo tenés en tu pantalla: llamalo ahora. ¿Me confirmás que lo recibiste?`;
+  const prompt = [
+    'Sos Sofía, la asistente de voz de Providus. Estás llamando por teléfono a un VENDEDOR de la empresa para avisarle que entró un dato nuevo de su zona. No hablás con un cliente: hablás con un compañero de trabajo.',
+    `Vendedor: ${d.vendedor.nombre}.`,
+    `Dato nuevo: ${cliente}. Teléfono: ${tel}. Lugar: ${lugar}.${d.promotora ? ` Lo cargó ${d.promotora}.` : ''}${d.evento ? ` Evento: ${d.evento}.` : ''}`,
+    'Tu objetivo es que el vendedor anote el teléfono y llame al dato enseguida.',
+    'Hablá en español rioplatense, cordial, directa y con frases cortas. Si te pide repetir el teléfono, repetilo despacio, dígito por dígito. Si te pregunta algo que no sabés, decile que lo mire en su pantalla de vendedor. No inventes datos ni ofrezcas productos.',
+    'Cuando el vendedor confirme que lo recibió, despedite brevemente y terminá la llamada.',
+  ].join('\n');
+  return { primerMensaje, prompt };
+}
+
+/** ¿El agente permite que cada llamada traiga su propio primer mensaje, prompt e idioma? */
+export function overridesActivos(agente: unknown): { primer_mensaje: boolean; prompt: boolean; idioma: boolean } {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const a = (agente as any)?.platform_settings?.overrides?.conversation_config_override?.agent;
+  return { primer_mensaje: a?.first_message === true, prompt: a?.prompt?.prompt === true, idioma: a?.language === true };
+}
+
+/** Los overrides actuales del agente más los tres que necesitamos activados (se conserva todo lo demás). */
+export function overridesParaActivar(agente: unknown): Record<string, unknown> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const base = (agente as any)?.platform_settings?.overrides ?? {};
+  const conv = base.conversation_config_override ?? {};
+  const ag = conv.agent ?? {};
+  return { ...base, conversation_config_override: { ...conv, agent: { ...ag, first_message: true, language: true, prompt: { ...(ag.prompt ?? {}), prompt: true } } } };
+}
+
 export function armarPedido(cfg: ConfigIA, d: DatosLlamada) {
   return {
     url: 'https://api.elevenlabs.io/v1/convai/twilio/outbound-call',
@@ -76,7 +124,10 @@ export function armarPedido(cfg: ConfigIA, d: DatosLlamada) {
         agent_id: cfg.agentId,
         agent_phone_number_id: cfg.phoneNumberId,
         to_number: d.vendedor.telefono_e164,
-        conversation_initiation_client_data: { dynamic_variables: variablesDelAgente(d) },
+        conversation_initiation_client_data: {
+          dynamic_variables: variablesDelAgente(d),
+          conversation_config_override: { agent: { first_message: guionDelAviso(d).primerMensaje, prompt: { prompt: guionDelAviso(d).prompt }, language: 'es' } },
+        },
         telephony_call_config: { ringing_timeout_secs: 30 },
       }),
     },
@@ -94,7 +145,8 @@ export async function iniciarLlamada(d: DatosLlamada, opciones: { cfg?: ConfigIA
     const r = await (opciones.fetchFn ?? fetch)(url, { ...init, signal: control.signal });
     const cuerpo = (await r.json().catch(() => null)) as { success?: boolean; message?: string; conversation_id?: string | null; callSid?: string | null; detail?: unknown } | null;
     if (!r.ok || cuerpo?.success === false) {
-      const detalle = cuerpo?.message || (typeof cuerpo?.detail === 'string' ? cuerpo.detail : '') || `ElevenLabs respondió ${r.status}.`;
+      const det = cuerpo?.detail as { message?: string } | string | undefined;
+      const detalle = cuerpo?.message || (typeof det === 'string' ? det : det?.message) || `ElevenLabs respondió ${r.status}.`;
       return { estado: 'fallida', error: String(detalle).slice(0, 300) };
     }
     return { estado: 'llamando', ref: cuerpo?.conversation_id ?? cuerpo?.callSid ?? null };

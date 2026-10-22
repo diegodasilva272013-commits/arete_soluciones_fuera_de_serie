@@ -11,7 +11,7 @@ import { esAdmin, permitirIntento, sesionActual } from '@/lib/demo-providus/sesi
 import { falla, ipDe } from '@/lib/demo-providus/datos';
 import { normalizarTelefono } from '@/lib/demo-providus/telefono';
 import { PROVINCIAS_AR } from '@/lib/demo-providus/provincias';
-import { configIA, iniciarLlamada, variablesDelAgente, type DatosLlamada } from '@/lib/demo-providus/llamada-ia';
+import { configIA, iniciarLlamada, overridesActivos, variablesDelAgente, type DatosLlamada } from '@/lib/demo-providus/llamada-ia';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
@@ -47,7 +47,7 @@ export async function GET() {
     ok: true,
     listo: ag.status === 200 && num.status === 200,
     hay,
-    agente: ag.status === 200 ? { ok: true, nombre: a?.name ?? null, idioma: a?.conversation_config?.agent?.language ?? null, primer_mensaje: a?.conversation_config?.agent?.first_message ?? null, variables, sin_enviar: variables.filter((v) => !enviadas.includes(v)) } : { ok: false, status: ag.status, detalle: motivo(ag.cuerpo) },
+    agente: ag.status === 200 ? { ok: true, nombre: a?.name ?? null, idioma: a?.conversation_config?.agent?.language ?? null, primer_mensaje: a?.conversation_config?.agent?.first_message ?? null, personalizacion: overridesActivos(ag.cuerpo), variables, sin_enviar: variables.filter((v) => !enviadas.includes(v)) } : { ok: false, status: ag.status, detalle: motivo(ag.cuerpo) },
     numero: num.status === 200 ? { ok: true, numero: n?.phone_number ?? null, etiqueta: n?.label ?? null, saliente: n?.supports_outbound ?? null, agente_asignado: n?.assigned_agent?.agent_id ?? null } : { ok: false, status: num.status, detalle: motivo(num.cuerpo) },
   }, { headers: { 'Cache-Control': 'no-store' } });
 }

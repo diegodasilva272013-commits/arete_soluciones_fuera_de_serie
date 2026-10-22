@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { elegirVendedor, type VendedorZona } from './asignacion';
-import { armarPedido, configIA, iniciarLlamada, telefonoDictado, variablesDelAgente, type DatosLlamada } from './llamada-ia';
+import { armarPedido, configIA, guionDelAviso, iniciarLlamada, overridesActivos, overridesParaActivar, telefonoConPausas, telefonoDictado, variablesDelAgente, type DatosLlamada } from './llamada-ia';
 
 const v = (id: string, extra: Partial<VendedorZona> = {}): VendedorZona => ({
   id, nombre: id, apellido: 'X', telefono_e164: '+5493450000000', provincias: ['Santa Fe'], recibe_resto: false, llamar_ia: true, activo: true, ultima_asignacion: null, ...extra,
@@ -51,6 +51,33 @@ describe('llamada de IA', () => {
   it('dicta el teléfono dígito por dígito sin el 54 9', () => {
     expect(telefonoDictado('+5493415001234')).toBe('3 4 1 5 0 0 1 2 3 4');
   });
+  it('detecta si el agente permite personalizar cada llamada', () => {
+    expect(overridesActivos({})).toEqual({ primer_mensaje: false, prompt: false, idioma: false });
+    const agente = { platform_settings: { overrides: { conversation_config_override: { agent: { first_message: true, language: true, prompt: { prompt: true } } } } } };
+    expect(overridesActivos(agente)).toEqual({ primer_mensaje: true, prompt: true, idioma: true });
+  });
+  it('al activar la personalización se conserva todo lo que el agente ya tenía', () => {
+    const agente = { platform_settings: { overrides: { enable_conversation_initiation_client_data_from_webhook: true, conversation_config_override: { tts: { voice_id: true }, agent: { prompt: { llm: true } } } } } };
+    const nuevo = overridesParaActivar(agente) as { enable_conversation_initiation_client_data_from_webhook: boolean; conversation_config_override: { tts: unknown; agent: { first_message: boolean; language: boolean; prompt: { llm: boolean; prompt: boolean } } } };
+    expect(nuevo.enable_conversation_initiation_client_data_from_webhook).toBe(true);
+    expect(nuevo.conversation_config_override.tts).toEqual({ voice_id: true });
+    expect(nuevo.conversation_config_override.agent).toEqual({ first_message: true, language: true, prompt: { llm: true, prompt: true } });
+    expect(overridesParaActivar({})).toEqual({ conversation_config_override: { agent: { first_message: true, language: true, prompt: { prompt: true } } } });
+  });
+  it('el guion del aviso trae los datos reales y no deja marcadores sin completar', () => {
+    const g = guionDelAviso(datos);
+    expect(telefonoConPausas('+5493415001234')).toBe('3 4 1, 5 0 0, 1 2 3 4');
+    expect(g.primerMensaje).toContain('Diego');
+    expect(g.primerMensaje).toContain('Marcos Aguirre');
+    expect(g.primerMensaje).toContain('Rosario, Santa Fe');
+    expect(g.primerMensaje).toContain('3 4 1, 5 0 0, 1 2 3 4');
+    expect(g.primerMensaje).toContain('Laura Pérez');
+    expect(g.primerMensaje + g.prompt).not.toMatch(/\{\{|undefined|null/);
+    // si faltan datos opcionales, no queda texto roto
+    const sin = guionDelAviso({ ...datos, promotora: null, evento: null, cliente: { ...datos.cliente, localidad: null } });
+    expect(sin.primerMensaje).toContain('de Santa Fe.');
+    expect(sin.primerMensaje).not.toContain('Lo cargó');
+  });
   it('arma el pedido de ElevenLabs con las variables anidadas', () => {
     const { url, init } = armarPedido(cfg, datos);
     expect(url).toBe('https://api.elevenlabs.io/v1/convai/twilio/outbound-call');
@@ -66,6 +93,11 @@ describe('llamada de IA', () => {
     expect(v.prospecto_nombre).toBe('Marcos');
     expect(v.vendedor_nombre).toBe('Diego');
     expect(v.telefono_e164).toBe('+5493415001234');
+    // el guion de este aviso viaja en cada llamada (override), así no se usa el de atención entrante del agente
+    const ov = b.conversation_initiation_client_data.conversation_config_override.agent;
+    expect(ov.first_message).toContain('Marcos Aguirre');
+    expect(ov.prompt.prompt).toContain('VENDEDOR');
+    expect(ov.language).toBe('es');
   });
   it('sin configuración se omite y no llama a nadie', async () => {
     let llamados = 0;

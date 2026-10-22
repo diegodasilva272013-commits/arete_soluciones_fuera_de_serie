@@ -369,7 +369,7 @@ interface Diagnostico {
   listo: boolean;
   hay: { clave: boolean; agente: boolean; numero: boolean };
   detalle?: string;
-  agente?: { ok: true; nombre: string | null; idioma: string | null; primer_mensaje: string | null; variables: string[]; sin_enviar: string[] } | { ok: false; status: number; detalle: string };
+  agente?: { ok: true; nombre: string | null; idioma: string | null; primer_mensaje: string | null; personalizacion: { primer_mensaje: boolean; prompt: boolean; idioma: boolean }; variables: string[]; sin_enviar: string[] } | { ok: false; status: number; detalle: string };
   numero?: { ok: true; numero: string | null; etiqueta: string | null; saliente: boolean | null; agente_asignado: string | null } | { ok: false; status: number; detalle: string };
 }
 interface ResultadoPrueba { ok: boolean; estado: string; ref: string | null; detalle: string | null; llamado_a: string; variables: Record<string, string> }
@@ -390,6 +390,19 @@ function ProbarAgente({ alVencer }: { alVencer: () => void }) {
   const [llamando, setLlamando] = useState(false);
   const [resultado, setResultado] = useState<ResultadoPrueba | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activando, setActivando] = useState(false);
+
+  async function activarPersonalizacion() {
+    setActivando(true); setErrorDiag(null);
+    try {
+      const r = await fetch('/api/demo-providus/admin/agente/configurar', { method: 'POST' });
+      if (r.status === 401) { alVencer(); return; }
+      const d = (await r.json().catch(() => null)) as { ok?: boolean; detalle?: string } | null;
+      if (!r.ok || !d?.ok) throw new Error(d?.detalle || `El servidor respondió ${r.status}.`);
+      await comprobar();
+    } catch (e) { setErrorDiag(e instanceof Error ? e.message : String(e)); }
+    finally { setActivando(false); }
+  }
 
   const comprobar = useCallback(async () => {
     setCargandoDiag(true); setErrorDiag(null);
@@ -431,6 +444,9 @@ function ProbarAgente({ alVencer }: { alVencer: () => void }) {
               {ag && (ag.ok
                 ? <Marca ok>Agente encontrado: <strong className="text-[#ebe6dd]">{ag.nombre ?? 'sin nombre'}</strong>{ag.idioma ? ` (${ag.idioma})` : ''}.</Marca>
                 : <Marca ok={false}>ElevenLabs no reconoce el agente ({ag.status}): {ag.detalle}. Si la clave es de otra cuenta, no lo va a encontrar.</Marca>)}
+              {ag && ag.ok && (ag.personalizacion.primer_mensaje && ag.personalizacion.prompt && ag.personalizacion.idioma
+                ? <Marca ok>El agente deja que cada aviso lleve su propio guion con los datos del lead.</Marca>
+                : <Marca ok={false}>El agente todavía no permite que cada llamada lleve su propio guion. Sin eso, el aviso al vendedor usaría el saludo de atención entrante. <button type="button" onClick={() => void activarPersonalizacion()} disabled={activando} className="ml-1 rounded-full px-3 py-1 text-[12.5px] font-semibold text-[#fff6ef] pv-boton">{activando ? 'Activando…' : 'Activar ahora'}</button></Marca>)}
               {nu && (nu.ok
                 ? <Marca ok={nu.saliente !== false}>Número de Twilio: <strong className="text-[#ebe6dd]">{nu.numero ?? nu.etiqueta ?? 'sin dato'}</strong>{nu.saliente === false ? '. No admite llamadas salientes.' : '. Admite llamadas salientes.'}</Marca>
                 : <Marca ok={false}>ElevenLabs no reconoce el número ({nu.status}): {nu.detalle}.</Marca>)}
@@ -439,7 +455,7 @@ function ProbarAgente({ alVencer }: { alVencer: () => void }) {
           )}
           {ag && ag.ok && (
             <div className="mt-6 rounded-2xl bg-[#17120e] p-4 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.12)]">
-              <p className="text-[13px] font-medium text-[#b4a892]">Lo primero que dice el agente</p>
+              <p className="text-[13px] font-medium text-[#b4a892]">Saludo de atención entrante del agente (el aviso al vendedor trae su propio guion)</p>
               <p className="mt-2 text-[14.5px] leading-relaxed text-[#ebe6dd]">{ag.primer_mensaje ? `“${ag.primer_mensaje}”` : 'El agente no tiene primer mensaje configurado: no va a hablar primero.'}</p>
               {ag.variables.length > 0 && <p className="mt-3 text-[12.5px] text-[#8a7a64]">Variables que usa: {ag.variables.join(', ')}</p>}
               {ag.sin_enviar.length > 0 && <p role="alert" className="mt-2 text-[12.5px] font-medium text-[#f08a73]">El agente usa variables que el sistema no manda: {ag.sin_enviar.join(', ')}. Con eso ElevenLabs puede rechazar la llamada.</p>}
