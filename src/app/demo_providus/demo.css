@@ -8,10 +8,10 @@
  */
 .providus-demo {
   /* bronce: la pared del logo */
-  --pv-bronce-950: #1a140d;
-  --pv-bronce-900: #261d14;
-  --pv-bronce-800: #33281c;
-  --pv-bronce-700: #43362a;
+  --pv-bronce-950: #070605;
+  --pv-bronce-900: #0e0c0a;
+  --pv-bronce-800: #181410;
+  --pv-bronce-700: #241e18;
   --pv-bronce-500: #8a7a64;
 
   /* luz: el haz cálido */
@@ -263,12 +263,12 @@ html:has(.providus-demo) {
 
 /* Variables del formulario animado (modern-animated-sign-in), en bronce del logo. Solo dentro del ingreso. */
 .pv-login {
-  --background: #1a140d;
+  --background: #070605;
   --foreground: #ffffff;
-  --skeleton: #43362a;
-  --border: #43362a;
-  --btn-border: #43362a;
-  --input: #2b2118;
+  --skeleton: #1c1713;
+  --border: #2a211a;
+  --btn-border: #2a211a;
+  --input: #17120e;
   min-height: 100dvh;
 }
 
@@ -278,4 +278,25 @@ html:has(.providus-demo) {
 }
 @media (max-width: 1023px) {
   .pv-carga-extra { display: none; }
+}
+
+/* Escena del ingreso: negro profundo con el brillo naranja del logo detrás (referencia: providus_logo_app). */
+.pv-escena {
+  background:
+    radial-gradient(52% 34% at 50% 46%, rgba(224, 96, 58, 0.2), transparent 72%),
+    radial-gradient(90% 60% at 50% 110%, rgba(201, 75, 39, 0.1), transparent 70%),
+    #070605;
+}
+/* El logo viene con fondo negro: "screen" lo funde con la escena y deja solo la luz y las letras. */
+.pv-logo-app {
+  mix-blend-mode: screen;
+  -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
+  filter: drop-shadow(0 0 28px rgba(224, 96, 58, 0.35));
+}
+/* Anillos finos con brillo naranja, sin relleno. */
+.pv-login .animate-ripple {
+  background: transparent !important;
+  border-color: rgba(224, 96, 58, 0.28) !important;
+  box-shadow: 0 0 22px rgba(224, 96, 58, 0.1), inset 0 0 22px rgba(224, 96, 58, 0.05);
 }

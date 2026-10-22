@@ -18,22 +18,32 @@ function Pantalla({ children }: { children: React.ReactNode }) {
     <div className="pv-login dark bg-background text-foreground">
       {/* Celular: la misma órbita, achicada, y la última carga abajo */}
       <div className="lg:hidden">
-        <div className="relative h-[330px] w-full overflow-hidden bg-[#21190f]">
+        <div className="pv-escena relative h-[330px] w-full overflow-hidden">
           <div className="absolute left-1/2 top-1/2 h-[680px] w-[720px] -translate-x-1/2 -translate-y-1/2 scale-[0.48] sm:scale-[0.6]">
             <Ripple mainCircleSize={100} className="max-w-full" />
-            <TechOrbitDisplay iconsArray={ICONOS_ORBITA} text="Providus" textClassName="text-9xl" />
+            <TechOrbitDisplay iconsArray={ICONOS_ORBITA} center={
+              <span className="pointer-events-none relative z-10 mx-auto block w-[80%] max-w-[600px]" aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/demo-providus/logo-app.jpg" alt="Providus, S.A. de Capitalización y Renta" width={966} height={181} className="pv-logo-app block h-auto w-full" />
+            </span>
+            } />
           </div>
         </div>
-        <div className="flex justify-center bg-[#21190f] px-5 pb-6">
+        <div className="pv-escena flex justify-center px-5 pb-6">
           <CargasEnVivo />
         </div>
       </div>
       <section className="flex max-lg:justify-center">
         {/* Izquierda */}
-        <span className="relative flex h-dvh w-1/2 flex-col bg-[#21190f] shadow-[inset_-1px_0_0_rgba(227,197,142,0.14)] max-lg:hidden">
+        <span className="relative flex h-dvh w-1/2 flex-col pv-escena shadow-[inset_-1px_0_0_rgba(224,96,58,0.18)] max-lg:hidden">
           <span className="relative flex-1">
             <Ripple mainCircleSize={100} className="max-w-full" />
-            <TechOrbitDisplay iconsArray={ICONOS_ORBITA} text="Providus" textClassName="text-8xl xl:text-9xl" />
+            <TechOrbitDisplay iconsArray={ICONOS_ORBITA} center={
+              <span className="pointer-events-none relative z-10 mx-auto block w-[88%] max-w-[640px]" aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/demo-providus/logo-app.jpg" alt="Providus, S.A. de Capitalización y Renta" width={966} height={181} className="pv-logo-app block h-auto w-full" />
+            </span>
+            } />
           </span>
           <span className="flex justify-center px-10 pb-10">
             <CargasEnVivo />

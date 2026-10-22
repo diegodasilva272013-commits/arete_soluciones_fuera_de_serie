@@ -292,18 +292,22 @@ type TechnologyOrbitDisplayProps = {
   iconsArray: IconConfig[];
   text?: string;
   textClassName?: string;
+  center?: ReactNode; // reemplaza al texto central (por ejemplo, el logo)
 };
 
 const TechOrbitDisplay = memo(function TechOrbitDisplay({
   iconsArray,
   text = 'Animated Login',
   textClassName = 'text-7xl',
+  center,
 }: TechnologyOrbitDisplayProps) {
   return (
     <section className='relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg'>
+      {center ?? (
       <span className={cn('pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-black to-gray-300/80 bg-clip-text text-center font-semibold leading-none text-transparent dark:from-white dark:to-slate-900/10', textClassName)}>
         {text}
       </span>
+      )}
 
       {iconsArray.map((icon, index) => (
         <OrbitingCircles

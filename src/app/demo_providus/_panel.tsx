@@ -62,7 +62,7 @@ export function CargasEnVivo() {
         {visibles.map((v, k) => (
           <li
             key={v.i}
-            className={`pv-carga flex items-center gap-3.5 rounded-[14px] bg-[rgba(26,20,13,0.64)] py-2.5 pl-2.5 pr-4 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.16),0_18px_40px_-18px_rgba(0,0,0,0.85)] ${k > 0 ? 'pv-carga-extra' : ''}`}
+            className={`pv-carga flex items-center gap-3.5 rounded-[14px] bg-[rgba(10,8,6,0.72)] py-2.5 pl-2.5 pr-4 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.16),0_18px_40px_-18px_rgba(0,0,0,0.85)] ${k > 0 ? 'pv-carga-extra' : ''}`}
             style={{ opacity: k === 0 ? 1 : k === 1 ? 0.7 : 0.4 }}
           >
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--pv-bronce-700)] to-[var(--pv-bronce-800)] text-[14px] font-semibold text-[var(--pv-arena)] shadow-[inset_0_0_0_1px_rgba(227,197,142,0.35)]">{iniciales(v.quien)}</span>
@@ -86,7 +86,8 @@ export function CargasEnVivo() {
 
 // ── íconos que giran: círculos de color con el glifo en blanco ──
 const Disco = ({ fondo, children }: { fondo: string; children: React.ReactNode }) => (
-  <span className="relative block h-full w-full rounded-full text-white shadow-[0_6px_16px_-6px_rgba(0,0,0,0.7)]" style={{ background: fondo }} aria-hidden="true">
+  <span className="relative block h-full w-full rounded-full text-white shadow-[0_8px_18px_-6px_rgba(0,0,0,0.9),0_0_22px_-6px_var(--glow,rgba(224,96,58,0.5)),inset_0_0_0_1px_rgba(255,255,255,0.22)]" style={{ background: fondo }} aria-hidden="true">
+    <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_22%,rgba(255,255,255,0.42),transparent_52%)]" />
     <span className="absolute inset-[24%] block [&>svg]:h-full [&>svg]:w-full">{children}</span>
   </span>
 );
@@ -103,11 +104,11 @@ const IG = 'linear-gradient(45deg, #feda75, #fa7e1e 30%, #d62976 62%, #4f5bd5)';
 
 export const ICONOS_ORBITA = [
   { component: disco('#25d366', MARCA.WhatsApp), className: 'size-[30px] border-none bg-transparent', duration: 20, delay: 20, radius: 100, path: false, reverse: false },
-  { component: disco('#b89a6a', MARCA.Llamada), className: 'size-[30px] border-none bg-transparent', duration: 20, delay: 10, radius: 100, path: false, reverse: false },
-  { component: disco('#c94b27', GLIFO.promotora), className: 'size-[50px] border-none bg-transparent', radius: 210, duration: 20, path: false, reverse: false },
-  { component: disco('#8a7a64', GLIFO.datos), className: 'size-[50px] border-none bg-transparent', radius: 210, duration: 20, delay: 20, path: false, reverse: false },
+  { component: disco('linear-gradient(145deg,#d9bb85,#a98650)', MARCA.Llamada), className: 'size-[30px] border-none bg-transparent', duration: 20, delay: 10, radius: 100, path: false, reverse: false },
+  { component: disco('linear-gradient(145deg,#f0562a,#c23a14)', GLIFO.promotora), className: 'size-[50px] border-none bg-transparent', radius: 210, duration: 20, path: false, reverse: false },
+  { component: disco('linear-gradient(145deg,#d3b27a,#a07f4c)', GLIFO.datos), className: 'size-[50px] border-none bg-transparent', radius: 210, duration: 20, delay: 20, path: false, reverse: false },
   { component: disco(IG, MARCA.Instagram), className: 'size-[30px] border-none bg-transparent', duration: 20, delay: 20, radius: 150, path: false, reverse: true },
-  { component: disco('#e0603a', GLIFO.tiempoReal), className: 'size-[30px] border-none bg-transparent', duration: 20, delay: 10, radius: 150, path: false, reverse: true },
-  { component: disco('#d93a2b', GLIFO.envivo), className: 'size-[50px] border-none bg-transparent', radius: 270, duration: 20, path: false, reverse: true },
-  { component: disco('#43362a', MARCA.CRM), className: 'size-[50px] border-none bg-transparent', radius: 270, duration: 20, delay: 60, path: false, reverse: true },
+  { component: disco('linear-gradient(145deg,#f27a3c,#dc5521)', GLIFO.tiempoReal), className: 'size-[30px] border-none bg-transparent', duration: 20, delay: 10, radius: 150, path: false, reverse: true },
+  { component: disco('linear-gradient(145deg,#f0443a,#c8211a)', GLIFO.envivo), className: 'size-[50px] border-none bg-transparent', radius: 270, duration: 20, path: false, reverse: true },
+  { component: disco('linear-gradient(145deg,#4a4a4e,#1d1d20)', MARCA.CRM), className: 'size-[50px] border-none bg-transparent', radius: 270, duration: 20, delay: 60, path: false, reverse: true },
 ];
