@@ -159,7 +159,7 @@ function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onCon
         ) : (
           <span className="mt-1 flex items-center gap-3">
             <span
-              className={`pv-datos rounded-[3px] px-2 py-[3px] text-[10px] uppercase tracking-[0.18em] ${
+              className={`pv-datos rounded-[3px] px-2 py-[3px] text-[10px] uppercase tracking-[0.18em] ${!nuevo && !r.vendedor_id ? 'max-lg:hidden' : ''} ${
                 nuevo ? 'bg-[var(--pv-naranja)] text-[#fff6ef] shadow-[inset_0_0_0_1px_var(--pv-naranja)]' : 'text-[var(--pv-sec)] shadow-[inset_0_0_0_1px_rgba(180,168,146,0.45)]'
               }`}
             >
