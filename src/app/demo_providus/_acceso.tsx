@@ -65,6 +65,15 @@ async function pedirIngreso(url: string, cuerpo: Record<string, string>) {
   if (!r.ok || !d?.ok) throw new Error(d?.detalle || `El servidor respondió ${r.status}.`);
 }
 
+/** Enlace secundario debajo del formulario (para pasar de un ingreso a otro). */
+function EnlaceExtra({ href, texto }: { href: string; texto: string }) {
+  return (
+    <a href={href} className="mt-1 inline-flex min-h-11 items-center text-sm text-[#b4a892] transition-colors hover:text-[#e3c58e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e]">
+      {texto}
+    </a>
+  );
+}
+
 /** Usuario + clave de la promotora. `alListo` se llama cuando el servidor ya dejó la sesión abierta. */
 export function LoginPromotora({ alListo }: { alListo: () => void }) {
   const [usuario, setUsuario] = useState('');
@@ -99,6 +108,7 @@ export function LoginPromotora({ alListo }: { alListo: () => void }) {
           textVariantButton: 'Soy del equipo de Providus',
         }}
         goTo={() => { window.location.href = '/demo_providus/admin'; }}
+        footer={<EnlaceExtra href="/demo_providus/vendedor" texto="Soy vendedor" />}
         handleSubmit={() => void entrar()}
         loading={cargando}
         errorField={error}
@@ -133,6 +143,48 @@ export function LoginAdmin({ titulo, alListo }: { titulo: string; alListo: () =>
           header: titulo,
           subHeader: 'Acceso para el equipo de Providus. Pedí la clave de administración.',
           fields: [{ label: 'Clave de administración', name: 'clave', required: true, type: 'password', placeholder: 'Clave', autoComplete: 'current-password', onChange: (e) => setClave(e.target.value) }],
+          submitButton: 'Ingresar',
+          textVariantButton: 'Soy promotora',
+        }}
+        goTo={() => { window.location.href = '/demo_providus'; }}
+        handleSubmit={() => void entrar()}
+        loading={cargando}
+        errorField={error}
+      />
+    </Pantalla>
+  );
+}
+
+/** Usuario + clave del vendedor. Entra a la pantalla con los datos que le llegan de su zona. */
+export function LoginVendedor({ alListo }: { alListo: () => void }) {
+  const [usuario, setUsuario] = useState('');
+  const [clave, setClave] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(false);
+
+  async function entrar() {
+    setCargando(true);
+    setError(null);
+    try {
+      await pedirIngreso('/api/demo-providus/auth/vendedor', { usuario, clave });
+      alListo();
+    } catch (err) {
+      setError(mensaje(err));
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  return (
+    <Pantalla>
+      <AuthTabs
+        formFields={{
+          header: 'Ingreso de vendedores',
+          subHeader: 'Entrá con tu usuario y tu clave para ver, al instante, los datos de tu zona.',
+          fields: [
+            { label: 'Usuario', name: 'usuario', required: true, type: 'text', placeholder: 'tu.usuario', autoComplete: 'username', onChange: (e) => setUsuario(e.target.value) },
+            { label: 'Clave', name: 'clave', required: true, type: 'password', placeholder: 'Tu clave', autoComplete: 'current-password', onChange: (e) => setClave(e.target.value) },
+          ],
           submitButton: 'Ingresar',
           textVariantButton: 'Soy promotora',
         }}

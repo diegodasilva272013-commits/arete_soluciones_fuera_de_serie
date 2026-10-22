@@ -9,15 +9,16 @@
 
 import { NextResponse } from 'next/server';
 import { esAdmin, hashearClave, sesionActual } from '@/lib/demo-providus/sesion';
-import { COLS_PROMOTORA, db, errorDeFoto, FALTA_SQL, falla, publica, subirFoto, tablaFaltante, USUARIO_OK } from '@/lib/demo-providus/datos';
+import { normalizarTelefono } from '@/lib/demo-providus/telefono';
+import { COLS_PROMOTORA, COLS_VENDEDOR, db, errorDeFoto, FALTA_SQL, FALTA_SQL_VENDEDORES, falla, PROVINCIAS_AR, publica, subirFoto, tablaFaltante, USUARIO_OK, vendedorPublico } from '@/lib/demo-providus/datos';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-const RECURSOS = ['promotoras', 'eventos', 'sucursales'] as const;
+const RECURSOS = ['promotoras', 'eventos', 'sucursales', 'vendedores'] as const;
 type Recurso = (typeof RECURSOS)[number];
-const TABLA: Record<Recurso, string> = { promotoras: 'demo_providus_promotoras', eventos: 'demo_providus_eventos', sucursales: 'demo_providus_sucursales' };
-const COLUMNA_REGISTRO: Record<Recurso, string> = { promotoras: 'promotora_id', eventos: 'evento_id', sucursales: 'sucursal_id' };
+const TABLA: Record<Recurso, string> = { promotoras: 'demo_providus_promotoras', eventos: 'demo_providus_eventos', sucursales: 'demo_providus_sucursales', vendedores: 'demo_providus_vendedores' };
+const COLUMNA_REGISTRO: Record<Recurso, string> = { promotoras: 'promotora_id', eventos: 'evento_id', sucursales: 'sucursal_id', vendedores: 'vendedor_id' };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const guardia = (recurso: string): { recurso: Recurso } | { error: Response } => {
@@ -28,8 +29,15 @@ const guardia = (recurso: string): { recurso: Recurso } | { error: Response } =>
 
 const txt = (v: unknown, max = 120): string => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
-function errorBase(e: { code?: string; message?: string }) {
-  if (tablaFaltante(e)) return falla('tabla', 503, FALTA_SQL);
+/** Lista de provincias válida (sin repetidas) o null si trae alguna que no existe. */
+function zonasValidas(v: unknown): string[] | null {
+  if (!Array.isArray(v)) return [];
+  const lista = Array.from(new Set(v.filter((x): x is string => typeof x === 'string')));
+  return lista.every((p) => (PROVINCIAS_AR as readonly string[]).includes(p)) ? lista : null;
+}
+
+function errorBase(e: { code?: string; message?: string }, vendedores = false) {
+  if (tablaFaltante(e)) return falla('tabla', 503, vendedores ? FALTA_SQL_VENDEDORES : FALTA_SQL);
   if (e.code === '23505') return falla('duplicado', 409, 'Ya existe uno con ese nombre o usuario.');
   if (e.code === '23514') return falla('valor', 422, 'Hay un valor fuera de rango (por ejemplo la edad).');
   console.error('[demo-providus] admin', e.code, e.message);
@@ -41,19 +49,19 @@ export async function GET(_req: Request, { params }: { params: { recurso: string
   if ('error' in g) return g.error;
   const r = g.recurso;
   const admin = db();
-  const cols = r === 'promotoras' ? COLS_PROMOTORA : '*';
+  const cols = r === 'promotoras' ? COLS_PROMOTORA : r === 'vendedores' ? COLS_VENDEDOR : '*';
   const [lista, regs] = await Promise.all([
     admin.from(TABLA[r]).select(cols).order('creado_en', { ascending: false }),
     admin.from('demo_providus_registros').select(COLUMNA_REGISTRO[r]).eq('eliminado', false).limit(10000),
   ]);
-  if (lista.error) return errorBase(lista.error);
+  if (lista.error) return errorBase(lista.error, r === 'vendedores');
   const cuenta = new Map<string, number>();
   for (const x of (regs.data ?? []) as Record<string, string | null>[]) {
     const k = x[COLUMNA_REGISTRO[r]];
     if (k) cuenta.set(k, (cuenta.get(k) ?? 0) + 1);
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const filas = (lista.data as any[]).map((f) => ({ ...(r === 'promotoras' ? publica(f) : f), cargas: cuenta.get(f.id) ?? 0 }));
+  const filas = (lista.data as any[]).map((f) => ({ ...(r === 'promotoras' ? publica(f) : r === 'vendedores' ? vendedorPublico(f) : f), cargas: cuenta.get(f.id) ?? 0 }));
   return NextResponse.json({ ok: true, filas }, { headers: { 'Cache-Control': 'no-store' } });
 }
 
@@ -91,6 +99,27 @@ export async function POST(req: Request, { params }: { params: { recurso: string
 
   let b: Record<string, unknown>;
   try { b = await req.json(); } catch { return falla('pedido_invalido', 400, 'El envío llegó incompleto.'); }
+  if (g.recurso === 'vendedores') {
+    const usuario = txt(b.usuario, 30).toLowerCase();
+    const clave = typeof b.clave === 'string' ? b.clave : '';
+    const nombreV = txt(b.nombre, 80);
+    const apellidoV = txt(b.apellido, 80);
+    const celular = normalizarTelefono(txt(b.telefono, 40));
+    const provincias = zonasValidas(b.provincias);
+    if (!USUARIO_OK.test(usuario)) return falla('usuario', 422, 'El usuario va en minúsculas, de 3 a 30 caracteres (letras, números, punto, guion).');
+    if (clave.length < 6) return falla('clave', 422, 'La clave tiene que tener al menos 6 caracteres.');
+    if (nombreV.length < 2 || apellidoV.length < 2) return falla('nombre', 422, 'Faltan el nombre y el apellido.');
+    if (!celular) return falla('telefono', 422, 'El celular no es válido. Escribilo con código de área, por ejemplo 345 4100816.');
+    if (!provincias) return falla('provincias', 422, 'Hay una provincia que no está en la lista.');
+    if (!provincias.length && b.recibe_resto !== true) return falla('zona', 422, 'Elegí al menos una provincia, o marcá que recibe los leads de las zonas sin vendedor.');
+    const { data, error } = await admin
+      .from('demo_providus_vendedores')
+      .insert({ usuario, clave_hash: await hashearClave(clave), nombre: nombreV, apellido: apellidoV, telefono_e164: celular, provincias, recibe_resto: b.recibe_resto === true, llamar_ia: b.llamar_ia !== false })
+      .select(COLS_VENDEDOR)
+      .single();
+    if (error) return errorBase(error, true);
+    return NextResponse.json({ ok: true, fila: vendedorPublico(data) });
+  }
   const nombre = txt(b.nombre, 80);
   if (nombre.length < 2) return falla('nombre', 422, 'Falta el nombre (mínimo 2 letras).');
   const fila = g.recurso === 'eventos'
@@ -140,6 +169,24 @@ export async function PATCH(req: Request, { params }: { params: { recurso: strin
   const id = txt(b.id, 60);
   if (!UUID.test(id)) return falla('id_invalido', 400, 'El identificador no es válido.');
   const cambios: Record<string, unknown> = {};
+  if (g.recurso === 'vendedores') {
+    if ('nombre' in b) { const v = txt(b.nombre, 80); if (v.length < 2) return falla('nombre', 422, 'Falta el nombre.'); cambios.nombre = v; }
+    if ('apellido' in b) { const v = txt(b.apellido, 80); if (v.length < 2) return falla('apellido', 422, 'Falta el apellido.'); cambios.apellido = v; }
+    if ('telefono' in b) { const v = normalizarTelefono(txt(b.telefono, 40)); if (!v) return falla('telefono', 422, 'El celular no es válido.'); cambios.telefono_e164 = v; }
+    if ('provincias' in b) { const v = zonasValidas(b.provincias); if (!v) return falla('provincias', 422, 'Hay una provincia que no está en la lista.'); cambios.provincias = v; }
+    if ('recibe_resto' in b) cambios.recibe_resto = b.recibe_resto === true;
+    if ('llamar_ia' in b) cambios.llamar_ia = b.llamar_ia === true;
+    if ('activo' in b) cambios.activo = b.activo === true;
+    if (typeof b.clave === 'string' && b.clave !== '') {
+      if (b.clave.length < 6) return falla('clave', 422, 'La clave tiene que tener al menos 6 caracteres.');
+      cambios.clave_hash = await hashearClave(b.clave);
+    }
+    if (!Object.keys(cambios).length) return falla('sin_cambios', 422, 'No hay nada para cambiar.');
+    const { data, error } = await admin.from('demo_providus_vendedores').update(cambios).eq('id', id).select(COLS_VENDEDOR).maybeSingle();
+    if (error) return errorBase(error, true);
+    if (!data) return falla('no_existe', 404, 'Ese vendedor no existe.');
+    return NextResponse.json({ ok: true, fila: vendedorPublico(data) });
+  }
   if ('nombre' in b) { const v = txt(b.nombre, 80); if (v.length < 2) return falla('nombre', 422, 'Falta el nombre.'); cambios.nombre = v; }
   if (g.recurso === 'eventos') {
     if ('lugar' in b) cambios.lugar = txt(b.lugar) || null;

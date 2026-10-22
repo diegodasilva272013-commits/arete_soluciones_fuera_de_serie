@@ -35,6 +35,10 @@ interface Registro {
   promotora_foto_url: string | null;
   sucursal: string | null;
   vendedor_id: string | null;
+  // Llegan una vez corrida la migración 0089; antes no existen.
+  vendedor_nombre?: string | null;
+  contacto_estado?: string | null;
+  llamada_estado?: string | null;
 }
 interface Item {
   r: Registro;
@@ -76,6 +80,9 @@ const abreviado = (n: string, a: string) => `${n.trim()} ${a.trim()[0] ?? ''}.`;
 const lugar = (r: Registro) => (r.localidad && r.localidad !== r.provincia ? `${r.provincia}, ${r.localidad}` : r.provincia);
 const ts = (r: Registro) => new Date(r.creado_en).getTime();
 const quien = (r: Registro) => (r.promotora_nombre ? `${r.promotora_nombre} ${r.promotora_apellido ?? ''}`.trim() : r.promotora || 'Sin identificar');
+/** "Diego Da Silva" → "Diego D." */
+const vendedorCorto = (completo: string) => { const p = completo.trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[p.length - 1][0]}.` : p[0]; };
+const leyendaVendedor = (r: Registro) => `Para ${vendedorCorto(r.vendedor_nombre ?? '')}${r.llamada_estado === 'llamando' ? ' · IA llamando' : r.llamada_estado === 'fallida' ? ' · llamada falló' : ''}`;
 const nombreCorto = (r: Registro) => (r.promotora_nombre ? `${r.promotora_nombre} ${(r.promotora_apellido ?? '').trim()[0] ?? ''}.`.trim() : r.promotora || 'sin identificar');
 
 // ── piezas ──────────────────────────────────────────────────────────────
@@ -163,13 +170,14 @@ function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onCon
                 nuevo ? 'bg-[var(--pv-naranja)] text-[#fff6ef] shadow-[inset_0_0_0_1px_var(--pv-naranja)]' : 'text-[var(--pv-sec)] shadow-[inset_0_0_0_1px_rgba(180,168,146,0.45)]'
               }`}
             >
-              {nuevo ? 'Nuevo' : r.vendedor_id ? r.vendedor_id : 'Sin asignar'}
+              {nuevo ? 'Nuevo' : r.vendedor_nombre ? vendedorCorto(r.vendedor_nombre) : r.vendedor_id ? r.vendedor_id : 'Sin asignar'}
             </span>
             <button type="button" onClick={onPedir} aria-label={`Dar de baja a ${r.nombre} ${r.apellido}`} className="grid h-7 w-7 place-items-center rounded-full text-[var(--pv-sec)] opacity-0 max-lg:opacity-70 max-lg:h-9 max-lg:w-9 transition-opacity duration-200 hover:text-[var(--pv-naranja-luz)] focus-visible:opacity-100 group-hover:opacity-100">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
             </button>
           </span>
         )}
+        {!confirmando && r.vendedor_nombre && <span className={`pv-datos text-[10.5px] max-lg:hidden ${r.llamada_estado === 'fallida' ? 'text-[var(--pv-naranja-luz)]' : 'text-[var(--pv-sec)]'}`}>{leyendaVendedor(r)}</span>}
         {errorBaja && <span role="alert" className="max-w-[260px] text-right text-[11px] leading-snug text-[var(--pv-naranja-luz)]">{errorBaja}</span>}
       </div>
     </li>

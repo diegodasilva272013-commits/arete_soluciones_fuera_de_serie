@@ -17,11 +17,10 @@ export function falla(error: string, status: number, detalle?: string) {
   return NextResponse.json({ ok: false, error, detalle }, { status });
 }
 
-/** Postgres 42P01 / "schema cache": falta correr la migración. */
-export function tablaFaltante(e: { code?: string; message?: string } | null | undefined): boolean {
-  return !!e && (e.code === '42P01' || e.code === 'PGRST205' || /does not exist|schema cache|Could not find the/i.test(e.message ?? ''));
-}
+export { tablaFaltante } from './errores-base';
 export const FALTA_SQL = 'Falta correr 0088_demo_providus_promotoras.sql en Supabase.';
+
+export const FALTA_SQL_VENDEDORES = 'Falta correr 0089_demo_providus_vendedores.sql en Supabase.';
 
 export const ipDe = (req: Request) => (req.headers.get('x-forwarded-for') ?? 'sin-ip').split(',')[0].trim();
 
@@ -47,6 +46,31 @@ export function publica(f: any): PromotoraPublica {
     sucursal_id: f.sucursal_id ?? null, sucursal: f.sucursal?.nombre ?? null, activa: !!f.activa, ultimo_ingreso: f.ultimo_ingreso ?? null, creado_en: f.creado_en,
   };
 }
+
+/** Lo que se muestra de un vendedor (nunca el hash de la clave). */
+export interface VendedorPublico {
+  id: string;
+  usuario: string;
+  nombre: string;
+  apellido: string;
+  telefono_e164: string;
+  provincias: string[];
+  recibe_resto: boolean;
+  llamar_ia: boolean;
+  activo: boolean;
+  ultimo_ingreso: string | null;
+  creado_en?: string;
+}
+export const COLS_VENDEDOR = 'id, usuario, nombre, apellido, telefono_e164, provincias, recibe_resto, llamar_ia, activo, ultimo_ingreso, creado_en';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function vendedorPublico(f: any): VendedorPublico {
+  return {
+    id: f.id, usuario: f.usuario, nombre: f.nombre, apellido: f.apellido, telefono_e164: f.telefono_e164, provincias: f.provincias ?? [],
+    recibe_resto: !!f.recibe_resto, llamar_ia: !!f.llamar_ia, activo: !!f.activo, ultimo_ingreso: f.ultimo_ingreso ?? null, creado_en: f.creado_en,
+  };
+}
+
+export { PROVINCIAS_AR } from './provincias';
 
 export async function eventosActivos() {
   const { data, error } = await db().from('demo_providus_eventos').select('id, nombre, lugar, fecha').eq('activo', true).order('creado_en', { ascending: false });

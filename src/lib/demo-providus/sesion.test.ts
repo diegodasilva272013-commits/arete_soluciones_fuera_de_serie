@@ -10,6 +10,8 @@ describe('cookie de sesión', () => {
     expect(verificar(v, Date.now(), SECRETO)).toEqual({ t: 'p', id: 'abc', exp });
     const a = firmar({ t: 'a', exp }, SECRETO);
     expect(verificar(a, Date.now(), SECRETO)).toEqual({ t: 'a', exp });
+    const ve = firmar({ t: 'v', id: 'ven1', exp }, SECRETO);
+    expect(verificar(ve, Date.now(), SECRETO)).toEqual({ t: 'v', id: 'ven1', exp });
   });
   it('rechaza una cookie alterada, con otra firma o vencida', () => {
     const exp = Date.now() + 60_000;

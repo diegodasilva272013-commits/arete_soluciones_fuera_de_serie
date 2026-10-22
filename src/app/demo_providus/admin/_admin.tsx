@@ -13,9 +13,11 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Input } from '@/components/ui/modern-animated-sign-in';
+import { PROVINCIAS_AR } from '@/lib/demo-providus/provincias';
+import { formatoLegible } from '@/lib/demo-providus/telefono';
 import { LoginAdmin } from '../_acceso';
 
-type Pestana = 'promotoras' | 'eventos' | 'sucursales' | 'cargas';
+type Pestana = 'promotoras' | 'vendedores' | 'eventos' | 'sucursales' | 'cargas';
 
 interface Promotora { id: string; usuario: string; nombre: string; apellido: string; edad: number | null; foto_url: string | null; sucursal_id: string | null; sucursal: string | null; activa: boolean; ultimo_ingreso: string | null; cargas: number }
 interface Evento { id: string; nombre: string; lugar: string | null; fecha: string | null; activo: boolean; cargas: number }
@@ -237,6 +239,132 @@ function Promotoras({ sucursales, alVencer }: { sucursales: Sucursal[]; alVencer
   );
 }
 
+interface Vendedor { id: string; usuario: string; nombre: string; apellido: string; telefono_e164: string; provincias: string[]; recibe_resto: boolean; llamar_ia: boolean; activo: boolean; ultimo_ingreso: string | null; cargas: number }
+
+function Vendedores({ alVencer }: { alVencer: () => void }) {
+  const [filas, setFilas] = useState<Vendedor[]>([]);
+  const [editando, setEditando] = useState<Vendedor | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [guardando, setGuardando] = useState(false);
+  const [zonas, setZonas] = useState<string[]>([]);
+  const [resto, setResto] = useState(false);
+  const [ia, setIa] = useState(true);
+
+  const cargar = useCallback(async () => {
+    try { setFilas((await pedir<{ filas: Vendedor[] }>('/api/demo-providus/admin/vendedores')).filas); }
+    catch (e) { if (e instanceof Error && e.message === 'SESION') alVencer(); else setError(e instanceof Error ? e.message : String(e)); }
+  }, [alVencer]);
+  useEffect(() => { void cargar(); }, [cargar]);
+
+  function limpiar() { setEditando(null); setZonas([]); setResto(false); setIa(true); }
+
+  async function guardar(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null); setAviso(null); setGuardando(true);
+    const form = e.currentTarget;
+    try {
+      const f = new FormData(form);
+      const cuerpo: Record<string, unknown> = { nombre: f.get('nombre'), apellido: f.get('apellido'), telefono: f.get('telefono'), provincias: zonas, recibe_resto: resto, llamar_ia: ia };
+      if (editando) { cuerpo.id = editando.id; if (f.get('clave')) cuerpo.clave = f.get('clave'); }
+      else { cuerpo.usuario = f.get('usuario'); cuerpo.clave = f.get('clave'); }
+      await pedir('/api/demo-providus/admin/vendedores', { method: editando ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
+      setAviso(editando ? 'Cambios guardados.' : 'Vendedor creado. Ya puede ingresar y empezar a recibir los datos de su zona.');
+      form.reset(); limpiar();
+      await cargar();
+    } catch (err) { if (err instanceof Error && err.message === 'SESION') alVencer(); else setError(err instanceof Error ? err.message : String(err)); }
+    finally { setGuardando(false); }
+  }
+
+  async function alternar(v: Vendedor) {
+    setError(null); setAviso(null);
+    try { await pedir('/api/demo-providus/admin/vendedores', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: v.id, activo: !v.activo }) }); await cargar(); }
+    catch (err) { if (err instanceof Error && err.message === 'SESION') alVencer(); else setError(err instanceof Error ? err.message : String(err)); }
+  }
+
+  const resumenZona = (v: Vendedor) => {
+    const z = v.provincias.length > 3 ? `${v.provincias.slice(0, 3).join(', ')} y ${v.provincias.length - 3} más` : v.provincias.join(', ');
+    return [z, v.recibe_resto ? 'el resto del país' : ''].filter(Boolean).join(' y ') || 'sin zona';
+  };
+  const FILA = `flex items-center justify-between gap-4 rounded-2xl bg-[#17120e] px-4 py-3.5 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.12)]`;
+
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(360px,1fr)] lg:items-start">
+      <Bisel etiqueta="Vendedores">
+        <Cabecera titulo="Vendedores" cuenta={filas.length ? `${filas.length} en total, ${filas.filter((v) => v.activo).length} activos` : undefined} />
+        <div className="px-3 pb-3">
+          <div className="px-3"><Aviso mensaje={aviso} error={error} /></div>
+          {filas.length === 0 ? (
+            <Vacio>Todavía no hay vendedores. Creá el primero con el formulario: elegí su celular y las provincias que atiende, y los datos de esa zona le llegan solos.</Vacio>
+          ) : (
+            <ul>
+              {filas.map((v) => (
+                <li key={v.id} className={`flex flex-wrap items-center gap-x-4 gap-y-3 rounded-[20px] px-3 py-3.5 transition-[background-color,opacity] duration-500 ${CURVA} hover:bg-white/[0.03] ${v.activo ? '' : 'opacity-50'}`}>
+                  <div className="min-w-0 flex-1 basis-48 pl-1">
+                    <p className="truncate text-[15.5px] font-semibold text-[#ebe6dd]">{v.nombre} {v.apellido}</p>
+                    <p className="truncate text-[13px] text-[#8a7a64]">@{v.usuario}. Celular {formatoLegible(v.telefono_e164)}</p>
+                    <p className="truncate text-[13px] text-[#b4a892]">Zona: {resumenZona(v)}</p>
+                    <p className="text-[12.5px] text-[#8a7a64]">{v.llamar_ia ? 'Lo llama el asistente de voz' : 'Sin llamada de voz'}</p>
+                  </div>
+                  <div className="flex items-center gap-4 max-sm:w-full max-sm:justify-between max-sm:pl-1">
+                    <Cargas n={v.cargas} />
+                    <Interruptor activo={v.activo} alCambiar={() => void alternar(v)} etiqueta={`${v.activo ? 'Desactivar' : 'Activar'} a ${v.nombre} ${v.apellido}`} />
+                    <button type="button" onClick={() => { setEditando(v); setZonas(v.provincias); setResto(v.recibe_resto); setIa(v.llamar_ia); setAviso(null); setError(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={GHOST}>Editar</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Bisel>
+
+      <Bisel className="lg:sticky lg:top-28" etiqueta={editando ? 'Editar vendedor' : 'Nuevo vendedor'}>
+        <form onSubmit={guardar} className="p-6" autoComplete="off">
+          <h2 className="pv-display mb-6 text-[19px] text-[#ebe6dd]">{editando ? `Editar a ${editando.nombre}` : 'Nuevo vendedor'}</h2>
+          <div className="flex flex-col gap-5">
+            <div className="grid grid-cols-2 gap-4">
+              <label><span className={ETIQUETA}>Nombre</span><Input className={CAMPO} name="nombre" required key={`vn${editando?.id}`} defaultValue={editando?.nombre ?? ''} autoComplete="off" placeholder="Diego…" /></label>
+              <label><span className={ETIQUETA}>Apellido</span><Input className={CAMPO} name="apellido" required key={`va${editando?.id}`} defaultValue={editando?.apellido ?? ''} autoComplete="off" placeholder="Da Silva…" /></label>
+            </div>
+            <label><span className={ETIQUETA}>Celular (donde lo llama el asistente)</span>
+              <Input className={CAMPO} name="telefono" type="tel" inputMode="tel" required key={`vt${editando?.id}`} defaultValue={editando?.telefono_e164 ?? ''} autoComplete="off" placeholder="Ej. 345 4100816…" />
+            </label>
+            <fieldset>
+              <legend className={ETIQUETA}>Zona: provincias que atiende</legend>
+              <div className="flex flex-wrap gap-2">
+                {PROVINCIAS_AR.map((p) => (
+                  <label key={p} className="cursor-pointer">
+                    <input type="checkbox" className="peer sr-only" checked={zonas.includes(p)} onChange={() => setZonas((z) => (z.includes(p) ? z.filter((x) => x !== p) : [...z, p]))} />
+                    <span className={`inline-flex min-h-9 items-center rounded-full px-3.5 py-1.5 text-[13px] text-[#b4a892] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)] transition-[background,color,box-shadow] duration-500 ${CURVA} peer-checked:bg-[linear-gradient(145deg,#f0562a,#c23a14)] peer-checked:text-[#fff6ef] peer-checked:shadow-[0_0_18px_-4px_rgba(224,96,58,0.7)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#e3c58e] hover:text-[#ebe6dd]`}>{p}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <div className={FILA}>
+              <span className="min-w-0"><span className="block text-[14px] font-medium text-[#ebe6dd]">También recibe el resto</span><span className="block text-[12.5px] text-[#8a7a64]">Le llegan los datos de las provincias que no tienen vendedor.</span></span>
+              <Interruptor activo={resto} alCambiar={() => setResto((v) => !v)} etiqueta="Recibe los datos de las zonas sin vendedor" />
+            </div>
+            <div className={FILA}>
+              <span className="min-w-0"><span className="block text-[14px] font-medium text-[#ebe6dd]">Llamada del asistente de voz</span><span className="block text-[12.5px] text-[#8a7a64]">Apenas llega un dato, el asistente le llama al celular para avisarle.</span></span>
+              <Interruptor activo={ia} alCambiar={() => setIa((v) => !v)} etiqueta="Llamada del asistente de voz" />
+            </div>
+            {!editando && (
+              <label><span className={ETIQUETA}>Usuario para ingresar</span><Input className={CAMPO} name="usuario" required placeholder="Ej. diego.vendedor…" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="off" /></label>
+            )}
+            <label><span className={ETIQUETA}>{editando ? 'Nueva clave (vacía para no cambiarla)' : 'Clave, mínimo 6 caracteres'}</span>
+              <Input className={CAMPO} name="clave" type="text" required={!editando} minLength={editando ? undefined : 6} autoComplete="off" spellCheck={false} placeholder={editando ? 'Sin cambios…' : 'Ej. ventas2026…'} />
+            </label>
+          </div>
+          <div className="mt-7 flex items-center gap-3">
+            <BotonPrincipal deshabilitado={guardando} className="flex-1">{guardando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Crear vendedor'}</BotonPrincipal>
+            {editando && <button type="button" onClick={limpiar} className={GHOST}>Cancelar</button>}
+          </div>
+        </form>
+      </Bisel>
+    </div>
+  );
+}
+
 // ── eventos y sucursales (misma mecánica) ───────────────────────────────
 
 function ListaSimple<T extends { id: string; nombre: string; cargas: number }>({ recurso, titulo, vacio, campos, activo, subtitulo, alVencer, alCambiar }: {
@@ -400,7 +528,7 @@ function Panel({ alVencer }: { alVencer: () => void }) {
     await fetch('/api/demo-providus/auth/salir', { method: 'POST' }).catch(() => {});
     alVencer();
   }
-  const pestanas: [Pestana, string][] = [['promotoras', 'Promotoras'], ['eventos', 'Eventos'], ['sucursales', 'Sucursales'], ['cargas', 'Cargas']];
+  const pestanas: [Pestana, string][] = [['promotoras', 'Promotoras'], ['vendedores', 'Vendedores'], ['eventos', 'Eventos'], ['sucursales', 'Sucursales'], ['cargas', 'Cargas']];
   const enlace = `whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-[#b4a892] transition-colors duration-500 ${CURVA} hover:text-[#ebe6dd] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e]`;
 
   return (
@@ -433,6 +561,7 @@ function Panel({ alVencer }: { alVencer: () => void }) {
 
         <div id={`panel-${pestana}`} role="tabpanel" aria-labelledby={`tab-${pestana}`} className="mt-8">
           {pestana === 'promotoras' && <Promotoras sucursales={sucursales} alVencer={alVencer} />}
+          {pestana === 'vendedores' && <Vendedores alVencer={alVencer} />}
           {pestana === 'eventos' && (
             <ListaSimple<Evento> recurso="eventos" titulo="Nuevo evento" vacio="Todavía no hay eventos. Creá el primero: cada carga queda registrada en uno." alVencer={alVencer}
               campos={[{ nombre: 'nombre', etiqueta: 'Nombre del evento', placeholder: 'Ej. Expo Rosario…' }, { nombre: 'lugar', etiqueta: 'Lugar', placeholder: 'Ej. Predio Ferial…' }, { nombre: 'fecha', etiqueta: 'Fecha', tipo: 'date' }]}

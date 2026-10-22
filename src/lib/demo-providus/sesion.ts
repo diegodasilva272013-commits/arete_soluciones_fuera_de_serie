@@ -1,7 +1,8 @@
 /**
  * DEMO PROVIDUS — sesiones y claves, SOLO del lado del servidor.
  *
- * Dos tipos de sesión, en una cookie firmada (HMAC-SHA256, httpOnly):
+ * Tres tipos de sesión, en una cookie firmada (HMAC-SHA256, httpOnly):
+ *  - vendedor: ve y trabaja solo los leads que se le asignaron por zona.
  *  - promotora: puede cargar registros y dar de baja los suyos.
  *  - admin: ve la central, administra promotoras/eventos/sucursales y puede dar de baja cualquiera.
  * Las claves de las promotoras se guardan con scrypt (nunca en texto plano).
@@ -14,8 +15,9 @@ import { cookies } from 'next/headers';
 export const COOKIE = 'pv_demo';
 const HORAS_PROMOTORA = 12;
 const HORAS_ADMIN = 10;
+const HORAS_VENDEDOR = 12;
 
-export type Sesion = { t: 'p'; id: string; exp: number } | { t: 'a'; exp: number };
+export type Sesion = { t: 'p'; id: string; exp: number } | { t: 'v'; id: string; exp: number } | { t: 'a'; exp: number };
 
 function secreto(): string {
   const s = process.env.DEMO_PROVIDUS_SECRETO;
@@ -42,17 +44,17 @@ export function verificar(valor: string | undefined, ahora: number = Date.now(),
   try {
     const s = JSON.parse(Buffer.from(cuerpo, 'base64url').toString('utf-8')) as Sesion;
     if (typeof s.exp !== 'number' || s.exp < ahora) return null;
-    if (s.t === 'p' && typeof s.id === 'string') return s;
+    if ((s.t === 'p' || s.t === 'v') && typeof s.id === 'string') return s;
     if (s.t === 'a') return s;
   } catch { /* cookie corrupta */ }
   return null;
 }
 
 /** Escribe la cookie de sesión. */
-export function iniciarSesion(tipo: 'p' | 'a', id?: string) {
-  const horas = tipo === 'p' ? HORAS_PROMOTORA : HORAS_ADMIN;
+export function iniciarSesion(tipo: 'p' | 'a' | 'v', id?: string) {
+  const horas = tipo === 'p' ? HORAS_PROMOTORA : tipo === 'v' ? HORAS_VENDEDOR : HORAS_ADMIN;
   const exp = Date.now() + horas * 3600_000;
-  const sesion: Sesion = tipo === 'p' ? { t: 'p', id: id as string, exp } : { t: 'a', exp };
+  const sesion: Sesion = tipo === 'a' ? { t: 'a', exp } : { t: tipo, id: id as string, exp };
   cookies().set(COOKIE, firmar(sesion), {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

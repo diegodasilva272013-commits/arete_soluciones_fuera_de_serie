@@ -14,16 +14,13 @@ import { NextResponse } from 'next/server';
 import { caracteresValidos, normalizarTelefono } from '@/lib/demo-providus/telefono';
 import { esAdmin, sesionActual } from '@/lib/demo-providus/sesion';
 import { db, errorDeFoto, FALTA_SQL, falla, ipDe, subirFoto, tablaFaltante } from '@/lib/demo-providus/datos';
+import { asignarYAvisar } from '@/lib/demo-providus/flujo';
+import { PROVINCIAS_AR } from '@/lib/demo-providus/provincias';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-const PROVINCIAS = new Set([
-  'Ciudad Autónoma de Buenos Aires', 'Buenos Aires', 'Catamarca', 'Chaco', 'Chubut',
-  'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy', 'La Pampa', 'La Rioja',
-  'Mendoza', 'Misiones', 'Neuquén', 'Río Negro', 'Salta', 'San Juan', 'San Luis',
-  'Santa Cruz', 'Santa Fe', 'Santiago del Estero', 'Tierra del Fuego', 'Tucumán',
-]);
+const PROVINCIAS = new Set<string>(PROVINCIAS_AR);
 
 // Tope simple por IP (mejor esfuerzo por instancia): frena un bucle, no un ataque.
 const ventana = new Map<string, number[]>();
@@ -120,7 +117,14 @@ export async function POST(req: Request) {
     return falla('base', 502, `No se pudo guardar: ${error?.message ?? 'sin detalle'}`);
   }
 
-  return NextResponse.json({ ok: true, id: data.id as string, foto_url: fotoUrl, telefono_e164: e164 });
+  // Ya está guardado. Ahora se asigna al vendedor de la zona y, si corresponde, el agente de IA le llama.
+  // Nunca rompe el alta: si algo falla, el lead queda guardado igual (sin asignar o sin llamada).
+  const aviso = await asignarYAvisar(admin, {
+    id: data.id as string, nombre, apellido, telefono_e164: e164, provincia, localidad: localidad || null,
+    promotora: `${prom.nombre} ${prom.apellido}`.trim(), evento: ev.nombre,
+  });
+
+  return NextResponse.json({ ok: true, id: data.id as string, foto_url: fotoUrl, telefono_e164: e164, asignado: aviso.vendedor !== null, llamada: aviso.llamada });
 }
 
 /**
@@ -136,11 +140,12 @@ export async function GET() {
   } catch {
     return falla('servidor', 503, 'El servidor no tiene acceso a la base (falta la clave de servicio).');
   }
-  const cols = 'id, creado_en, nombre, apellido, telefono, telefono_e164, provincia, localidad, foto_url, evento, evento_id, promotora, promotora_id, promotora_nombre, promotora_apellido, promotora_edad, promotora_foto_url, sucursal, vendedor_id';
-  const [vivos, bajas] = await Promise.all([
-    admin.from('demo_providus_registros').select(cols).eq('eliminado', false).order('creado_en', { ascending: false }).limit(50),
-    admin.from('demo_providus_registros').select('id').eq('eliminado', true).order('creado_en', { ascending: false }).limit(50),
-  ]);
+  const colsBase = 'id, creado_en, nombre, apellido, telefono, telefono_e164, provincia, localidad, foto_url, evento, evento_id, promotora, promotora_id, promotora_nombre, promotora_apellido, promotora_edad, promotora_foto_url, sucursal, vendedor_id';
+  const leer = (cols: string) => admin.from('demo_providus_registros').select(cols).eq('eliminado', false).order('creado_en', { ascending: false }).limit(50);
+  // Con vendedor y estado de la llamada. Si todavía no se corrió la migración 0089 esas columnas no existen: se lee sin ellas.
+  let vivos = await leer(`${colsBase}, vendedor_nombre, contacto_estado, llamada_estado`);
+  if (vivos.error && (vivos.error.code === '42703' || /column .* does not exist/i.test(vivos.error.message ?? ''))) vivos = await leer(colsBase);
+  const bajas = await admin.from('demo_providus_registros').select('id').eq('eliminado', true).order('creado_en', { ascending: false }).limit(50);
   const error = vivos.error ?? bajas.error;
   if (error) {
     console.error('[demo-providus] no se pudo listar', error.code, error.message);

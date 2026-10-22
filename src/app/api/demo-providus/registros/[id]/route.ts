@@ -15,6 +15,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
   const sesion = sesionActual();
   if (!sesion) return falla('sesion', 401, 'Tu sesión venció. Volvé a ingresar.');
+  if (sesion.t === 'v') return falla('sin_permiso', 403, 'Un vendedor no puede dar de baja registros.');
   if (!UUID.test(params.id)) return falla('id_invalido', 400, 'El identificador no es válido.');
   try {
     let q = db().from('demo_providus_registros').update({ eliminado: true }).eq('id', params.id);
