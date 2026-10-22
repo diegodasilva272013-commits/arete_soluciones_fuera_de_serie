@@ -47,9 +47,15 @@ export function telefonoDictado(e164: string): string {
 
 export function variablesDelAgente(d: DatosLlamada): Record<string, string> {
   return {
+    // Nombres que usa el agente creado en ElevenLabs (prospecto = el lead que cargó la promotora). Si el agente
+    // pide una variable y no se la mandamos, ElevenLabs rechaza la llamada: por eso van las dos familias de nombres.
+    prospecto_nombre: d.cliente.nombre,
+    telefono_e164: d.cliente.telefono_e164,
+    // Nombres propios de esta integración.
     vendedor_nombre: d.vendedor.nombre,
     cliente_nombre: d.cliente.nombre,
     cliente_apellido: d.cliente.apellido,
+    cliente_nombre_completo: `${d.cliente.nombre} ${d.cliente.apellido}`.trim(),
     cliente_telefono: d.cliente.telefono_e164,
     cliente_telefono_dictado: telefonoDictado(d.cliente.telefono_e164),
     cliente_provincia: d.cliente.provincia,

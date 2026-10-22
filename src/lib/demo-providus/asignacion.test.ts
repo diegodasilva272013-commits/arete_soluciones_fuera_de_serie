@@ -61,6 +61,11 @@ describe('llamada de IA', () => {
     expect(b.to_number).toBe('+5493454100816');
     expect(b.conversation_initiation_client_data.dynamic_variables).toEqual(variablesDelAgente(datos));
     expect(b.conversation_initiation_client_data.dynamic_variables.cliente_nombre).toBe('Marcos');
+    // los nombres del agente de ElevenLabs también viajan
+    const v = b.conversation_initiation_client_data.dynamic_variables;
+    expect(v.prospecto_nombre).toBe('Marcos');
+    expect(v.vendedor_nombre).toBe('Diego');
+    expect(v.telefono_e164).toBe('+5493415001234');
   });
   it('sin configuración se omite y no llama a nadie', async () => {
     let llamados = 0;
