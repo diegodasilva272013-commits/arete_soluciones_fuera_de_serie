@@ -94,9 +94,9 @@ function Metrica({ valor, etiqueta, parpadea = true }: { valor: string | number;
     anterior.current = valor;
   }, [valor, parpadea]);
   return (
-    <div className="flex flex-col justify-center gap-2 px-8">
+    <div className="flex flex-col justify-center gap-1.5 px-4 py-3 max-lg:border-white/[0.08] max-lg:odd:border-r max-lg:[&:nth-child(n+3)]:border-t lg:gap-2 lg:px-8 lg:py-0">
       <span
-        className="pv-display pv-num text-[34px] leading-none transition-colors"
+        className="pv-display pv-num text-[26px] leading-none transition-colors lg:text-[34px]"
         style={{ color: destello ? 'var(--pv-naranja-luz)' : 'var(--pv-aluminio)', transitionDuration: destello ? '0ms' : '400ms' }}
       >
         {valor}
@@ -110,13 +110,13 @@ function Foto({ r }: { r: Registro }) {
   const [fallo, setFallo] = useState(false);
   if (!r.foto_url || fallo) {
     return (
-      <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-[10px] bg-[var(--pv-bronce-800)] text-[24px] font-semibold text-[var(--pv-sec)]" aria-hidden="true">
+      <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[10px] lg:h-[72px] lg:w-[72px] bg-[var(--pv-bronce-800)] text-[20px] font-semibold text-[var(--pv-sec)] lg:text-[24px]" aria-hidden="true">
         {iniciales(r.nombre, r.apellido)}
       </span>
     );
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={r.foto_url} alt="" onError={() => setFallo(true)} className="h-[72px] w-[72px] shrink-0 rounded-[10px] bg-[var(--pv-bronce-800)] object-cover" />;
+  return <img src={r.foto_url} alt="" onError={() => setFallo(true)} className="h-14 w-14 shrink-0 rounded-[10px] bg-[var(--pv-bronce-800)] object-cover lg:h-[72px] lg:w-[72px]" />;
 }
 
 function MiniPromotora({ r }: { r: Registro }) {
@@ -133,10 +133,10 @@ function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onCon
   const nuevo = item.nuevoHasta !== null && ahora < item.nuevoHasta;
   const [animar] = useState(item.nuevoHasta !== null); // solo anima la entrada si llegó con la pantalla abierta
   return (
-    <li className={`group relative flex h-[104px] items-center gap-5 border-b border-white/[0.07] px-6 ${animar ? 'pv-ficha-nueva' : ''} ${item.saliendo ? 'pv-ficha-sale' : ''}`}>
+    <li className={`group relative flex h-[104px] items-center gap-3 border-b border-white/[0.07] px-4 lg:gap-5 lg:px-6 ${animar ? 'pv-ficha-nueva' : ''} ${item.saliendo ? 'pv-ficha-sale' : ''}`}>
       <Foto r={r} />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[19px] font-semibold leading-tight text-[var(--pv-aluminio)]">{r.nombre} {r.apellido}</p>
+        <p className="truncate text-[16px] font-semibold leading-tight text-[var(--pv-aluminio)] lg:text-[19px]">{r.nombre} {r.apellido}</p>
         <p className="pv-num mt-1.5 truncate text-[13px] text-[var(--pv-sec)]">{formatoLegible(r.telefono_e164)} · {lugar(r)}</p>
         <p className="mt-1.5 flex items-center gap-2 truncate text-[11.5px] text-[var(--pv-sec)]">
           <MiniPromotora r={r} />
@@ -148,13 +148,13 @@ function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onCon
         </p>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1.5">
-        <span className="pv-datos text-[13px] text-[var(--pv-aluminio)]">{hhmmss(ts(r))}</span>
+        <span className="pv-datos text-[13px] text-[var(--pv-aluminio)] max-lg:hidden">{hhmmss(ts(r))}</span>
         <span className="pv-datos text-[11px] text-[var(--pv-sec)]">{hace(ts(r), ahora)}</span>
         {confirmando ? (
           <span className="mt-1 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.14em]">
             <span className="text-[var(--pv-aluminio)]">¿Dar de baja?</span>
-            <button type="button" onClick={onConfirmar} className="text-[var(--pv-naranja-luz)] hover:underline">Sí</button>
-            <button type="button" onClick={onCancelar} className="text-[var(--pv-sec)] hover:underline">No</button>
+            <button type="button" onClick={onConfirmar} className="text-[var(--pv-naranja-luz)] hover:underline max-lg:p-2">Sí</button>
+            <button type="button" onClick={onCancelar} className="text-[var(--pv-sec)] hover:underline max-lg:p-2">No</button>
           </span>
         ) : (
           <span className="mt-1 flex items-center gap-3">
@@ -165,7 +165,7 @@ function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onCon
             >
               {nuevo ? 'Nuevo' : r.vendedor_id ? r.vendedor_id : 'Sin asignar'}
             </span>
-            <button type="button" onClick={onPedir} aria-label={`Dar de baja a ${r.nombre} ${r.apellido}`} className="grid h-7 w-7 place-items-center rounded-full text-[var(--pv-sec)] opacity-0 transition-opacity duration-200 hover:text-[var(--pv-naranja-luz)] focus-visible:opacity-100 group-hover:opacity-100">
+            <button type="button" onClick={onPedir} aria-label={`Dar de baja a ${r.nombre} ${r.apellido}`} className="grid h-7 w-7 place-items-center rounded-full text-[var(--pv-sec)] opacity-0 max-lg:opacity-70 max-lg:h-9 max-lg:w-9 transition-opacity duration-200 hover:text-[var(--pv-naranja-luz)] focus-visible:opacity-100 group-hover:opacity-100">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
             </button>
           </span>
@@ -371,13 +371,13 @@ function Panel({ alVencer }: { alVencer: () => void }) {
   return (
     <div className="flex h-dvh flex-col overflow-hidden text-[var(--pv-aluminio)]">
       {/* BARRA SUPERIOR */}
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-white/[0.08] px-8">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.08] px-4 lg:h-16 lg:px-8">
         <div className="flex items-center gap-4">
           <span className="pv-display text-[18px] text-[var(--pv-aluminio)]">PROVIDUS</span>
-          <span className="h-5 w-px bg-white/15" aria-hidden="true" />
-          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--pv-sec)]">Centro de operaciones</span>
+          <span className="h-5 w-px bg-white/15 max-lg:hidden" aria-hidden="true" />
+          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--pv-sec)] max-lg:hidden">Centro de operaciones</span>
         </div>
-        <div className="flex items-center gap-7">
+        <div className="flex items-center gap-3 lg:gap-7">
           <span className="flex items-center gap-2.5" role="status">
             <span className={`h-2 w-2 rounded-full ${enVivo ? 'pv-pulso bg-[#4ade80]' : 'bg-[#f5b942]'}`} aria-hidden="true" />
             <span className="pv-datos text-[10px] uppercase tracking-[0.18em]" style={{ color: enVivo ? '#4ade80' : '#f5b942' }}>
@@ -393,19 +393,19 @@ function Panel({ alVencer }: { alVencer: () => void }) {
             ♪ Sonido
           </button>
           <a href="/demo_providus/admin" className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--pv-sec)] transition-colors hover:text-[var(--pv-aluminio)]">Panel</a>
-          <span className="pv-datos text-[15px] text-[var(--pv-aluminio)]" aria-label="Hora">{ahora ? hhmmss(ahora) : '--:--:--'}</span>
+          <span className="pv-datos text-[15px] text-[var(--pv-aluminio)] max-sm:hidden" aria-label="Hora">{ahora ? hhmmss(ahora) : '--:--:--'}</span>
         </div>
       </header>
 
       {/* MÉTRICAS */}
-      <section className="grid h-24 shrink-0 grid-cols-4 divide-x divide-white/[0.08] border-b border-white/[0.08]" aria-label="Métricas">
+      <section className="grid shrink-0 grid-cols-2 border-b border-white/[0.08] lg:h-24 lg:grid-cols-4 lg:divide-x lg:divide-white/[0.08]" aria-label="Métricas">
         <Metrica valor={hoy} etiqueta="Registros hoy" />
         <Metrica valor={diezMin} etiqueta="Últimos 10 min" />
         <Metrica valor={sinAsignar} etiqueta="Sin asignar" />
         <Metrica valor={ultimo} etiqueta="Último ingreso" parpadea={false} />
       </section>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[68fr_32fr]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[68fr_32fr]">
         {/* LISTA DE REGISTROS */}
         <section className="min-h-0 overflow-y-auto" aria-label="Registros">
           {!cargado ? (
@@ -440,7 +440,7 @@ function Panel({ alVencer }: { alVencer: () => void }) {
         </section>
 
         {/* ACTIVIDAD */}
-        <aside className="flex min-h-0 flex-col border-l border-white/[0.08] bg-black/15" aria-label="Actividad">
+        <aside className="hidden min-h-0 flex-col border-l border-white/[0.08] bg-black/15 lg:flex" aria-label="Actividad">
           <h2 className="shrink-0 border-b border-white/[0.08] px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--pv-sec)]">Actividad</h2>
           <ol className="pv-datos min-h-0 flex-1 overflow-y-auto px-6 py-4 text-[11px] leading-relaxed">
             {lineas.length === 0 && <li className="text-[var(--pv-sec)]/50">Sin actividad todavía.</li>}
