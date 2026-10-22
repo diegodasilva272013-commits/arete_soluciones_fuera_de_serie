@@ -156,7 +156,7 @@ function Promotoras({ sucursales, alVencer }: { sucursales: Sucursal[]; alVencer
   const habilitadas = filas.filter((p) => p.activa).length;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(360px,1fr)] lg:items-start">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(360px,1fr)] lg:items-start">
       <Bisel etiqueta="Promotoras">
         <Cabecera titulo="Promotoras" cuenta={filas.length ? `${filas.length} en total, ${habilitadas} activas` : undefined} />
         <div className="px-3 pb-3">
@@ -166,15 +166,17 @@ function Promotoras({ sucursales, alVencer }: { sucursales: Sucursal[]; alVencer
           ) : (
             <ul>
               {filas.map((p) => (
-                <li key={p.id} className={`flex items-center gap-4 rounded-[20px] px-3 py-3.5 transition-[background-color,opacity] duration-500 ${CURVA} hover:bg-white/[0.03] ${p.activa ? '' : 'opacity-50'}`}>
+                <li key={p.id} className={`flex flex-wrap items-center gap-x-4 gap-y-3 rounded-[20px] px-3 py-3.5 transition-[background-color,opacity] duration-500 ${CURVA} hover:bg-white/[0.03] ${p.activa ? '' : 'opacity-50'}`}>
                   <Avatar foto={p.foto_url} nombre={p.nombre} apellido={p.apellido} />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 basis-40">
                     <p className="truncate text-[15.5px] font-semibold text-[#ebe6dd]">{p.nombre} {p.apellido}{p.edad ? <span className="pv-num font-normal text-[#8a7a64]">, {p.edad} años</span> : null}</p>
                     <p className="truncate text-[13px] text-[#8a7a64]">@{p.usuario} en {p.sucursal ?? 'sin sucursal'}. Último ingreso: {fechaCorta(p.ultimo_ingreso)}</p>
                   </div>
-                  <Cargas n={p.cargas} />
-                  <Interruptor activo={p.activa} alCambiar={() => void alternar(p)} etiqueta={`${p.activa ? 'Desactivar' : 'Activar'} a ${p.nombre} ${p.apellido}`} />
-                  <button type="button" onClick={() => { setEditando(p); setVista(p.foto_url); setClave(''); setAviso(null); setError(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={GHOST}>Editar</button>
+                  <div className="flex items-center gap-4 max-sm:w-full max-sm:justify-between max-sm:pl-[68px]">
+                    <Cargas n={p.cargas} />
+                    <Interruptor activo={p.activa} alCambiar={() => void alternar(p)} etiqueta={`${p.activa ? 'Desactivar' : 'Activar'} a ${p.nombre} ${p.apellido}`} />
+                    <button type="button" onClick={() => { setEditando(p); setVista(p.foto_url); setClave(''); setAviso(null); setError(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={GHOST}>Editar</button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -285,7 +287,7 @@ function ListaSimple<T extends { id: string; nombre: string; cargas: number }>({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(360px,1fr)] lg:items-start">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(360px,1fr)] lg:items-start">
       <Bisel etiqueta={plural}>
         <Cabecera titulo={plural} cuenta={filas.length ? `${filas.length} en total` : undefined} />
         <div className="px-3 pb-3">
@@ -295,14 +297,16 @@ function ListaSimple<T extends { id: string; nombre: string; cargas: number }>({
           ) : (
             <ul>
               {filas.map((f) => (
-                <li key={f.id} className={`flex items-center gap-4 rounded-[20px] px-3 py-3.5 transition-[background-color,opacity] duration-500 ${CURVA} hover:bg-white/[0.03] ${activo(f) ? '' : 'opacity-50'}`}>
-                  <div className="min-w-0 flex-1 pl-1">
+                <li key={f.id} className={`flex flex-wrap items-center gap-x-4 gap-y-3 rounded-[20px] px-3 py-3.5 transition-[background-color,opacity] duration-500 ${CURVA} hover:bg-white/[0.03] ${activo(f) ? '' : 'opacity-50'}`}>
+                  <div className="min-w-0 flex-1 basis-40 pl-1">
                     <p className="truncate text-[15.5px] font-semibold text-[#ebe6dd]">{f.nombre}</p>
                     <p className="truncate text-[13px] text-[#8a7a64]">{subtitulo(f) || 'Sin más datos'}</p>
                   </div>
-                  <Cargas n={f.cargas} />
-                  <Interruptor activo={activo(f)} alCambiar={() => void alternar(f)} etiqueta={`${activo(f) ? 'Desactivar' : 'Activar'} ${f.nombre}`} />
-                  <button type="button" onClick={() => { setEditando(f); setAviso(null); setError(null); }} className={GHOST}>Editar</button>
+                  <div className="flex items-center gap-4 max-sm:w-full max-sm:justify-between max-sm:pl-1">
+                    <Cargas n={f.cargas} />
+                    <Interruptor activo={activo(f)} alCambiar={() => void alternar(f)} etiqueta={`${activo(f) ? 'Desactivar' : 'Activar'} ${f.nombre}`} />
+                    <button type="button" onClick={() => { setEditando(f); setAviso(null); setError(null); }} className={GHOST}>Editar</button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -397,7 +401,7 @@ function Panel({ alVencer }: { alVencer: () => void }) {
     alVencer();
   }
   const pestanas: [Pestana, string][] = [['promotoras', 'Promotoras'], ['eventos', 'Eventos'], ['sucursales', 'Sucursales'], ['cargas', 'Cargas']];
-  const enlace = `rounded-full px-4 py-2 text-[13.5px] font-medium text-[#b4a892] transition-colors duration-500 ${CURVA} hover:text-[#ebe6dd] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e]`;
+  const enlace = `whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-[#b4a892] transition-colors duration-500 ${CURVA} hover:text-[#ebe6dd] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e]`;
 
   return (
     <div className="pv-login dark relative min-h-dvh overflow-x-clip bg-[#070605] pb-24 [color-scheme:dark]">
@@ -405,9 +409,9 @@ function Panel({ alVencer }: { alVencer: () => void }) {
 
       <header className="sticky top-4 z-30 mx-auto mt-5 flex w-[min(1180px,calc(100%-32px))] items-center justify-between rounded-full bg-[rgba(13,11,9,0.72)] py-2 pl-5 pr-3 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_20px_50px_-24px_rgba(0,0,0,0.9)] backdrop-blur-xl">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/demo-providus/logo-app.jpg" alt="Providus, S.A. de Capitalización y Renta" width={1086} height={268} className="pv-logo-app h-9 w-auto" />
+        <img src="/demo-providus/logo-app.jpg" alt="Providus, S.A. de Capitalización y Renta" width={1086} height={268} className="pv-logo-app h-7 w-auto sm:h-9" />
         <nav className="flex items-center gap-1" aria-label="Navegación del panel">
-          <a href="/demo_providus/central" className={enlace}>Central en vivo</a>
+          <a href="/demo_providus/central" className={enlace}>Central<span className="max-sm:hidden">&nbsp;en vivo</span></a>
           <button type="button" onClick={() => void salir()} className={enlace}>Salir</button>
         </nav>
       </header>
