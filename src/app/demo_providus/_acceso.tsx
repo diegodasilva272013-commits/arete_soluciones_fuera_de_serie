@@ -20,11 +20,11 @@ function Pantalla({ children }: { children: React.ReactNode }) {
       <div className="lg:hidden">
         <div className="pv-escena relative h-[330px] w-full overflow-hidden">
           <div className="absolute left-1/2 top-1/2 h-[680px] w-[720px] -translate-x-1/2 -translate-y-1/2 scale-[0.48] sm:scale-[0.6]">
-            <Ripple mainCircleSize={100} className="max-w-full" />
+            <Ripple mainCircleSize={100} className="max-w-full [mask-image:none] dark:[mask-image:none]" />
             <TechOrbitDisplay iconsArray={ICONOS_ORBITA} center={
               <span className="pointer-events-none relative z-10 mx-auto block w-[80%] max-w-[600px]" aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/demo-providus/logo-app.jpg" alt="Providus, S.A. de Capitalización y Renta" width={966} height={181} className="pv-logo-app block h-auto w-full" />
+              <img src="/demo-providus/logo-app.jpg" alt="Providus, S.A. de Capitalización y Renta" width={1086} height={268} className="pv-logo-app block h-auto w-full" />
             </span>
             } />
           </div>
@@ -37,11 +37,11 @@ function Pantalla({ children }: { children: React.ReactNode }) {
         {/* Izquierda */}
         <span className="relative flex h-dvh w-1/2 flex-col pv-escena shadow-[inset_-1px_0_0_rgba(224,96,58,0.18)] max-lg:hidden">
           <span className="relative flex-1">
-            <Ripple mainCircleSize={100} className="max-w-full" />
+            <Ripple mainCircleSize={100} className="max-w-full [mask-image:none] dark:[mask-image:none]" />
             <TechOrbitDisplay iconsArray={ICONOS_ORBITA} center={
               <span className="pointer-events-none relative z-10 mx-auto block w-[88%] max-w-[640px]" aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/demo-providus/logo-app.jpg" alt="Providus, S.A. de Capitalización y Renta" width={966} height={181} className="pv-logo-app block h-auto w-full" />
+              <img src="/demo-providus/logo-app.jpg" alt="Providus, S.A. de Capitalización y Renta" width={1086} height={268} className="pv-logo-app block h-auto w-full" />
             </span>
             } />
           </span>
