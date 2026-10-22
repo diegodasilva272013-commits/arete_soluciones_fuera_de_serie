@@ -50,19 +50,19 @@ export function CargasEnVivo() {
 
   return (
     <div className="w-full max-w-[470px]" aria-hidden="true">
-      <p className="mb-3.5 flex items-center gap-2.5 text-[13px] font-semibold text-[var(--pv-aluminio)]">
+      <p className="mb-3 flex items-center gap-2.5 text-[13px] font-semibold text-[var(--pv-aluminio)]">
         <span className="relative flex h-2 w-2">
           <span className="pv-pulso absolute inset-0 rounded-full bg-[var(--pv-naranja-luz)]" />
           <span className="relative h-2 w-2 rounded-full bg-[var(--pv-naranja-luz)]" />
         </span>
         En vivo
-        <span className="font-medium text-[var(--pv-sec)]">Así llegan las cargas a la central (nombres de ejemplo)</span>
+        <span className="pv-carga-extra font-medium text-[var(--pv-sec)]">Así llegan las cargas a la central (nombres de ejemplo)</span>
       </p>
       <ul className="flex flex-col gap-2">
         {visibles.map((v, k) => (
           <li
             key={v.i}
-            className="pv-carga flex items-center gap-3.5 rounded-[14px] bg-[rgba(26,20,13,0.64)] py-2.5 pl-2.5 pr-4 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.16),0_18px_40px_-18px_rgba(0,0,0,0.85)]"
+            className={`pv-carga flex items-center gap-3.5 rounded-[14px] bg-[rgba(26,20,13,0.64)] py-2.5 pl-2.5 pr-4 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.16),0_18px_40px_-18px_rgba(0,0,0,0.85)] ${k > 0 ? 'pv-carga-extra' : ''}`}
             style={{ opacity: k === 0 ? 1 : k === 1 ? 0.7 : 0.4 }}
           >
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--pv-bronce-700)] to-[var(--pv-bronce-800)] text-[14px] font-semibold text-[var(--pv-arena)] shadow-[inset_0_0_0_1px_rgba(227,197,142,0.35)]">{iniciales(v.quien)}</span>

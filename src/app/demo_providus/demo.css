@@ -271,3 +271,8 @@ html:has(.providus-demo) {
   --input: #2b2118;
   min-height: 100dvh;
 }
+
+/* Pantallas bajas: las cargas en vivo se reducen a la última para no apretar la órbita. */
+@media (max-height: 860px) {
+  .pv-carga-extra { display: none; }
+}
