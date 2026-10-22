@@ -303,3 +303,13 @@ html:has(.providus-demo) {
   opacity: 0.7 !important;
   box-shadow: 0 0 22px rgba(224, 96, 58, 0.1), inset 0 0 22px rgba(224, 96, 58, 0.05);
 }
+
+/* Botón principal deshabilitado, versión oscura (ingreso y panel de administración). */
+.pv-login .pv-boton:disabled {
+  background: #2a211a;
+  color: #8a7a64;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pv-in { animation: none; }
+}
