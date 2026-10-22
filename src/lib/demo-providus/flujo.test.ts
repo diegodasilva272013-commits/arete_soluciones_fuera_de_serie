@@ -50,7 +50,7 @@ afterEach(() => {
 const configurar = () => { process.env.ELEVENLABS_API_KEY = 'k'; process.env.ELEVENLABS_PROVIDUS_AGENT_ID = 'ag'; process.env.ELEVENLABS_PHONE_NUMBER_ID = 'ph'; };
 
 describe('asignar y avisar', () => {
-  it('asigna al vendedor de la zona y le pide la llamada al asistente', async () => {
+  it('asigna al vendedor de la zona y el asistente llama al cliente', async () => {
     configurar();
     const est = { vendedores: [vendedor()], registros: [registro()] };
     const r = await asignarYAvisar(baseFalsa(est), lead);
@@ -59,8 +59,8 @@ describe('asignar y avisar', () => {
     expect(est.vendedores[0].ultima_asignacion).toBeTruthy();
     expect(fetchFalso).toHaveBeenCalledTimes(1);
     const cuerpo = JSON.parse((fetchFalso.mock.calls[0][1] as RequestInit).body as string);
-    expect(cuerpo.to_number).toBe('+5493454100816'); // llama al VENDEDOR, no al cliente
-    expect(cuerpo.conversation_initiation_client_data.dynamic_variables.cliente_nombre).toBe('Marcos');
+    expect(cuerpo.to_number).toBe('+5493415001234'); // llama al CLIENTE, no al vendedor
+    expect(cuerpo.conversation_initiation_client_data.dynamic_variables).toMatchObject({ prospecto_nombre: 'Marcos', vendedor_nombre: 'Diego', telefono_e164: '+5493415001234' });
   });
 
   it('no llama dos veces por el mismo lead', async () => {

@@ -1,6 +1,6 @@
 /**
  * DEMO PROVIDUS — qué pasa cuando entra un lead: se asigna al vendedor de la zona y, si
- * corresponde, el agente de IA le llama al celular. Corre DESPUÉS de guardar el registro y
+ * corresponde, el agente de IA llama al CLIENTE. Corre DESPUÉS de guardar el registro y
  * nunca puede romper el alta: cualquier error se registra y el lead queda guardado igual
  * (sin asignar, o asignado sin llamada). Si todavía no se corrió la migración 0089, no hace nada.
  */
@@ -58,7 +58,7 @@ export async function asignarYAvisar(admin: any, lead: LeadNuevo): Promise<{ ven
     if (!reservado) return { vendedor: vendedor.id, llamada: 'ya_pedida' };
 
     const r = await iniciarLlamada({
-      vendedor: { nombre: vendedor.nombre, telefono_e164: vendedor.telefono_e164 },
+      vendedor: { nombre: vendedor.nombre },
       cliente: { nombre: lead.nombre, apellido: lead.apellido, telefono_e164: lead.telefono_e164, provincia: lead.provincia, localidad: lead.localidad },
       promotora: lead.promotora,
       evento: lead.evento,

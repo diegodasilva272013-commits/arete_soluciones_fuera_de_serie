@@ -86,7 +86,7 @@ function Tarjeta({ l, ahora, nuevo, alMarcar }: { l: Lead; ahora: number; nuevo:
           Cargó {l.promotora_nombre ? `${l.promotora_nombre} ${l.promotora_apellido ?? ''}`.trim() : 'una promotora'}
           {l.evento ? ` en ${l.evento}` : ''}. <span className="pv-num">{hace(ts(l), ahora)}</span>
         </p>
-        {avisoIA && <p className="mt-2 text-[12.5px] font-medium text-[#e3c58e]">El asistente de voz te está llamando para avisarte.</p>}
+        {avisoIA && <p className="mt-2 text-[12.5px] font-medium text-[#e3c58e]">El asistente de voz ya está llamando al cliente.</p>}
 
         <div className="mt-4 grid grid-cols-2 gap-3">
           <a href={`tel:${l.telefono_e164}`} className={`pv-boton group inline-flex h-12 touch-manipulation items-center justify-center gap-2.5 rounded-full text-[15px] font-semibold text-[#fff6ef] transition-transform duration-500 ${CURVA} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e] active:scale-[0.98]`}>

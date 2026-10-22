@@ -83,7 +83,7 @@ const quien = (r: Registro) => (r.promotora_nombre ? `${r.promotora_nombre} ${r.
 /** "Diego Da Silva" → "Diego D." */
 const vendedorCorto = (completo: string) => { const p = completo.trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[p.length - 1][0]}.` : p[0]; };
 /** Estado de la llamada del asistente de voz al vendedor; vacío si no hay nada para decir. */
-const leyendaLlamada = (r: Registro) => (r.llamada_estado === 'llamando' ? 'IA llamando al vendedor' : r.llamada_estado === 'fallida' ? 'La llamada de IA falló' : '');
+const leyendaLlamada = (r: Registro) => (r.llamada_estado === 'llamando' ? 'IA llamando al cliente' : r.llamada_estado === 'fallida' ? 'La llamada de IA falló' : '');
 const nombreCorto = (r: Registro) => (r.promotora_nombre ? `${r.promotora_nombre} ${(r.promotora_apellido ?? '').trim()[0] ?? ''}.`.trim() : r.promotora || 'sin identificar');
 
 // ── piezas ──────────────────────────────────────────────────────────────

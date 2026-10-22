@@ -2,16 +2,15 @@
  * DEMO PROVIDUS — prueba del agente de voz (ElevenLabs + Twilio). Solo administración.
  *  GET   diagnóstico: ¿hay clave, agente y número cargados? ¿ElevenLabs los reconoce? Muestra el primer
  *        mensaje del agente y las variables que usa, para ver qué va a escuchar quien atienda.
- *  POST  hace UNA llamada real al número que se indique, con los datos de lead que se escriban en el
- *        formulario, usando exactamente el mismo código que usa el sistema cuando entra un lead.
+ *  POST  hace UNA llamada real al número que se indique (como si fuera el cliente que dejó sus datos), con el
+ *        nombre del cliente y del vendedor que se escriban, usando el mismo código que usa el sistema cuando entra un lead.
  * La clave nunca sale del servidor.
  */
 import { NextResponse } from 'next/server';
 import { esAdmin, permitirIntento, sesionActual } from '@/lib/demo-providus/sesion';
 import { falla, ipDe } from '@/lib/demo-providus/datos';
 import { normalizarTelefono } from '@/lib/demo-providus/telefono';
-import { PROVINCIAS_AR } from '@/lib/demo-providus/provincias';
-import { configIA, iniciarLlamada, overridesActivos, variablesDelAgente, type DatosLlamada } from '@/lib/demo-providus/llamada-ia';
+import { configIA, iniciarLlamada, variablesDelAgente, type DatosLlamada } from '@/lib/demo-providus/llamada-ia';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
@@ -42,12 +41,12 @@ export async function GET() {
   const a = ag.cuerpo as { name?: string; conversation_config?: { agent?: { first_message?: string; language?: string } } } | null;
   const n = num.cuerpo as { phone_number?: string; label?: string; supports_outbound?: boolean; assigned_agent?: { agent_id?: string } } | null;
   const variables = ag.status === 200 ? Array.from(new Set(Array.from(JSON.stringify(ag.cuerpo).matchAll(/\{\{\s*([A-Za-z0-9_.]+)\s*\}\}/g)).map((m) => m[1]))).filter((v) => !v.startsWith('system__')) : [];
-  const enviadas = Object.keys(variablesDelAgente({ vendedor: { nombre: '', telefono_e164: '' }, cliente: { nombre: '', apellido: '', telefono_e164: '', provincia: '', localidad: null }, promotora: null, evento: null }));
+  const enviadas = Object.keys(variablesDelAgente({ vendedor: { nombre: '' }, cliente: { nombre: '', apellido: '', telefono_e164: '', provincia: '', localidad: null }, promotora: null, evento: null }));
   return NextResponse.json({
     ok: true,
     listo: ag.status === 200 && num.status === 200,
     hay,
-    agente: ag.status === 200 ? { ok: true, nombre: a?.name ?? null, idioma: a?.conversation_config?.agent?.language ?? null, primer_mensaje: a?.conversation_config?.agent?.first_message ?? null, personalizacion: overridesActivos(ag.cuerpo), variables, sin_enviar: variables.filter((v) => !enviadas.includes(v)) } : { ok: false, status: ag.status, detalle: motivo(ag.cuerpo) },
+    agente: ag.status === 200 ? { ok: true, nombre: a?.name ?? null, idioma: a?.conversation_config?.agent?.language ?? null, primer_mensaje: a?.conversation_config?.agent?.first_message ?? null, variables, sin_enviar: variables.filter((v) => !enviadas.includes(v)) } : { ok: false, status: ag.status, detalle: motivo(ag.cuerpo) },
     numero: num.status === 200 ? { ok: true, numero: n?.phone_number ?? null, etiqueta: n?.label ?? null, saliente: n?.supports_outbound ?? null, agente_asignado: n?.assigned_agent?.agent_id ?? null } : { ok: false, status: num.status, detalle: motivo(num.cuerpo) },
   }, { headers: { 'Cache-Control': 'no-store' } });
 }
@@ -58,20 +57,19 @@ export async function POST(req: Request) {
   let b: Record<string, unknown>;
   try { b = await req.json(); } catch { return falla('pedido_invalido', 400, 'El envío llegó incompleto.'); }
 
+  // El número al que se llama es el del "cliente": es quien atiende el agente.
   const numero = normalizarTelefono(txt(b.numero, 40));
   if (!numero) return falla('numero', 422, 'El número no es válido. Escribilo con código de área, por ejemplo 345 4100816.');
-  const clienteTel = normalizarTelefono(txt(b.cliente_telefono, 40));
-  if (!clienteTel) return falla('cliente_telefono', 422, 'El teléfono del cliente de ejemplo no es válido.');
-  const provincia = txt(b.provincia, 60);
-  if (!(PROVINCIAS_AR as readonly string[]).includes(provincia)) return falla('provincia', 422, 'Elegí una provincia de la lista.');
-  const vendedor = txt(b.vendedor_nombre) || 'vendedor';
-  const nombre = txt(b.cliente_nombre) || 'Cliente';
+  const nombre = txt(b.cliente_nombre);
+  if (nombre.length < 2) return falla('cliente_nombre', 422, 'Escribí el nombre del cliente (mínimo 2 letras).');
+  const vendedor = txt(b.vendedor_nombre);
+  if (vendedor.length < 2) return falla('vendedor_nombre', 422, 'Escribí el nombre del vendedor (mínimo 2 letras).');
 
   const datos: DatosLlamada = {
-    vendedor: { nombre: vendedor, telefono_e164: numero },
-    cliente: { nombre, apellido: txt(b.cliente_apellido), telefono_e164: clienteTel, provincia, localidad: txt(b.localidad) || null },
-    promotora: txt(b.promotora) || null,
-    evento: txt(b.evento) || null,
+    cliente: { nombre, apellido: txt(b.cliente_apellido), telefono_e164: numero, provincia: '', localidad: null },
+    vendedor: { nombre: vendedor },
+    promotora: null,
+    evento: null,
   };
   const r = await iniciarLlamada(datos);
   if (r.estado === 'fallida') console.error('[demo-providus] llamada de prueba fallida:', r.error);

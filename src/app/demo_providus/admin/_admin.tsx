@@ -304,7 +304,7 @@ function Vendedores({ alVencer }: { alVencer: () => void }) {
                     <p className="truncate text-[15.5px] font-semibold text-[#ebe6dd]">{v.nombre} {v.apellido}</p>
                     <p className="truncate text-[13px] text-[#8a7a64]">@{v.usuario}. Celular {formatoLegible(v.telefono_e164)}</p>
                     <p className="truncate text-[13px] text-[#b4a892]">Zona: {resumenZona(v)}</p>
-                    <p className="text-[12.5px] text-[#8a7a64]">{v.llamar_ia ? 'Lo llama el asistente de voz' : 'Sin llamada de voz'}</p>
+                    <p className="text-[12.5px] text-[#8a7a64]">{v.llamar_ia ? 'El asistente llama a sus clientes' : 'Sin llamada al cliente'}</p>
                   </div>
                   <div className="flex items-center gap-4 max-sm:w-full max-sm:justify-between max-sm:pl-1">
                     <Cargas n={v.cargas} />
@@ -326,7 +326,7 @@ function Vendedores({ alVencer }: { alVencer: () => void }) {
               <label><span className={ETIQUETA}>Nombre</span><Input className={CAMPO} name="nombre" required key={`vn${editando?.id}`} defaultValue={editando?.nombre ?? ''} autoComplete="off" placeholder="Diego…" /></label>
               <label><span className={ETIQUETA}>Apellido</span><Input className={CAMPO} name="apellido" required key={`va${editando?.id}`} defaultValue={editando?.apellido ?? ''} autoComplete="off" placeholder="Da Silva…" /></label>
             </div>
-            <label><span className={ETIQUETA}>Celular (donde lo llama el asistente)</span>
+            <label><span className={ETIQUETA}>Celular del vendedor</span>
               <Input className={CAMPO} name="telefono" type="tel" inputMode="tel" required key={`vt${editando?.id}`} defaultValue={editando?.telefono_e164 ?? ''} autoComplete="off" placeholder="Ej. 345 4100816…" />
             </label>
             <fieldset>
@@ -345,8 +345,8 @@ function Vendedores({ alVencer }: { alVencer: () => void }) {
               <Interruptor activo={resto} alCambiar={() => setResto((v) => !v)} etiqueta="Recibe los datos de las zonas sin vendedor" />
             </div>
             <div className={FILA}>
-              <span className="min-w-0"><span className="block text-[14px] font-medium text-[#ebe6dd]">Llamada del asistente de voz</span><span className="block text-[12.5px] text-[#8a7a64]">Apenas llega un dato, el asistente le llama al celular para avisarle.</span></span>
-              <Interruptor activo={ia} alCambiar={() => setIa((v) => !v)} etiqueta="Llamada del asistente de voz" />
+              <span className="min-w-0"><span className="block text-[14px] font-medium text-[#ebe6dd]">El asistente llama al cliente</span><span className="block text-[12.5px] text-[#8a7a64]">Apenas llega un dato de su zona, el asistente de voz llama al cliente y le dice que este vendedor lo va a contactar.</span></span>
+              <Interruptor activo={ia} alCambiar={() => setIa((v) => !v)} etiqueta="El asistente llama al cliente" />
             </div>
             {!editando && (
               <label><span className={ETIQUETA}>Usuario para ingresar</span><Input className={CAMPO} name="usuario" required placeholder="Ej. diego.vendedor…" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="off" /></label>
@@ -369,7 +369,7 @@ interface Diagnostico {
   listo: boolean;
   hay: { clave: boolean; agente: boolean; numero: boolean };
   detalle?: string;
-  agente?: { ok: true; nombre: string | null; idioma: string | null; primer_mensaje: string | null; personalizacion: { primer_mensaje: boolean; prompt: boolean; idioma: boolean }; variables: string[]; sin_enviar: string[] } | { ok: false; status: number; detalle: string };
+  agente?: { ok: true; nombre: string | null; idioma: string | null; primer_mensaje: string | null; variables: string[]; sin_enviar: string[] } | { ok: false; status: number; detalle: string };
   numero?: { ok: true; numero: string | null; etiqueta: string | null; saliente: boolean | null; agente_asignado: string | null } | { ok: false; status: number; detalle: string };
 }
 interface ResultadoPrueba { ok: boolean; estado: string; ref: string | null; detalle: string | null; llamado_a: string; variables: Record<string, string> }
@@ -390,19 +390,6 @@ function ProbarAgente({ alVencer }: { alVencer: () => void }) {
   const [llamando, setLlamando] = useState(false);
   const [resultado, setResultado] = useState<ResultadoPrueba | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [activando, setActivando] = useState(false);
-
-  async function activarPersonalizacion() {
-    setActivando(true); setErrorDiag(null);
-    try {
-      const r = await fetch('/api/demo-providus/admin/agente/configurar', { method: 'POST' });
-      if (r.status === 401) { alVencer(); return; }
-      const d = (await r.json().catch(() => null)) as { ok?: boolean; detalle?: string } | null;
-      if (!r.ok || !d?.ok) throw new Error(d?.detalle || `El servidor respondió ${r.status}.`);
-      await comprobar();
-    } catch (e) { setErrorDiag(e instanceof Error ? e.message : String(e)); }
-    finally { setActivando(false); }
-  }
 
   const comprobar = useCallback(async () => {
     setCargandoDiag(true); setErrorDiag(null);
@@ -444,9 +431,6 @@ function ProbarAgente({ alVencer }: { alVencer: () => void }) {
               {ag && (ag.ok
                 ? <Marca ok>Agente encontrado: <strong className="text-[#ebe6dd]">{ag.nombre ?? 'sin nombre'}</strong>{ag.idioma ? ` (${ag.idioma})` : ''}.</Marca>
                 : <Marca ok={false}>ElevenLabs no reconoce el agente ({ag.status}): {ag.detalle}. Si la clave es de otra cuenta, no lo va a encontrar.</Marca>)}
-              {ag && ag.ok && (ag.personalizacion.primer_mensaje && ag.personalizacion.prompt && ag.personalizacion.idioma
-                ? <Marca ok>El agente deja que cada aviso lleve su propio guion con los datos del lead.</Marca>
-                : <Marca ok={false}>El agente todavía no permite que cada llamada lleve su propio guion. Sin eso, el aviso al vendedor usaría el saludo de atención entrante. <button type="button" onClick={() => void activarPersonalizacion()} disabled={activando} className="ml-1 rounded-full px-3 py-1 text-[12.5px] font-semibold text-[#fff6ef] pv-boton">{activando ? 'Activando…' : 'Activar ahora'}</button></Marca>)}
               {nu && (nu.ok
                 ? <Marca ok={nu.saliente !== false}>Número de Twilio: <strong className="text-[#ebe6dd]">{nu.numero ?? nu.etiqueta ?? 'sin dato'}</strong>{nu.saliente === false ? '. No admite llamadas salientes.' : '. Admite llamadas salientes.'}</Marca>
                 : <Marca ok={false}>ElevenLabs no reconoce el número ({nu.status}): {nu.detalle}.</Marca>)}
@@ -455,7 +439,7 @@ function ProbarAgente({ alVencer }: { alVencer: () => void }) {
           )}
           {ag && ag.ok && (
             <div className="mt-6 rounded-2xl bg-[#17120e] p-4 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.12)]">
-              <p className="text-[13px] font-medium text-[#b4a892]">Saludo de atención entrante del agente (el aviso al vendedor trae su propio guion)</p>
+              <p className="text-[13px] font-medium text-[#b4a892]">Lo primero que dice el agente</p>
               <p className="mt-2 text-[14.5px] leading-relaxed text-[#ebe6dd]">{ag.primer_mensaje ? `“${ag.primer_mensaje}”` : 'El agente no tiene primer mensaje configurado: no va a hablar primero.'}</p>
               {ag.variables.length > 0 && <p className="mt-3 text-[12.5px] text-[#8a7a64]">Variables que usa: {ag.variables.join(', ')}</p>}
               {ag.sin_enviar.length > 0 && <p role="alert" className="mt-2 text-[12.5px] font-medium text-[#f08a73]">El agente usa variables que el sistema no manda: {ag.sin_enviar.join(', ')}. Con eso ElevenLabs puede rechazar la llamada.</p>}
@@ -468,25 +452,14 @@ function ProbarAgente({ alVencer }: { alVencer: () => void }) {
       <Bisel etiqueta="Llamada de prueba">
         <form onSubmit={llamar} className="p-6" autoComplete="off">
           <h2 className="pv-display mb-2 text-[19px] text-[#ebe6dd]">Probar el agente</h2>
-          <p className="mb-6 text-[13.5px] leading-relaxed text-[#8a7a64]">Escribí el número al que querés que llame y los datos del lead de ejemplo. El agente llama a ese número como si fuera un vendedor y le cuenta ese lead.</p>
+          <p className="mb-6 text-[13.5px] leading-relaxed text-[#8a7a64]">El agente llama a este número como si fuera un cliente que dejó sus datos en el stand. Con el nombre del cliente y el del vendedor completa su saludo.</p>
           <div className="flex flex-col gap-5">
             <label><span className={ETIQUETA}>Número al que llamar</span><Input className={CAMPO} name="numero" type="tel" inputMode="tel" required autoComplete="off" placeholder="Ej. 345 4100816…" /></label>
             <div className="grid grid-cols-2 gap-4">
-              <label><span className={ETIQUETA}>Nombre del vendedor</span><Input className={CAMPO} name="vendedor_nombre" defaultValue="Diego" autoComplete="off" /></label>
-              <label><span className={ETIQUETA}>Promotora</span><Input className={CAMPO} name="promotora" defaultValue="Laura Pérez" autoComplete="off" /></label>
+              <label><span className={ETIQUETA}>Nombre del cliente</span><Input className={CAMPO} name="cliente_nombre" defaultValue="Carlos" required autoComplete="off" /></label>
+              <label><span className={ETIQUETA}>Apellido</span><Input className={CAMPO} name="cliente_apellido" defaultValue="Gómez" autoComplete="off" /></label>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <label><span className={ETIQUETA}>Nombre del cliente</span><Input className={CAMPO} name="cliente_nombre" defaultValue="Marcos" required autoComplete="off" /></label>
-              <label><span className={ETIQUETA}>Apellido</span><Input className={CAMPO} name="cliente_apellido" defaultValue="Aguirre" autoComplete="off" /></label>
-            </div>
-            <label><span className={ETIQUETA}>Teléfono del cliente</span><Input className={CAMPO} name="cliente_telefono" type="tel" inputMode="tel" defaultValue="341 5551234" required autoComplete="off" /></label>
-            <div className="grid grid-cols-2 gap-4">
-              <label><span className={ETIQUETA}>Provincia</span>
-                <select className={SELECT} name="provincia" defaultValue="Santa Fe" required>{PROVINCIAS_AR.map((p) => <option key={p} value={p}>{p}</option>)}</select>
-              </label>
-              <label><span className={ETIQUETA}>Localidad</span><Input className={CAMPO} name="localidad" defaultValue="Rosario" autoComplete="off" /></label>
-            </div>
-            <label><span className={ETIQUETA}>Evento</span><Input className={CAMPO} name="evento" defaultValue="Prueba del agente" autoComplete="off" /></label>
+            <label><span className={ETIQUETA}>Nombre del vendedor que lo atiende</span><Input className={CAMPO} name="vendedor_nombre" defaultValue="Paola" required autoComplete="off" /></label>
           </div>
           <div className="mt-7"><BotonPrincipal deshabilitado={llamando} className="w-full">{llamando ? 'Pidiendo la llamada…' : 'Llamar ahora'}</BotonPrincipal></div>
 
