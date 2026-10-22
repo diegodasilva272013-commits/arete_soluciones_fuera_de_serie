@@ -82,7 +82,8 @@ const ts = (r: Registro) => new Date(r.creado_en).getTime();
 const quien = (r: Registro) => (r.promotora_nombre ? `${r.promotora_nombre} ${r.promotora_apellido ?? ''}`.trim() : r.promotora || 'Sin identificar');
 /** "Diego Da Silva" → "Diego D." */
 const vendedorCorto = (completo: string) => { const p = completo.trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[p.length - 1][0]}.` : p[0]; };
-const leyendaVendedor = (r: Registro) => `Para ${vendedorCorto(r.vendedor_nombre ?? '')}${r.llamada_estado === 'llamando' ? ' · IA llamando' : r.llamada_estado === 'fallida' ? ' · llamada falló' : ''}`;
+/** Estado de la llamada del asistente de voz al vendedor; vacío si no hay nada para decir. */
+const leyendaLlamada = (r: Registro) => (r.llamada_estado === 'llamando' ? 'IA llamando al vendedor' : r.llamada_estado === 'fallida' ? 'La llamada de IA falló' : '');
 const nombreCorto = (r: Registro) => (r.promotora_nombre ? `${r.promotora_nombre} ${(r.promotora_apellido ?? '').trim()[0] ?? ''}.`.trim() : r.promotora || 'sin identificar');
 
 // ── piezas ──────────────────────────────────────────────────────────────
@@ -154,7 +155,7 @@ function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onCon
           </span>
         </p>
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-1.5">
+      <div className="flex shrink-0 flex-col items-end gap-1">
         <span className="pv-datos text-[13px] text-[var(--pv-aluminio)] max-lg:hidden">{hhmmss(ts(r))}</span>
         <span className="pv-datos text-[11px] text-[var(--pv-sec)]">{hace(ts(r), ahora)}</span>
         {confirmando ? (
@@ -177,7 +178,7 @@ function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onCon
             </button>
           </span>
         )}
-        {!confirmando && r.vendedor_nombre && <span className={`pv-datos text-[10.5px] max-lg:hidden ${r.llamada_estado === 'fallida' ? 'text-[var(--pv-naranja-luz)]' : 'text-[var(--pv-sec)]'}`}>{leyendaVendedor(r)}</span>}
+        {!confirmando && leyendaLlamada(r) && <span className={`pv-datos text-[10.5px] max-lg:hidden ${r.llamada_estado === 'fallida' ? 'text-[var(--pv-naranja-luz)]' : 'text-[var(--pv-sec)]'}`}>{leyendaLlamada(r)}</span>}
         {errorBaja && <span role="alert" className="max-w-[260px] text-right text-[11px] leading-snug text-[var(--pv-naranja-luz)]">{errorBaja}</span>}
       </div>
     </li>
