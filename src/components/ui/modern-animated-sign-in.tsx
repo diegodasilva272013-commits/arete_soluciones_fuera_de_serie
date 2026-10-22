@@ -539,8 +539,8 @@ const AnimatedForm = memo(function AnimatedForm({
           overflow='visible'
         >
           <button
-            className='bg-gradient-to-br relative group/btn from-zinc-200 dark:from-zinc-900
-            dark:to-zinc-900 to-zinc-200 block dark:bg-zinc-800 w-full text-black
+            className='bg-gradient-to-br relative group/btn from-zinc-200 dark:from-[#4a3c2d]
+            dark:to-[#33281c] to-zinc-200 block dark:bg-[#33281c] w-full text-black
             dark:text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset]
               dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] outline-hidden hover:cursor-pointer disabled:cursor-wait'
             type='submit'
@@ -556,7 +556,7 @@ const AnimatedForm = memo(function AnimatedForm({
             <section className='mt-4 text-center hover:cursor-pointer'>
               <button
                 type='button'
-                className='text-sm text-blue-500 hover:cursor-pointer outline-hidden'
+                className='text-sm text-[#e3c58e] hover:cursor-pointer outline-hidden'
                 onClick={goTo}
               >
                 {textVariantButton}
@@ -616,7 +616,7 @@ const AuthTabs = memo(function AuthTabs({
   return (
     <div className='flex max-lg:justify-center w-full md:w-auto'>
       {/* Right Side */}
-      <div className='w-full lg:w-1/2 h-[100dvh] flex flex-col justify-center items-center max-lg:px-[10%]'>
+      <div className='w-full lg:w-1/2 lg:h-[100dvh] flex flex-col justify-center items-center max-lg:px-[10%] max-lg:py-10'>
         <AnimatedForm
           {...(formFields as Omit<React.ComponentProps<typeof AnimatedForm>, 'onSubmit'>)}
           fieldPerRow={1}

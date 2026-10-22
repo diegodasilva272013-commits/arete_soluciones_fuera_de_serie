@@ -23,10 +23,12 @@ function Pantalla({ children }: { children: React.ReactNode }) {
       </div>
       <section className="flex max-lg:justify-center">
         {/* Izquierda */}
-        <span className="relative flex h-dvh w-1/2 flex-col justify-center max-lg:hidden">
-          <Ripple mainCircleSize={100} />
-          <TechOrbitDisplay iconsArray={ICONOS_ORBITA} text="Providus" />
-          <span className="absolute inset-x-0 bottom-10 flex justify-center px-10">
+        <span className="relative flex h-dvh w-1/2 flex-col max-lg:hidden">
+          <span className="relative flex-1">
+            <Ripple mainCircleSize={100} className="max-w-full !bg-transparent" />
+            <TechOrbitDisplay iconsArray={ICONOS_ORBITA} text="Providus" />
+          </span>
+          <span className="flex justify-center px-10 pb-10">
             <CargasEnVivo />
           </span>
         </span>
