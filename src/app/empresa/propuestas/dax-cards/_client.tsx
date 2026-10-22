@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect, useRef } from 'react';
+import { RevealObserver } from '@/components/reveal/RevealObserver';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowRight, ChevronDown, Check, X, Mic } from 'lucide-react';
@@ -8,21 +9,6 @@ import { checkPassword, notifyAcceptance } from './actions';
 import AnimatedGradient from '@/components/ui/animated-gradient';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import s from '../../corp.module.css';
-
-// ── RevealObserver ────────────────────────────────────────────────────────────
-function RevealObserver() {
-  useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => {
-        if (e.isIntersecting) { e.target.classList.add(s.revealOn); io.unobserve(e.target); }
-      }),
-      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
-    );
-    document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
-  return null;
-}
 
 // ── Password gate ─────────────────────────────────────────────────────────────
 function PasswordGate() {
@@ -597,7 +583,7 @@ function ProposalContent() {
 
   return (
     <>
-      <RevealObserver />
+      <RevealObserver revealClass={s.revealOn} threshold={0.08} />
 
       {/* ── Mobile responsive styles ── */}
       <style>{`
