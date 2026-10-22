@@ -260,3 +260,14 @@ html:has(.providus-demo) {
 @media (prefers-reduced-motion: reduce) {
   .pv-carga { animation: none; }
 }
+
+/* Variables del formulario animado (modern-animated-sign-in), en bronce del logo. Solo dentro del ingreso. */
+.pv-login {
+  --background: #1a140d;
+  --foreground: #ffffff;
+  --skeleton: #43362a;
+  --border: #43362a;
+  --btn-border: #43362a;
+  --input: #2b2118;
+  min-height: 100dvh;
+}

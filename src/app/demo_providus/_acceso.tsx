@@ -1,28 +1,38 @@
 'use client';
 
 /**
- * DEMO PROVIDUS — pantallas de ingreso. A la izquierda el video del logo con las cargas de
- * ejemplo entrando en vivo; a la derecha el formulario animado (modern-animated-sign-in) en
- * bronce oscuro. Dos variantes:
+ * DEMO PROVIDUS — pantallas de ingreso, armadas como el demo de modern-animated-sign-in:
+ * izquierda con el Ripple y los íconos que giran alrededor de "Providus" (y abajo las cargas
+ * de ejemplo entrando en vivo), derecha con el formulario animado. En el celular la izquierda
+ * se reemplaza por el video del logo. Dos variantes:
  *  - LoginPromotora: usuario + clave de cada promotora.
  *  - LoginAdmin: una sola clave, para la central y el panel de administración.
  */
 
 import { useState } from 'react';
-import { AnimatedForm } from '@/components/ui/modern-animated-sign-in';
-import { PanelMarca } from './_panel';
+import { AuthTabs, Ripple, TechOrbitDisplay } from '@/components/ui/modern-animated-sign-in';
+import { HeroLogo } from './_hero';
+import { CargasEnVivo, ICONOS_ORBITA } from './_panel';
 
-export function PantallaAcceso({ children }: { children: React.ReactNode }) {
+function Pantalla({ children }: { children: React.ReactNode }) {
   return (
-    <div className="lg:grid lg:min-h-dvh lg:grid-cols-[minmax(0,1.15fr)_minmax(500px,0.85fr)]">
-      <aside className="relative aspect-[5/4] w-full lg:sticky lg:top-0 lg:aspect-auto lg:h-dvh">
-        <PanelMarca />
-      </aside>
-      <main className="relative -mt-8 flex w-full flex-col items-center overflow-hidden rounded-t-[32px] bg-[var(--pv-bronce-950)] px-6 pb-12 pt-10 shadow-[inset_0_1px_0_rgba(227,197,142,0.22)] lg:mt-0 lg:min-h-dvh lg:justify-center lg:rounded-none lg:px-14 lg:py-14 lg:shadow-[inset_1px_0_0_rgba(227,197,142,0.16)]">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] rounded-full bg-[radial-gradient(closest-side,rgba(227,197,142,0.14),transparent)]" aria-hidden="true" />
-        <div className="pointer-events-none absolute -bottom-32 -left-24 h-[420px] w-[420px] rounded-full bg-[radial-gradient(closest-side,rgba(201,75,39,0.13),transparent)]" aria-hidden="true" />
-        <div className="relative flex w-full flex-col items-center">{children}</div>
-      </main>
+    <div className="pv-login dark bg-background text-foreground">
+      {/* Celular: el video del logo arriba */}
+      <div className="relative aspect-[5/3] w-full lg:hidden">
+        <HeroLogo />
+      </div>
+      <section className="flex max-lg:justify-center">
+        {/* Izquierda */}
+        <span className="relative flex h-dvh w-1/2 flex-col justify-center max-lg:hidden">
+          <Ripple mainCircleSize={100} />
+          <TechOrbitDisplay iconsArray={ICONOS_ORBITA} text="Providus" />
+          <span className="absolute inset-x-0 bottom-10 flex justify-center px-10">
+            <CargasEnVivo />
+          </span>
+        </span>
+        {/* Derecha */}
+        <span className="flex w-1/2 flex-col items-center justify-center max-lg:w-full max-lg:px-[10%] lg:h-dvh">{children}</span>
+      </section>
     </div>
   );
 }
@@ -34,15 +44,6 @@ async function pedirIngreso(url: string, cuerpo: Record<string, string>) {
   const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
   const d = (await r.json().catch(() => null)) as { ok?: boolean; detalle?: string } | null;
   if (!r.ok || !d?.ok) throw new Error(d?.detalle || `El servidor respondió ${r.status}.`);
-}
-
-function Cambio({ href, texto }: { href: string; texto: string }) {
-  return (
-    <a href={href} className="mt-3 inline-flex min-h-11 items-center gap-2 text-[13px] font-medium text-[#b4a892] transition-colors hover:text-[#e3c58e]">
-      {texto}
-      <span aria-hidden="true">&rarr;</span>
-    </a>
-  );
 }
 
 /** Usuario + clave de la promotora. `alListo` se llama cuando el servidor ya dejó la sesión abierta. */
@@ -66,21 +67,24 @@ export function LoginPromotora({ alListo }: { alListo: () => void }) {
   }
 
   return (
-    <PantallaAcceso>
-      <AnimatedForm
-        header="Ingreso de promotoras"
-        subHeader="Entrá con tu usuario y tu clave. Cada carga queda a tu nombre."
-        fields={[
-          { label: 'Usuario', name: 'usuario', type: 'text', required: true, placeholder: 'tu.usuario', autoComplete: 'username', onChange: (e) => setUsuario(e.target.value) },
-          { label: 'Clave', name: 'clave', type: 'password', required: true, placeholder: '••••••', autoComplete: 'current-password', onChange: (e) => setClave(e.target.value) },
-        ]}
-        submitButton="Ingresar"
+    <Pantalla>
+      <AuthTabs
+        formFields={{
+          header: 'Ingreso de promotoras',
+          subHeader: 'Entrá con tu usuario y tu clave. Cada carga queda a tu nombre.',
+          fields: [
+            { label: 'Usuario', name: 'usuario', required: true, type: 'text', placeholder: 'tu.usuario', autoComplete: 'username', onChange: (e) => setUsuario(e.target.value) },
+            { label: 'Clave', name: 'clave', required: true, type: 'password', placeholder: 'Tu clave', autoComplete: 'current-password', onChange: (e) => setClave(e.target.value) },
+          ],
+          submitButton: 'Ingresar',
+          textVariantButton: 'Soy del equipo de Providus',
+        }}
+        goTo={() => { window.location.href = '/demo_providus/admin'; }}
+        handleSubmit={() => void entrar()}
         loading={cargando}
         errorField={error}
-        onSubmit={() => void entrar()}
       />
-      <Cambio href="/demo_providus/admin" texto="Soy del equipo de Providus" />
-    </PantallaAcceso>
+    </Pantalla>
   );
 }
 
@@ -104,17 +108,20 @@ export function LoginAdmin({ titulo, alListo }: { titulo: string; alListo: () =>
   }
 
   return (
-    <PantallaAcceso>
-      <AnimatedForm
-        header={titulo}
-        subHeader="Acceso para el equipo de Providus. Pedí la clave de administración."
-        fields={[{ label: 'Clave de administración', name: 'clave', type: 'password', required: true, placeholder: '••••••••', autoComplete: 'current-password', onChange: (e) => setClave(e.target.value) }]}
-        submitButton="Ingresar"
+    <Pantalla>
+      <AuthTabs
+        formFields={{
+          header: titulo,
+          subHeader: 'Acceso para el equipo de Providus. Pedí la clave de administración.',
+          fields: [{ label: 'Clave de administración', name: 'clave', required: true, type: 'password', placeholder: 'Clave', autoComplete: 'current-password', onChange: (e) => setClave(e.target.value) }],
+          submitButton: 'Ingresar',
+          textVariantButton: 'Soy promotora',
+        }}
+        goTo={() => { window.location.href = '/demo_providus'; }}
+        handleSubmit={() => void entrar()}
         loading={cargando}
         errorField={error}
-        onSubmit={() => void entrar()}
       />
-      <Cambio href="/demo_providus" texto="Soy promotora" />
-    </PantallaAcceso>
+    </Pantalla>
   );
 }
