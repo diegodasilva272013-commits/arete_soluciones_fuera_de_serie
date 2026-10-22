@@ -17,7 +17,7 @@ import { PROVINCIAS_AR } from '@/lib/demo-providus/provincias';
 import { formatoLegible } from '@/lib/demo-providus/telefono';
 import { LoginAdmin } from '../_acceso';
 
-type Pestana = 'promotoras' | 'vendedores' | 'eventos' | 'sucursales' | 'cargas';
+type Pestana = 'promotoras' | 'vendedores' | 'eventos' | 'sucursales' | 'cargas' | 'agente';
 
 interface Promotora { id: string; usuario: string; nombre: string; apellido: string; edad: number | null; foto_url: string | null; sucursal_id: string | null; sucursal: string | null; activa: boolean; ultimo_ingreso: string | null; cargas: number }
 interface Evento { id: string; nombre: string; lugar: string | null; fecha: string | null; activo: boolean; cargas: number }
@@ -365,6 +365,135 @@ function Vendedores({ alVencer }: { alVencer: () => void }) {
   );
 }
 
+interface Diagnostico {
+  listo: boolean;
+  hay: { clave: boolean; agente: boolean; numero: boolean };
+  detalle?: string;
+  agente?: { ok: true; nombre: string | null; idioma: string | null; primer_mensaje: string | null; variables: string[]; sin_enviar: string[] } | { ok: false; status: number; detalle: string };
+  numero?: { ok: true; numero: string | null; etiqueta: string | null; saliente: boolean | null; agente_asignado: string | null } | { ok: false; status: number; detalle: string };
+}
+interface ResultadoPrueba { ok: boolean; estado: string; ref: string | null; detalle: string | null; llamado_a: string; variables: Record<string, string> }
+
+function Marca({ ok, children }: { ok: boolean; children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-3 text-[14px] leading-snug">
+      <span className={`mt-[3px] grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full text-[11px] font-bold ${ok ? 'bg-[#1d3a1d] text-[#7be0a0]' : 'bg-[#4a1f18] text-[#f6b9a8]'}`} aria-hidden="true">{ok ? '✓' : '!'}</span>
+      <span className="min-w-0 text-[#cbbfa9]">{children}</span>
+    </li>
+  );
+}
+
+function ProbarAgente({ alVencer }: { alVencer: () => void }) {
+  const [diag, setDiag] = useState<Diagnostico | null>(null);
+  const [errorDiag, setErrorDiag] = useState<string | null>(null);
+  const [cargandoDiag, setCargandoDiag] = useState(true);
+  const [llamando, setLlamando] = useState(false);
+  const [resultado, setResultado] = useState<ResultadoPrueba | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const comprobar = useCallback(async () => {
+    setCargandoDiag(true); setErrorDiag(null);
+    try { setDiag(await pedir<Diagnostico & { ok: boolean }>('/api/demo-providus/admin/agente')); }
+    catch (e) { if (e instanceof Error && e.message === 'SESION') alVencer(); else setErrorDiag(e instanceof Error ? e.message : String(e)); }
+    finally { setCargandoDiag(false); }
+  }, [alVencer]);
+  useEffect(() => { void comprobar(); }, [comprobar]);
+
+  async function llamar(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const cuerpo = Object.fromEntries(Array.from(f.entries()).map(([k, v]) => [k, String(v)]));
+    if (!window.confirm(`Se va a hacer una llamada REAL al ${cuerpo.numero}. Consume minutos de ElevenLabs y de Twilio. ¿Seguimos?`)) return;
+    setError(null); setResultado(null); setLlamando(true);
+    try {
+      const r = await fetch('/api/demo-providus/admin/agente', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
+      if (r.status === 401) { alVencer(); return; }
+      const d = (await r.json().catch(() => null)) as (ResultadoPrueba & { detalle?: string }) | null;
+      if (!d) throw new Error(`El servidor respondió ${r.status}.`);
+      if (d.estado) setResultado(d); else setError(d.detalle || `El servidor respondió ${r.status}.`);
+    } catch (err) { setError(err instanceof Error ? err.message : String(err)); }
+    finally { setLlamando(false); }
+  }
+
+  const ag = diag?.agente; const nu = diag?.numero;
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
+      <Bisel etiqueta="Conexión con ElevenLabs">
+        <Cabecera titulo="Conexión con ElevenLabs" />
+        <div className="px-6 pb-6">
+          {cargandoDiag && <p className="py-6 text-[14px] text-[#8a7a64]" role="status">Comprobando la conexión…</p>}
+          {errorDiag && <Aviso mensaje={null} error={errorDiag} />}
+          {diag && !cargandoDiag && (
+            <ul className="flex flex-col gap-3.5">
+              <Marca ok={diag.hay.clave}>{diag.hay.clave ? 'Clave de ElevenLabs cargada en el servidor.' : 'Falta la clave de ElevenLabs en Vercel (ELEVENLABS_API_KEY).'}</Marca>
+              <Marca ok={diag.hay.agente}>{diag.hay.agente ? 'ID del agente cargado.' : 'Falta el ID del agente.'}</Marca>
+              <Marca ok={diag.hay.numero}>{diag.hay.numero ? 'ID del número de Twilio cargado.' : 'Falta el ID del número.'}</Marca>
+              {ag && (ag.ok
+                ? <Marca ok>Agente encontrado: <strong className="text-[#ebe6dd]">{ag.nombre ?? 'sin nombre'}</strong>{ag.idioma ? ` (${ag.idioma})` : ''}.</Marca>
+                : <Marca ok={false}>ElevenLabs no reconoce el agente ({ag.status}): {ag.detalle}. Si la clave es de otra cuenta, no lo va a encontrar.</Marca>)}
+              {nu && (nu.ok
+                ? <Marca ok={nu.saliente !== false}>Número de Twilio: <strong className="text-[#ebe6dd]">{nu.numero ?? nu.etiqueta ?? 'sin dato'}</strong>{nu.saliente === false ? '. No admite llamadas salientes.' : '. Admite llamadas salientes.'}</Marca>
+                : <Marca ok={false}>ElevenLabs no reconoce el número ({nu.status}): {nu.detalle}.</Marca>)}
+              {diag.detalle && <Marca ok={false}>{diag.detalle}</Marca>}
+            </ul>
+          )}
+          {ag && ag.ok && (
+            <div className="mt-6 rounded-2xl bg-[#17120e] p-4 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.12)]">
+              <p className="text-[13px] font-medium text-[#b4a892]">Lo primero que dice el agente</p>
+              <p className="mt-2 text-[14.5px] leading-relaxed text-[#ebe6dd]">{ag.primer_mensaje ? `“${ag.primer_mensaje}”` : 'El agente no tiene primer mensaje configurado: no va a hablar primero.'}</p>
+              {ag.variables.length > 0 && <p className="mt-3 text-[12.5px] text-[#8a7a64]">Variables que usa: {ag.variables.join(', ')}</p>}
+              {ag.sin_enviar.length > 0 && <p role="alert" className="mt-2 text-[12.5px] font-medium text-[#f08a73]">El agente usa variables que el sistema no manda: {ag.sin_enviar.join(', ')}. Con eso ElevenLabs puede rechazar la llamada.</p>}
+            </div>
+          )}
+          <button type="button" onClick={() => void comprobar()} disabled={cargandoDiag} className={`${GHOST} mt-6`}>Volver a comprobar</button>
+        </div>
+      </Bisel>
+
+      <Bisel etiqueta="Llamada de prueba">
+        <form onSubmit={llamar} className="p-6" autoComplete="off">
+          <h2 className="pv-display mb-2 text-[19px] text-[#ebe6dd]">Probar el agente</h2>
+          <p className="mb-6 text-[13.5px] leading-relaxed text-[#8a7a64]">Escribí el número al que querés que llame y los datos del lead de ejemplo. El agente llama a ese número como si fuera un vendedor y le cuenta ese lead.</p>
+          <div className="flex flex-col gap-5">
+            <label><span className={ETIQUETA}>Número al que llamar</span><Input className={CAMPO} name="numero" type="tel" inputMode="tel" required autoComplete="off" placeholder="Ej. 345 4100816…" /></label>
+            <div className="grid grid-cols-2 gap-4">
+              <label><span className={ETIQUETA}>Nombre del vendedor</span><Input className={CAMPO} name="vendedor_nombre" defaultValue="Diego" autoComplete="off" /></label>
+              <label><span className={ETIQUETA}>Promotora</span><Input className={CAMPO} name="promotora" defaultValue="Laura Pérez" autoComplete="off" /></label>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <label><span className={ETIQUETA}>Nombre del cliente</span><Input className={CAMPO} name="cliente_nombre" defaultValue="Marcos" required autoComplete="off" /></label>
+              <label><span className={ETIQUETA}>Apellido</span><Input className={CAMPO} name="cliente_apellido" defaultValue="Aguirre" autoComplete="off" /></label>
+            </div>
+            <label><span className={ETIQUETA}>Teléfono del cliente</span><Input className={CAMPO} name="cliente_telefono" type="tel" inputMode="tel" defaultValue="341 5551234" required autoComplete="off" /></label>
+            <div className="grid grid-cols-2 gap-4">
+              <label><span className={ETIQUETA}>Provincia</span>
+                <select className={SELECT} name="provincia" defaultValue="Santa Fe" required>{PROVINCIAS_AR.map((p) => <option key={p} value={p}>{p}</option>)}</select>
+              </label>
+              <label><span className={ETIQUETA}>Localidad</span><Input className={CAMPO} name="localidad" defaultValue="Rosario" autoComplete="off" /></label>
+            </div>
+            <label><span className={ETIQUETA}>Evento</span><Input className={CAMPO} name="evento" defaultValue="Prueba del agente" autoComplete="off" /></label>
+          </div>
+          <div className="mt-7"><BotonPrincipal deshabilitado={llamando} className="w-full">{llamando ? 'Pidiendo la llamada…' : 'Llamar ahora'}</BotonPrincipal></div>
+
+          <div aria-live="polite" className="mt-5">
+            {error && <Aviso mensaje={null} error={error} />}
+            {resultado && (resultado.ok
+              ? <Aviso error={null} mensaje={`Llamada pedida. En unos segundos suena el ${resultado.llamado_a}.${resultado.ref ? ` ID de la conversación: ${resultado.ref}.` : ''}`} />
+              : <Aviso mensaje={null} error={`No se pudo hacer la llamada: ${resultado.detalle ?? resultado.estado}`} />)}
+            {resultado && (
+              <details className="mt-3 rounded-2xl bg-[#17120e] px-4 py-3 text-[13px] text-[#8a7a64] shadow-[inset_0_0_0_1px_rgba(227,197,142,0.12)]">
+                <summary className="cursor-pointer text-[#b4a892]">Datos que se le mandaron al agente</summary>
+                <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+                  {Object.entries(resultado.variables).map(([k, v]) => <div key={k} className="contents"><dt className="font-medium text-[#b4a892]">{k}</dt><dd className="min-w-0 break-words">{v || '(vacío)'}</dd></div>)}
+                </dl>
+              </details>
+            )}
+          </div>
+        </form>
+      </Bisel>
+    </div>
+  );
+}
+
 // ── eventos y sucursales (misma mecánica) ───────────────────────────────
 
 function ListaSimple<T extends { id: string; nombre: string; cargas: number }>({ recurso, titulo, vacio, campos, activo, subtitulo, alVencer, alCambiar }: {
@@ -528,7 +657,7 @@ function Panel({ alVencer }: { alVencer: () => void }) {
     await fetch('/api/demo-providus/auth/salir', { method: 'POST' }).catch(() => {});
     alVencer();
   }
-  const pestanas: [Pestana, string][] = [['promotoras', 'Promotoras'], ['vendedores', 'Vendedores'], ['eventos', 'Eventos'], ['sucursales', 'Sucursales'], ['cargas', 'Cargas']];
+  const pestanas: [Pestana, string][] = [['promotoras', 'Promotoras'], ['vendedores', 'Vendedores'], ['eventos', 'Eventos'], ['sucursales', 'Sucursales'], ['cargas', 'Cargas'], ['agente', 'Probar agente']];
   const enlace = `whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-[#b4a892] transition-colors duration-500 ${CURVA} hover:text-[#ebe6dd] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e]`;
 
   return (
@@ -573,6 +702,7 @@ function Panel({ alVencer }: { alVencer: () => void }) {
               activo={(f) => f.activa} subtitulo={(f) => f.ciudad ?? ''} />
           )}
           {pestana === 'cargas' && <ResumenCargas alVencer={alVencer} />}
+          {pestana === 'agente' && <ProbarAgente alVencer={alVencer} />}
         </div>
       </main>
     </div>

@@ -32,7 +32,8 @@ export interface ConfigIA {
 }
 
 export function configIA(env: Record<string, string | undefined> = process.env): ConfigIA | null {
-  const apiKey = env.ELEVENLABS_API_KEY?.trim();
+  // Nombre estándar o los que se cargaron a mano en Vercel (nunca la clave de otro proyecto, como noa_eleven_labs_api).
+  const apiKey = (env.ELEVENLABS_API_KEY || env.eleben_labs_api || env.eleven_labs_api)?.trim();
   const agentId = env.ELEVENLABS_PROVIDUS_AGENT_ID?.trim();
   const phoneNumberId = env.ELEVENLABS_PHONE_NUMBER_ID?.trim();
   return apiKey && agentId && phoneNumberId ? { apiKey, agentId, phoneNumberId } : null;

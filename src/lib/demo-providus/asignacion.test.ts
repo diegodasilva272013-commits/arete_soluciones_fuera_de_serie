@@ -73,6 +73,11 @@ describe('llamada de IA', () => {
     expect(r.estado).toBe('omitida');
     expect(llamados).toBe(0);
   });
+  it('configIA acepta la clave con el nombre que se cargó en Vercel, y nunca usa la de otro proyecto', () => {
+    const base = { ELEVENLABS_PROVIDUS_AGENT_ID: 'b', ELEVENLABS_PHONE_NUMBER_ID: 'c' };
+    expect(configIA({ ...base, eleben_labs_api: ' sk_x ' })?.apiKey).toBe('sk_x');
+    expect(configIA({ ...base, noa_eleven_labs_api: 'sk_ajena' })).toBeNull();
+  });
   it('configIA exige las tres variables', () => {
     expect(configIA({ ELEVENLABS_API_KEY: 'a', ELEVENLABS_PROVIDUS_AGENT_ID: 'b' })).toBeNull();
     expect(configIA({ ELEVENLABS_API_KEY: 'a', ELEVENLABS_PROVIDUS_AGENT_ID: 'b', ELEVENLABS_PHONE_NUMBER_ID: 'c' })).toEqual({ apiKey: 'a', agentId: 'b', phoneNumberId: 'c' });
