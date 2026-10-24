@@ -17,7 +17,7 @@ export function falla(error: string, status: number, detalle?: string) {
   return NextResponse.json({ ok: false, error, detalle }, { status });
 }
 
-export { tablaFaltante } from './errores-base';
+export { columnaFaltante, tablaFaltante } from './errores-base';
 export const FALTA_SQL = 'Falta correr 0088_demo_providus_promotoras.sql en Supabase.';
 
 export const FALTA_SQL_VENDEDORES = 'Falta correr 0089_demo_providus_vendedores.sql en Supabase.';

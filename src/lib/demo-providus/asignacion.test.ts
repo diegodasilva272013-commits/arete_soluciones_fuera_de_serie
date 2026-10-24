@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { elegirVendedor, type VendedorZona } from './asignacion';
+import { columnaFaltante, tablaFaltante } from './errores-base';
 import { armarPedido, configIA, iniciarLlamada, telefonoDictado, variablesDelAgente, type DatosLlamada } from './llamada-ia';
 
 const v = (id: string, extra: Partial<VendedorZona> = {}): VendedorZona => ({
@@ -107,5 +108,22 @@ describe('llamada de IA', () => {
     const fetchFn = ((_u: string, init?: RequestInit) => new Promise((_ok, mal) => { init?.signal?.addEventListener('abort', () => { const e = new Error('abort'); e.name = 'AbortError'; mal(e); }); })) as unknown as typeof fetch;
     const r = await iniciarLlamada(datos, { cfg, fetchFn, timeoutMs: 20 });
     expect(r).toEqual({ estado: 'fallida', error: 'ElevenLabs no respondió a tiempo.' });
+  });
+});
+
+describe('errores de migración sin correr', () => {
+  it('reconoce una columna faltante en los dos formatos de Supabase (lectura e inserción)', () => {
+    expect(columnaFaltante({ code: '42703', message: 'column demo_providus_registros.consentimiento does not exist' })).toBe(true);
+    expect(columnaFaltante({ code: 'PGRST204', message: "Could not find the 'consentimiento' column of 'demo_providus_registros' in the schema cache" })).toBe(true);
+    expect(columnaFaltante({ message: "Could not find the 'clave_envio' column of 'demo_providus_registros' in the schema cache" })).toBe(true);
+  });
+  it('una tabla faltante NO es una columna faltante, y un error cualquiera tampoco', () => {
+    expect(columnaFaltante({ code: '42P01', message: 'relation "demo_providus_vendedores" does not exist' })).toBe(false);
+    expect(columnaFaltante({ code: '23505', message: 'duplicate key value violates unique constraint' })).toBe(false);
+    expect(columnaFaltante(null)).toBe(false);
+  });
+  it('tablaFaltante sigue reconociendo la tabla (y confunde el mensaje de columna: por eso se revisa la columna primero)', () => {
+    expect(tablaFaltante({ code: '42P01', message: 'relation "x" does not exist' })).toBe(true);
+    expect(tablaFaltante({ code: 'PGRST204', message: "Could not find the 'x' column of 'y' in the schema cache" })).toBe(true);
   });
 });

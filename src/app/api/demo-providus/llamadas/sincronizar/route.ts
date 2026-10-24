@@ -7,7 +7,7 @@
  */
 import { NextResponse } from 'next/server';
 import { esAdmin, sesionActual } from '@/lib/demo-providus/sesion';
-import { db, falla } from '@/lib/demo-providus/datos';
+import { columnaFaltante, db, falla } from '@/lib/demo-providus/datos';
 import { configIA } from '@/lib/demo-providus/llamada-ia';
 import { interpretarConversacion } from '@/lib/demo-providus/resultado-llamada';
 
@@ -17,8 +17,6 @@ export const maxDuration = 30;
 const VENCE_MS = 10 * 60_000;
 const UNA_VEZ_POR = 4000; // evita que varias pantallas abiertas consulten a ElevenLabs a la vez
 let ultima = 0;
-
-const sinColumna = (e: { code?: string; message?: string } | null) => !!e && (e.code === '42703' || /column .* does not exist/i.test(e.message ?? ''));
 
 export async function POST() {
   const s = sesionActual();
@@ -52,7 +50,7 @@ export async function POST() {
 
     const base = { llamada_estado: nuevo.estado, llamada_error: nuevo.detalle };
     let u = await admin.from('demo_providus_registros').update({ ...base, llamada_segundos: nuevo.segundos, llamada_resumen: nuevo.resumen }).eq('id', reg.id).eq('llamada_estado', 'llamando');
-    if (sinColumna(u.error)) u = await admin.from('demo_providus_registros').update(base).eq('id', reg.id).eq('llamada_estado', 'llamando'); // antes de la migración 0090
+    if (columnaFaltante(u.error)) u = await admin.from('demo_providus_registros').update(base).eq('id', reg.id).eq('llamada_estado', 'llamando'); // antes de la migración 0090
     if (u.error) console.error('[demo-providus] no se pudo guardar el resultado', u.error.code, u.error.message);
     else cambios++;
   }

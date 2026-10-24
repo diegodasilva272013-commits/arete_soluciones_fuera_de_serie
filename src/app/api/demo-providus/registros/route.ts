@@ -13,7 +13,7 @@
 import { NextResponse } from 'next/server';
 import { caracteresValidos, normalizarTelefono } from '@/lib/demo-providus/telefono';
 import { esAdmin, sesionActual } from '@/lib/demo-providus/sesion';
-import { db, errorDeFoto, FALTA_SQL, falla, ipDe, subirFoto, tablaFaltante } from '@/lib/demo-providus/datos';
+import { columnaFaltante, db, errorDeFoto, FALTA_SQL, falla, ipDe, subirFoto, tablaFaltante } from '@/lib/demo-providus/datos';
 import { asignarYAvisar } from '@/lib/demo-providus/flujo';
 import { PROVINCIAS_AR } from '@/lib/demo-providus/provincias';
 
@@ -114,7 +114,7 @@ export async function POST(req: Request) {
   const extra = { consentimiento: true, consentimiento_en: new Date().toISOString(), ...(claveEnvio ? { clave_envio: claveEnvio } : {}) };
   const guardar = (r: Record<string, unknown>) => admin.from('demo_providus_registros').insert(r).select('id').single();
   let { data, error } = await guardar({ ...fila, ...extra });
-  if (error && (error.code === '42703' || /column .* does not exist/i.test(error.message ?? ''))) ({ data, error } = await guardar(fila));
+  if (columnaFaltante(error)) ({ data, error } = await guardar(fila));
   if (error?.code === '23505' && claveEnvio && /clave_envio/.test(error.message ?? '')) {
     // Es un reintento de un alta que ya se guardó (por ejemplo, se cortó la red antes de recibir la respuesta): se devuelve el mismo registro.
     const { data: previo } = await admin.from('demo_providus_registros').select('id, foto_url').eq('clave_envio', claveEnvio).maybeSingle();
@@ -154,7 +154,7 @@ export async function GET() {
   const leer = (cols: string) => admin.from('demo_providus_registros').select(cols).eq('eliminado', false).order('creado_en', { ascending: false }).limit(50);
   // Con vendedor y estado de la llamada. Si todavía no se corrió la migración 0089 esas columnas no existen: se lee sin ellas.
   let vivos = await leer(`${colsBase}, vendedor_nombre, contacto_estado, llamada_estado`);
-  if (vivos.error && (vivos.error.code === '42703' || /column .* does not exist/i.test(vivos.error.message ?? ''))) vivos = await leer(colsBase);
+  if (columnaFaltante(vivos.error)) vivos = await leer(colsBase);
   const bajas = await admin.from('demo_providus_registros').select('id').eq('eliminado', true).order('creado_en', { ascending: false }).limit(50);
   const error = vivos.error ?? bajas.error;
   if (error) {

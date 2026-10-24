@@ -5,7 +5,7 @@
  */
 import { NextResponse } from 'next/server';
 import { sesionActual } from '@/lib/demo-providus/sesion';
-import { COLS_VENDEDOR, db, FALTA_SQL_VENDEDORES, falla, tablaFaltante, vendedorPublico } from '@/lib/demo-providus/datos';
+import { COLS_VENDEDOR, columnaFaltante, db, FALTA_SQL_VENDEDORES, falla, tablaFaltante, vendedorPublico } from '@/lib/demo-providus/datos';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +23,7 @@ export async function GET() {
       admin.from('demo_providus_vendedores').select(COLS_VENDEDOR).eq('id', s.id).maybeSingle(),
       leer(COLS_LLAMADA),
     ]);
-    const leads = conLlamada.error && (conLlamada.error.code === '42703' || /column .* does not exist/i.test(conLlamada.error.message ?? '')) ? await leer(COLS) : conLlamada;
+    const leads = columnaFaltante(conLlamada.error) ? await leer(COLS) : conLlamada;
     const error = yo.error ?? leads.error;
     if (error) {
       if (tablaFaltante(error)) return falla('tabla', 503, FALTA_SQL_VENDEDORES);
