@@ -134,7 +134,7 @@ export async function POST(req: Request) {
     promotora: `${prom.nombre} ${prom.apellido}`.trim(), evento: ev.nombre, consentimiento: true,
   });
 
-  return NextResponse.json({ ok: true, id: data.id as string, foto_url: fotoUrl, telefono_e164: e164, asignado: aviso.vendedor !== null, llamada: aviso.llamada });
+  return NextResponse.json({ ok: true, id: data.id as string, foto_url: fotoUrl, telefono_e164: e164, asignado: aviso.vendedor !== null, llamada: aviso.llamada, whatsapp: aviso.whatsapp });
 }
 
 /**

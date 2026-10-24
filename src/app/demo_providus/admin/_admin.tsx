@@ -11,13 +11,14 @@
  * campos son los del formulario animado del ingreso, con el brillo que sigue al mouse.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '@/components/ui/modern-animated-sign-in';
 import { PROVINCIAS_AR } from '@/lib/demo-providus/provincias';
 import { formatoLegible } from '@/lib/demo-providus/telefono';
+import { PLANTILLA_POR_DEFECTO, renderPlantilla } from '@/lib/demo-providus/whatsapp';
 import { LoginAdmin } from '../_acceso';
 
-type Pestana = 'promotoras' | 'vendedores' | 'eventos' | 'sucursales' | 'cargas' | 'agente';
+type Pestana = 'promotoras' | 'vendedores' | 'eventos' | 'sucursales' | 'cargas' | 'whatsapp' | 'agente';
 
 interface Promotora { id: string; usuario: string; nombre: string; apellido: string; edad: number | null; foto_url: string | null; sucursal_id: string | null; sucursal: string | null; activa: boolean; ultimo_ingreso: string | null; cargas: number }
 interface Evento { id: string; nombre: string; lugar: string | null; fecha: string | null; activo: boolean; cargas: number }
@@ -365,6 +366,148 @@ function Vendedores({ alVencer }: { alVencer: () => void }) {
   );
 }
 
+interface ConfigWA { texto: string; activa: boolean; instancia_id: string | null }
+interface InfoWA {
+  guardable: boolean;
+  config: ConfigWA;
+  instancias: { id: string; name: string; status: string; phone_number: string | null }[];
+  instancia_efectiva: { id: string; name: string; phone_number: string | null } | null;
+  variables: { nombre: string; descripcion: string }[];
+  detalle?: string | null;
+}
+interface PruebaWA { ok: boolean; texto: string; desde: string | null; detalle: string | null; enviado_a: string }
+
+const EJEMPLO_WA = { nombre: 'Carlos', apellido: 'Gómez', vendedor: 'Paola', promotora: 'Laura Pérez', evento: 'Expo Rosario' };
+
+function WhatsAppPlantilla({ alVencer }: { alVencer: () => void }) {
+  const [info, setInfo] = useState<InfoWA | null>(null);
+  const [texto, setTexto] = useState('');
+  const [activa, setActiva] = useState(false);
+  const [instanciaId, setInstanciaId] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [guardando, setGuardando] = useState(false);
+  const [probando, setProbando] = useState(false);
+  const [prueba, setPrueba] = useState<PruebaWA | null>(null);
+  const [errorPrueba, setErrorPrueba] = useState<string | null>(null);
+  const area = useRef<HTMLTextAreaElement>(null);
+
+  const cargar = useCallback(async () => {
+    try {
+      const d = await pedir<InfoWA & { ok: boolean }>('/api/demo-providus/admin/whatsapp');
+      setInfo(d); setTexto(d.config.texto); setActiva(d.config.activa); setInstanciaId(d.config.instancia_id ?? '');
+    } catch (e) { if (e instanceof Error && e.message === 'SESION') alVencer(); else setError(e instanceof Error ? e.message : String(e)); }
+  }, [alVencer]);
+  useEffect(() => { void cargar(); }, [cargar]);
+
+  function insertar(v: string) {
+    const el = area.current; const marca = `{{${v}}}`;
+    if (!el) { setTexto((t) => `${t}${marca}`); return; }
+    const a = el.selectionStart ?? texto.length; const b = el.selectionEnd ?? texto.length;
+    setTexto(texto.slice(0, a) + marca + texto.slice(b));
+    requestAnimationFrame(() => { el.focus(); el.setSelectionRange(a + marca.length, a + marca.length); });
+  }
+
+  async function guardar(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null); setAviso(null); setGuardando(true);
+    try {
+      await pedir('/api/demo-providus/admin/whatsapp', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto, activa, instancia_id: instanciaId || null }) });
+      setAviso(activa ? 'Plantilla guardada. Desde ahora se envía sola a cada cliente que autorizó el contacto.' : 'Plantilla guardada. El envío automático está apagado.');
+      await cargar();
+    } catch (err) { if (err instanceof Error && err.message === 'SESION') alVencer(); else setError(err instanceof Error ? err.message : String(err)); }
+    finally { setGuardando(false); }
+  }
+
+  async function probar(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget); const numero = String(f.get('numero') ?? '');
+    if (!window.confirm(`Se va a mandar un WhatsApp REAL al ${numero}. ¿Seguimos?`)) return;
+    setErrorPrueba(null); setPrueba(null); setProbando(true);
+    try {
+      const r = await fetch('/api/demo-providus/admin/whatsapp/probar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero, texto, instancia_id: instanciaId || null }) });
+      if (r.status === 401) { alVencer(); return; }
+      const d = (await r.json().catch(() => null)) as (PruebaWA & { estado?: string }) | null;
+      if (!d) throw new Error(`El servidor respondió ${r.status}.`);
+      if (d.estado) setPrueba(d); else setErrorPrueba((d as unknown as { detalle?: string }).detalle || `El servidor respondió ${r.status}.`);
+    } catch (err) { setErrorPrueba(err instanceof Error ? err.message : String(err)); }
+    finally { setProbando(false); }
+  }
+
+  const vista = renderPlantilla(texto, EJEMPLO_WA);
+  const sinWhatsApp = !!info && info.instancias.length === 0;
+  const hora = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start">
+      <Bisel etiqueta="Plantilla de WhatsApp">
+        <form onSubmit={guardar} className="p-6" autoComplete="off">
+          <h2 className="pv-display mb-2 text-[19px] text-[#ebe6dd]">Plantilla de WhatsApp</h2>
+          <p className="mb-6 text-[13.5px] leading-relaxed text-[#8a7a64]">Es el mensaje que recibe el cliente apenas deja sus datos en el stand. Se manda solo, junto con la llamada del asistente, y únicamente a quien autorizó que lo contacten.</p>
+          {info && !info.guardable && <Aviso mensaje={null} error={info.detalle ?? 'Falta correr la migración 0091 en Supabase.'} />}
+          {sinWhatsApp && <Aviso mensaje={null} error="No hay ningún WhatsApp conectado. Se conecta con un QR desde la integración de Evolution de la plataforma; después aparece acá." />}
+          <Aviso mensaje={aviso} error={error} />
+          <div className="flex flex-col gap-5">
+            <label><span className={ETIQUETA}>Enviar desde</span>
+              <select className={SELECT} value={instanciaId} onChange={(e) => setInstanciaId(e.target.value)} disabled={!info}>
+                <option value="">Automático: el primer WhatsApp conectado</option>
+                {info?.instancias.map((i) => <option key={i.id} value={i.id}>{i.name}{i.phone_number ? ` (${i.phone_number})` : ''}, {i.status}</option>)}
+              </select>
+              {info?.instancia_efectiva && !instanciaId && <span className="mt-2 block text-[12.5px] text-[#8a7a64]">Hoy saldría desde {info.instancia_efectiva.name}{info.instancia_efectiva.phone_number ? ` (${info.instancia_efectiva.phone_number})` : ''}.</span>}
+            </label>
+            <div>
+              <label htmlFor="wa-texto" className={ETIQUETA}>Mensaje</label>
+              <textarea id="wa-texto" ref={area} value={texto} onChange={(e) => setTexto(e.target.value)} rows={7} maxLength={1000} className="w-full resize-y rounded-[10px] border-0 bg-[#17120e] px-3.5 py-3 text-[15px] leading-relaxed text-[#ebe6dd] shadow-[inset_0_0_0_1px_rgba(227,197,142,0.14)] outline-none transition-shadow duration-500 focus-visible:shadow-[inset_0_0_0_1.5px_#e3c58e]" />
+              <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                <span className="text-[12.5px] text-[#8a7a64]">Insertar:</span>
+                {info?.variables.map((v) => (
+                  <button key={v.nombre} type="button" title={v.descripcion} onClick={() => insertar(v.nombre)} className="rounded-full px-3 py-1 text-[12.5px] text-[#e3c58e] shadow-[inset_0_0_0_1px_rgba(227,197,142,0.3)] transition-colors duration-300 hover:bg-white/[0.05] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e]">{`{{${v.nombre}}}`}</button>
+                ))}
+              </div>
+              <span className="mt-2 block text-[12.5px] text-[#6f6252]">{texto.length} de 1000 caracteres.</span>
+            </div>
+            <div className="flex items-center justify-between gap-4 rounded-2xl bg-[#17120e] px-4 py-3.5 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.12)]">
+              <span className="min-w-0"><span className="block text-[14px] font-medium text-[#ebe6dd]">Enviar automáticamente</span><span className="block text-[12.5px] text-[#8a7a64]">Apenas entra el lead, el cliente recibe este mensaje.</span></span>
+              <Interruptor activo={activa} alCambiar={() => setActiva((v) => !v)} etiqueta="Enviar la plantilla automáticamente" />
+            </div>
+          </div>
+          <div className="mt-7 flex items-center gap-3">
+            <BotonPrincipal deshabilitado={guardando || !info?.guardable} className="flex-1">{guardando ? 'Guardando…' : 'Guardar plantilla'}</BotonPrincipal>
+            <button type="button" onClick={() => setTexto(PLANTILLA_POR_DEFECTO)} className={GHOST}>Restaurar</button>
+          </div>
+        </form>
+      </Bisel>
+
+      <div className="flex flex-col gap-6">
+        <Bisel etiqueta="Vista previa">
+          <div className="p-6">
+            <h2 className="pv-display mb-4 text-[19px] text-[#ebe6dd]">Así lo ve el cliente</h2>
+            <div className="rounded-[20px] bg-[#0b141a] p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
+              <div className="ml-auto max-w-[88%] rounded-[16px] rounded-tr-[4px] bg-[#005c4b] px-3.5 py-2.5 text-[14.5px] leading-snug text-[#e9edef] shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+                <p className="whitespace-pre-wrap break-words">{vista || 'Escribí el mensaje…'}</p>
+                <p className="mt-1 text-right text-[11px] text-[#8fb5ab]">{hora} ✓✓</p>
+              </div>
+            </div>
+            <p className="mt-3 text-[12.5px] text-[#8a7a64]">Con datos de ejemplo: {Object.entries(EJEMPLO_WA).map(([k, v]) => `${k} = ${v}`).join(', ')}.</p>
+          </div>
+        </Bisel>
+        <Bisel etiqueta="Mensaje de prueba">
+          <form onSubmit={probar} className="p-6" autoComplete="off">
+            <h2 className="pv-display mb-2 text-[19px] text-[#ebe6dd]">Mandar una prueba</h2>
+            <p className="mb-5 text-[13.5px] leading-relaxed text-[#8a7a64]">Manda este mensaje, tal como está escrito arriba, al número que pongas.</p>
+            <label><span className={ETIQUETA}>Número de WhatsApp</span><Input className={CAMPO} name="numero" type="tel" inputMode="tel" required autoComplete="off" placeholder="Ej. 345 4100816…" /></label>
+            <div className="mt-5"><BotonPrincipal deshabilitado={probando || sinWhatsApp} className="w-full">{probando ? 'Enviando…' : 'Enviar prueba'}</BotonPrincipal></div>
+            <div aria-live="polite" className="mt-4">
+              {errorPrueba && <Aviso mensaje={null} error={errorPrueba} />}
+              {prueba && (prueba.ok ? <Aviso error={null} mensaje={`Enviado al ${prueba.enviado_a}${prueba.desde ? ` desde ${prueba.desde}` : ''}.`} /> : <Aviso mensaje={null} error={`No se pudo enviar: ${prueba.detalle ?? 'sin detalle'}`} />)}
+            </div>
+          </form>
+        </Bisel>
+      </div>
+    </div>
+  );
+}
+
 interface Diagnostico {
   listo: boolean;
   hay: { clave: boolean; agente: boolean; numero: boolean };
@@ -646,7 +789,7 @@ function Panel({ alVencer }: { alVencer: () => void }) {
     await fetch('/api/demo-providus/auth/salir', { method: 'POST' }).catch(() => {});
     alVencer();
   }
-  const pestanas: [Pestana, string][] = [['promotoras', 'Promotoras'], ['vendedores', 'Vendedores'], ['eventos', 'Eventos'], ['sucursales', 'Sucursales'], ['cargas', 'Cargas'], ['agente', 'Probar agente']];
+  const pestanas: [Pestana, string][] = [['promotoras', 'Promotoras'], ['vendedores', 'Vendedores'], ['eventos', 'Eventos'], ['sucursales', 'Sucursales'], ['cargas', 'Cargas'], ['whatsapp', 'WhatsApp'], ['agente', 'Probar agente']];
   const enlace = `whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-[#b4a892] transition-colors duration-500 ${CURVA} hover:text-[#ebe6dd] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e]`;
 
   return (
@@ -691,6 +834,7 @@ function Panel({ alVencer }: { alVencer: () => void }) {
               activo={(f) => f.activa} subtitulo={(f) => f.ciudad ?? ''} />
           )}
           {pestana === 'cargas' && <ResumenCargas alVencer={alVencer} />}
+          {pestana === 'whatsapp' && <WhatsAppPlantilla alVencer={alVencer} />}
           {pestana === 'agente' && <ProbarAgente alVencer={alVencer} />}
         </div>
       </main>

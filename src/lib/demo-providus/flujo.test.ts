@@ -3,10 +3,10 @@ import { asignarYAvisar, type LeadNuevo } from './flujo';
 
 // Base falsa en memoria: solo lo que usa flujo.ts (select / update / eq / maybeSingle).
 /* eslint-disable @typescript-eslint/no-explicit-any */
-function baseFalsa(estado: { vendedores: any[]; registros: any[] }, errorVendedores?: { code: string; message: string }) {
+function baseFalsa(estado: { vendedores: any[]; registros: any[]; config?: any[]; instancias?: any[] }, errorVendedores?: { code: string; message: string }) {
   return {
     from(tabla: string) {
-      const filas = tabla === 'demo_providus_vendedores' ? estado.vendedores : estado.registros;
+      const filas = tabla === 'demo_providus_vendedores' ? estado.vendedores : tabla === 'demo_providus_config' ? (estado.config ?? []) : tabla === 'evolution_instances' ? (estado.instancias ?? []) : estado.registros;
       const filtros: ((r: any) => boolean)[] = [];
       let cambios: any = null;
       const correr = (uno: boolean) => {
@@ -19,6 +19,7 @@ function baseFalsa(estado: { vendedores: any[]; registros: any[] }, errorVendedo
         select: () => b,
         update: (p: any) => { cambios = p; return b; },
         eq: (c: string, v: any) => { filtros.push((r) => r[c] === v); return b; },
+        is: (c: string, v: any) => { filtros.push((r) => (r[c] ?? null) === v); return b; },
         maybeSingle: async () => correr(true),
         then: (ok: any, mal: any) => Promise.resolve(correr(false)).then(ok, mal),
       };
@@ -54,7 +55,7 @@ describe('asignar y avisar', () => {
     configurar();
     const est = { vendedores: [vendedor()], registros: [registro()] };
     const r = await asignarYAvisar(baseFalsa(est), lead);
-    expect(r).toEqual({ vendedor: 'v1', llamada: 'llamando' });
+    expect(r).toMatchObject({ vendedor: 'v1', llamada: 'llamando', whatsapp: 'omitido' });
     expect(est.registros[0]).toMatchObject({ vendedor_id: 'v1', vendedor_nombre: 'Diego Da Silva', llamada_estado: 'llamando', llamada_ref: 'conv_1', llamada_error: null });
     expect(est.vendedores[0].ultima_asignacion).toBeTruthy();
     expect(fetchFalso).toHaveBeenCalledTimes(1);
@@ -75,7 +76,7 @@ describe('asignar y avisar', () => {
   it('sin la llamada de IA configurada igual asigna, y deja la llamada como omitida', async () => {
     const est = { vendedores: [vendedor()], registros: [registro()] };
     const r = await asignarYAvisar(baseFalsa(est), lead);
-    expect(r).toEqual({ vendedor: 'v1', llamada: 'omitida' });
+    expect(r).toMatchObject({ vendedor: 'v1', llamada: 'omitida' });
     expect(est.registros[0]).toMatchObject({ vendedor_id: 'v1', llamada_estado: 'omitida' });
     expect(fetchFalso).not.toHaveBeenCalled();
   });
@@ -85,7 +86,7 @@ describe('asignar y avisar', () => {
     fetchFalso.mockResolvedValueOnce(new Response(JSON.stringify({ detail: 'sin saldo' }), { status: 402 }));
     const est = { vendedores: [vendedor()], registros: [registro()] };
     const r = await asignarYAvisar(baseFalsa(est), lead);
-    expect(r).toEqual({ vendedor: 'v1', llamada: 'fallida' });
+    expect(r).toMatchObject({ vendedor: 'v1', llamada: 'fallida' });
     expect(est.registros[0]).toMatchObject({ vendedor_id: 'v1', llamada_estado: 'fallida' });
     expect(String(est.registros[0].llamada_error)).toContain('sin saldo');
   });
@@ -94,7 +95,7 @@ describe('asignar y avisar', () => {
     configurar();
     const est = { vendedores: [vendedor()], registros: [registro()] };
     const r = await asignarYAvisar(baseFalsa(est), { ...lead, consentimiento: false });
-    expect(r).toEqual({ vendedor: 'v1', llamada: 'sin_consentimiento' });
+    expect(r).toMatchObject({ vendedor: 'v1', llamada: 'sin_consentimiento', whatsapp: 'sin_consentimiento' });
     expect(est.registros[0]).toMatchObject({ vendedor_id: 'v1', llamada_estado: 'pendiente' });
     expect(fetchFalso).not.toHaveBeenCalled();
   });
@@ -102,7 +103,7 @@ describe('asignar y avisar', () => {
     configurar();
     const est = { vendedores: [vendedor({ llamar_ia: false })], registros: [registro()] };
     const r = await asignarYAvisar(baseFalsa(est), lead);
-    expect(r).toEqual({ vendedor: 'v1', llamada: 'omitida' });
+    expect(r).toMatchObject({ vendedor: 'v1', llamada: 'omitida' });
     expect(est.registros[0]).toMatchObject({ vendedor_id: 'v1', llamada_estado: 'pendiente' });
     expect(fetchFalso).not.toHaveBeenCalled();
   });
@@ -111,7 +112,7 @@ describe('asignar y avisar', () => {
     configurar();
     const est = { vendedores: [vendedor({ provincias: ['Córdoba'] })], registros: [registro()] };
     const r = await asignarYAvisar(baseFalsa(est), lead);
-    expect(r).toEqual({ vendedor: null, llamada: 'omitida' });
+    expect(r).toMatchObject({ vendedor: null, llamada: 'omitida' });
     expect(est.registros[0]).not.toHaveProperty('vendedor_id');
     expect(fetchFalso).not.toHaveBeenCalled();
   });
@@ -120,13 +121,13 @@ describe('asignar y avisar', () => {
     configurar();
     const est = { vendedores: [], registros: [registro()] };
     const r = await asignarYAvisar(baseFalsa(est, { code: '42P01', message: 'relation "demo_providus_vendedores" does not exist' }), lead);
-    expect(r).toEqual({ vendedor: null, llamada: 'omitida' });
+    expect(r).toMatchObject({ vendedor: null, llamada: 'omitida' });
     expect(fetchFalso).not.toHaveBeenCalled();
   });
 
   it('un error inesperado de la base se traga y devuelve sin asignar', async () => {
     const rota = { from: () => { throw new Error('se cayó la base'); } };
-    await expect(asignarYAvisar(rota, lead)).resolves.toEqual({ vendedor: null, llamada: 'error' });
+    await expect(asignarYAvisar(rota, lead)).resolves.toMatchObject({ vendedor: null, llamada: 'error', whatsapp: 'error' });
   });
 
   it('rota entre los vendedores de la misma zona', async () => {
@@ -136,5 +137,80 @@ describe('asignar y avisar', () => {
     };
     expect((await asignarYAvisar(baseFalsa(est), lead)).vendedor).toBe('b'); // b era el que más tiempo llevaba sin recibir
     expect((await asignarYAvisar(baseFalsa(est), { ...lead, id: 'r2' })).vendedor).toBe('a'); // ahora le toca a a
+  });
+});
+
+describe('plantilla de WhatsApp al cliente', () => {
+  const instancia = { id: 'i1', name: 'Providus', instance_key: 'prov', api_url: 'https://evo.example.com', api_token: 'tok', status: 'open', phone_number: '5493450000000' };
+  const config = (valor: Record<string, unknown>) => [{ clave: 'whatsapp_plantilla', valor }];
+  const urls = () => fetchFalso.mock.calls.map((c) => String(c[0]));
+  const aEvolution = () => fetchFalso.mock.calls.filter((c) => String(c[0]).startsWith('https://evo.example.com'));
+
+  it('envía la plantilla con los datos del lead y deja registrado que se envió', async () => {
+    const est = { vendedores: [vendedor()], registros: [registro()], config: config({ texto: 'Hola {{nombre}}, te escribe {{vendedor}} de Providus.', activa: true, instancia_id: null }), instancias: [instancia] };
+    const r = await asignarYAvisar(baseFalsa(est), lead);
+    expect(r.whatsapp).toBe('enviado');
+    expect(aEvolution()).toHaveLength(1);
+    expect(urls().some((u) => u === 'https://evo.example.com/message/sendText/prov')).toBe(true);
+    const cuerpo = JSON.parse((aEvolution()[0][1] as RequestInit).body as string);
+    expect(cuerpo).toEqual({ number: '5493415001234', text: 'Hola Marcos, te escribe Diego de Providus.' }); // al CLIENTE, con el vendedor asignado
+    expect(est.registros[0]).toMatchObject({ whatsapp_estado: 'enviado', whatsapp_error: null });
+  });
+
+  it('el WhatsApp y la llamada del asistente salen los dos', async () => {
+    configurar();
+    const est = { vendedores: [vendedor()], registros: [registro()], config: config({ texto: 'Hola {{nombre}}, gracias por pasar por Providus.', activa: true, instancia_id: 'i1' }), instancias: [instancia] };
+    const r = await asignarYAvisar(baseFalsa(est), lead);
+    expect(r).toMatchObject({ vendedor: 'v1', llamada: 'llamando', whatsapp: 'enviado' });
+    expect(urls().some((u) => u.includes('elevenlabs.io'))).toBe(true);
+    expect(aEvolution()).toHaveLength(1);
+  });
+
+  it('con la plantilla desactivada (o sin configurar) no se manda nada', async () => {
+    const est = { vendedores: [vendedor()], registros: [registro()], config: config({ texto: 'Hola {{nombre}}, gracias por venir.', activa: false }), instancias: [instancia] };
+    expect((await asignarYAvisar(baseFalsa(est), lead)).whatsapp).toBe('omitido');
+    expect(aEvolution()).toHaveLength(0);
+    const sinConfig = { vendedores: [vendedor()], registros: [registro()], config: [], instancias: [instancia] };
+    expect((await asignarYAvisar(baseFalsa(sinConfig), lead)).whatsapp).toBe('omitido');
+    expect(aEvolution()).toHaveLength(0);
+  });
+
+  it('sin la autorización del cliente no se le escribe', async () => {
+    const est = { vendedores: [vendedor()], registros: [registro()], config: config({ texto: 'Hola {{nombre}}, gracias por venir.', activa: true }), instancias: [instancia] };
+    expect((await asignarYAvisar(baseFalsa(est), { ...lead, consentimiento: false })).whatsapp).toBe('sin_consentimiento');
+    expect(aEvolution()).toHaveLength(0);
+  });
+
+  it('un solo mensaje por lead aunque el alta se procese dos veces', async () => {
+    const est = { vendedores: [vendedor()], registros: [registro()], config: config({ texto: 'Hola {{nombre}}, gracias por venir.', activa: true }), instancias: [instancia] };
+    await asignarYAvisar(baseFalsa(est), lead);
+    const segunda = await asignarYAvisar(baseFalsa(est), lead);
+    expect(segunda.whatsapp).toBe('ya_enviado');
+    expect(aEvolution()).toHaveLength(1);
+  });
+
+  it('si no hay ningún WhatsApp conectado, lo deja registrado y no rompe nada', async () => {
+    const est = { vendedores: [vendedor()], registros: [registro()], config: config({ texto: 'Hola {{nombre}}, gracias por venir.', activa: true }), instancias: [{ ...instancia, status: 'close' }] };
+    const r = await asignarYAvisar(baseFalsa(est), lead);
+    expect(r).toMatchObject({ vendedor: 'v1', whatsapp: 'omitido' });
+    expect(est.registros[0]).toMatchObject({ vendedor_id: 'v1', whatsapp_estado: 'omitido' });
+    expect(String(est.registros[0].whatsapp_error)).toContain('No hay un WhatsApp conectado');
+  });
+
+  it('si Evolution falla, el lead queda asignado, el mensaje fallido y la llamada sigue su curso', async () => {
+    configurar();
+    fetchFalso.mockImplementation(async (url: string) => (String(url).startsWith('https://evo.example.com') ? new Response('instance not connected', { status: 400 }) : new Response(JSON.stringify({ success: true, conversation_id: 'conv_9' }), { status: 200 })));
+    const est = { vendedores: [vendedor()], registros: [registro()], config: config({ texto: 'Hola {{nombre}}, gracias por venir.', activa: true, instancia_id: 'i1' }), instancias: [instancia] };
+    const r = await asignarYAvisar(baseFalsa(est), lead);
+    expect(r).toMatchObject({ vendedor: 'v1', llamada: 'llamando', whatsapp: 'fallido' });
+    expect(est.registros[0]).toMatchObject({ whatsapp_estado: 'fallido', llamada_estado: 'llamando' });
+    expect(String(est.registros[0].whatsapp_error)).toContain('instance not connected');
+  });
+
+  it('manda el WhatsApp aunque el lead no tenga vendedor de zona', async () => {
+    const est = { vendedores: [vendedor({ provincias: ['Córdoba'] })], registros: [registro()], config: config({ texto: 'Hola {{nombre}}, te escribe {{vendedor}}.', activa: true }), instancias: [instancia] };
+    const r = await asignarYAvisar(baseFalsa(est), lead);
+    expect(r).toMatchObject({ vendedor: null, whatsapp: 'enviado' });
+    expect(JSON.parse((aEvolution()[0][1] as RequestInit).body as string).text).toBe('Hola Marcos, te escribe nuestro equipo.');
   });
 });
