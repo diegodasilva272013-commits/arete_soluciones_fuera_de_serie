@@ -18,6 +18,8 @@ export interface LeadNuevo {
   localidad: string | null;
   promotora: string | null;
   evento: string | null;
+  /** El cliente autorizó en el stand que lo contacten por teléfono. Sin esto no se llama. */
+  consentimiento: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -46,6 +48,7 @@ export async function asignarYAvisar(admin: any, lead: LeadNuevo): Promise<{ ven
     await admin.from('demo_providus_vendedores').update({ ultima_asignacion: ahora }).eq('id', vendedor.id);
 
     if (!vendedor.llamar_ia) return { vendedor: vendedor.id, llamada: 'omitida' };
+    if (!lead.consentimiento) return { vendedor: vendedor.id, llamada: 'sin_consentimiento' };
 
     // Reserva la llamada: solo una vez por lead (si dos pedidos corren a la vez, gana uno).
     const { data: reservado } = await admin

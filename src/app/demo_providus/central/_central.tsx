@@ -15,6 +15,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatoLegible } from '@/lib/demo-providus/telefono';
+import { ETIQUETA_LLAMADA } from '@/lib/demo-providus/resultado-llamada';
 import { LoginAdmin } from '../_acceso';
 
 interface Registro {
@@ -82,8 +83,8 @@ const ts = (r: Registro) => new Date(r.creado_en).getTime();
 const quien = (r: Registro) => (r.promotora_nombre ? `${r.promotora_nombre} ${r.promotora_apellido ?? ''}`.trim() : r.promotora || 'Sin identificar');
 /** "Diego Da Silva" → "Diego D." */
 const vendedorCorto = (completo: string) => { const p = completo.trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[p.length - 1][0]}.` : p[0]; };
-/** Estado de la llamada del asistente de voz al vendedor; vacío si no hay nada para decir. */
-const leyendaLlamada = (r: Registro) => (r.llamada_estado === 'llamando' ? 'IA llamando al cliente' : r.llamada_estado === 'fallida' ? 'La llamada de IA falló' : '');
+/** Estado de la llamada del asistente de voz al cliente; vacío si no hay nada para decir. */
+const leyendaLlamada = (r: Registro) => (r.llamada_estado ? ETIQUETA_LLAMADA[r.llamada_estado]?.corta ?? '' : '');
 const nombreCorto = (r: Registro) => (r.promotora_nombre ? `${r.promotora_nombre} ${(r.promotora_apellido ?? '').trim()[0] ?? ''}.`.trim() : r.promotora || 'sin identificar');
 
 // ── piezas ──────────────────────────────────────────────────────────────
@@ -136,7 +137,9 @@ function MiniPromotora({ r }: { r: Registro }) {
   return <img src={r.promotora_foto_url} alt="" onError={() => setFallo(true)} className="h-5 w-5 shrink-0 rounded-full bg-[var(--pv-bronce-800)] object-cover" />;
 }
 
-function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onConfirmar }: { item: Item; ahora: number; confirmando: boolean; errorBaja: string | null; onPedir: () => void; onCancelar: () => void; onConfirmar: () => void }) {
+interface VendedorLista { id: string; nombre: string; apellido: string; activo: boolean }
+
+function Ficha({ item, ahora, confirmando, errorBaja, vendedores, onReasignar, onPedir, onCancelar, onConfirmar }: { item: Item; ahora: number; confirmando: boolean; errorBaja: string | null; vendedores: VendedorLista[]; onReasignar: (vendedorId: string | null) => void; onPedir: () => void; onCancelar: () => void; onConfirmar: () => void }) {
   const { r } = item;
   const nuevo = item.nuevoHasta !== null && ahora < item.nuevoHasta;
   const [animar] = useState(item.nuevoHasta !== null); // solo anima la entrada si llegó con la pantalla abierta
@@ -178,7 +181,13 @@ function Ficha({ item, ahora, confirmando, errorBaja, onPedir, onCancelar, onCon
             </button>
           </span>
         )}
-        {!confirmando && leyendaLlamada(r) && <span className={`pv-datos text-[10.5px] max-lg:hidden ${r.llamada_estado === 'fallida' ? 'text-[var(--pv-naranja-luz)]' : 'text-[var(--pv-sec)]'}`}>{leyendaLlamada(r)}</span>}
+        {!confirmando && leyendaLlamada(r) && <span className={`pv-datos text-[10.5px] max-lg:hidden ${ETIQUETA_LLAMADA[r.llamada_estado ?? '']?.bueno === false ? 'text-[var(--pv-naranja-luz)]' : 'text-[var(--pv-sec)]'}`}>{leyendaLlamada(r)}</span>}
+        {!confirmando && vendedores.length > 0 && (
+          <select aria-label={`Reasignar a ${r.nombre} ${r.apellido} a otro vendedor`} value={r.vendedor_id ?? ''} onChange={(e) => onReasignar(e.target.value || null)} className="pv-datos max-w-[170px] rounded-[3px] bg-transparent px-1 py-0.5 text-[10.5px] text-[var(--pv-sec)] shadow-[inset_0_0_0_1px_rgba(180,168,146,0.3)] [color-scheme:dark] max-lg:hidden">
+            <option value="">Sin asignar</option>
+            {vendedores.filter((v) => v.activo || v.id === r.vendedor_id).map((v) => <option key={v.id} value={v.id}>{v.nombre} {v.apellido}</option>)}
+          </select>
+        )}
         {errorBaja && <span role="alert" className="max-w-[260px] text-right text-[11px] leading-snug text-[var(--pv-naranja-luz)]">{errorBaja}</span>}
       </div>
     </li>
@@ -197,6 +206,7 @@ function Panel({ alVencer }: { alVencer: () => void }) {
   const [sonido, setSonido] = useState(false);
   const [confirmando, setConfirmando] = useState<string | null>(null);
   const [errorBaja, setErrorBaja] = useState<{ id: string; msg: string } | null>(null);
+  const [vendedores, setVendedores] = useState<VendedorLista[]>([]);
 
   const itemsRef = useRef<Item[]>([]);
   const ultimoOk = useRef(0);
@@ -205,6 +215,21 @@ function Panel({ alVencer }: { alVencer: () => void }) {
   const idLinea = useRef(0);
   const ctxRef = useRef<AudioContext | null>(null);
   const sonidoRef = useRef(false);
+
+  // Vendedores para el selector de reasignar (se refresca cada minuto).
+  useEffect(() => {
+    let activo = true;
+    const traer = async () => {
+      try {
+        const r = await fetch('/api/demo-providus/admin/vendedores', { cache: 'no-store' });
+        const d = (await r.json().catch(() => null)) as { ok?: boolean; filas?: VendedorLista[] } | null;
+        if (activo && r.ok && d?.ok && d.filas) setVendedores(d.filas);
+      } catch { /* sin selector hasta la próxima vuelta */ }
+    };
+    void traer();
+    const t = setInterval(() => void traer(), 60_000);
+    return () => { activo = false; clearInterval(t); };
+  }, []);
 
   // Reloj: corre cada segundo, y con él los "hace X s".
   useEffect(() => {
@@ -352,6 +377,29 @@ function Panel({ alVencer }: { alVencer: () => void }) {
     };
   }, [aplicar, alVencer]);
 
+  // Mientras haya una llamada del asistente en curso, se pregunta cada 10 s cómo terminó (el servidor consulta a ElevenLabs).
+  const hayLlamando = items.some((i) => i.r.llamada_estado === 'llamando');
+  useEffect(() => {
+    if (!hayLlamando) return;
+    const pedir = () => { void fetch('/api/demo-providus/llamadas/sincronizar', { method: 'POST' }).catch(() => {}); };
+    const t = setInterval(pedir, 10_000);
+    return () => clearInterval(t);
+  }, [hayLlamando]);
+
+  /** Reasigna el lead a otro vendedor (o lo deja sin asignar). */
+  async function reasignar(id: string, vendedorId: string | null) {
+    setErrorBaja(null);
+    try {
+      const r = await fetch(`/api/demo-providus/registros/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vendedor_id: vendedorId }) });
+      const d = (await r.json().catch(() => null)) as { ok?: boolean; vendedor_id?: string | null; vendedor_nombre?: string | null; detalle?: string } | null;
+      if (!r.ok || !d?.ok) throw new Error(d?.detalle || `El servidor respondió ${r.status}.`);
+      itemsRef.current = itemsRef.current.map((i) => (i.r.id === id ? { ...i, r: { ...i.r, vendedor_id: d.vendedor_id ?? null, vendedor_nombre: d.vendedor_nombre ?? null } } : i));
+      setItems(itemsRef.current);
+    } catch (err) {
+      setErrorBaja({ id, msg: err instanceof Error ? err.message : String(err) });
+    }
+  }
+
   async function darDeBaja(id: string) {
     setErrorBaja(null);
     const item = itemsRef.current.find((i) => i.r.id === id);
@@ -434,6 +482,8 @@ function Panel({ alVencer }: { alVencer: () => void }) {
                   ahora={ahora}
                   confirmando={confirmando === i.r.id}
                   errorBaja={errorBaja?.id === i.r.id ? errorBaja.msg : null}
+                  vendedores={vendedores}
+                  onReasignar={(v) => void reasignar(i.r.id, v)}
                   onPedir={() => { setErrorBaja(null); setConfirmando(i.r.id); }}
                   onCancelar={() => setConfirmando(null)}
                   onConfirmar={() => void darDeBaja(i.r.id)}

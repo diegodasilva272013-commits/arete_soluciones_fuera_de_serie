@@ -313,3 +313,29 @@ html:has(.providus-demo) {
 @media (prefers-reduced-motion: reduce) {
   .pv-in { animation: none; }
 }
+
+/* Formulario del stand en oscuro (mismo estilo que el ingreso): se remapean los colores de tinta y de campo. */
+.providus-demo {
+  --pv-campo-foco: #ffffff;
+  --pv-trazo: rgba(38, 29, 20, 0.09);
+  --pv-aviso-fondo: #f3d9d4;
+  --pv-fondo-hoja: #e6e0d6;
+}
+.pv-oscuro {
+  --pv-tinta: #ebe6dd;
+  --pv-tinta-2: #b4a892;
+  --pv-tinta-3: #8a7a64;
+  --pv-aluminio-claro: #17120e;
+  --pv-aluminio-sombra: #2a211a;
+  --pv-error: #f08a73;
+  --pv-campo-foco: #1f1812;
+  --pv-trazo: rgba(255, 255, 255, 0.1);
+  --pv-aviso-fondo: #4a1f18;
+  --pv-fondo-hoja: #0d0b09;
+  color-scheme: dark;
+}
+.pv-hoja.pv-oscuro {
+  background-color: #0d0b09;
+  background-image: radial-gradient(60% 38% at 88% 0%, rgba(224, 96, 58, 0.16), transparent 72%);
+  box-shadow: inset 0 1px 0 rgba(224, 96, 58, 0.28);
+}

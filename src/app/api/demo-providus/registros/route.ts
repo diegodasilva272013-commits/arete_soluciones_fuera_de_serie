@@ -58,6 +58,8 @@ export async function POST(req: Request) {
   const provincia = texto(f, 'provincia', 60);
   const localidad = texto(f, 'localidad', 80);
   const eventoId = texto(f, 'evento_id', 60);
+  const consentimiento = ['1', 'true', 'on', 'si'].includes(texto(f, 'consentimiento', 10).toLowerCase());
+  const claveEnvio = texto(f, 'clave_envio', 64);
 
   if (nombre.length < 2) return falla('nombre', 422, 'Falta el nombre (mínimo 2 letras).');
   if (apellido.length < 2) return falla('apellido', 422, 'Falta el apellido (mínimo 2 letras).');
@@ -67,6 +69,8 @@ export async function POST(req: Request) {
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return falla('email', 422, 'El correo no parece válido.');
   if (!PROVINCIAS.has(provincia)) return falla('provincia', 422, 'Elegí una provincia de la lista.');
   if (!eventoId) return falla('evento', 422, 'Elegí el evento.');
+  if (!consentimiento) return falla('consentimiento', 422, 'Falta la autorización del cliente para que lo contacten por teléfono y WhatsApp.');
+  if (claveEnvio && !/^[A-Za-z0-9-]{8,64}$/.test(claveEnvio)) return falla('clave_envio', 422, 'La clave de envío no es válida.');
   const f1 = f.get('foto');
   const eFoto = errorDeFoto(f1);
   if (eFoto) return falla('foto', 422, eFoto);
@@ -96,9 +100,7 @@ export async function POST(req: Request) {
     return falla('storage', 502, e instanceof Error ? e.message : 'No se pudo subir la foto.');
   }
 
-  const { data, error } = await admin
-    .from('demo_providus_registros')
-    .insert({
+  const fila = {
       nombre, apellido, telefono, telefono_e164: e164,
       email: email || null, instagram: instagram || null, provincia, localidad: localidad || null, foto_url: fotoUrl,
       // quién, dónde y cuándo
@@ -107,9 +109,17 @@ export async function POST(req: Request) {
       promotora_nombre: prom.nombre, promotora_apellido: prom.apellido, promotora_edad: prom.edad, promotora_foto_url: prom.foto_url,
       sucursal_id: prom.sucursal_id, sucursal: prom.sucursal?.nombre ?? null,
       dispositivo: (req.headers.get('user-agent') ?? '').slice(0, 120),
-    })
-    .select('id')
-    .single();
+  };
+  // Consentimiento y clave de envío (migración 0090). Si esas columnas todavía no existen, se guarda igual sin ellas.
+  const extra = { consentimiento: true, consentimiento_en: new Date().toISOString(), ...(claveEnvio ? { clave_envio: claveEnvio } : {}) };
+  const guardar = (r: Record<string, unknown>) => admin.from('demo_providus_registros').insert(r).select('id').single();
+  let { data, error } = await guardar({ ...fila, ...extra });
+  if (error && (error.code === '42703' || /column .* does not exist/i.test(error.message ?? ''))) ({ data, error } = await guardar(fila));
+  if (error?.code === '23505' && claveEnvio && /clave_envio/.test(error.message ?? '')) {
+    // Es un reintento de un alta que ya se guardó (por ejemplo, se cortó la red antes de recibir la respuesta): se devuelve el mismo registro.
+    const { data: previo } = await admin.from('demo_providus_registros').select('id, foto_url').eq('clave_envio', claveEnvio).maybeSingle();
+    if (previo) return NextResponse.json({ ok: true, id: previo.id as string, foto_url: (previo.foto_url as string | null) ?? fotoUrl, telefono_e164: e164, asignado: true, llamada: 'ya_pedida', repetido: true });
+  }
 
   if (error || !data) {
     console.error('[demo-providus] no se pudo guardar el registro', error?.code, error?.message);
@@ -121,7 +131,7 @@ export async function POST(req: Request) {
   // Nunca rompe el alta: si algo falla, el lead queda guardado igual (sin asignar o sin llamada).
   const aviso = await asignarYAvisar(admin, {
     id: data.id as string, nombre, apellido, telefono_e164: e164, provincia, localidad: localidad || null,
-    promotora: `${prom.nombre} ${prom.apellido}`.trim(), evento: ev.nombre,
+    promotora: `${prom.nombre} ${prom.apellido}`.trim(), evento: ev.nombre, consentimiento: true,
   });
 
   return NextResponse.json({ ok: true, id: data.id as string, foto_url: fotoUrl, telefono_e164: e164, asignado: aviso.vendedor !== null, llamada: aviso.llamada });

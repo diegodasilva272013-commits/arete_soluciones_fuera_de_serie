@@ -10,6 +10,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatoLegible } from '@/lib/demo-providus/telefono';
+import { ETIQUETA_LLAMADA } from '@/lib/demo-providus/resultado-llamada';
 import { LoginVendedor } from '../_acceso';
 
 type Contacto = 'nuevo' | 'contactado' | 'sin_respuesta';
@@ -31,6 +32,8 @@ interface Lead {
   contacto_estado: Contacto;
   contacto_en: string | null;
   llamada_estado: string | null;
+  llamada_segundos?: number | null;
+  llamada_resumen?: string | null;
 }
 interface Yo { id: string; nombre: string; apellido: string; provincias: string[]; recibe_resto: boolean }
 
@@ -66,7 +69,7 @@ const icoWa = (<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColo
 function Tarjeta({ l, ahora, nuevo, alMarcar }: { l: Lead; ahora: number; nuevo: boolean; alMarcar: (e: Contacto) => void }) {
   const mensaje = `Hola ${l.nombre}, te escribo de Providus. Hoy dejaste tus datos en nuestro stand. ¿Podemos hablar un minuto?`;
   const wa = `https://wa.me/${l.telefono_e164.replace(/\D/g, '')}?text=${encodeURIComponent(mensaje)}`;
-  const avisoIA = l.llamada_estado === 'llamando' && ahora - ts(l) < 180_000;
+  const eti = l.llamada_estado ? ETIQUETA_LLAMADA[l.llamada_estado] : undefined;
   const hecho = l.contacto_estado !== 'nuevo';
   const boton = `inline-flex h-9 touch-manipulation items-center justify-center rounded-full px-4 text-[13px] font-medium text-[#ebe6dd] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14)] transition-[background-color,box-shadow,transform] duration-500 ${CURVA} hover:bg-white/[0.05] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e] active:scale-[0.97]`;
   return (
@@ -86,7 +89,17 @@ function Tarjeta({ l, ahora, nuevo, alMarcar }: { l: Lead; ahora: number; nuevo:
           Cargó {l.promotora_nombre ? `${l.promotora_nombre} ${l.promotora_apellido ?? ''}`.trim() : 'una promotora'}
           {l.evento ? ` en ${l.evento}` : ''}. <span className="pv-num">{hace(ts(l), ahora)}</span>
         </p>
-        {avisoIA && <p className="mt-2 text-[12.5px] font-medium text-[#e3c58e]">El asistente de voz ya está llamando al cliente.</p>}
+        {eti && (
+          <div className="mt-2">
+            <p className={`text-[12.5px] font-medium ${eti.bueno ? 'text-[#e3c58e]' : 'text-[#f08a73]'}`}>{eti.larga}{l.llamada_estado === 'atendida' && l.llamada_segundos ? ` Duró ${l.llamada_segundos} s.` : ''}</p>
+            {l.llamada_resumen && (
+              <details className="mt-1.5 text-[12.5px] text-[#9c8c75]">
+                <summary className="cursor-pointer text-[#b4a892] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e]">Qué se habló</summary>
+                <p className="mt-1.5 leading-relaxed">{l.llamada_resumen}</p>
+              </details>
+            )}
+          </div>
+        )}
 
         <div className="mt-4 grid grid-cols-2 gap-3">
           <a href={`tel:${l.telefono_e164}`} className={`pv-boton group inline-flex h-12 touch-manipulation items-center justify-center gap-2.5 rounded-full text-[15px] font-semibold text-[#fff6ef] transition-transform duration-500 ${CURVA} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e] active:scale-[0.98]`}>
@@ -221,6 +234,15 @@ function Panel({ alVencer }: { alVencer: () => void }) {
   const pendientes = useMemo(() => leads.filter((l) => l.contacto_estado === 'nuevo').sort((a, b) => ts(b) - ts(a)), [leads]);
   const vistos = useMemo(() => leads.filter((l) => l.contacto_estado !== 'nuevo').sort((a, b) => ts(b) - ts(a)), [leads]);
   const lista = vista === 'pendientes' ? pendientes : vistos;
+
+  // Mientras haya una llamada del asistente en curso, se pregunta cada 10 s cómo terminó (el servidor consulta a ElevenLabs).
+  const hayLlamando = leads.some((l) => l.llamada_estado === 'llamando');
+  useEffect(() => {
+    if (!hayLlamando) return;
+    const pedir = () => { void fetch('/api/demo-providus/llamadas/sincronizar', { method: 'POST' }).catch(() => {}); };
+    const t = setInterval(pedir, 10_000);
+    return () => clearInterval(t);
+  }, [hayLlamando]);
 
   useEffect(() => {
     document.title = pendientes.length ? `(${pendientes.length}) Vendedores · Providus` : 'Vendedores · Providus';

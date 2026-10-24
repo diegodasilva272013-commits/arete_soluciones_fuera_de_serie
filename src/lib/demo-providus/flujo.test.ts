@@ -31,7 +31,7 @@ const vendedor = (extra: Record<string, unknown> = {}) => ({
   id: 'v1', nombre: 'Diego', apellido: 'Da Silva', telefono_e164: '+5493454100816', provincias: ['Santa Fe'],
   recibe_resto: false, llamar_ia: true, activo: true, ultima_asignacion: null, ...extra,
 });
-const lead: LeadNuevo = { id: 'r1', nombre: 'Marcos', apellido: 'Aguirre', telefono_e164: '+5493415001234', provincia: 'Santa Fe', localidad: 'Rosario', promotora: 'Laura Pérez', evento: 'Expo' };
+const lead: LeadNuevo = { id: 'r1', nombre: 'Marcos', apellido: 'Aguirre', telefono_e164: '+5493415001234', provincia: 'Santa Fe', localidad: 'Rosario', promotora: 'Laura Pérez', evento: 'Expo', consentimiento: true };
 const registro = (): any => ({ id: 'r1', llamada_estado: 'pendiente' });
 
 const ENV = ['ELEVENLABS_API_KEY', 'ELEVENLABS_PROVIDUS_AGENT_ID', 'ELEVENLABS_PHONE_NUMBER_ID'] as const;
@@ -90,6 +90,14 @@ describe('asignar y avisar', () => {
     expect(String(est.registros[0].llamada_error)).toContain('sin saldo');
   });
 
+  it('si el cliente no autorizó que lo contacten, no se lo llama aunque haya vendedor con IA activada', async () => {
+    configurar();
+    const est = { vendedores: [vendedor()], registros: [registro()] };
+    const r = await asignarYAvisar(baseFalsa(est), { ...lead, consentimiento: false });
+    expect(r).toEqual({ vendedor: 'v1', llamada: 'sin_consentimiento' });
+    expect(est.registros[0]).toMatchObject({ vendedor_id: 'v1', llamada_estado: 'pendiente' });
+    expect(fetchFalso).not.toHaveBeenCalled();
+  });
   it('si el vendedor tiene la llamada de IA apagada, no llama', async () => {
     configurar();
     const est = { vendedores: [vendedor({ llamar_ia: false })], registros: [registro()] };

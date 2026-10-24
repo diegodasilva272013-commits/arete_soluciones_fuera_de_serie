@@ -10,16 +10,20 @@ import { COLS_VENDEDOR, db, FALTA_SQL_VENDEDORES, falla, tablaFaltante, vendedor
 export const dynamic = 'force-dynamic';
 
 const COLS = 'id, creado_en, asignado_en, nombre, apellido, telefono, telefono_e164, provincia, localidad, foto_url, evento, promotora, promotora_nombre, promotora_apellido, sucursal, contacto_estado, contacto_en, llamada_estado';
+// Resultado de la llamada (migración 0090).
+const COLS_LLAMADA = `${COLS}, llamada_segundos, llamada_resumen`;
 
 export async function GET() {
   const s = sesionActual();
   if (!s || s.t !== 'v') return falla('sesion', 401, 'Ingresá con tu usuario de vendedor.');
   try {
     const admin = db();
-    const [yo, leads] = await Promise.all([
+    const leer = (cols: string) => admin.from('demo_providus_registros').select(cols).eq('vendedor_id', s.id).eq('eliminado', false).order('asignado_en', { ascending: false, nullsFirst: false }).limit(100);
+    const [yo, conLlamada] = await Promise.all([
       admin.from('demo_providus_vendedores').select(COLS_VENDEDOR).eq('id', s.id).maybeSingle(),
-      admin.from('demo_providus_registros').select(COLS).eq('vendedor_id', s.id).eq('eliminado', false).order('asignado_en', { ascending: false, nullsFirst: false }).limit(100),
+      leer(COLS_LLAMADA),
     ]);
+    const leads = conLlamada.error && (conLlamada.error.code === '42703' || /column .* does not exist/i.test(conLlamada.error.message ?? '')) ? await leer(COLS) : conLlamada;
     const error = yo.error ?? leads.error;
     if (error) {
       if (tablaFaltante(error)) return falla('tabla', 503, FALTA_SQL_VENDEDORES);

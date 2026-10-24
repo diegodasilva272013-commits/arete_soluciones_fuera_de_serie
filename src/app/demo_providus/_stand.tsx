@@ -38,6 +38,11 @@ const SEIS_SEGUNDOS = 6000;
 
 // ── utilidades ──────────────────────────────────────────────────────────
 
+/** Clave única para cada alta (la usa el servidor para no duplicar un envío que se reintenta). */
+function nuevaClave(): string {
+  try { return crypto.randomUUID(); } catch { return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}-${Math.random().toString(36).slice(2, 12)}`; }
+}
+
 /** Achica la foto en el navegador: lado mayor 1080 px, JPEG calidad 0.82 (~200 KB). */
 async function achicar(archivo: File): Promise<Blob> {
   const LADO = 1080;
@@ -141,7 +146,7 @@ function Campo({ etiqueta, icono, error, ayuda, i, children }: { etiqueta: strin
         className={`group flex h-[54px] items-center gap-3 rounded-[14px] px-4 transition-[background-color,box-shadow] duration-500 ease-[var(--pv-ease)] ${
           error
             ? 'bg-[var(--pv-aluminio-claro)] shadow-[inset_0_0_0_1.5px_var(--pv-error)]'
-            : 'bg-[var(--pv-aluminio-claro)] shadow-[inset_0_0_0_1px_rgba(38,29,20,0.09)] focus-within:bg-white focus-within:shadow-[inset_0_0_0_1.5px_var(--pv-naranja)]'
+            : 'bg-[var(--pv-aluminio-claro)] shadow-[inset_0_0_0_1px_var(--pv-trazo)] focus-within:bg-[var(--pv-campo-foco)] focus-within:shadow-[inset_0_0_0_1.5px_var(--pv-naranja)]'
         }`}
       >
         <span className="shrink-0 text-[var(--pv-tinta-3)] transition-colors duration-500 group-focus-within:text-[var(--pv-naranja)]">{icono}</span>
@@ -209,22 +214,29 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
   const [historial, setHistorial] = useState<Cargado[]>([]);
   const [errorBaja, setErrorBaja] = useState<string | null>(null);
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [consiente, setConsiente] = useState(false);
+  // Clave del alta: si la red se corta y el envío se repite, el servidor reconoce la clave y no crea un registro duplicado.
+  const claveEnvio = useRef(nuevaClave());
+  const reintento = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const intentos = useRef(0);
+  const enviarRef = useRef<() => void>(() => {});
 
   const errores = useMemo(() => validar(form), [form]);
   const e164 = useMemo(() => (errores.telefono ? null : normalizarTelefono(form.telefono)), [errores.telefono, form.telefono]);
-  const valido = Object.keys(errores).length === 0 && !!foto && !procesandoFoto && !!eventoId;
+  const valido = Object.keys(errores).length === 0 && !!foto && !procesandoFoto && !!eventoId && consiente;
 
   // Qué falta, dicho en voz baja encima del botón mientras está apagado.
   const falta = useMemo(() => {
     const l: string[] = [];
     if (!eventoId) l.push('el evento');
     if (!foto) l.push('la foto');
+    if (!consiente) l.push('la autorización del cliente');
     if (errores.nombre) l.push('el nombre');
     if (errores.apellido) l.push('el apellido');
     if (errores.telefono) l.push('el teléfono');
     if (errores.email) l.push('el correo');
     return l;
-  }, [foto, errores, eventoId]);
+  }, [foto, errores, eventoId, consiente]);
 
   // Historial de esta sesión: vive en localStorage, sin consultar la base.
   useEffect(() => {
@@ -238,7 +250,13 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
     try { localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(lista.slice(0, 20))); } catch { /* nada */ }
   }, []);
 
-  useEffect(() => () => { if (temporizador.current) clearTimeout(temporizador.current); }, []);
+  useEffect(() => () => { if (temporizador.current) clearTimeout(temporizador.current); if (reintento.current) clearTimeout(reintento.current); }, []);
+  // Si vuelve internet, se reintenta enseguida el envío que quedó pendiente.
+  useEffect(() => {
+    const volvio = () => { if (reintento.current) { clearTimeout(reintento.current); reintento.current = null; enviarRef.current(); } };
+    window.addEventListener('online', volvio);
+    return () => window.removeEventListener('online', volvio);
+  }, []);
   useEffect(() => () => { if (foto) URL.revokeObjectURL(foto.url); }, [foto]);
 
   function cambiar(campo: Campo, valor: string) {
@@ -265,6 +283,10 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
 
   function limpiar() {
     if (temporizador.current) clearTimeout(temporizador.current);
+    if (reintento.current) { clearTimeout(reintento.current); reintento.current = null; }
+    intentos.current = 0;
+    claveEnvio.current = nuevaClave();
+    setConsiente(false);
     setForm(VACIO);
     setTocado({});
     setFoto(null);
@@ -282,6 +304,8 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
       const fd = new FormData();
       fd.append('foto', foto.blob, 'foto.jpg');
       fd.append('evento_id', eventoId);
+      fd.append('consentimiento', '1');
+      fd.append('clave_envio', claveEnvio.current);
       (Object.keys(form) as Campo[]).forEach((k) => fd.append(k, form[k].trim()));
       const r = await fetch('/api/demo-providus/registros', { method: 'POST', body: fd });
       const d = (await r.json().catch(() => null)) as { ok?: boolean; id?: string; foto_url?: string; detalle?: string; error?: string } | null;
@@ -290,6 +314,7 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
         return;
       }
       if (!r.ok || !d?.ok || !d.id) throw new Error(d?.detalle || `El servidor respondió ${r.status}.`);
+      intentos.current = 0;
       guardarHistorial([{ id: d.id, nombre: form.nombre.trim(), apellido: form.apellido.trim(), hora: new Date().toISOString(), foto: d.foto_url ?? foto.url }, ...historial]);
       setUltimo({ nombre: form.nombre.trim(), foto: foto.url });
       setEstado('listo');
@@ -297,7 +322,14 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       // Los datos del formulario NO se borran: se vuelve a la pantalla con el motivo real.
-      setErrorEnvio(err instanceof TypeError ? `No se pudo conectar con el servidor (${msg}). Revisá la conexión; lo cargado sigue acá.` : msg);
+      if (err instanceof TypeError && intentos.current < 30) {
+        // Sin conexión: se reintenta solo (con la misma clave, así no se duplica el alta) hasta que vuelva internet.
+        intentos.current += 1;
+        setErrorEnvio(`Sin conexión con el servidor. Se reintenta solo apenas vuelva internet (intento ${intentos.current}). Lo cargado sigue acá.`);
+        reintento.current = setTimeout(() => { reintento.current = null; enviarRef.current(); }, 6000);
+      } else {
+        setErrorEnvio(err instanceof TypeError ? `No se pudo conectar con el servidor (${msg}). Revisá la conexión y tocá Enviar de nuevo; lo cargado sigue acá.` : msg);
+      }
       setEstado('formulario');
     }
   }
@@ -314,6 +346,7 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
     }
   }
 
+  enviarRef.current = () => void enviar();
   const enviando = estado === 'enviando';
 
   return (
@@ -328,7 +361,7 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
       </aside>
 
       {/* HOJA DE ALUMINIO: el formulario */}
-      <main className="pv-hoja relative -mt-8 flex w-full flex-col rounded-t-[32px] px-5 pb-6 pt-9 lg:mt-0 lg:min-h-dvh lg:justify-center lg:rounded-l-[40px] lg:rounded-tr-none lg:px-14 lg:py-14">
+      <main className="pv-hoja pv-oscuro relative -mt-8 flex w-full flex-col rounded-t-[32px] px-5 pb-6 pt-9 lg:mt-0 lg:min-h-dvh lg:justify-center lg:rounded-l-[40px] lg:rounded-tr-none lg:px-14 lg:py-14">
         <div className="mx-auto flex w-full max-w-[500px] flex-col">
           <div className="pv-in mb-7 flex items-center gap-3" style={{ ['--i' as string]: 0 }}>
             {promotora.foto_url ? (
@@ -341,7 +374,7 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
               <p className="truncate text-[15px] font-semibold text-[var(--pv-tinta)]">{promotora.nombre} {promotora.apellido}</p>
               <p className="truncate text-[12px] font-medium text-[var(--pv-tinta-2)]">{promotora.sucursal ?? 'Sin sucursal'}{promotora.edad ? ` · ${promotora.edad} años` : ''}</p>
             </div>
-            <button type="button" onClick={() => alSalir(true)} className="rounded-[10px] px-3.5 py-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--pv-tinta-2)] shadow-[inset_0_0_0_1px_rgba(38,29,20,0.18)] transition-colors duration-300 hover:bg-[var(--pv-aluminio-sombra)]">Salir</button>
+            <button type="button" onClick={() => alSalir(true)} className="rounded-[10px] px-3.5 py-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--pv-tinta-2)] shadow-[inset_0_0_0_1px_var(--pv-trazo)] transition-colors duration-300 hover:bg-[var(--pv-aluminio-sombra)]">Salir</button>
           </div>
 
           <div className="mb-8 lg:mb-10">
@@ -356,12 +389,12 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
           {/* EVENTO: cada carga queda registrada en este evento */}
           <div className="mb-6">
             {eventos.length === 0 ? (
-              <p role="alert" className="pv-in rounded-[14px] bg-[#f3d9d4] px-4 py-3 text-[13px] font-medium leading-snug text-[var(--pv-error)]" style={{ ['--i' as string]: 2 }}>No hay eventos activos. Avisale a quien administra para que cree uno.</p>
+              <p role="alert" className="pv-in rounded-[14px] bg-[var(--pv-aviso-fondo)] px-4 py-3 text-[13px] font-medium leading-snug text-[var(--pv-error)]" style={{ ['--i' as string]: 2 }}>No hay eventos activos. Avisale a quien administra para que cree uno.</p>
             ) : (
               <Campo etiqueta="Evento" icono={<IcoEvento />} i={2}>
                 <select className={`${ENTRADA} pr-6`} name="evento" value={eventoId} onChange={(e) => elegirEvento(e.target.value)} disabled={enviando}>
                   {eventos.map((ev) => (
-                    <option key={ev.id} value={ev.id} className="bg-[#f6f3ee] text-[#261d14]">{ev.nombre}{ev.lugar ? ` · ${ev.lugar}` : ''}</option>
+                    <option key={ev.id} value={ev.id} className="bg-[var(--pv-aluminio-claro)] text-[var(--pv-tinta)]">{ev.nombre}{ev.lugar ? ` · ${ev.lugar}` : ''}</option>
                   ))}
                 </select>
                 <span className="pointer-events-none -ml-6 shrink-0 text-[var(--pv-tinta-3)]"><IcoFlechaAbajo /></span>
@@ -428,7 +461,7 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
             <Campo etiqueta="Provincia" icono={<IcoUbicacion />} i={7}>
               <select className={`${ENTRADA} pr-6`} name="provincia" required value={form.provincia} onChange={(e) => cambiar('provincia', e.target.value)} disabled={enviando}>
                 {PROVINCIAS.map((p) => (
-                  <option key={p} value={p} className="bg-[#f6f3ee] text-[#261d14]">{p}</option>
+                  <option key={p} value={p} className="bg-[var(--pv-aluminio-claro)] text-[var(--pv-tinta)]">{p}</option>
                 ))}
               </select>
               <span className="pointer-events-none -ml-6 shrink-0 text-[var(--pv-tinta-3)]"><IcoFlechaAbajo /></span>
@@ -459,10 +492,19 @@ function Formulario({ promotora, eventos, alSalir }: { promotora: Promotora; eve
             </section>
           )}
 
+          {/* AUTORIZACIÓN: sin esto no se puede enviar, y solo se llama a quien la dio */}
+          <label className={`mt-8 flex cursor-pointer items-start gap-3.5 rounded-[14px] p-4 transition-[box-shadow,background-color] duration-500 ease-[var(--pv-ease)] focus-within:shadow-[inset_0_0_0_1.5px_var(--pv-naranja)] ${consiente ? 'bg-[rgba(224,96,58,0.1)] shadow-[inset_0_0_0_1px_rgba(224,96,58,0.5)]' : 'bg-[var(--pv-aluminio-claro)] shadow-[inset_0_0_0_1px_var(--pv-trazo)]'}`}>
+            <input type="checkbox" name="consentimiento" className="peer sr-only" checked={consiente} onChange={(e) => setConsiente(e.target.checked)} disabled={enviando} />
+            <span className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[7px] text-[#fff6ef] shadow-[inset_0_0_0_1.5px_var(--pv-tinta-3)] transition-[background-color,box-shadow] duration-300 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--pv-arena)] ${consiente ? 'bg-[var(--pv-naranja)] shadow-none' : ''}`} aria-hidden="true">
+              {consiente && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>}
+            </span>
+            <span className="text-[14px] leading-snug text-[var(--pv-tinta-2)]"><span className="font-semibold text-[var(--pv-tinta)]">El cliente autoriza</span> que Providus lo contacte por teléfono, incluida una llamada de nuestro asistente de voz, y por WhatsApp.</span>
+          </label>
+
           {/* ACCIÓN: queda fija abajo mientras se desplaza el formulario */}
-          <div className="sticky bottom-0 z-20 -mx-5 mt-10 bg-gradient-to-t from-[#e6e0d6] from-70% to-transparent px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-10 lg:mx-0 lg:px-0">
+          <div className="sticky bottom-0 z-20 -mx-5 mt-10 bg-gradient-to-t from-[var(--pv-fondo-hoja)] from-70% to-transparent px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-10 lg:mx-0 lg:px-0">
             {errorEnvio && (
-              <div role="alert" className="mb-3 rounded-[14px] bg-[#f3d9d4] px-4 py-3 text-[13px] font-medium leading-snug text-[var(--pv-error)]">
+              <div role="alert" className="mb-3 rounded-[14px] bg-[var(--pv-aviso-fondo)] px-4 py-3 text-[13px] font-medium leading-snug text-[var(--pv-error)]">
                 {errorEnvio}
               </div>
             )}
