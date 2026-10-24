@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { elegirInstancia, enviarTexto, numeroParaWhatsapp, PLANTILLA_POR_DEFECTO, renderPlantilla, validarPlantilla, type InstanciaEvolution } from './whatsapp';
+import { PLANTILLA_POR_DEFECTO, armarEnvio, aWhatsapp, configTwilio, enviarWhatsApp, remitente, renderPlantilla, textoNumerado, validarPlantilla, variablesDeContenido, variablesDelTexto, type ConfigTwilio } from './whatsapp';
 
-const inst = (id: string, status: string): InstanciaEvolution => ({ id, name: id, instance_key: `k-${id}`, api_url: 'https://evo.example.com/', api_token: 'tok', status, phone_number: null });
+const cfg: ConfigTwilio = { accountSid: 'AC123', usuario: 'AC123', clave: 'tok', from: '+14155238886' };
 
 describe('plantilla de WhatsApp', () => {
   it('reemplaza las variables con los datos del lead', () => {
@@ -30,38 +30,73 @@ describe('plantilla de WhatsApp', () => {
   });
 });
 
-describe('envío por Evolution', () => {
-  it('manda el texto al WhatsApp elegido con solo los dígitos del número', async () => {
-    let llamado: { url: string; init: RequestInit } | null = null;
-    const fetchFn = (async (url: string, init: RequestInit) => { llamado = { url, init }; return new Response('{}', { status: 201 }); }) as unknown as typeof fetch;
-    const r = await enviarTexto(inst('a', 'open'), '+5493415551234', 'Hola', { fetchFn });
-    expect(r).toEqual({ estado: 'enviado' });
-    expect(llamado!.url).toBe('https://evo.example.com/message/sendText/k-a');
-    expect((llamado!.init.headers as Record<string, string>).apikey).toBe('tok');
-    expect(JSON.parse(llamado!.init.body as string)).toEqual({ number: '5493415551234', text: 'Hola' });
+describe('plantilla numerada para WhatsApp (Twilio)', () => {
+  it('detecta las variables en orden y sin repetir', () => {
+    expect(variablesDelTexto('Hola {{nombre}}, soy {{vendedor}}. Chau {{nombre}} ({{ evento }}).')).toEqual(['nombre', 'vendedor', 'evento']);
+    expect(variablesDelTexto('Sin variables')).toEqual([]);
   });
-  it('si Evolution responde error, queda fallido con el motivo y no lanza', async () => {
-    const fetchFn = (async () => new Response('instance not connected', { status: 400 })) as unknown as typeof fetch;
-    const r = await enviarTexto(inst('a', 'close'), '+5493415551234', 'Hola', { fetchFn });
-    expect(r.estado).toBe('fallido');
-    expect(r.estado === 'fallido' && r.error).toContain('instance not connected');
+  it('convierte {{nombre}} en {{1}}, {{vendedor}} en {{2}}…', () => {
+    expect(textoNumerado('Hola {{nombre}}, soy {{vendedor}}. Chau {{nombre}}.', ['nombre', 'vendedor'])).toBe('Hola {{1}}, soy {{2}}. Chau {{1}}.');
   });
-  it('si la red falla o tarda, devuelve fallido', async () => {
-    expect((await enviarTexto(inst('a', 'open'), '+5493415551234', 'Hola', { fetchFn: (async () => { throw new Error('ECONNRESET'); }) as unknown as typeof fetch })).estado).toBe('fallido');
-    const lento = ((_u: string, init?: RequestInit) => new Promise((_ok, mal) => { init?.signal?.addEventListener('abort', () => { const e = new Error('abort'); e.name = 'AbortError'; mal(e); }); })) as unknown as typeof fetch;
-    expect(await enviarTexto(inst('a', 'open'), '+5493415551234', 'Hola', { fetchFn: lento, timeoutMs: 20 })).toEqual({ estado: 'fallido', error: 'El WhatsApp no respondió a tiempo.' });
-  });
-  it('numeroParaWhatsapp deja solo dígitos', () => {
-    expect(numeroParaWhatsapp('+54 9 341 555-1234')).toBe('5493415551234');
+  it('arma las variables de la plantilla con los datos del lead, y nunca vacías', () => {
+    expect(variablesDeContenido(['nombre', 'vendedor'], { nombre: 'Marcos', vendedor: 'Paola' })).toEqual({ '1': 'Marcos', '2': 'Paola' });
+    expect(variablesDeContenido(['nombre', 'evento'], { nombre: 'Marcos' })).toEqual({ '1': 'Marcos', '2': '-' });
   });
 });
 
-describe('instancia de WhatsApp', () => {
-  it('usa la elegida, y si no hay elegida, la primera conectada', () => {
-    const lista = [inst('a', 'close'), inst('b', 'open'), inst('c', 'connected')];
-    expect(elegirInstancia(lista, 'c')?.id).toBe('c');
-    expect(elegirInstancia(lista, null)?.id).toBe('b');
-    expect(elegirInstancia([inst('a', 'close')], null)).toBeNull();
-    expect(elegirInstancia(lista, 'inexistente')).toBeNull();
+describe('Twilio: configuración y pedido', () => {
+  it('toma la cuenta, el token y el número de WhatsApp del entorno', () => {
+    expect(configTwilio({ TWILIO_ACCOUNT_SID: 'AC1', TWILIO_AUTH_TOKEN: 't', TWILIO_WHATSAPP_FROM: '+1415' })).toEqual({ accountSid: 'AC1', usuario: 'AC1', clave: 't', from: '+1415' });
+    expect(configTwilio({ TWILIO_ACCOUNT_SID: 'AC1', TWILIO_API_KEY: 'SK1', TWILIO_API_SECRET: 's', TWILIO_WHATSAPP_FROM: '+1415' })).toEqual({ accountSid: 'AC1', usuario: 'SK1', clave: 's', from: '+1415' });
+  });
+  it('si falta algo, no hay configuración', () => {
+    expect(configTwilio({ TWILIO_ACCOUNT_SID: 'AC1', TWILIO_AUTH_TOKEN: 't' })).toBeNull();
+    expect(configTwilio({ TWILIO_ACCOUNT_SID: 'AC1', TWILIO_WHATSAPP_FROM: '+1415' })).toBeNull();
+    expect(configTwilio({})).toBeNull();
+  });
+  it('el remitente es un número con prefijo whatsapp: o un Messaging Service', () => {
+    expect(remitente('+14155238886')).toEqual({ From: 'whatsapp:+14155238886' });
+    expect(remitente('whatsapp:+14155238886')).toEqual({ From: 'whatsapp:+14155238886' });
+    expect(remitente('MG' + 'a'.repeat(32))).toEqual({ MessagingServiceSid: 'MG' + 'a'.repeat(32) });
+    expect(aWhatsapp('+5493415551234')).toBe('whatsapp:+5493415551234');
+  });
+  it('arma el pedido con el texto directo', () => {
+    const { url, init } = armarEnvio(cfg, '+5493415551234', { texto: 'Hola Marcos' });
+    expect(url).toBe('https://api.twilio.com/2010-04-01/Accounts/AC123/Messages.json');
+    const p = new URLSearchParams(init.body);
+    expect(p.get('To')).toBe('whatsapp:+5493415551234');
+    expect(p.get('From')).toBe('whatsapp:+14155238886');
+    expect(p.get('Body')).toBe('Hola Marcos');
+    expect(p.get('ContentSid')).toBeNull();
+    expect((init.headers as Record<string, string>).Authorization).toBe(`Basic ${Buffer.from('AC123:tok').toString('base64')}`);
+  });
+  it('arma el pedido con la plantilla aprobada y sus variables', () => {
+    const { init } = armarEnvio(cfg, '+5493415551234', { contentSid: 'HX1', variables: { '1': 'Marcos', '2': 'Paola' } });
+    const p = new URLSearchParams(init.body);
+    expect(p.get('ContentSid')).toBe('HX1');
+    expect(JSON.parse(p.get('ContentVariables')!)).toEqual({ '1': 'Marcos', '2': 'Paola' });
+    expect(p.get('Body')).toBeNull();
+  });
+});
+
+describe('Twilio: envío', () => {
+  const resp = (cuerpo: unknown, status = 200) => (async () => new Response(JSON.stringify(cuerpo), { status })) as unknown as typeof fetch;
+  it('éxito: queda enviado con el SID del mensaje', async () => {
+    expect(await enviarWhatsApp(cfg, '+5493415551234', { texto: 'Hola' }, { fetchFn: resp({ sid: 'SM1', status: 'queued' }, 201) })).toEqual({ estado: 'enviado', sid: 'SM1' });
+  });
+  it('error de Twilio: queda fallido con el código y el motivo', async () => {
+    const r = await enviarWhatsApp(cfg, '+5493415551234', { texto: 'Hola' }, { fetchFn: resp({ code: 63016, message: 'Fuera de la ventana de 24 horas: hace falta una plantilla' }, 400) });
+    expect(r.estado).toBe('fallido');
+    expect(r.estado === 'fallido' && r.error).toContain('63016');
+    expect(r.estado === 'fallido' && r.error).toContain('plantilla');
+  });
+  it('un mensaje que Twilio acepta pero marca fallido también cuenta como fallido', async () => {
+    expect((await enviarWhatsApp(cfg, '+5493415551234', { texto: 'Hola' }, { fetchFn: resp({ sid: 'SM1', status: 'failed', error_code: 63015, error_message: 'no unido al sandbox' }, 201) })).estado).toBe('fallido');
+  });
+  it('sin configuración se omite, y si la red falla o tarda devuelve fallido sin lanzar', async () => {
+    expect((await enviarWhatsApp(null, '+5493415551234', { texto: 'Hola' })).estado).toBe('omitido');
+    expect((await enviarWhatsApp(cfg, '+5493415551234', { texto: 'Hola' }, { fetchFn: (async () => { throw new Error('ECONNRESET'); }) as unknown as typeof fetch })).estado).toBe('fallido');
+    const lento = ((_u: string, init?: RequestInit) => new Promise((_ok, mal) => { init?.signal?.addEventListener('abort', () => { const e = new Error('abort'); e.name = 'AbortError'; mal(e); }); })) as unknown as typeof fetch;
+    expect(await enviarWhatsApp(cfg, '+5493415551234', { texto: 'Hola' }, { fetchFn: lento, timeoutMs: 20 })).toEqual({ estado: 'fallido', error: 'Twilio no respondió a tiempo.' });
   });
 });

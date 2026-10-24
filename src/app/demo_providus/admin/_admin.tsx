@@ -366,28 +366,30 @@ function Vendedores({ alVencer }: { alVencer: () => void }) {
   );
 }
 
-interface ConfigWA { texto: string; activa: boolean; instancia_id: string | null }
+interface ConfigWA { texto: string; activa: boolean; content_sid: string | null }
 interface InfoWA {
   guardable: boolean;
   config: ConfigWA;
-  instancias: { id: string; name: string; status: string; phone_number: string | null }[];
-  instancia_efectiva: { id: string; name: string; phone_number: string | null } | null;
+  twilio: { configurado: boolean; remitente: string | null; cuenta: ({ ok: true; nombre: string | null; tipo: string | null; estado: string | null } | { ok: false; detalle: string }) | null };
+  plantilla_twilio: { content_sid: string; aprobacion: { estado: string | null; detalle?: string } | null; desactualizada: boolean } | null;
   variables: { nombre: string; descripcion: string }[];
   detalle?: string | null;
 }
 interface PruebaWA { ok: boolean; texto: string; desde: string | null; detalle: string | null; enviado_a: string }
 
 const EJEMPLO_WA = { nombre: 'Carlos', apellido: 'Gómez', vendedor: 'Paola', promotora: 'Laura Pérez', evento: 'Expo Rosario' };
+const ESTADO_APROBACION: Record<string, string> = { approved: 'Aprobada por WhatsApp', pending: 'Pendiente de aprobación', received: 'Pedido recibido, pendiente de aprobación', rejected: 'Rechazada por WhatsApp', paused: 'Pausada', disabled: 'Deshabilitada', unsubmitted: 'Sin enviar a aprobar' };
 
 function WhatsAppPlantilla({ alVencer }: { alVencer: () => void }) {
   const [info, setInfo] = useState<InfoWA | null>(null);
   const [texto, setTexto] = useState('');
   const [activa, setActiva] = useState(false);
-  const [instanciaId, setInstanciaId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
+  const [creando, setCreando] = useState(false);
   const [probando, setProbando] = useState(false);
+  const [modo, setModo] = useState<'plantilla' | 'texto'>('texto');
   const [prueba, setPrueba] = useState<PruebaWA | null>(null);
   const [errorPrueba, setErrorPrueba] = useState<string | null>(null);
   const area = useRef<HTMLTextAreaElement>(null);
@@ -395,7 +397,8 @@ function WhatsAppPlantilla({ alVencer }: { alVencer: () => void }) {
   const cargar = useCallback(async () => {
     try {
       const d = await pedir<InfoWA & { ok: boolean }>('/api/demo-providus/admin/whatsapp');
-      setInfo(d); setTexto(d.config.texto); setActiva(d.config.activa); setInstanciaId(d.config.instancia_id ?? '');
+      setInfo(d); setTexto((t) => t || d.config.texto); setActiva(d.config.activa);
+      if (d.config.content_sid) setModo('plantilla');
     } catch (e) { if (e instanceof Error && e.message === 'SESION') alVencer(); else setError(e instanceof Error ? e.message : String(e)); }
   }, [alVencer]);
   useEffect(() => { void cargar(); }, [cargar]);
@@ -412,11 +415,22 @@ function WhatsAppPlantilla({ alVencer }: { alVencer: () => void }) {
     e.preventDefault();
     setError(null); setAviso(null); setGuardando(true);
     try {
-      await pedir('/api/demo-providus/admin/whatsapp', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto, activa, instancia_id: instanciaId || null }) });
+      await pedir('/api/demo-providus/admin/whatsapp', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto, activa }) });
       setAviso(activa ? 'Plantilla guardada. Desde ahora se envía sola a cada cliente que autorizó el contacto.' : 'Plantilla guardada. El envío automático está apagado.');
       await cargar();
     } catch (err) { if (err instanceof Error && err.message === 'SESION') alVencer(); else setError(err instanceof Error ? err.message : String(err)); }
     finally { setGuardando(false); }
+  }
+
+  async function crearPlantilla() {
+    if (!window.confirm('Se va a crear esta plantilla en Twilio y mandarla a aprobar a WhatsApp (suele tardar hasta un día hábil). ¿Seguimos?')) return;
+    setError(null); setAviso(null); setCreando(true);
+    try {
+      const d = await pedir<{ ok: boolean; aprobacion: string | null; detalle?: string }>('/api/demo-providus/admin/whatsapp/plantilla', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto }) });
+      setAviso(d.detalle ?? 'Plantilla creada en Twilio y enviada a aprobar. Cuando WhatsApp la apruebe, el envío automático la usa solo.');
+      await cargar();
+    } catch (err) { if (err instanceof Error && err.message === 'SESION') alVencer(); else setError(err instanceof Error ? err.message : String(err)); }
+    finally { setCreando(false); }
   }
 
   async function probar(e: React.FormEvent<HTMLFormElement>) {
@@ -425,7 +439,7 @@ function WhatsAppPlantilla({ alVencer }: { alVencer: () => void }) {
     if (!window.confirm(`Se va a mandar un WhatsApp REAL al ${numero}. ¿Seguimos?`)) return;
     setErrorPrueba(null); setPrueba(null); setProbando(true);
     try {
-      const r = await fetch('/api/demo-providus/admin/whatsapp/probar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero, texto, instancia_id: instanciaId || null }) });
+      const r = await fetch('/api/demo-providus/admin/whatsapp/probar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero, texto, modo }) });
       if (r.status === 401) { alVencer(); return; }
       const d = (await r.json().catch(() => null)) as (PruebaWA & { estado?: string }) | null;
       if (!d) throw new Error(`El servidor respondió ${r.status}.`);
@@ -435,7 +449,8 @@ function WhatsAppPlantilla({ alVencer }: { alVencer: () => void }) {
   }
 
   const vista = renderPlantilla(texto, EJEMPLO_WA);
-  const sinWhatsApp = !!info && info.instancias.length === 0;
+  const tw = info?.twilio; const pl = info?.plantilla_twilio;
+  const estadoPl = pl?.aprobacion?.estado ?? null;
   const hora = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
 
   return (
@@ -443,18 +458,10 @@ function WhatsAppPlantilla({ alVencer }: { alVencer: () => void }) {
       <Bisel etiqueta="Plantilla de WhatsApp">
         <form onSubmit={guardar} className="p-6" autoComplete="off">
           <h2 className="pv-display mb-2 text-[19px] text-[#ebe6dd]">Plantilla de WhatsApp</h2>
-          <p className="mb-6 text-[13.5px] leading-relaxed text-[#8a7a64]">Es el mensaje que recibe el cliente apenas deja sus datos en el stand. Se manda solo, junto con la llamada del asistente, y únicamente a quien autorizó que lo contacten.</p>
+          <p className="mb-6 text-[13.5px] leading-relaxed text-[#8a7a64]">Es el mensaje que recibe el cliente apenas deja sus datos en el stand. Se manda solo por Twilio, junto con la llamada del asistente, y únicamente a quien autorizó que lo contacten.</p>
           {info && !info.guardable && <Aviso mensaje={null} error={info.detalle ?? 'Falta correr la migración 0091 en Supabase.'} />}
-          {sinWhatsApp && <Aviso mensaje={null} error="No hay ningún WhatsApp conectado. Se conecta con un QR desde la integración de Evolution de la plataforma; después aparece acá." />}
           <Aviso mensaje={aviso} error={error} />
           <div className="flex flex-col gap-5">
-            <label><span className={ETIQUETA}>Enviar desde</span>
-              <select className={SELECT} value={instanciaId} onChange={(e) => setInstanciaId(e.target.value)} disabled={!info}>
-                <option value="">Automático: el primer WhatsApp conectado</option>
-                {info?.instancias.map((i) => <option key={i.id} value={i.id}>{i.name}{i.phone_number ? ` (${i.phone_number})` : ''}, {i.status}</option>)}
-              </select>
-              {info?.instancia_efectiva && !instanciaId && <span className="mt-2 block text-[12.5px] text-[#8a7a64]">Hoy saldría desde {info.instancia_efectiva.name}{info.instancia_efectiva.phone_number ? ` (${info.instancia_efectiva.phone_number})` : ''}.</span>}
-            </label>
             <div>
               <label htmlFor="wa-texto" className={ETIQUETA}>Mensaje</label>
               <textarea id="wa-texto" ref={area} value={texto} onChange={(e) => setTexto(e.target.value)} rows={7} maxLength={1000} className="w-full resize-y rounded-[10px] border-0 bg-[#17120e] px-3.5 py-3 text-[15px] leading-relaxed text-[#ebe6dd] shadow-[inset_0_0_0_1px_rgba(227,197,142,0.14)] outline-none transition-shadow duration-500 focus-visible:shadow-[inset_0_0_0_1.5px_#e3c58e]" />
@@ -464,7 +471,7 @@ function WhatsAppPlantilla({ alVencer }: { alVencer: () => void }) {
                   <button key={v.nombre} type="button" title={v.descripcion} onClick={() => insertar(v.nombre)} className="rounded-full px-3 py-1 text-[12.5px] text-[#e3c58e] shadow-[inset_0_0_0_1px_rgba(227,197,142,0.3)] transition-colors duration-300 hover:bg-white/[0.05] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e]">{`{{${v.nombre}}}`}</button>
                 ))}
               </div>
-              <span className="mt-2 block text-[12.5px] text-[#6f6252]">{texto.length} de 1000 caracteres.</span>
+              <span className="mt-2 block text-[12.5px] text-[#6f6252]">{texto.length} de 1000 caracteres. WhatsApp no deja que empiece ni termine con una variable.</span>
             </div>
             <div className="flex items-center justify-between gap-4 rounded-2xl bg-[#17120e] px-4 py-3.5 shadow-[inset_0_0_0_1px_rgba(227,197,142,0.12)]">
               <span className="min-w-0"><span className="block text-[14px] font-medium text-[#ebe6dd]">Enviar automáticamente</span><span className="block text-[12.5px] text-[#8a7a64]">Apenas entra el lead, el cliente recibe este mensaje.</span></span>
@@ -479,6 +486,30 @@ function WhatsAppPlantilla({ alVencer }: { alVencer: () => void }) {
       </Bisel>
 
       <div className="flex flex-col gap-6">
+        <Bisel etiqueta="Conexión con Twilio">
+          <div className="p-6">
+            <h2 className="pv-display mb-4 text-[19px] text-[#ebe6dd]">Conexión con Twilio</h2>
+            {!info && <p className="text-[14px] text-[#8a7a64]" role="status">Comprobando…</p>}
+            {info && tw && (
+              <ul className="flex flex-col gap-3.5">
+                <Marca ok={tw.configurado}>{tw.configurado ? <>Credenciales cargadas. Envía desde <strong className="text-[#ebe6dd]">{tw.remitente}</strong>.</> : 'Faltan las credenciales de Twilio en Vercel: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN y TWILIO_WHATSAPP_FROM.'}</Marca>
+                {tw.cuenta && (tw.cuenta.ok
+                  ? <Marca ok={(tw.cuenta.tipo ?? '').toLowerCase() !== 'trial'}>Cuenta <strong className="text-[#ebe6dd]">{tw.cuenta.nombre ?? 'sin nombre'}</strong>, {tw.cuenta.tipo ?? 'tipo desconocido'}, {tw.cuenta.estado ?? 'sin estado'}.{(tw.cuenta.tipo ?? '').toLowerCase() === 'trial' ? ' Una cuenta de prueba solo manda a números verificados.' : ''}</Marca>
+                  : <Marca ok={false}>{tw.cuenta.detalle}</Marca>)}
+                {pl ? (
+                  <Marca ok={estadoPl === 'approved'}>Plantilla de Twilio <span className="text-[#8a7a64]">({pl.content_sid})</span>: <strong className="text-[#ebe6dd]">{estadoPl ? ESTADO_APROBACION[estadoPl] ?? estadoPl : pl.aprobacion?.detalle ?? 'sin estado'}</strong>.{pl.desactualizada ? ' El texto de arriba cambió: creá una plantilla nueva para que se use.' : ''}</Marca>
+                ) : (
+                  <Marca ok={false}>Todavía no hay plantilla en Twilio. Sin una plantilla aprobada, WhatsApp solo deja escribirle a quien nos escribió antes (o en el sandbox).</Marca>
+                )}
+              </ul>
+            )}
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <button type="button" onClick={() => void crearPlantilla()} disabled={creando || !tw?.configurado || !info?.guardable} className="pv-boton inline-flex h-11 touch-manipulation items-center rounded-full px-5 text-[13.5px] font-semibold text-[#fff6ef] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3c58e] active:scale-[0.98] disabled:cursor-not-allowed">{creando ? 'Creando…' : 'Crear plantilla y pedir aprobación'}</button>
+              <button type="button" onClick={() => void cargar()} className={GHOST}>Actualizar estado</button>
+            </div>
+          </div>
+        </Bisel>
+
         <Bisel etiqueta="Vista previa">
           <div className="p-6">
             <h2 className="pv-display mb-4 text-[19px] text-[#ebe6dd]">Así lo ve el cliente</h2>
@@ -491,15 +522,27 @@ function WhatsAppPlantilla({ alVencer }: { alVencer: () => void }) {
             <p className="mt-3 text-[12.5px] text-[#8a7a64]">Con datos de ejemplo: {Object.entries(EJEMPLO_WA).map(([k, v]) => `${k} = ${v}`).join(', ')}.</p>
           </div>
         </Bisel>
+
         <Bisel etiqueta="Mensaje de prueba">
           <form onSubmit={probar} className="p-6" autoComplete="off">
             <h2 className="pv-display mb-2 text-[19px] text-[#ebe6dd]">Mandar una prueba</h2>
-            <p className="mb-5 text-[13.5px] leading-relaxed text-[#8a7a64]">Manda este mensaje, tal como está escrito arriba, al número que pongas.</p>
+            <p className="mb-5 text-[13.5px] leading-relaxed text-[#8a7a64]">Con el sandbox de Twilio, el número tiene que haberse unido antes mandando el código "join" al número del sandbox.</p>
             <label><span className={ETIQUETA}>Número de WhatsApp</span><Input className={CAMPO} name="numero" type="tel" inputMode="tel" required autoComplete="off" placeholder="Ej. 345 4100816…" /></label>
-            <div className="mt-5"><BotonPrincipal deshabilitado={probando || sinWhatsApp} className="w-full">{probando ? 'Enviando…' : 'Enviar prueba'}</BotonPrincipal></div>
+            <fieldset className="mt-5">
+              <legend className={ETIQUETA}>Qué mandar</legend>
+              <div className="flex flex-wrap gap-2">
+                {([['texto', 'El texto directo'], ['plantilla', 'La plantilla aprobada']] as const).map(([v, t]) => (
+                  <label key={v} className="cursor-pointer">
+                    <input type="radio" name="modo" value={v} checked={modo === v} onChange={() => setModo(v)} className="peer sr-only" />
+                    <span className="inline-flex min-h-9 items-center rounded-full px-3.5 py-1.5 text-[13px] text-[#b4a892] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)] transition-[background,color,box-shadow] duration-500 peer-checked:bg-[linear-gradient(145deg,#f0562a,#c23a14)] peer-checked:text-[#fff6ef] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#e3c58e]">{t}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <div className="mt-5"><BotonPrincipal deshabilitado={probando || !tw?.configurado} className="w-full">{probando ? 'Enviando…' : 'Enviar prueba'}</BotonPrincipal></div>
             <div aria-live="polite" className="mt-4">
               {errorPrueba && <Aviso mensaje={null} error={errorPrueba} />}
-              {prueba && (prueba.ok ? <Aviso error={null} mensaje={`Enviado al ${prueba.enviado_a}${prueba.desde ? ` desde ${prueba.desde}` : ''}.`} /> : <Aviso mensaje={null} error={`No se pudo enviar: ${prueba.detalle ?? 'sin detalle'}`} />)}
+              {prueba && (prueba.ok ? <Aviso error={null} mensaje={`Enviado al ${prueba.enviado_a} desde ${prueba.desde}.`} /> : <Aviso mensaje={null} error={`No se pudo enviar: ${prueba.detalle ?? 'sin detalle'}`} />)}
             </div>
           </form>
         </Bisel>

@@ -1,45 +1,51 @@
 /**
- * DEMO PROVIDUS — plantilla de WhatsApp al cliente. Solo administración.
- *  GET  la plantilla guardada, los WhatsApp conectados (Evolution) y las variables disponibles.
- *  PUT  guarda la plantilla: texto con variables, si se envía sola y desde qué WhatsApp.
- * Nunca devuelve el token de Evolution.
+ * DEMO PROVIDUS — plantilla de WhatsApp al cliente (por Twilio). Solo administración.
+ *  GET  la plantilla guardada, el estado de la conexión con Twilio (credenciales, tipo de cuenta, plantilla aprobada).
+ *  PUT  guarda el texto y si se envía sola. Conserva la plantilla de Twilio ya creada.
+ * Nunca devuelve credenciales.
  */
 import { NextResponse } from 'next/server';
 import { esAdmin, sesionActual } from '@/lib/demo-providus/sesion';
-import { db, falla, tablaFaltante } from '@/lib/demo-providus/datos';
-import { CONFIG_POR_DEFECTO, DESCRIPCION_VARIABLES, VARIABLES_WHATSAPP, elegirInstancia, validarPlantilla, type ConfigWhatsapp, type InstanciaEvolution } from '@/lib/demo-providus/whatsapp';
+import { falla } from '@/lib/demo-providus/datos';
+import { FALTA_SQL_WA, guardarConfig, leerConfig } from '@/lib/demo-providus/whatsapp-config';
+import { DESCRIPCION_VARIABLES, VARIABLES_WHATSAPP, autenticacion, configTwilio, validarPlantilla, type ConfigWhatsapp } from '@/lib/demo-providus/whatsapp';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const FALTA_SQL_WA = 'Falta correr 0091_demo_providus_whatsapp.sql en Supabase.';
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-async function leerTodo() {
-  const admin = db();
-  const [cfg, ins] = await Promise.all([
-    admin.from('demo_providus_config').select('valor').eq('clave', 'whatsapp_plantilla').maybeSingle(),
-    admin.from('evolution_instances').select('id, name, instance_key, api_url, api_token, status, phone_number'),
-  ]);
-  const guardable = !(cfg.error && tablaFaltante(cfg.error));
-  const config: ConfigWhatsapp = { ...CONFIG_POR_DEFECTO, ...((cfg.data?.valor as Partial<ConfigWhatsapp> | undefined) ?? {}) };
-  const instancias = ((ins.data ?? []) as InstanciaEvolution[]);
-  return { guardable, config, instancias, errorInstancias: ins.error ? ins.error.message : null, errorConfig: cfg.error && guardable ? cfg.error.message : null };
+async function pedir(url: string, auth: string) {
+  try {
+    const r = await fetch(url, { headers: { Authorization: auth }, cache: 'no-store', signal: AbortSignal.timeout(10_000) });
+    return { status: r.status, cuerpo: await r.json().catch(() => null) };
+  } catch (e) {
+    return { status: 0, cuerpo: { message: e instanceof Error ? e.message : 'sin respuesta' } };
+  }
 }
 
 export async function GET() {
   if (!esAdmin(sesionActual())) return falla('sesion', 401, 'Ingresá con la clave de administración.');
   try {
-    const t = await leerTodo();
-    const efectiva = elegirInstancia(t.instancias, t.config.instancia_id);
+    const { config, guardable, error } = await leerConfig();
+    const tw = configTwilio();
+    let cuenta: { ok: true; nombre: string | null; tipo: string | null; estado: string | null } | { ok: false; detalle: string } | null = null;
+    let aprobacion: { estado: string | null; detalle?: string } | null = null;
+    if (tw) {
+      const auth = autenticacion(tw);
+      const [c, a] = await Promise.all([
+        pedir(`https://api.twilio.com/2010-04-01/Accounts/${tw.accountSid}.json`, auth),
+        config.content_sid ? pedir(`https://content.twilio.com/v1/Content/${encodeURIComponent(config.content_sid)}/ApprovalRequests`, auth) : Promise.resolve(null),
+      ]);
+      cuenta = c.status === 200 ? { ok: true, nombre: c.cuerpo?.friendly_name ?? null, tipo: c.cuerpo?.type ?? null, estado: c.cuerpo?.status ?? null } : { ok: false, detalle: `Twilio respondió ${c.status}: ${c.cuerpo?.message ?? 'sin detalle'}` };
+      if (a) aprobacion = a.status === 200 ? { estado: a.cuerpo?.whatsapp?.status ?? null } : { estado: null, detalle: `Twilio respondió ${a.status}: ${a.cuerpo?.message ?? 'sin detalle'}` };
+    }
     return NextResponse.json({
       ok: true,
-      guardable: t.guardable,
-      config: t.config,
-      instancias: t.instancias.map((i) => ({ id: i.id, name: i.name, status: i.status, phone_number: i.phone_number })),
-      instancia_efectiva: efectiva ? { id: efectiva.id, name: efectiva.name, phone_number: efectiva.phone_number } : null,
+      guardable,
+      config,
+      twilio: { configurado: !!tw, remitente: tw?.from ?? null, cuenta },
+      plantilla_twilio: config.content_sid ? { content_sid: config.content_sid, aprobacion, desactualizada: config.texto_contenido !== null && config.texto_contenido.trim() !== config.texto.trim() } : null,
       variables: VARIABLES_WHATSAPP.map((v) => ({ nombre: v, descripcion: DESCRIPCION_VARIABLES[v] })),
-      detalle: t.guardable ? t.errorConfig ?? t.errorInstancias : FALTA_SQL_WA,
+      detalle: guardable ? error : FALTA_SQL_WA,
     }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (e) {
     console.error('[demo-providus] whatsapp GET', e instanceof Error ? e.message : e);
@@ -49,21 +55,18 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   if (!esAdmin(sesionActual())) return falla('sesion', 401, 'Ingresá con la clave de administración.');
-  let b: { texto?: unknown; activa?: unknown; instancia_id?: unknown };
+  let b: { texto?: unknown; activa?: unknown };
   try { b = await req.json(); } catch { return falla('pedido_invalido', 400, 'El envío llegó incompleto.'); }
   const errorTexto = validarPlantilla(b.texto);
   if (errorTexto) return falla('texto', 422, errorTexto);
-  const instanciaId = typeof b.instancia_id === 'string' && b.instancia_id ? b.instancia_id : null;
-  if (instanciaId && !UUID.test(instanciaId)) return falla('instancia', 422, 'El WhatsApp elegido no es válido.');
   try {
-    const t = await leerTodo();
-    if (!t.guardable) return falla('tabla', 503, FALTA_SQL_WA);
-    if (instanciaId && !t.instancias.some((i) => i.id === instanciaId)) return falla('instancia', 422, 'Ese WhatsApp ya no existe.');
+    const { config, guardable } = await leerConfig();
+    if (!guardable) return falla('tabla', 503, FALTA_SQL_WA);
     const activa = b.activa === true;
-    if (activa && !elegirInstancia(t.instancias, instanciaId)) return falla('instancia', 422, 'Para activar el envío automático tiene que haber un WhatsApp conectado (o elegir uno).');
-    const valor: ConfigWhatsapp = { texto: (b.texto as string).trim(), activa, instancia_id: instanciaId };
-    const { error } = await db().from('demo_providus_config').upsert({ clave: 'whatsapp_plantilla', valor, actualizado_en: new Date().toISOString() }, { onConflict: 'clave' });
-    if (error) return tablaFaltante(error) ? falla('tabla', 503, FALTA_SQL_WA) : falla('base', 502, `No se pudo guardar: ${error.message}`);
+    if (activa && !configTwilio()) return falla('twilio', 422, 'Para activar el envío automático hay que cargar las credenciales de Twilio en Vercel (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN y TWILIO_WHATSAPP_FROM).');
+    const valor: ConfigWhatsapp = { ...config, texto: (b.texto as string).trim(), activa };
+    const g = await guardarConfig(valor);
+    if (!g.ok) return g.tabla ? falla('tabla', 503, FALTA_SQL_WA) : falla('base', 502, `No se pudo guardar: ${g.mensaje}`);
     return NextResponse.json({ ok: true, config: valor });
   } catch (e) {
     console.error('[demo-providus] whatsapp PUT', e instanceof Error ? e.message : e);

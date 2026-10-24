@@ -9,7 +9,7 @@
 import { elegirVendedor, type VendedorZona } from './asignacion';
 import { iniciarLlamada } from './llamada-ia';
 import { columnaFaltante, tablaFaltante } from './errores-base';
-import { CONFIG_POR_DEFECTO, elegirInstancia, enviarTexto, renderPlantilla, type ConfigWhatsapp, type InstanciaEvolution } from './whatsapp';
+import { CONFIG_POR_DEFECTO, configTwilio, enviarWhatsApp, renderPlantilla, variablesDeContenido, type ConfigWhatsapp, type ContenidoWhatsapp } from './whatsapp';
 
 export interface LeadNuevo {
   id: string;
@@ -92,9 +92,11 @@ async function llamarAlCliente(admin: any, lead: LeadNuevo, vendedor: VendedorZo
   return r.estado;
 }
 
-/** Le manda al cliente la plantilla de WhatsApp (si está activada y hay un WhatsApp conectado). */
+/** Le manda al cliente la plantilla de WhatsApp por Twilio (si está activada y Twilio está configurado). */
 async function whatsappAlCliente(admin: any, lead: LeadNuevo, vendedorNombre: string | null): Promise<string> {
   if (!lead.consentimiento) return 'sin_consentimiento';
+  const twilio = configTwilio();
+  if (!twilio) return 'omitido'; // Twilio todavía no está configurado en el servidor
   const { data: fila, error: ec } = await admin.from('demo_providus_config').select('valor').eq('clave', 'whatsapp_plantilla').maybeSingle();
   if (ec) {
     if (!tablaFaltante(ec)) console.error('[demo-providus] config de WhatsApp', ec.code, ec.message);
@@ -102,18 +104,6 @@ async function whatsappAlCliente(admin: any, lead: LeadNuevo, vendedorNombre: st
   }
   const cfg: ConfigWhatsapp = { ...CONFIG_POR_DEFECTO, ...((fila?.valor as Partial<ConfigWhatsapp> | undefined) ?? {}) };
   if (!cfg.activa) return 'omitido';
-
-  const { data: instancias, error: ei } = await admin.from('evolution_instances').select('id, name, instance_key, api_url, api_token, status, phone_number');
-  if (ei) {
-    console.error('[demo-providus] instancias de WhatsApp', ei.code, ei.message);
-    return 'omitido';
-  }
-  const instancia = elegirInstancia((instancias ?? []) as InstanciaEvolution[], cfg.instancia_id);
-  const marcar = (cambios: Record<string, unknown>) => admin.from('demo_providus_registros').update(cambios).eq('id', lead.id);
-  if (!instancia) {
-    await marcar({ whatsapp_estado: 'omitido', whatsapp_error: 'No hay un WhatsApp conectado para enviar.', whatsapp_en: new Date().toISOString() });
-    return 'omitido';
-  }
 
   // Reserva el envío: un solo mensaje por lead.
   const { data: reservado, error: er } = await admin
@@ -129,9 +119,11 @@ async function whatsappAlCliente(admin: any, lead: LeadNuevo, vendedorNombre: st
   }
   if (!reservado) return 'ya_enviado';
 
-  const texto = renderPlantilla(cfg.texto, { nombre: lead.nombre, apellido: lead.apellido, vendedor: vendedorNombre ?? 'nuestro equipo', promotora: lead.promotora, evento: lead.evento });
-  const r = await enviarTexto(instancia, lead.telefono_e164, texto);
-  await marcar({ whatsapp_estado: r.estado, whatsapp_error: r.estado === 'enviado' ? null : r.error });
+  const datos = { nombre: lead.nombre, apellido: lead.apellido, vendedor: vendedorNombre ?? 'nuestro equipo', promotora: lead.promotora, evento: lead.evento };
+  // Con plantilla aprobada de Twilio si hay; si no, el texto directo (sirve dentro de la ventana de 24 h o en el sandbox).
+  const contenido: ContenidoWhatsapp = cfg.content_sid && cfg.variables_orden.length ? { contentSid: cfg.content_sid, variables: variablesDeContenido(cfg.variables_orden, datos) } : { texto: renderPlantilla(cfg.texto, datos) };
+  const r = await enviarWhatsApp(twilio, lead.telefono_e164, contenido);
+  await admin.from('demo_providus_registros').update({ whatsapp_estado: r.estado, whatsapp_error: r.estado === 'enviado' ? null : r.error }).eq('id', lead.id);
   if (r.estado === 'fallido') console.error('[demo-providus] WhatsApp fallido:', r.error);
   return r.estado;
 }
