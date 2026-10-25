@@ -48,3 +48,12 @@ describe('resultado de la llamada del asistente', () => {
     expect(esFinal('omitida')).toBe(true);
   });
 });
+
+describe('estado atascado en initiated', () => {
+  it('si ya se sabe que no atendió o falló al iniciarse, no queda llamando', () => {
+    expect(interpretarConversacion({ status: 'initiated', metadata: { phone_call: { call_result: 'no_answer' } } }).estado).toBe('no_atendio');
+    const f = interpretarConversacion({ status: 'initiated', metadata: { phone_call: { call_result: 'failed' }, error: { code: 484 } } });
+    expect(f.estado).toBe('fallida');
+    expect(f.detalle).toContain('484');
+  });
+});

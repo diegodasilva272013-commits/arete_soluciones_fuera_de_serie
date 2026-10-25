@@ -35,6 +35,12 @@ export function interpretarConversacion(c: any): ResultadoConversacion {
   const resultado: string | undefined = meta.phone_call?.call_result ?? undefined;
   const motivoError: string = [meta.error?.reason, meta.termination_reason].filter((x) => typeof x === 'string' && x).join(': ');
 
+  // ElevenLabs a veces deja el estado en 'initiated' aunque la llamada ya terminó sin atender o falló al iniciarse (error 484, etc.).
+  if ((status === 'initiated' || status === 'in-progress') && resultado && resultado !== 'answered' && POR_RESULTADO[resultado]) {
+    const estado = POR_RESULTADO[resultado];
+    const codigo = meta.error?.code ? `código ${meta.error.code}` : '';
+    return { estado, segundos, resumen: null, detalle: estado === 'fallida' ? motivoError || (codigo ? `No se pudo iniciar la llamada (${codigo}): revisá que el número exista y esté bien escrito.` : 'La llamada falló.') : null };
+  }
   if (status === 'initiated' || status === 'in-progress') return { estado: 'llamando', segundos: null, resumen: null, detalle: null };
   if (status === 'failed') return { estado: 'fallida', segundos, resumen: null, detalle: motivoError || 'ElevenLabs informó que la llamada falló.' };
 
