@@ -426,11 +426,12 @@ function Panel({ alVencer }: { alVencer: () => void }) {
   const enVivo = cargado && ahora - ultimoOk.current < EN_VIVO_MS;
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden text-[var(--pv-aluminio)]">
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-[#070605] text-[var(--pv-aluminio)] [color-scheme:dark]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[460px] bg-[radial-gradient(60%_70%_at_50%_0%,rgba(224,96,58,0.2),transparent_72%)]" aria-hidden="true" />
       {/* BARRA SUPERIOR */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.08] px-4 lg:h-16 lg:px-8">
+      <header className="relative flex h-14 shrink-0 items-center justify-between border-b border-white/[0.08] px-4 lg:h-16 lg:px-8">
         <div className="flex items-center gap-4">
-          <span className="pv-display text-[18px] text-[var(--pv-aluminio)]">PROVIDUS</span>
+          <img src="/demo-providus/logo-app.jpg" alt="Providus, S.A. de Capitalización y Renta" width={1086} height={268} className="pv-logo-app h-7 w-auto lg:h-8" />
           <span className="h-5 w-px bg-white/15 max-lg:hidden" aria-hidden="true" />
           <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--pv-sec)] max-lg:hidden">Centro de operaciones</span>
         </div>
@@ -455,14 +456,14 @@ function Panel({ alVencer }: { alVencer: () => void }) {
       </header>
 
       {/* MÉTRICAS */}
-      <section className="grid shrink-0 grid-cols-2 border-b border-white/[0.08] lg:h-24 lg:grid-cols-4 lg:divide-x lg:divide-white/[0.08]" aria-label="Métricas">
+      <section className="relative grid shrink-0 grid-cols-2 border-b border-white/[0.08] lg:h-24 lg:grid-cols-4 lg:divide-x lg:divide-white/[0.08]" aria-label="Métricas">
         <Metrica valor={hoy} etiqueta="Registros hoy" />
         <Metrica valor={diezMin} etiqueta="Últimos 10 min" />
         <Metrica valor={sinAsignar} etiqueta="Sin asignar" />
         <Metrica valor={ultimo} etiqueta="Último ingreso" parpadea={false} />
       </section>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[68fr_32fr]">
+      <div className="relative grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[68fr_32fr]">
         {/* LISTA DE REGISTROS */}
         <section className="min-h-0 overflow-y-auto" aria-label="Registros">
           {!cargado ? (

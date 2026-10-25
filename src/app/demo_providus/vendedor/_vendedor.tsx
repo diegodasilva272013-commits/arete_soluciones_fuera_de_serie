@@ -295,7 +295,7 @@ function Panel({ alVencer }: { alVencer: () => void }) {
                 <span className="pv-pulso mx-auto block h-2.5 w-2.5 rounded-full bg-[#e0603a]" aria-hidden="true" />
                 <p className="pv-display mt-5 text-[19px]">{vista === 'pendientes' ? 'Todo al día' : 'Todavía no marcaste ninguno'}</p>
                 <p className="mx-auto mt-2 max-w-[34ch] text-[14px] leading-relaxed text-[#8a7a64]">
-                  {vista === 'pendientes' ? 'Cuando una promotora cargue a alguien de tu zona, aparece acá solo y te vibra el celular. No hace falta refrescar.' : 'Los datos que marques como llamados o sin respuesta quedan acá.'}
+                  {vista === 'pendientes' ? 'Cuando una promotora cargue a alguien de tu zona, aparece acá solo, sin refrescar. Dejá esta pantalla abierta.' : 'Los datos que marques como llamados o sin respuesta quedan acá.'}
                 </p>
               </div>
             </div>
