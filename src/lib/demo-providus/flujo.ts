@@ -25,6 +25,8 @@ export interface LeadNuevo {
   consentimiento: boolean;
   /** Correo del cliente (opcional): si lo dejó y autorizó, recibe el mail de bienvenida. */
   email?: string | null;
+  /** Foto tomada en el stand: va adjunta en el mail de bienvenida. */
+  fotoUrl?: string | null;
 }
 
 export interface ResultadoFlujo {
@@ -136,7 +138,7 @@ async function whatsappAlCliente(admin: any, lead: LeadNuevo, vendedorNombre: st
 async function mailAlCliente(lead: LeadNuevo, vendedorNombre: string | null): Promise<string> {
   if (!lead.email) return 'sin_correo';
   if (!lead.consentimiento) return 'sin_consentimiento';
-  const r = await enviarMailCliente(lead.email, { nombre: lead.nombre, vendedor: vendedorNombre, promotora: lead.promotora, evento: lead.evento });
+  const r = await enviarMailCliente(lead.email, { nombre: lead.nombre, apellido: lead.apellido, fotoUrl: lead.fotoUrl, vendedor: vendedorNombre, promotora: lead.promotora, evento: lead.evento });
   if (r.estado === 'fallido') console.error('[demo-providus] mail fallido:', r.error);
   return r.estado;
 }
