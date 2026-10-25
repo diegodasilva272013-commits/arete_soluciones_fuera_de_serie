@@ -65,8 +65,9 @@ async function asignar(admin: any, lead: LeadNuevo): Promise<VendedorZona | null
 }
 
 /** El asistente de voz llama al cliente. */
-async function llamarAlCliente(admin: any, lead: LeadNuevo, vendedor: VendedorZona): Promise<string> {
-  if (!vendedor.llamar_ia) return 'omitida';
+async function llamarAlCliente(admin: any, lead: LeadNuevo, vendedor: VendedorZona | null): Promise<string> {
+  // Sin vendedor de la zona igual se llama al cliente (es la idea de la demo); solo un vendedor con la llamada apagada la omite.
+  if (vendedor && !vendedor.llamar_ia) return 'omitida';
   if (!lead.consentimiento) return 'sin_consentimiento';
 
   // Reserva la llamada: solo una vez por lead (si dos pedidos corren a la vez, gana uno).
@@ -81,7 +82,7 @@ async function llamarAlCliente(admin: any, lead: LeadNuevo, vendedor: VendedorZo
   if (!reservado) return 'ya_pedida';
 
   const r = await iniciarLlamada({
-    vendedor: { nombre: vendedor.nombre },
+    vendedor: { nombre: vendedor ? vendedor.nombre : 'nuestro equipo' },
     cliente: { nombre: lead.nombre, apellido: lead.apellido, telefono_e164: lead.telefono_e164, provincia: lead.provincia, localidad: lead.localidad },
     promotora: lead.promotora,
     evento: lead.evento,
@@ -147,7 +148,7 @@ export async function asignarYAvisar(admin: any, lead: LeadNuevo): Promise<Resul
   try {
     const vendedor = await asignar(admin, lead);
     const [llamada, whatsapp, mail] = await Promise.all([
-      vendedor ? llamarAlCliente(admin, lead, vendedor).catch((e) => { console.error('[demo-providus] llamada falló', e instanceof Error ? e.message : e); return 'error'; }) : Promise.resolve('omitida'),
+      llamarAlCliente(admin, lead, vendedor).catch((e) => { console.error('[demo-providus] llamada falló', e instanceof Error ? e.message : e); return 'error'; }),
       whatsappAlCliente(admin, lead, vendedor ? vendedor.nombre : null).catch((e) => { console.error('[demo-providus] WhatsApp falló', e instanceof Error ? e.message : e); return 'error'; }),
       mailAlCliente(lead, vendedor ? vendedor.nombre : null).catch(() => 'error'),
     ]);

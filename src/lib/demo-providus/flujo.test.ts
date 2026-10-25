@@ -108,21 +108,23 @@ describe('asignar y avisar', () => {
     expect(fetchFalso).not.toHaveBeenCalled();
   });
 
-  it('si no hay vendedor para la provincia, el lead queda sin asignar y no llama a nadie', async () => {
+  it('si no hay vendedor para la provincia, el lead queda sin asignar pero igual se llama al cliente', async () => {
     configurar();
     const est = { vendedores: [vendedor({ provincias: ['Córdoba'] })], registros: [registro()] };
     const r = await asignarYAvisar(baseFalsa(est), lead);
-    expect(r).toMatchObject({ vendedor: null, llamada: 'omitida' });
+    expect(r.vendedor).toBeNull();
+    expect(r.llamada).not.toBe('omitida');
     expect(est.registros[0]).not.toHaveProperty('vendedor_id');
-    expect(fetchFalso).not.toHaveBeenCalled();
+    expect(fetchFalso).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(fetchFalso.mock.calls[0][1].body).to_number).toBe(lead.telefono_e164);
   });
 
   it('antes de correr la migración 0089 no hace nada ni rompe el alta', async () => {
     configurar();
     const est = { vendedores: [], registros: [registro()] };
     const r = await asignarYAvisar(baseFalsa(est, { code: '42P01', message: 'relation "demo_providus_vendedores" does not exist' }), lead);
-    expect(r).toMatchObject({ vendedor: null, llamada: 'omitida' });
-    expect(fetchFalso).not.toHaveBeenCalled();
+    expect(r.vendedor).toBeNull();
+    expect(r.llamada).not.toBe('error');
   });
 
   it('un error inesperado de la base se traga y devuelve sin asignar', async () => {
