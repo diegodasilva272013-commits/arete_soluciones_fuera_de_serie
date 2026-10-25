@@ -6,13 +6,14 @@ import nodemailer from 'nodemailer';
 import { Resend } from 'resend';
 
 const CORREO_ARETE = 'arete@aretesoluciones.space';
+const LOGO_URL = 'https://aretesoluciones.space/demo-providus/logo-app.jpg';
 const REMITENTE = `Providus <${CORREO_ARETE}>`;
 
 const esc = (s: string): string => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 
 export interface DatosMail { nombre: string; apellido?: string; vendedor: string | null; promotora: string | null; evento: string | null; fotoUrl?: string | null }
 
-export function armarMail(d: DatosMail, conFoto = false): { asunto: string; html: string; texto: string } {
+export function armarMail(d: DatosMail, conFoto = false, conLogo = false): { asunto: string; html: string; texto: string } {
   const asunto = `${d.nombre}, gracias por visitarnos en Providus`;
   const lineas = [
     `Hola ${d.nombre},`,
@@ -25,7 +26,7 @@ export function armarMail(d: DatosMail, conFoto = false): { asunto: string; html
   const p = (l: string) => `<p style="margin:0 0 14px">${esc(l)}</p>`;
   const foto = conFoto ? '<p style="margin:0 0 18px"><img src="cid:foto-providus" alt="Tu foto en el stand de Providus" style="display:block;width:100%;max-width:500px;height:auto;border-radius:10px"></p>' : '';
   const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#111;background:#fff">
-  <div style="background:#0b0907;padding:26px 30px"><div style="font-weight:800;font-size:24px;color:#f0562a;letter-spacing:.02em">Providus</div></div>
+  <div style="background:#0b0907;padding:22px 30px">${conLogo ? '<img src="cid:logo-providus" alt="Providus" width="150" style="display:block;width:150px;height:auto;border:0">' : '<div style="font-weight:800;font-size:24px;color:#f0562a">Providus</div>'}</div>
   <div style="padding:28px 30px;font-size:16px;line-height:1.6">${lineasOk.slice(0, 3).map(p).join('')}${foto}${lineasOk.slice(3).map(p).join('')}<p style="margin:22px 0 0;color:#555">Equipo Providus</p></div>
 </div>`;
   return { asunto, html, texto: `${lineasOk.join('\n\n')}\n\nEquipo Providus` };
@@ -33,7 +34,7 @@ export function armarMail(d: DatosMail, conFoto = false): { asunto: string; html
 
 export type ResultadoMail = { estado: 'enviado' } | { estado: 'omitido' } | { estado: 'fallido'; error: string };
 
-/** Baja la foto del stand para adjuntarla en el mail. Si no se puede, el mail sale igual, sin foto. */
+/** Baja una imagen para adjuntarla en el mail. Si no se puede, el mail sale igual, sin ella. */
 async function bajarFoto(url: string | null | undefined): Promise<{ contenido: Buffer; tipo: string; ext: string } | null> {
   if (!url) return null;
   try {
@@ -45,20 +46,24 @@ async function bajarFoto(url: string | null | undefined): Promise<{ contenido: B
 }
 
 export async function enviarMailCliente(para: string, d: DatosMail): Promise<ResultadoMail> {
-  const foto = await bajarFoto(d.fotoUrl);
-  const m = armarMail(d, foto !== null);
+  const [foto, logo] = await Promise.all([bajarFoto(d.fotoUrl), bajarFoto(LOGO_URL)]);
+  const m = armarMail(d, foto !== null, logo !== null);
+  const adjuntos = [
+    ...(foto ? [{ filename: `foto-providus.${foto.ext}`, content: foto.contenido, contentType: foto.tipo, cid: 'foto-providus' }] : []),
+    ...(logo ? [{ filename: `logo-providus.${logo.ext}`, content: logo.contenido, contentType: logo.tipo, cid: 'logo-providus' }] : []),
+  ];
   try {
     const pass = process.env.SMTP_PASS;
     if (pass) {
       const user = process.env.SMTP_USER || CORREO_ARETE;
       const puerto = Number(process.env.SMTP_PORT || 465);
       const t = nodemailer.createTransport({ host: process.env.SMTP_HOST || 'smtp.hostinger.com', port: puerto, secure: puerto === 465, auth: { user, pass } });
-      await t.sendMail({ from: REMITENTE, to: para, subject: m.asunto, html: m.html, text: m.texto, replyTo: CORREO_ARETE, attachments: foto ? [{ filename: `foto-providus.${foto.ext}`, content: foto.contenido, contentType: foto.tipo, cid: 'foto-providus' }] : [] });
+      await t.sendMail({ from: REMITENTE, to: para, subject: m.asunto, html: m.html, text: m.texto, replyTo: CORREO_ARETE, attachments: adjuntos });
       return { estado: 'enviado' };
     }
     const key = process.env.RESEND_API_KEY;
     if (!key) return { estado: 'omitido' };
-    const r = await new Resend(key).emails.send({ from: REMITENTE, to: [para], subject: m.asunto, html: m.html, text: m.texto, replyTo: CORREO_ARETE, attachments: foto ? [{ filename: `foto-providus.${foto.ext}`, content: foto.contenido, contentId: 'foto-providus' }] : [] });
+    const r = await new Resend(key).emails.send({ from: REMITENTE, to: [para], subject: m.asunto, html: m.html, text: m.texto, replyTo: CORREO_ARETE, attachments: adjuntos.map(({ cid, ...a }) => ({ ...a, contentId: cid })) });
     return r.error ? { estado: 'fallido', error: r.error.message } : { estado: 'enviado' };
   } catch (e) {
     return { estado: 'fallido', error: e instanceof Error ? e.message : String(e) };
