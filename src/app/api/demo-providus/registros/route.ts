@@ -131,10 +131,10 @@ export async function POST(req: Request) {
   // Nunca rompe el alta: si algo falla, el lead queda guardado igual (sin asignar o sin llamada).
   const aviso = await asignarYAvisar(admin, {
     id: data.id as string, nombre, apellido, telefono_e164: e164, provincia, localidad: localidad || null,
-    promotora: `${prom.nombre} ${prom.apellido}`.trim(), evento: ev.nombre, consentimiento: true,
+    promotora: `${prom.nombre} ${prom.apellido}`.trim(), evento: ev.nombre, consentimiento: true, email: email || null,
   });
 
-  return NextResponse.json({ ok: true, id: data.id as string, foto_url: fotoUrl, telefono_e164: e164, asignado: aviso.vendedor !== null, llamada: aviso.llamada, whatsapp: aviso.whatsapp });
+  return NextResponse.json({ ok: true, id: data.id as string, foto_url: fotoUrl, telefono_e164: e164, asignado: aviso.vendedor !== null, llamada: aviso.llamada, whatsapp: aviso.whatsapp, mail: aviso.mail });
 }
 
 /**

@@ -7,6 +7,7 @@
  */
 
 import { elegirVendedor, type VendedorZona } from './asignacion';
+import { enviarMailCliente } from './email';
 import { iniciarLlamada } from './llamada-ia';
 import { columnaFaltante, tablaFaltante } from './errores-base';
 import { CONFIG_POR_DEFECTO, configTwilio, enviarWhatsApp, renderPlantilla, variablesDeContenido, type ConfigWhatsapp, type ContenidoWhatsapp } from './whatsapp';
@@ -22,12 +23,15 @@ export interface LeadNuevo {
   evento: string | null;
   /** El cliente autorizó en el stand que lo contacten por teléfono y WhatsApp. Sin esto no se llama ni se escribe. */
   consentimiento: boolean;
+  /** Correo del cliente (opcional): si lo dejó y autorizó, recibe el mail de bienvenida. */
+  email?: string | null;
 }
 
 export interface ResultadoFlujo {
   vendedor: string | null;
   llamada: string;
   whatsapp: string;
+  mail: string;
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -128,16 +132,26 @@ async function whatsappAlCliente(admin: any, lead: LeadNuevo, vendedorNombre: st
   return r.estado;
 }
 
+/** Le manda al cliente el mail de bienvenida (si dejó correo y autorizó el contacto). */
+async function mailAlCliente(lead: LeadNuevo, vendedorNombre: string | null): Promise<string> {
+  if (!lead.email) return 'sin_correo';
+  if (!lead.consentimiento) return 'sin_consentimiento';
+  const r = await enviarMailCliente(lead.email, { nombre: lead.nombre, vendedor: vendedorNombre, promotora: lead.promotora, evento: lead.evento });
+  if (r.estado === 'fallido') console.error('[demo-providus] mail fallido:', r.error);
+  return r.estado;
+}
+
 export async function asignarYAvisar(admin: any, lead: LeadNuevo): Promise<ResultadoFlujo> {
   try {
     const vendedor = await asignar(admin, lead);
-    const [llamada, whatsapp] = await Promise.all([
+    const [llamada, whatsapp, mail] = await Promise.all([
       vendedor ? llamarAlCliente(admin, lead, vendedor).catch((e) => { console.error('[demo-providus] llamada falló', e instanceof Error ? e.message : e); return 'error'; }) : Promise.resolve('omitida'),
       whatsappAlCliente(admin, lead, vendedor ? vendedor.nombre : null).catch((e) => { console.error('[demo-providus] WhatsApp falló', e instanceof Error ? e.message : e); return 'error'; }),
+      mailAlCliente(lead, vendedor ? vendedor.nombre : null).catch(() => 'error'),
     ]);
-    return { vendedor: vendedor?.id ?? null, llamada, whatsapp };
+    return { vendedor: vendedor?.id ?? null, llamada, whatsapp, mail };
   } catch (e) {
     console.error('[demo-providus] asignación falló', e instanceof Error ? e.message : e);
-    return { vendedor: null, llamada: 'error', whatsapp: 'error' };
+    return { vendedor: null, llamada: 'error', whatsapp: 'error', mail: 'error' };
   }
 }
