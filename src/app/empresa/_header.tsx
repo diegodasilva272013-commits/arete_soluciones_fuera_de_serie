@@ -14,6 +14,7 @@ const SOLUCIONES = [
   { href: '/empresa/servicios/crm-erp-a-medida',             label: 'CRM y ERP a Medida' },
   { href: '/empresa/servicios/automatizacion-de-procesos',   label: 'Automatización de Procesos' },
   { href: '/empresa/agentes-ia',                             label: 'Agentes de Voz con IA' },
+  { href: '/empresa/inmobiliarias',                          label: 'Para Inmobiliarias' },
 ];
 
 const NAV = [
@@ -59,7 +60,7 @@ export function CorpHeader() {
     closeTimer.current = setTimeout(() => setSolutionsOpen(false), 150);
   };
 
-  const isSolutionsActive = pathname.startsWith('/empresa/servicios') || pathname === '/empresa/agentes-ia';
+  const isSolutionsActive = pathname.startsWith('/empresa/servicios') || pathname === '/empresa/agentes-ia' || pathname === '/empresa/inmobiliarias';
 
   return (
     <header className={`${s.header} ${scrolled ? s.scrolled : ''}`}>

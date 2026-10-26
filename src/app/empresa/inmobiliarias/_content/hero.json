@@ -1,0 +1,52 @@
+{
+  "marca": "Areté Soluciones — Para inmobiliarias",
+  "bajada": "Cada inmobiliaria trabaja distinto.",
+  "indicacion_scroll": "Deslizá para entrar",
+  "frames_base": "/propuesta-payma/frames",
+  "etapas": [
+    {
+      "desde": 0.02,
+      "hasta": 0.11,
+      "kicker": "Software a medida",
+      "titulo": "No es un sistema enlatado.",
+      "texto": "Lo construimos sobre cómo trabaja tu inmobiliaria, todos los días."
+    },
+    {
+      "desde": 0.11,
+      "hasta": 0.22,
+      "kicker": "Agentes de IA",
+      "titulo": "Ninguna consulta sin respuesta.",
+      "texto": "Atienden por WhatsApp, web y teléfono las 24 horas. Califican y agendan la visita."
+    },
+    {
+      "desde": 0.28,
+      "hasta": 0.38,
+      "kicker": "Web institucional",
+      "titulo": "Tu web, no una plantilla con tu logo.",
+      "texto": "Una identidad propia, a la altura de las propiedades que vendés."
+    },
+    {
+      "desde": 0.42,
+      "hasta": 0.56,
+      "kicker": "Datos centralizados",
+      "titulo": "Todo en un solo lugar.",
+      "texto": "Web, agentes y ERP trabajan sobre la misma base de datos."
+    },
+    {
+      "desde": 0.6,
+      "hasta": 0.76,
+      "kicker": "Tu equipo de ventas",
+      "titulo": "Vendedores que se miden y se forman.",
+      "texto": "Estadísticas de cada vendedor y formación con Areté Fuera de Serie, dentro del sistema."
+    },
+    {
+      "desde": 0.8,
+      "hasta": 0.95,
+      "kicker": "Escalar",
+      "titulo": "Lo que no se cuantifica no se puede escalar.",
+      "texto": "Números reales de tu operativa para decidir y crecer."
+    }
+  ],
+  "cuadro_estatico": 0.34,
+  "recorrido_vh": 900
+}

@@ -13,6 +13,7 @@ export const WA_MSG_GENERAL  = encodeURIComponent('Hola, quiero saber más sobre
 export const WA_MSG_METODO   = encodeURIComponent('Hola, me interesa saber más sobre Areté Soluciones');
 export const WA_MSG_SERVICIO = encodeURIComponent('Hola, me interesa el diagnóstico operativo de Areté Soluciones');
 export const WA_MSG_DIAGNOSTICO = encodeURIComponent('Hola, quiero saber más sobre el diagnóstico de Areté Soluciones');
+export const WA_MSG_INMOBILIARIAS = encodeURIComponent('Hola, quiero saber más sobre el sistema para inmobiliarias de Areté Soluciones');
 
 export function waUrl(msg: string = WA_MSG_GENERAL): string {
   return `https://wa.me/${WA_PHONE}?text=${msg}`;

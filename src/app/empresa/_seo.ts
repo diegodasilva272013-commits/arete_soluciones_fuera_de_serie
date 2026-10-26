@@ -65,6 +65,13 @@ export const SEO = {
     canonical:   `${SITE_URL}/empresa/agentes-ia`,
   },
 
+  inmobiliarias: {
+    title:       'Software a medida e inteligencia artificial para inmobiliarias',
+    description: 'Agentes de IA que atienden y agendan por WhatsApp, web y teléfono, web institucional, ERP, estadísticas y formación de vendedores. Hecho a medida de cómo trabaja tu inmobiliaria.',
+    h1:          'Software a medida para inmobiliarias',
+    canonical:   `${SITE_URL}/empresa/inmobiliarias`,
+  },
+
   metodologia: {
     title:       'Método de implementación en 6 etapas',
     description: 'Las seis etapas del método Areté: de la inmersión en la operación a la evolución continua del sistema.',
@@ -177,6 +184,7 @@ export const PUBLIC_ROUTES = [
   { path: '/empresa/servicios/crm-erp-a-medida',             priority: 0.85, changefreq: 'monthly'  },
   { path: '/empresa/servicios/automatizacion-de-procesos',   priority: 0.85, changefreq: 'monthly'  },
   { path: '/empresa/agentes-ia',                             priority: 0.8,  changefreq: 'monthly'  },
+  { path: '/empresa/inmobiliarias',                          priority: 0.85, changefreq: 'monthly'  },
   { path: '/empresa/metodologia',                            priority: 0.7,  changefreq: 'monthly'  },
   { path: '/empresa/nosotros',                               priority: 0.6,  changefreq: 'monthly'  },
   { path: '/empresa/resultados',                             priority: 0.65, changefreq: 'monthly'  },
